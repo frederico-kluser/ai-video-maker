@@ -1,0 +1,41 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "command": "python3 .agents/scripts/bash_guardrail.py \"${command}\"",
+        "description": "Block dangerous bash commands (allowlist-based: rm -rf /, rm -rf ~, sudo, secrets read)",
+        "onError": "block"
+      },
+      {
+        "matcher": "Write||Edit",
+        "pathPattern": "**/skills/**/SKILL.md",
+        "command": "python3 .agents/scripts/skill_write_gate.py \"${path}\"",
+        "description": "Block unvalidated SKILL.md writes — requires a green eval record",
+        "onError": "block"
+      },
+      {
+        "matcher": "Read",
+        "pathPattern": ".env||**/secrets/**||**/.env.*||**/credentials*||**/*.pem||**/id_rsa*",
+        "command": "exit 2",
+        "description": "Block reading .env, secrets, credentials, and private key files",
+        "onError": "block"
+      }
+    ],
+    "Stop": [
+      {
+        "command": "python3 .agents/scripts/stop_validation_gate.py",
+        "description": "Prevent Stop until all wave tasks are complete (wave barrier)",
+        "onError": "block"
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "command": "python3 .agents/scripts/calibration_nudge.py",
+        "description": "Reinject calibration rules C1, C2, C9, C12 on every message",
+        "onError": "ignore"
+      }
+    ]
+  }
+}
