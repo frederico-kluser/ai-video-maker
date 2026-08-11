@@ -161,3 +161,23 @@ skills:catalogo:
     git diff --exit-code .agents/skills/catalog.md || (echo "ERROR: catalog.md is out of date. Run 'just skills:catalogo' to regenerate." && exit 1)
 # Alias
 default: build
+
+# =============================================================================
+# Harness de determinismo — canário
+# =============================================================================
+
+# Prova de determinismo: renderiza o canário 2x e exige bytes idênticos
+det:provar:
+    bash tools/determinismo/provar.sh
+
+# Teste de mutação: injeta valor volátil e exige que o gate fique VERMELHO
+det:mutar:
+    bash tools/determinismo/mutar.sh
+
+# Teste de ausência: apaga snapshot aprovado e exige que o gate fique VERMELHO
+det:ausencia:
+    bash tools/determinismo/ausencia.sh
+
+# Roda todos os testes de determinismo (vitest)
+det:testar:
+    npx vitest run tests/harness/

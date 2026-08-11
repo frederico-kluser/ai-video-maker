@@ -17,11 +17,26 @@
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
-      "src/*": ["./src/*"]
+      "src/*": [
+        "./src/*"
+      ]
     },
     "outDir": "./dist",
     "rootDir": "."
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["node_modules", "dist", "output", ".remotion"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "fixtures/**/*.ts",
+    "fixtures/**/*.tsx",
+    "tests/**/*.ts",
+    "tests/**/*.tsx",
+    "tools/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "output",
+    ".remotion"
+  ]
 }

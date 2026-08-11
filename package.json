@@ -22,6 +22,8 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+"@remotion/bundler": "^4.0.507",
+    "@remotion/cli": "^4.0.507",
     "@types/node": "^26.2.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
