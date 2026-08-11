@@ -1,14 +1,11 @@
 # Catálogo de skills — Editor de Vídeo IA
 
 > **Arquivo GERADO** a partir do frontmatter de cada `SKILL.md`. Não edite à mão: regenere com
-> `python3 .agents/scripts/gerar_catalogo.py` (card `T-10`). Se este arquivo e os frontmatter
-> divergirem, **este** é o que está errado — ele é a representação derivada.
+> `python3 .agents/scripts/gerar-catalogo.py`. Se este arquivo e os frontmatter divergirem, **este** é o que está errado — ele é a representação derivada.
 
 ## Como rotear — dois níveis, obrigatório
 
-Este catálogo tem **20 skills**, acima do limiar (~15) em que roteamento por palavra-chave
-degrada. O `project-router` escolhe primeiro o **tier**, e só depois a skill dentro dele.
-Roteamento de um nível nesta escala erra, e erra em silêncio.
+Este catálogo tem **20 skills**, acima do limiar (~15) em que roteamento por palavra-chave degrada. O `project-router` escolhe primeiro o **tier**, e só depois a skill dentro dele. Roteamento de um nível nesta escala erra, e erra em silêncio.
 
 **As duas obrigatórias por classe de tarefa** — carregadas por regra, não por julgamento do agente:
 
@@ -21,46 +18,45 @@ Roteamento de um nível nesta escala erra, e erra em silêncio.
 
 | Skill | `type` | Carregue quando |
 |---|---|---|
-| [`project-router`](project-router/SKILL.md) | router | the user asks for any change, card, fix, feature, render, plan, analysis or refactor, even if the user never mentions skills, routing, waves or a card id |
+| [`project-router`](project-router/SKILL.md) | router | the user asks for any change, card, fix, feature, render, plan, analysis or r… |
 
 ## Método — como o programa é executado
 
 | Skill | `type` | Carregue quando |
 |---|---|---|
-| [`adversarial-review`](adversarial-review/SKILL.md) | knowledge | a diff, render, caption track, cache key, asset fetch or gate is about to be declared done, even if the user never says review, refutation or adversarial |
-| [`falsifiable-gates`](falsifiable-gates/SKILL.md) | knowledge | a task writes or reviews a done-criterion, a gate, a verifier, a hook or a CI step, even if the user never says "test" |
-| [`parallel-worktrees`](parallel-worktrees/SKILL.md) | knowledge | work is split across several agents, branches or checkouts at the same time, even if the user never says worktree, wave or barrier |
-| [`uncertainty-ledger`](uncertainty-ledger/SKILL.md) | knowledge | a task is about to assume something the current machine cannot prove, when a card needs new ledger ids while N worktrees run in parallel, when someone wants to mark an item confirmed, or when the closing script… |
-| [`video-characterization`](video-characterization/SKILL.md) | knowledge | a task captures, approves, compares, calibrates or retires a visual or audio baseline, or answers "how do we know this render did not regress", even if the user never says snapshot, golden master or characteriz… |
-| [`wave-planning`](wave-planning/SKILL.md) | knowledge | planning, numbering, widening, splitting or re-ordering waves of parallel cards, when deciding which wave a card belongs to, when inserting new work into an existing plan, or when writing or debugging the graph… |
+| [`adversarial-review`](adversarial-review/SKILL.md) | knowledge | a diff, render, caption track, cache key, asset fetch or gate is about to be … |
+| [`falsifiable-gates`](falsifiable-gates/SKILL.md) | knowledge | a task writes or reviews a done-criterion, a gate, a verifier, a hook or a CI… |
+| [`parallel-worktrees`](parallel-worktrees/SKILL.md) | knowledge | work is split across several agents, branches or checkouts at the same time, … |
+| [`uncertainty-ledger`](uncertainty-ledger/SKILL.md) | knowledge | a task is about to assume something the current machine cannot prove, when a … |
+| [`video-characterization`](video-characterization/SKILL.md) | knowledge | a task captures, approves, compares, calibrates or retires a visual or audio … |
+| [`wave-planning`](wave-planning/SKILL.md) | knowledge | planning, numbering, widening, splitting or re-ordering waves of parallel car… |
 
 ## Domínio — o que o programa constrói
 
 | Skill | `type` | Carregue quando |
 |---|---|---|
-| [`asset-acquisition`](asset-acquisition/SKILL.md) | knowledge | a task fetches, caches, references or credits any external media asset, even if the user never says "license", "attribution", "GIPHY", "Tenor" or "rate limit" |
-| [`audio-captions-sync`](audio-captions-sync/SKILL.md) | knowledge | a task touches narration timing, captions, subtitles, word highlighting, background music level, loudness, or "the audio is out of sync", even if the user doesn't mention whisper, DTW or ducking |
-| [`code-animation`](code-animation/SKILL.md) | knowledge | a task puts source code on screen, diffs two code states, types code out, highlights a snippet or picks a syntax theme, code font or highlight engine, even if the user never says Code Hike, Shiki or highlightin… |
-| [`ffmpeg-media-ops`](ffmpeg-media-ops/SKILL.md) | knowledge | a task shells out to ffmpeg or ffprobe, transcodes, concatenates, mixes, normalizes loudness, measures duration/fps/sample rate, or writes a reproducibility gate over a media file — even if the user doesn't men… |
-| [`llm-authoring`](llm-authoring/SKILL.md) | knowledge | code asks a model to emit, repair or extend a timeline manifest, prunes a JSON Schema before handing it to a model, budgets tokens or cost per iteration, or debugs a generated manifest that a validator or a ren… |
-| [`manim-bridge`](manim-bridge/SKILL.md) | knowledge | a Python process shells out to the manim CLI, whenever a scene asset has to reach a Remotion composition with transparency, and whenever a render "succeeds" without producing a file - even if the user never say… |
-| [`motion-design-system`](motion-design-system/SKILL.md) | knowledge | a task picks a duration, a colour, a size, a screen position, an easing curve or an audio level, even if the user never says "design system" |
-| [`remotion-core`](remotion-core/SKILL.md) | knowledge | authoring, generating or reviewing composition code, scene timing, animation curves or transitions, even if the user never says "Remotion" or "determinism" |
-| [`remotion-render-pipeline`](remotion-render-pipeline/SKILL.md) | knowledge | a task builds, tunes, parallelizes or budgets a video render, even if the user doesn't mention Remotion, NVENC, concurrency or ffmpeg |
-| [`timeline-manifest`](timeline-manifest/SKILL.md) | knowledge | a task reads, writes, generates, validates, versions or migrates the manifest, or adds a field that both sides consume, even if the user doesn't mention "schema" or "JSON" |
-| [`tts-voiceover`](tts-voiceover/SKILL.md) | knowledge | a task synthesizes speech, picks or swaps a voice provider, writes the voiceover cache key, tunes pauses or pronunciation, or decides whether forced alignment is needed |
+| [`asset-acquisition`](asset-acquisition/SKILL.md) | knowledge | a task fetches, caches, references or credits any external media asset, even … |
+| [`audio-captions-sync`](audio-captions-sync/SKILL.md) | knowledge | a task touches narration timing, captions, subtitles, word highlighting, back… |
+| [`code-animation`](code-animation/SKILL.md) | knowledge | a task puts source code on screen, diffs two code states, types code out, hig… |
+| [`ffmpeg-media-ops`](ffmpeg-media-ops/SKILL.md) | knowledge | a task shells out to ffmpeg or ffprobe, transcodes, concatenates, mixes, norm… |
+| [`llm-authoring`](llm-authoring/SKILL.md) | knowledge | code asks a model to emit, repair or extend a timeline manifest, prunes a JSO… |
+| [`manim-bridge`](manim-bridge/SKILL.md) | knowledge | a Python process shells out to the manim CLI, whenever a scene asset has to r… |
+| [`motion-design-system`](motion-design-system/SKILL.md) | knowledge | a task picks a duration, a colour, a size, a screen position, an easing curve… |
+| [`remotion-core`](remotion-core/SKILL.md) | knowledge | authoring, generating or reviewing composition code, scene timing, animation … |
+| [`remotion-render-pipeline`](remotion-render-pipeline/SKILL.md) | knowledge | a task builds, tunes, parallelizes or budgets a video render, even if the use… |
+| [`timeline-manifest`](timeline-manifest/SKILL.md) | knowledge | a task reads, writes, generates, validates, versions or migrates the manifest… |
+| [`tts-voiceover`](tts-voiceover/SKILL.md) | knowledge | a task synthesizes speech, picks or swaps a voice provider, writes the voiceo… |
 
 ## Meta — como a memória evolui
 
 | Skill | `type` | Carregue quando |
 |---|---|---|
-| [`meta-skill-consolidate`](meta-skill-consolidate/SKILL.md) | meta | a skill body crosses the line budget, a skill is added or retired, a description is edited, two skills answer the same query, or roughly 10 to 15 tasks completed since the last pass, even if the user never says… |
-| [`meta-skill-evolution`](meta-skill-evolution/SKILL.md) | meta | a card is being closed, whenever work produced a gotcha, a silent flag, a measured number or a refuted premise, whenever the router finds no skill for a domain, and whenever anyone is about to edit a SKILL.md —… |
+| [`meta-skill-consolidate`](meta-skill-consolidate/SKILL.md) | meta | a skill body crosses the line budget, a skill is added or retired, a descript… |
+| [`meta-skill-evolution`](meta-skill-evolution/SKILL.md) | meta | a card is being closed, whenever work produced a gotcha, a silent flag, a mea… |
 
 ## Índice de gatilhos
 
-Termo → skill. **Um termo reivindicado por duas skills é dívida de roteamento**, não redundância
-saudável: `meta-skill-consolidate` mede isso e propõe fusão.
+Termo → skill. **Um termo reivindicado por duas skills é dívida de roteamento**, não redundância saudável: `meta-skill-consolidate` mede isso e propõe fusão.
 
 Gatilhos declarados: **352** · ambíguos (2+ donos): **11** (3.1%)
 

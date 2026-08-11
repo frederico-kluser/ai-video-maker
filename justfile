@@ -69,5 +69,16 @@ install:
     npm install
     @echo "Python dependencies: run 'uv sync' or 'pip install -e .[dev]'"
 
+# Skills infrastructure
+skills:lint:
+    python3 .agents/scripts/skill_lint.py
+
+skills:test:
+    python3 .agents/scripts/skill_lint_selftest.py
+
+skills:catalogo:
+    python3 .agents/scripts/gerar-catalogo.py
+    git diff --exit-code .agents/skills/catalog.md || (echo "ERROR: catalog.md is out of date. Run 'just skills:catalogo' to regenerate." && exit 1)
+
 # Alias
 default: build
