@@ -1,0 +1,126 @@
+{
+  "schema_version": "ManifestoResolvido.1",
+  "hash_manifesto_original": "6e2bb95d297d95c8c535988ca22f51c045731d0bcb10a6b691296fc0fce1de3c",
+  "manifesto": {
+    "schema_version": "Manifesto.1",
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "nos": [
+      {
+        "id": "n-001",
+        "schema": "Cabecalho.1",
+        "type": "cabecalho",
+        "duracao_frames": 90,
+        "texto": "Fronteira de determinismo",
+        "alinhamento": "centro"
+      },
+      {
+        "id": "n-002",
+        "schema": "Midia.1",
+        "type": "midia",
+        "duracao_frames": 120,
+        "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "tipo_midia": "gif",
+        "ajuste": "cover",
+        "licenca": "CC0-1.0"
+      },
+      {
+        "id": "n-003",
+        "schema": "Codigo.1",
+        "type": "codigo",
+        "duracao_frames": 150,
+        "codigo": "const x = 1;",
+        "linguagem": "typescript"
+      }
+    ],
+    "cenas": [
+      {
+        "id": "c-001",
+        "nos": [
+          "n-001"
+        ]
+      },
+      {
+        "id": "c-002",
+        "nos": [
+          "n-002",
+          "n-003"
+        ]
+      }
+    ]
+  },
+  "assets": {
+    "955c9c2b6bb8a1e0c05c6f51ab4d4bf6ed46c5cb564391395d807b4c8ecffcbb": {
+      "hash": "955c9c2b6bb8a1e0c05c6f51ab4d4bf6ed46c5cb564391395d807b4c8ecffcbb",
+      "tipo": "audio",
+      "licenca": "Uso interno - TTS proprio",
+      "atribuicaoObrigatoria": false,
+      "provedor": "openai"
+    },
+    "2baab4b84602e1b086a56dea62eae0a634c5db02d4fad14a49d61f13760e366e": {
+      "hash": "2baab4b84602e1b086a56dea62eae0a634c5db02d4fad14a49d61f13760e366e",
+      "tipo": "gif",
+      "atribuicaoObrigatoria": false,
+      "provedor": "giphy"
+    },
+    "c7bf923643a9cd740c59d258c8e9b82c42c53edc5a4d5c4f64749c38a78b7379": {
+      "hash": "c7bf923643a9cd740c59d258c8e9b82c42c53edc5a4d5c4f64749c38a78b7379",
+      "tipo": "imagem",
+      "licenca": "MIT",
+      "atribuicaoObrigatoria": false,
+      "provedor": "local"
+    },
+    "af915bd170593f96770bd16d58e23b93b80ba37008444b69f313dc022315e664": {
+      "hash": "af915bd170593f96770bd16d58e23b93b80ba37008444b69f313dc022315e664",
+      "tipo": "audio",
+      "licenca": "Pixabay Content License",
+      "atribuicaoObrigatoria": false,
+      "provedor": "pixabay"
+    }
+  },
+  "nos_midia": {
+    "n-002": "2baab4b84602e1b086a56dea62eae0a634c5db02d4fad14a49d61f13760e366e"
+  },
+  "nos_locucao": {
+    "n-001": "955c9c2b6bb8a1e0c05c6f51ab4d4bf6ed46c5cb564391395d807b4c8ecffcbb"
+  },
+  "nos_grafico": {},
+  "nos_codigo": {
+    "n-003": "c7bf923643a9cd740c59d258c8e9b82c42c53edc5a4d5c4f64749c38a78b7379"
+  },
+  "nos_musica": {},
+  "trilha_sonora": "af915bd170593f96770bd16d58e23b93b80ba37008444b69f313dc022315e664",
+  "estagios": [
+    {
+      "estagio": "locucao",
+      "versaoEstagio": "1.0.0",
+      "chave": "eddb76ff13aa20e21e390068bd0b27584d554675921d38256c136d38b8e66cb6",
+      "origem": "cassete"
+    },
+    {
+      "estagio": "grafico",
+      "versaoEstagio": "1.0.0",
+      "chave": "257f9c029fc0d0a562817e92d9c07da1e544ce7d8c8431d9929c769aeb98c033",
+      "origem": "cassete"
+    },
+    {
+      "estagio": "midia",
+      "versaoEstagio": "1.0.0",
+      "chave": "2f2e04f5ffdc8fec404827e7889d43c4e5582ab565e5b4a73fc56cb1a3d3abe6",
+      "origem": "cassete"
+    },
+    {
+      "estagio": "codigo",
+      "versaoEstagio": "1.0.0",
+      "chave": "bafc95ef4faaa492f60ab9cd312a2a3ff19f9dbf5e7424ebe763b930cfa86c21",
+      "origem": "cassete"
+    },
+    {
+      "estagio": "musica",
+      "versaoEstagio": "1.0.0",
+      "chave": "ed7a4e3d09be3dc8bfafaaa119244307d0032bb22fceabb39344f2cc42a7540d",
+      "origem": "cassete"
+    }
+  ]
+}

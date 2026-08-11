@@ -223,3 +223,63 @@ comp-bundle:
 comp-gate: comp-pureza comp-unicidade comp-testar
     @echo "comp-gate: VERDE"
 # === fim F1-01 ===
+
+# === F2-01 ===
+# Resolucao — contrato de estagio, cassetes e orquestrador.
+# Dono: card F2-01. Nao edite fora destes marcadores.
+# Contrato para os cinco cards da W4: docs/contrato-estagio-resolucao.md
+#
+# NOME DAS RECEITAS — leia antes de reclamar que nao e `res:offline`.
+# O PROGRAMA.html escreve a aceitacao como `just res:offline`. Acontece que
+# `just` 1.42 NAO aceita `:` em nome de receita: `res:offline:` e lido como
+# receita `res` com dependencia `offline`, e o `:` final e erro de sintaxe.
+# O mesmo vale para `det:provar`, `ondas:gerar`, `skills:lint` e
+# `validar-grafo:selftest`, ja no arquivo — por isso o justfile inteiro nao
+# parseia hoje, em qualquer branch. F2-01 nao pode consertar as receitas dos
+# outros cards (regra da onda), entao usa hifen aqui e registrou o item de
+# ledger AB-284. Enquanto o arquivo nao parsear, os comandos equivalentes
+# rodam direto:
+#     bash tools/resolucao/offline.sh
+#     npx tsx tools/resolucao/regravar-e-diffar.ts
+#     bash tools/resolucao/sem-cassete.sh
+
+# `res:offline` do PROGRAMA. A suite inteira com a REDE BLOQUEADA
+# (namespace de rede do kernel + guarda em processo).
+# --estagio <nome> restringe a um estagio (usado por F2-02..F2-06).
+res-offline *args:
+    bash tools/resolucao/offline.sh {{args}}
+
+# `res:cassete` do PROGRAMA. Regrava um cassete e diffa: qualquer diferenca
+# nao explicada refuta o determinismo. Inclui sonda negativa — muta o
+# resultado e exige que o diff fique VERMELHO.
+res-cassete *args:
+    npx tsx tools/resolucao/regravar-e-diffar.ts {{args}}
+
+# `res:chave` do PROGRAMA. Muda um componente da chave por vez e exige
+# cache miss em cada (C12).
+res-chave *args:
+    npx tsx tools/resolucao/chave.ts {{args}}
+
+# ∅-crit: prova que um estagio SEM cassete derruba res-offline.
+# Injeta um estagio de mentira, exige VERMELHO pelo motivo certo, remove,
+# exige VERDE.
+res-sem-cassete:
+    bash tools/resolucao/sem-cassete.sh
+
+# Cobertura de cassetes: todo estagio descoberto em
+# src/resolucao/<nome>/estagio.ts tem de ter cassete. Inclui autoteste do
+# proprio verificador (C2).
+res-cobertura *args:
+    npx tsx tools/resolucao/cobertura.ts {{args}}
+
+# Sonda de rede isolada. camada = kernel | processo
+res-sonda camada="processo":
+    npx tsx tools/resolucao/sonda-rede.ts --camada {{camada}}
+
+# Schema do manifesto resolvido: prova que uma URL e impossivel pelo schema.
+res-schema:
+    python3 -m pytest tests/resolucao/test_schema_resolvido.py -q
+
+# Tudo do card F2-01, em ordem.
+res-tudo: res-offline res-cassete res-sem-cassete
+# === fim F2-01 ===

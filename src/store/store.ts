@@ -29,6 +29,9 @@ import type { Procedencia } from "./procedencia.js";
 // Reexportado para que store.ts seja a fachada unica do store: quem consome o
 // Store consome tambem o tipo de procedencia, sem precisar saber que ele mora
 // num modulo vizinho. CacheKey e PutResult ja sao exportados daqui abaixo.
+// tests/store/store.test.ts ja importava Procedencia daqui, e o modulo so a
+// declarava localmente -- o que derrubava tsc, e com ele build, lint e
+// typecheck. Correcao aditiva; nenhum comportamento muda.
 export type { Procedencia };
 
 // ─── Constantes ────────────────────────────────────────────────────────────────

@@ -72,6 +72,25 @@ descobriu nao chega a voce.
 Componentes de no, estagios de resolucao e perfis de encode sao descobertos
 pelo caminho e nome no disco. Nao existe arquivo de registro central.
 
+Para estagios de resolucao a convencao e `src/resolucao/<nome>/estagio.ts`
+com `export default`. Um estagio descoberto no disco e SEM cassete derruba
+`res-offline` -- nunca e pulado em silencio.
+
+### Regra 7: Estagio de resolucao segue o contrato escrito
+
+Antes de implementar qualquer estagio de resolucao (locucao, grafico,
+midia, codigo, musica), leia:
+
+- `docs/contrato-estagio-resolucao.md` -- assinatura, formato de cassete,
+  campos obrigatorios de `procedencia.json` (inclusive `licenca`),
+  comandos de aceitacao e checklist de fechamento
+- `docs/adr/0006-contrato-de-estagio-e-cassete.md` -- por que cada decisao
+- `fixtures/resolucao/estagio-referencia/estagio.ts` -- template copiavel
+
+O que nao se negocia: `licenca` nao-vazia na procedencia, nenhuma URL no
+manifesto resolvido, `identidade.versao` bumpada quando `resolver()` muda,
+e `entrada.fetch` em vez de `globalThis.fetch`.
+
 ## As 12 ferramentas que mentem (C1-C12)
 
 Estes modos de falha afetam este projeto especificamente. Todos falham em
@@ -142,3 +161,4 @@ silencio, com sinal positivo.
 - Convencoes de codigo -- ver `convencoes.md`
 - Estrutura de diretorios -- ver `estrutura.md`
 - O plano completo de execucao -- ver `PROGRAMA.html`
+- Contrato de estagio de resolucao -- ver `docs/contrato-estagio-resolucao.md`

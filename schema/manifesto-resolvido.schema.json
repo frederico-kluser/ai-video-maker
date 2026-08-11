@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-video-maker/schema/manifesto-resolvido.schema.json",
+  "title": "Manifesto Resolvido",
+  "description": "O artefato que atravessa a fronteira de determinismo. Extensao do manifesto com assets endereçados por SHA-256. Duas coisas sao IMPOSSIVEIS aqui, pelo schema e nao por convencao: (a) URL, em qualquer profundidade, valor ou nome de propriedade -- ver $defs.SemURLProfundo, aplicado ao documento inteiro via allOf; (b) tempo de parede -- nao existe campo de timestamp neste schema, e additionalProperties:false impede criar um. Ver AGENTS.md C7 e C9.",
+  "type": "object",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "$ref": "#/$defs/SemURLProfundo",
+      "description": "Guarda C7: proibe URL em qualquer profundidade do documento, inclusive dentro do manifesto embutido, tanto em valores quanto em nomes de propriedade."
+    }
+  ],
+  "required": [
+    "schema_version",
+    "hash_manifesto_original",
+    "manifesto",
+    "assets",
+    "nos_midia",
+    "nos_locucao",
+    "nos_grafico",
+    "nos_codigo",
+    "nos_musica",
+    "trilha_sonora",
+    "estagios"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "ManifestoResolvido.1"
+    },
+    "hash_manifesto_original": {
+      "$ref": "#/$defs/Sha256",
+      "description": "SHA-256 do JSON canonico do manifesto original."
+    },
+    "manifesto": {
+      "$ref": "./manifesto.schema.json",
+      "description": "Copia integra do manifesto original."
+    },
+    "assets": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/Sha256" },
+      "additionalProperties": { "$ref": "#/$defs/AssetResolvido" },
+      "description": "Mapa hash SHA-256 -> metadados do asset."
+    },
+    "nos_midia": { "$ref": "#/$defs/MapaDeNo" },
+    "nos_locucao": { "$ref": "#/$defs/MapaDeNo" },
+    "nos_grafico": { "$ref": "#/$defs/MapaDeNo" },
+    "nos_codigo": { "$ref": "#/$defs/MapaDeNo" },
+    "nos_musica": { "$ref": "#/$defs/MapaDeNo" },
+    "trilha_sonora": {
+      "oneOf": [{ "$ref": "#/$defs/Sha256" }, { "type": "null" }],
+      "description": "Hash da trilha sonora do video, ou null."
+    },
+    "estagios": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/RegistroEstagio" },
+      "description": "Um registro por estagio de resolucao que participou. Sem relogio: ver C9."
+    }
+  },
+  "$defs": {
+    "Sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 em hexadecimal minusculo."
+    },
+    "MapaDeNo": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/Sha256" },
+      "description": "Mapa NodeId -> hash do asset resolvido. O valor e sempre hash, nunca caminho nem URL."
+    },
+    "TextoSemURL": {
+      "type": "string",
+      "minLength": 1,
+      "not": {
+        "pattern": "://|^//|^www\\."
+      },
+      "description": "Texto livre que nao pode conter URL. Uma licenca e 'CC BY 4.0', nao o endereco onde a licenca esta publicada."
+    },
+    "SemURLProfundo": {
+      "$comment": "Recursivo: para cada valor do documento, se for string proibe URL; se for array, aplica-se a cada item; se for objeto, aplica-se a cada valor E proibe URL nos nomes de propriedade. Assim nao existe caminho, por mais fundo, em que uma URL possa entrar.",
+      "if": { "type": "string" },
+      "then": { "not": { "pattern": "://|^//" } },
+      "else": {
+        "if": { "type": "array" },
+        "then": { "items": { "$ref": "#/$defs/SemURLProfundo" } },
+        "else": {
+          "if": { "type": "object" },
+          "then": {
+            "propertyNames": { "not": { "pattern": "://|^//" } },
+            "additionalProperties": { "$ref": "#/$defs/SemURLProfundo" }
+          },
+          "else": true
+        }
+      }
+    },
+    "AssetResolvido": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hash",
+        "tipo",
+        "licenca",
+        "atribuicaoObrigatoria",
+        "provedor"
+      ],
+      "properties": {
+        "hash": { "$ref": "#/$defs/Sha256" },
+        "tipo": {
+          "type": "string",
+          "enum": ["audio", "imagem", "video", "gif", "dados"]
+        },
+        "mimeType": {
+          "$ref": "#/$defs/TextoSemURL",
+          "description": "MIME type do arquivo."
+        },
+        "byteSize": { "type": "integer", "minimum": 0 },
+        "duracaoSegundos": { "type": "number", "minimum": 0 },
+        "largura": { "type": "integer", "minimum": 0 },
+        "altura": { "type": "integer", "minimum": 0 },
+        "licenca": {
+          "$ref": "#/$defs/TextoSemURL",
+          "description": "Licenca do asset. Obrigatoria, nao-vazia e nunca uma URL."
+        },
+        "atribuicaoObrigatoria": { "type": "boolean" },
+        "atribuicao": {
+          "$ref": "#/$defs/TextoSemURL",
+          "description": "Texto de atribuicao exigido pela licenca."
+        },
+        "provedor": {
+          "$ref": "#/$defs/TextoSemURL",
+          "description": "Identificador do fornecedor. Identificador, nao endereco."
+        }
+      }
+    },
+    "RegistroEstagio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["estagio", "versaoEstagio", "chave", "origem"],
+      "properties": {
+        "estagio": {
+          "type": "string",
+          "enum": ["locucao", "grafico", "midia", "codigo", "musica"]
+        },
+        "versaoEstagio": {
+          "$ref": "#/$defs/TextoSemURL",
+          "description": "Versao do estagio que produziu o resultado. Entra na chave de cache (C12)."
+        },
+        "chave": {
+          "$ref": "#/$defs/Sha256",
+          "description": "Chave de cache -- tambem o nome do diretorio do cassete."
+        },
+        "origem": {
+          "type": "string",
+          "enum": ["cassete", "gravacao"],
+          "description": "Se o resultado foi reproduzido de um cassete ou recem-gravado."
+        }
+      }
+    }
+  }
+}

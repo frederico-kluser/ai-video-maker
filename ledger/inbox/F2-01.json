@@ -1,0 +1,153 @@
+[
+  {
+    "id": "AB-280",
+    "titulo": "Cassete versionado no git nao tem limite de tamanho definido",
+    "pergunta": "Qual o tamanho maximo aceitavel de um diretorio de cassete versionado no repositorio, e o que acontece quando um estagio precisa gravar um asset maior que isso?",
+    "por_que_aberto": "O formato do cassete (ADR-0006, D4) grava os corpos das respostas em fixtures/cassetes/<nome>/<chave>/corpos/<sha256>. Para locucao (audio WAV) e midia (GIF/video) isso pode passar de dezenas de MB por cassete, e o git nao esquece: um blob grande commitado uma vez pesa em todo clone para sempre. F2-01 entregou o formato sem definir teto porque nenhum estagio real existe ainda — os cinco chegam na W4. Definir o teto agora seria chutar; descobrir depois de 200 MB commitados seria caro.",
+    "decisao_provisoria": "Sem teto imposto por ferramenta. Os corpos sao deduplicados por SHA-256 dentro de cada cassete. Se o problema aparecer, a saida ja desenhada e mover corpos para o store de conteudo (F0-07) e deixar no cassete apenas o hash, sem mudar o contrato de estagio.",
+    "verificacao": {
+      "cmd": "du -sh fixtures/cassetes 2>/dev/null || echo '0 (nenhum cassete gravado ainda)'",
+      "espera": "Total abaixo de 100 MB. Acima disso, migrar corpos para o store antes do merge da W4.",
+      "ambiente": "worktree local, apos os cinco cards da W4 gravarem seus cassetes"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Repositorio inflado de forma irreversivel; clone lento para todo agente das ondas seguintes; possivel estouro de limite do host de git.",
+      "artefatos": [
+        "fixtures/cassetes/**",
+        "src/resolucao/cassete/gravador.ts",
+        "docs/adr/0006-contrato-de-estagio-e-cassete.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-281",
+    "titulo": "Camada externa do bloqueio de rede depende de unshare --net, que nao existe em todo ambiente",
+    "pergunta": "Quando 'unshare --map-root-user --net' nao esta disponivel, res-offline deve ficar VERMELHO por nao conseguir provar o bloqueio, ou AMARELO com a camada interna apenas?",
+    "por_que_aberto": "O bloqueio de rede tem duas camadas (ADR-0006, D7): namespace do kernel por fora, guarda em processo por dentro. So a externa cobre subprocesso. Em macOS e em parte dos runners de CI, user namespaces nao estao disponiveis, e a prova cai para a camada interna. Hoje o script avisa em voz alta, marca a sonda de kernel como NAO-EXERCITADA e segue. Se essa e a politica certa e decisao de quem opera o CI, nao de quem escreveu o script.",
+    "decisao_provisoria": "Sem unshare, res-offline imprime aviso explicito, registra a sonda de kernel como NAO-EXERCITADA e continua com a camada em processo. Nao finge que rodou completo, e nao reprova. O card F2-07 (W5), dono de tools/offline-guard.*, revisita isto com o guarda completo.",
+    "verificacao": {
+      "cmd": "unshare --map-root-user --net -- true && echo 'namespace disponivel' || echo 'namespace AUSENTE'",
+      "espera": "'namespace disponivel' na maquina de referencia e no runner de CI escolhido",
+      "ambiente": "maquina do dono e runner de CI"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um estagio que chame a rede via subprocesso (curl, ffmpeg com URL, yt-dlp) passa despercebido no CI, e a suite offline vira verde por ausencia de teste em vez de por bloqueio.",
+      "artefatos": [
+        "tools/resolucao/offline.sh",
+        "tools/resolucao/sonda-rede.ts",
+        "src/resolucao/rede/bloqueio.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-282",
+    "titulo": "Nao existe ferramenta de regravacao em massa de cassetes apos bump de versao do contrato",
+    "pergunta": "Quem regrava os cassetes dos cinco estagios quando VERSAO_CONTRATO muda, e com que orcamento de chamadas pagas a provedores externos?",
+    "por_que_aberto": "A chave de cache inclui versaoContrato (ADR-0006, D3), de proposito: mudar a semantica do contrato invalida todos os cassetes de uma vez. O efeito colateral e que um bump obriga a regravar cinco estagios a mao, cada um com rede e credencial, e cada gravacao custa chamadas reais de TTS, busca de midia e download. F2-01 nao escreveu o comando de regravacao em lote porque nao ha estagio real para exercita-lo.",
+    "decisao_provisoria": "Regravacao manual, um estagio por vez, com 'modo: gravacao' no orquestrador. Bump de VERSAO_CONTRATO exige aviso no handoff do card que o faz, listando os cassetes invalidados.",
+    "verificacao": {
+      "cmd": "grep -rn 'VERSAO_CONTRATO' src/resolucao/contrato.ts && ls fixtures/cassetes 2>/dev/null | wc -l",
+      "espera": "A versao do contrato bate com a gravada em cassete.json de todo cassete existente",
+      "ambiente": "worktree local, apos a W4"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um bump de contrato deixa a suite offline vermelha sem caminho de conserto automatico, e a pressa de destravar leva alguem a relaxar o ∅-crit.",
+      "artefatos": [
+        "src/resolucao/contrato.ts",
+        "src/resolucao/orquestrador.ts",
+        "fixtures/cassetes/**"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "agentes-worktrees",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-283",
+    "titulo": "Corpos de resposta nao sao deduplicados entre cassetes de estagios diferentes",
+    "pergunta": "Dois estagios que baixam o mesmo byte devem compartilhar um unico corpo no store, ou cada cassete deve continuar auto-contido?",
+    "por_que_aberto": "A deduplicacao por SHA-256 hoje acontece dentro de um cassete, nao entre cassetes. O mesmo GIF baixado por midia e por musica ocupa dois lugares no repositorio. Compartilhar economiza espaco mas quebra a propriedade de cassete auto-contido: apagar um cassete passaria a poder quebrar outro, e o replay deixaria de ser local.",
+    "decisao_provisoria": "Cassete auto-contido. A duplicacao entre estagios e aceita em troca de replay local e remocao segura. Reavaliar se AB-280 mostrar que o tamanho e problema real.",
+    "verificacao": {
+      "cmd": "find fixtures/cassetes -path '*/corpos/*' -type f -exec sha256sum {} + 2>/dev/null | awk '{print $1}' | sort | uniq -d | wc -l",
+      "espera": "Numero de corpos duplicados entre cassetes; acima de 20 justifica revisitar a decisao",
+      "ambiente": "worktree local, apos a W4"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a duplicacao crescer sem controle, o repositorio infla; se o compartilhamento for adotado sem cuidado, apagar um cassete quebra o replay de outro em silencio.",
+      "artefatos": [
+        "src/resolucao/cassete/formato.ts",
+        "src/resolucao/cassete/gravador.ts",
+        "fixtures/cassetes/**"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-284",
+    "titulo": "O justfile do repositorio nao parseia: just 1.42 recusa ':' em nome de receita",
+    "pergunta": "O repositorio adota nome de receita com hifen (res-offline, det-provar) ou modulos do just (just res offline), e quem faz a migracao das receitas ja escritas?",
+    "por_que_aberto": "O PROGRAMA.html descreve as aceitacoes como 'just res:offline', 'just det:provar', 'just skills:lint'. O just 1.42.4 nao aceita ':' em nome de receita: 'res:offline:' e lido como receita 'res' com dependencia 'offline', e o ':' final e erro de sintaxe. O arquivo ja contem cinco receitas nesse formato (validar-grafo:selftest, ondas:gerar, prompt:card, skills:*, det:*), vindas de F0-01, F0-06 e F0-08, e por causa delas o justfile inteiro falha ao parsear em qualquer branch — nenhuma receita roda, nem 'just test'. F2-01 nao pode consertar receita de outro card (regra da onda) e usou hifen no proprio bloco.",
+    "decisao_provisoria": "O bloco de F2-01 usa hifen (res-offline, res-cassete, res-chave, res-sem-cassete, res-cobertura, res-sonda, res-schema, res-tudo) e esta sintaticamente valido em isolamento. Enquanto o arquivo nao parsear, as aceitacoes rodam pelos scripts diretos: bash tools/resolucao/offline.sh, npx tsx tools/resolucao/regravar-e-diffar.ts, bash tools/resolucao/sem-cassete.sh.",
+    "verificacao": {
+      "cmd": "just --list >/dev/null 2>&1 && echo 'justfile parseia' || echo 'justfile NAO parseia'",
+      "espera": "'justfile parseia' apos a migracao dos nomes de receita",
+      "ambiente": "worktree local, just 1.42.4"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Toda aceitacao escrita como 'just <algo>:<algo>' e inexecutavel; cards fecham reportando comandos que nunca rodaram, e o gate perde a etapa inteira sem ficar vermelho.",
+      "artefatos": [
+        "justfile",
+        "PROGRAMA.html",
+        "tools/gate.sh",
+        "docs/contrato-estagio-resolucao.md"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "agentes-worktrees",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-285",
+    "titulo": "Testes Python nomeados *_test.py nunca sao coletados: o pytest do projeto so casa test_*.py",
+    "pergunta": "O projeto padroniza test_*.py (o que o pyproject.toml ja configura) ou *_test.py (o que os arquivos existentes usam), e quem renomeia os que ficaram de fora?",
+    "por_que_aberto": "O pyproject.toml define python_files = [\"test_*.py\"], mas os testes Python escritos ate agora se chamam validar_manifesto_test.py, verificar_selftest.py e similares. O resultado e que 'python3 -m pytest tests/' coletava ZERO itens neste worktree, e a etapa 'test' do gate saia com exit 5 (nenhum teste coletado) sem que ninguem percebesse que os testes de contrato do F0-02 nunca rodaram. F2-01 nomeou o proprio teste como test_schema_resolvido.py para ser coletado, o que por si so ja levou a etapa a PASS — mas os arquivos antigos continuam invisiveis. Corrigir os nomes alheios ou mexer no pyproject.toml (singleton S-2) esta fora do escopo deste card.",
+    "decisao_provisoria": "Novos testes Python usam o prefixo test_ (test_<assunto>.py), que e o unico padrao que o runner enxerga. Os arquivos ja escritos com sufixo _test.py permanecem nao-coletados ate alguem decidir renomea-los ou ampliar python_files no pyproject.toml.",
+    "verificacao": {
+      "cmd": "python3 -m pytest tests/ --collect-only -q 2>&1 | tail -3 && ls tests/**/*_test.py 2>/dev/null | wc -l",
+      "espera": "Numero de testes coletados igual ao numero de arquivos de teste Python existentes; hoje ha arquivos *_test.py que nao aparecem na coleta",
+      "ambiente": "worktree local, pytest 9.0.3"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Testes escritos, revisados e citados em handoff que nunca executaram; a etapa 'test' do gate confirma um verde que nao cobre o que se pensa cobrir.",
+      "artefatos": [
+        "pyproject.toml",
+        "tests/contratos/validar_manifesto_test.py",
+        "tools/gate.sh"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "agentes-worktrees",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]

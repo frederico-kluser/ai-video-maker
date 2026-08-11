@@ -10,5 +10,8 @@ export default defineConfig({
   test: {
     include: ["tests/**/*.test.ts"],
     globals: false,
+    // Guarda de rede em processo, ligado antes de qualquer teste.
+    // Ver tests/setup/rede-bloqueada.ts e src/resolucao/rede/bloqueio.ts.
+    setupFiles: ["./tests/setup/rede-bloqueada.ts"],
   },
 });
