@@ -22,11 +22,12 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@types/node": "^26.2.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "remotion": "4.0.507",
-    "typescript": "~5.9.0",
     "tsx": "^4.19.0",
+    "typescript": "~5.9.0",
     "vitest": "^3.0.0"
   }
 }
