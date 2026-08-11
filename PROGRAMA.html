@@ -722,236 +722,418 @@ I   Trilha de infra           ← exige humano, credencial, cartão ou máquina
         <table class="table table-sm table-hover align-middle">
           <thead>
             <tr>
-              <th scope="col">Card</th><th scope="col">deps</th><th scope="col">disc.</th>
+              <th scope="col">Card</th><th scope="col">Onda · deps · disc.</th>
               <th scope="col">Título</th><th scope="col">Dono de</th>
+              <th scope="col">Aceitação</th><th scope="col">refuta</th>
             </tr>
           </thead>
           <tbody>
 
-            <tr class="table-active"><th colspan="5" scope="colgroup">🔵 W0 — raiz · 2 cards · entrega vocabulário, não funcionalidade</th></tr>
-            <tr><th scope="row">🔴 <code>F0-01</code></th><td>—</td><td>tdd</td>
+            <tr class="table-active"><th colspan="6" scope="colgroup">🔵 W0 — raiz · 2 cards · entrega vocabulário, não funcionalidade</th></tr>
+            <tr><th scope="row">🔴 <code>F0-01</code></th>
+              <td class="text-nowrap"><code>W0</code><br><span class="small">deps: —</span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Vocabulário, convenções e o contrato de card</td>
-              <td><code>docs/vocabulario.md</code> · <code>convencoes.md</code> · <code>estrutura.md</code> · <code>AGENTS.md</code> · ADR-0001, ADR-0002</td></tr>
-            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>T-01</code></th><td>—</td><td>tdd</td>
+              <td class="small"><code>docs/vocabulario.md</code> · <code>convencoes.md</code> · <code>estrutura.md</code> · <code>AGENTS.md</code> · ADR-0001, ADR-0002</td>
+              <td class="small"><code>python3 tools/lint-vocabulario.py</code> — falha se um termo do glossário aparece em outro doc com grafia divergente ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> <code>rg -L "^## O que este documento NÃO cobre" docs/*.md</code> → <strong>saída vazia</strong></td>
+              <td class="small text-body-secondary"><em>(1)</em> O glossário define "cassete" e "snapshot" de forma que alguém consiga confundi-los? Escreva a frase que os separa. <em>(2)</em> A convenção de hash inclui <strong>tudo</strong> que muda a saída? Nomeie um parâmetro que mudaria o resultado e não está na chave. <em>(3)</em> O ADR-0001 tem guarda executável, ou é uma intenção?</td></tr>
+            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>T-01</code></th>
+              <td class="text-nowrap"><code>W0</code><br><span class="small">deps: —</span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Esqueleto do repositório e fixação da toolchain</td>
-              <td><code>package.json</code> · lockfiles · <code>tsconfig</code> · <code>pyproject</code> · <code>.gitignore</code> · <code>justfile</code></td></tr>
-
-            <tr class="table-active"><th colspan="5" scope="colgroup">🟠 W0.5 — infra · sem worktree, no branch de integração</th></tr>
-            <tr><th scope="row">🟡 <code>I-01</code></th><td>—</td><td>—</td>
+              <td class="small"><code>package.json</code> · lockfiles · <code>tsconfig</code> · <code>pyproject</code> · <code>.gitignore</code> · <code>justfile</code></td>
+              <td class="small"><code>just build</code> → exit 0 com a solução vazia ·<br><code>just versoes</code> imprime as versões e <strong>falha</strong> se alguma divergir do pinado ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> <code>git status --porcelain</code> após <code>just build</code> → <strong>saída vazia</strong> (nenhum artefato de build escapou do <code>.gitignore</code>)</td>
+              <td class="small text-body-secondary"><em>(1)</em> O <code>.gitignore</code> bloqueia mesmo o diretório do store, ou só o caminho relativo? Teste com um symlink. <em>(2)</em> <code>just build</code> passaria com o <code>src/</code> vazio? Se sim, não prova nada — adicione um alvo que falhe por ausência. <em>(3)</em> A versão do navegador está fixada, ou o gerenciador baixa "a mais recente"?</td></tr>
+            <tr class="table-active"><th colspan="6" scope="colgroup">🟠 W0.5 — infra · sem worktree, no branch de integração</th></tr>
+            <tr><th scope="row">🟡 <code>I-01</code></th>
+              <td class="text-nowrap"><code>W0.5</code><br><span class="small">deps: —</span><br><span class="small text-body-secondary">—</span></td>
               <td>Enquadramento de uso — <strong>RESPONDIDO: uso pessoal</strong>. Desbloqueia <code>F2-04</code>, <code>F2-06</code>, <code>F5-06</code></td>
-              <td><code>docs/adr/0003-enquadramento-de-uso.md</code></td></tr>
-
-            <tr class="table-active"><th colspan="5" scope="colgroup">🔵 W1 — fan-out da raiz · 8 cards · os quatro contratos e as quatro ferramentas</th></tr>
-            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F0-02</code></th><td><code>F0-01</code> <code>T-01</code></td><td>tdd</td>
+              <td class="small"><code>docs/adr/0003-enquadramento-de-uso.md</code></td>
+              <td class="small"><code><span class="badge text-bg-danger">∅-crit</span></code> <code>rg -L "condição de escopo" docs/adr/0003-*.md</code> → <strong>saída vazia</strong> ·<br><code>python3 tools/validate-ledger.py --id AB-950 --exigir-gatilho</code> — o item de escopo existe e declara o evento que o reabre</td>
+              <td class="small text-body-secondary"><em>(1)</em> O ADR registra a decisão <strong>sem</strong> a condição de escopo? Então ele autoriza mais do que foi decidido. <em>(2)</em> Algum card assume "pode publicar" a partir daqui? A decisão é sobre <strong>uso</strong>, não sobre publicação — <code>F6-01</code> e <code>I-04</code> continuam existindo. <em>(3)</em> O gatilho de reabertura é verificável, ou é uma nota que ninguém vai reler?</td></tr>
+            <tr class="table-active"><th colspan="6" scope="colgroup">🔵 W1 — fan-out da raiz · 8 cards · os quatro contratos e as quatro ferramentas</th></tr>
+            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F0-02</code></th>
+              <td class="text-nowrap"><code>W1</code><br><span class="small">deps: <code>F0-01</code> <code>T-01</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Contrato do manifesto: schema e geração cross-language <span class="badge text-bg-info">hub 6</span></td>
-              <td><code>schema/**</code> · <code>src/contratos/manifesto.*</code> · <code>tests/contratos/**</code></td></tr>
-            <tr><th scope="row">🔴 <code>F0-03</code></th><td><code>F0-01</code> <code>T-01</code></td><td>tdd</td>
+              <td class="small"><code>schema/**</code> · <code>src/contratos/manifesto.*</code> · <code>tests/contratos/**</code></td>
+              <td class="small"><code>just contrato:gerar &amp;&amp; git diff --exit-code src/contratos/</code> — prova que o gerado está commitado e é reprodutível ·<br><code>just contrato:testar</code> — os dois lados aceitam a mesma fixture válida e <strong>rejeitam</strong> as 12 fixtures inválidas ·<br><code>just contrato:subset</code> — o schema-para-o-LLM <strong>não contém nenhuma chave fora do subset aceito</strong>, verificado por lista, e o schema-de-validação <strong>contém</strong> as invariantes que o outro não pode ter ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> <code>rg -L '"additionalProperties": false' schema/*.json</code> → vazio</td>
+              <td class="small text-body-secondary"><em>(1)</em> O schema aceita um manifesto com campo desconhecido? Prove com uma fixture. <em>(2)</em> Um tipo de nó novo pode ser adicionado sem tocar em nenhum outro <code>$def</code>? Se não, a união não está discriminada. <em>(3)</em> A unidade de tempo escolhida sobrevive a uma mudança de fps? Escreva o teste. <em>(4)</em> O gerador roda offline? <em>(5)</em> <strong>O schema-para-o-LLM tem alguma chave que o subset rejeita?</strong> Um schema com feature não suportada é recusado <strong>antes da inferência</strong>, com 400 — o custo do erro é o pipeline inteiro parar na primeira chamada.</td></tr>
+            <tr><th scope="row">🔴 <code>F0-03</code></th>
+              <td class="text-nowrap"><code>W1</code><br><span class="small">deps: <code>F0-01</code> <code>T-01</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Ledger de incerteza: schema, validador, faixas e inbox</td>
-              <td><code>ledger/**</code> · <code>tools/validate-ledger.py</code> · <code>tools/consolidar-ledger.py</code></td></tr>
-            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F0-04</code></th><td><code>F0-01</code> <code>T-01</code></td><td>tdd</td>
+              <td class="small"><code>ledger/**</code> · <code>tools/validate-ledger.py</code> · <code>tools/consolidar-ledger.py</code></td>
+              <td class="small"><code>python3 tools/validate-ledger.py</code> → exit 0 com o ledger vazio ·<br><code>python3 tools/validate-ledger_selftest.py</code> → <strong>asserta a mensagem</strong> de cada uma das 9 mutações, não o exit code ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> um item fechado com evidência <code>"ok"</code> <strong>tem de</strong> falhar — e o autoteste prova isso</td>
+              <td class="small text-body-secondary"><em>(1)</em> A ferramenta estreia no dia do fechamento? Se ela não roda hoje no gate, sim. <em>(2)</em> Duas worktrees escrevendo inbox ao mesmo tempo conflitam? <em>(3)</em> A lista negra pega <code>"OK"</code>, <code>" ok "</code> e <code>"Ok."</code>? <em>(4)</em> Um id reciclado é aceito?</td></tr>
+            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F0-04</code></th>
+              <td class="text-nowrap"><code>W1</code><br><span class="small">deps: <code>F0-01</code> <code>T-01</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Tokens de design em código <span class="badge text-bg-info">hub 10</span></td>
-              <td><code>src/design/tokens.ts</code> · <code>tokens.py</code> (gerado) · <code>tests/design/**</code></td></tr>
-            <tr><th scope="row">🟡 <code>F0-05</code></th><td><code>F0-01</code></td><td>—</td>
+              <td class="small"><code>src/design/tokens.ts</code> · <code>tokens.py</code> (gerado) · <code>tests/design/**</code></td>
+              <td class="small"><code>just design:testar</code> — verifica contraste de cada par de cor por cálculo e falha abaixo do mínimo ·<br><code>just design:gerar &amp;&amp; git diff --exit-code src/design/tokens.py</code> ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> <code>just design:varrer</code> procura literal de token fora de <code>src/design/</code> em <strong>todo</strong> o repositório e falha se achar — com o repositório vazio ela passa, e é por isso que ela roda desde hoje</td>
+              <td class="small text-body-secondary"><em>(1)</em> Algum número entrou sem fonte? Liste-os. <em>(2)</em> A varredura pegaria <code>#0A0A0A</code> escrito como <code>rgb(10,10,10)</code>? Se não, ela é decorativa. <em>(3)</em> O limite de flash é verificável por um teste, ou é prosa? <em>(4)</em> Os dois arquivos de token podem divergir sem nada ficar vermelho?</td></tr>
+            <tr><th scope="row">🟡 <code>F0-05</code></th>
+              <td class="text-nowrap"><code>W1</code><br><span class="small">deps: <code>F0-01</code></span><br><span class="small text-body-secondary">—</span></td>
               <td>Inventário de reuso do 3blue1brown, <strong>por call-site</strong></td>
-              <td><code>docs/reuso-3b1b.md</code> · ADR-0004</td></tr>
-            <tr><th scope="row">🔴 <code>T-02</code></th><td><code>F0-01</code> <code>T-01</code></td><td>tdd</td>
+              <td class="small"><code>docs/reuso-3b1b.md</code> · ADR-0004</td>
+              <td class="small"><code><span class="badge text-bg-danger">∅-crit</span></code> <code>rg -L "call-sites:" docs/reuso-3b1b.md</code> → vazio (toda linha de "absorver" declara quantos call-sites justificam) ·<br><code>rg -c "3blue1brown/.*:[0-9]+" docs/reuso-3b1b.md</code> ≥ 15 — toda afirmação sobre o projeto de origem carrega <code>arquivo:linha</code></td>
+              <td class="small text-body-secondary"><em>(1)</em> A decisão foi tomada por contagem de linhas do provedor? Isso é o erro nomeado. <em>(2)</em> "Absorver" aqui significa copiar para dentro <strong>e nunca mexer no projeto de origem</strong>? Está escrito? <em>(3)</em> Algum item marcado "absorver" traz junto uma dependência que o novo projeto não quer?</td></tr>
+            <tr><th scope="row">🔴 <code>T-02</code></th>
+              <td class="text-nowrap"><code>W1</code><br><span class="small">deps: <code>F0-01</code> <code>T-01</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Validador de grafo de tarefas — as 11 checagens</td>
-              <td><code>tools/validate-graph.py</code> · <code>gerar-tabela-de-ondas.py</code> · <code>gerar-prompt-de-card.py</code></td></tr>
-            <tr><th scope="row">🔴 <code>T-03</code></th><td><code>T-01</code></td><td>tdd</td>
+              <td class="small"><code>tools/validate-graph.py</code> · <code>gerar-tabela-de-ondas.py</code> · <code>gerar-prompt-de-card.py</code></td>
+              <td class="small"><code>python3 tools/validate-graph.py PROGRAMA.md</code> → exit 0 ·<br><code>python3 tools/validate-graph_selftest.py</code> — 11 mutações <strong>calculadas do documento corrente</strong>, cada caso assertando a mensagem ·<br><code>just ondas:gerar &amp;&amp; git diff --exit-code PROGRAMA.md</code> — a tabela commitada é a gerada ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> <strong>zero cards parseados = falha</strong>, com a mensagem "o formato mudou e este verificador ficou cego"</td>
+              <td class="small text-body-secondary"><em>(1)</em> Um card sem dependência <strong>e</strong> sem dependente passa? Deveria falhar, salvo allowlist datada. <em>(2)</em> As mutações do autoteste são literais? Se sim, viram no-op no próximo merge. <em>(3)</em> O validador recusa explicitamente o que não sabe analisar, ou pula em silêncio? <em>(4)</em> Ele detecta e <strong>imprime</strong> as ondas de composição (§III-4)?</td></tr>
+            <tr><th scope="row">🔴 <code>T-03</code></th>
+              <td class="text-nowrap"><code>W1</code><br><span class="small">deps: <code>T-01</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Gate local executável — uma etapa por job, três estados</td>
-              <td><code>tools/gate.sh</code> · <code>docs/gate.md</code></td></tr>
-            <tr><th scope="row">🔴 <code>T-04</code></th><td><code>T-01</code></td><td>tdd</td>
+              <td class="small"><code>tools/gate.sh</code> · <code>docs/gate.md</code></td>
+              <td class="small"><code>bash tools/gate.sh</code> → exit 0 no repositório limpo, com todas as etapas em <code>PENDENTE</code> e o veredito dizendo isso ·<br><code>bash tools/gate_selftest.sh</code> — asserta <strong>a mensagem</strong> de cada estado ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> esconder o FFmpeg do <code>PATH</code> <strong>tem de</strong> produzir vermelho, e o autoteste prova</td>
+              <td class="small text-body-secondary"><em>(1)</em> Uma etapa que não roda imprime a mesma coisa que uma que passou? <em>(2)</em> O gate confunde stage com job? Conte os dois. <em>(3)</em> Ele mantém uma lista própria de etapas em vez de ler a definição? Duas listas à mão recriam o buraco do outro lado.</td></tr>
+            <tr><th scope="row">🔴 <code>T-04</code></th>
+              <td class="text-nowrap"><code>W1</code><br><span class="small">deps: <code>T-01</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Worktree por card, com preflight</td>
-              <td><code>tools/new-task-worktree.sh</code> · <code>tools/preflight.sh</code></td></tr>
-            <tr><th scope="row">🔴 <code>T-10</code></th><td><code>T-01</code></td><td>tdd</td>
+              <td class="small"><code>tools/new-task-worktree.sh</code> · <code>tools/preflight.sh</code></td>
+              <td class="small"><code>bash tools/new-task-worktree.sh create PREP-teste &amp;&amp; bash tools/preflight.sh</code> → exit 0 ·<br><code>bash tools/new-task-worktree.sh create I-01</code> → <strong>exit ≠ 0</strong> com a explicação ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> mover o store para fora e rodar o preflight <strong>tem de</strong> dar exit 1 deixando a worktree para inspeção</td>
+              <td class="small text-body-secondary"><em>(1)</em> O preflight passaria com o store vazio? <em>(2)</em> O <code>.gitignore</code> com barra cobre o symlink? Teste, não deduza. <em>(3)</em> O script tenta remover a worktree de dentro dela mesma em algum caminho de erro?</td></tr>
+            <tr><th scope="row">🔴 <code>T-10</code></th>
+              <td class="text-nowrap"><code>W1</code><br><span class="small">deps: <code>T-01</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Infraestrutura de skills: linter, evals, staleness, catálogo gerado</td>
-              <td><code>.agents/scripts/**</code> · <code>.agents/skills/catalog.md</code> (gerado)</td></tr>
-
-            <tr class="table-active"><th colspan="5" scope="colgroup">🔵 W2 — fundação compartilhada · 8 cards · a W4 nasce enorme por causa desta</th></tr>
-            <tr><th scope="row">🔴 <code>F0-06</code></th><td><code>F0-01</code> <code>T-01</code> <code>T-03</code></td><td>tdd</td>
+              <td class="small"><code>.agents/scripts/**</code> · <code>.agents/skills/catalog.md</code> (gerado)</td>
+              <td class="small"><code>python3 .agents/scripts/skill_lint.py</code> → exit 0 ·<br><code>just skills:catalogo &amp;&amp; git diff --exit-code .agents/skills/catalog.md</code> ·<br><code>python3 .agents/scripts/skill_lint_selftest.py</code> — asserta a mensagem de cada regra ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> uma skill com data no corpo <strong>tem de</strong> dar erro (não aviso), e uma citação sem caminho <strong>tem de</strong> ser rejeitada</td>
+              <td class="small text-body-secondary"><em>(1)</em> Um pin degenerado passa? Escreva um e prove. <em>(2)</em> O catálogo é gerado ou redigitado? <em>(3)</em> O eval de roteamento tem near-misses, ou só casos positivos? Só positivos não mede precisão. <em>(4)</em> O linter aceitaria uma skill cujo <code>name</code> diverge do diretório?</td></tr>
+            <tr class="table-active"><th colspan="6" scope="colgroup">🔵 W2 — fundação compartilhada · 8 cards · a W4 nasce enorme por causa desta</th></tr>
+            <tr><th scope="row">🔴 <code>F0-06</code></th>
+              <td class="text-nowrap"><code>W2</code><br><span class="small">deps: <code>F0-01</code> <code>T-01</code> <code>T-03</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td><strong>Harness de determinismo</strong> — o motor do oráculo. Sem ele, o ADR-0001 é uma frase</td>
-              <td><code>tools/determinismo/**</code> · <code>tests/harness/**</code> · <code>fixtures/canario/**</code></td></tr>
-            <tr><th scope="row">🔴 <code>F0-07</code></th><td><code>F0-01</code> <code>T-01</code></td><td>tdd</td>
+              <td class="small"><code>tools/determinismo/**</code> · <code>tests/harness/**</code> · <code>fixtures/canario/**</code></td>
+              <td class="small"><code>just det:provar</code> — renderiza o canário 2× e exige bytes idênticos ·<br><code>just det:mutar</code> — injeta um valor volátil e exige <strong>vermelho com a mensagem certa</strong> ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> apagar um snapshot aprovado <strong>tem de</strong> deixar o gate vermelho (ausência falha), e não passar por "nada a comparar"</td>
+              <td class="small text-body-secondary"><em>(1)</em> O harness passaria com um quadro totalmente preto? <em>(2)</em> Rodar 2× seguidas pega o que muda à meia-noite ou por máquina? Se não, o congelamento está incompleto — liste o que falta. <em>(3)</em> Uma execução vermelha consegue sobrescrever a base por algum caminho? <em>(4)</em> A normalização substitui por <strong>valor</strong> em algum ponto?</td></tr>
+            <tr><th scope="row">🔴 <code>F0-07</code></th>
+              <td class="text-nowrap"><code>W2</code><br><span class="small">deps: <code>F0-01</code> <code>T-01</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Store endereçado por conteúdo <span class="badge text-bg-info">hub 10</span></td>
-              <td><code>src/store/**</code> · <code>tools/store-*</code> · <code>tests/store/**</code></td></tr>
-            <tr><th scope="row">🔴 <code>F0-08</code></th><td><code>F0-01</code> <code>T-03</code></td><td>tdd</td>
+              <td class="small"><code>src/store/**</code> · <code>tools/store-*</code> · <code>tests/store/**</code></td>
+              <td class="small"><code>just store:testar</code> — N escritores concorrentes do mesmo conteúdo produzem um arquivo e zero corrupção ·<br><code>just store:chave</code> — muda <strong>um</strong> parâmetro por vez e exige <em>cache miss</em> em cada um ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> <code>rg -L '"licenca"' .cache/store/<strong>/procedencia.json</code> → vazio · <code>rg "https?://" manifesto-resolvido.json</code> → </strong>sem resultado**</td>
+              <td class="small text-body-secondary"><em>(1)</em> A chave omite algum parâmetro que muda a saída? Nomeie um e prove que ele gera miss. <em>(2)</em> Dois processos escrevendo o mesmo hash com conteúdo <strong>diferente</strong> — o que acontece? <em>(3)</em> Um asset sem procedência entra? <em>(4)</em> A GC apaga algo que um snapshot aprovado ainda referencia?</td></tr>
+            <tr><th scope="row">🔴 <code>F0-08</code></th>
+              <td class="text-nowrap"><code>W2</code><br><span class="small">deps: <code>F0-01</code> <code>T-03</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Invariantes estruturais e o catálogo de falso verde <strong>executável</strong></td>
-              <td><code>tools/invariantes/**</code> · <code>docs/falso-verde.md</code></td></tr>
-            <tr><th scope="row">🔴 <code>F0-09</code></th><td><code>F0-02</code> <code>F0-04</code></td><td>tdd</td>
+              <td class="small"><code>tools/invariantes/**</code> · <code>docs/falso-verde.md</code></td>
+              <td class="small"><code>just invariantes</code> → exit 0 ·<br><code>just invariantes:autoteste</code> — cada invariante tem uma mutação <strong>calculada</strong> que o dispara, e o caso asserta <strong>a mensagem</strong> ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> remover um projeto de teste do CI <strong>tem de</strong> ficar vermelho pelo invariante "todo projeto de teste é executado por algum job"</td>
+              <td class="small text-body-secondary"><em>(1)</em> Algum invariante passa por omissão quando o objeto não existe ainda? Isso é verde por ausência. <em>(2)</em> A varredura de segredo acusa o próprio padrão do script? <em>(3)</em> Um invariante que perdeu o objeto foi apagado em vez de virar <em>ausência</em>?</td></tr>
+            <tr><th scope="row">🔴 <code>F0-09</code></th>
+              <td class="text-nowrap"><code>W2</code><br><span class="small">deps: <code>F0-02</code> <code>F0-04</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Fixture canônica — o manifesto de referência, com as <strong>entradas sujas</strong></td>
-              <td><code>fixtures/canonico/**</code> · <code>docs/fixtures.md</code></td></tr>
-            <tr><th scope="row">🔴 <code>T-05</code></th><td><code>T-01</code> <code>T-03</code> <code>T-10</code></td><td>tdd</td>
+              <td class="small"><code>fixtures/canonico/**</code> · <code>docs/fixtures.md</code></td>
+              <td class="small"><code>just fixtures:validar</code> — todas as válidas passam, todas as inválidas são rejeitadas <strong>com a mensagem certa</strong> ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> <code>python3 tools/validate-fixtures.py --exigir-classificacao</code> falha se <strong>qualquer</strong> fixture não aparecer na tabela <code>CONTRATO</code>×<code>BUG</code></td>
+              <td class="small text-body-secondary"><em>(1)</em> Cadê o caso misto? Procure variação de domínio <strong>sem</strong> linha correspondente. <em>(2)</em> Alguma fixture é fabricada de modo a alimentar a própria asserção? Isso não é teste. <em>(3)</em> A fixture "asset ausente" espera erro claro ou silêncio?</td></tr>
+            <tr><th scope="row">🔴 <code>T-05</code></th>
+              <td class="text-nowrap"><code>W2</code><br><span class="small">deps: <code>T-01</code> <code>T-03</code> <code>T-10</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Hooks: gate de segurança, gate de skill, barreira de onda, nudge</td>
-              <td><code>.claude/settings.json</code> · <code>.agents/scripts/*.py</code></td></tr>
-            <tr><th scope="row">🔴 <code>T-06</code></th><td><code>T-02</code> <code>T-03</code></td><td>tdd</td>
+              <td class="small"><code>.claude/settings.json</code> · <code>.agents/scripts/*.py</code></td>
+              <td class="small"><code>python3 .agents/scripts/hooks_selftest.py</code> — cada hook, cada estado, assertando a mensagem ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> remover o gate de escrita de skill <strong>tem de</strong> deixar um invariante vermelho — a ausência de um hook não pode ser indistinguível de conformidade ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> <code>rm -rf /</code>, <code>rm -rf ~</code> e <code>sudo rm -rf /</code> <strong>têm de</strong> ser bloqueados, e o autoteste prova os três — este é o critério que reprova a cópia herdada ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> rodar o gate de escrita <strong>de outro cwd</strong> tem de <strong>negar</strong>, nunca liberar</td>
+              <td class="small text-body-secondary"><em>(1)</em> A barreira vale para um agente que terminou <strong>antes</strong> de você começar a esperar? <em>(2)</em> O gate de segurança pega a leitura de segredo via shell, que contornaria a guarda de caminho? <em>(3)</em> Algum hook dispara em trabalho comum? Um gate que incomoda acaba desligado — e um que só pode ser satisfeito contornando-o ensina a contornar. <em>(4)</em> Um hook quebrado inutiliza a sessão?</td></tr>
+            <tr><th scope="row">🔴 <code>T-06</code></th>
+              <td class="text-nowrap"><code>W2</code><br><span class="small">deps: <code>T-02</code> <code>T-03</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Verificador de aceitação: sonda negativa e tripwire</td>
-              <td><code>tools/verify-acceptance.py</code></td></tr>
-            <tr><th scope="row">🟡 <code>T-07</code></th><td><code>T-02</code></td><td>tdd</td>
+              <td class="small"><code>tools/verify-acceptance.py</code></td>
+              <td class="small"><code>python3 tools/verify-acceptance.py</code> → exit 0 ·<br><code>python3 tools/verify-acceptance_selftest.py</code> — inclui o caso adversarial: HTML no meio do token, caractere de largura zero e hífen suave ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> um card marcado concluído com seletor que casa zero testes <strong>tem de</strong> ficar vermelho</td>
+              <td class="small text-body-secondary"><em>(1)</em> O verificador se auditaria? Ele é código de produção — tem autoteste e falha fechado? <em>(2)</em> A sonda negativa é por alvo, ou uma só para todos? Uma só não pega regressão por runner. <em>(3)</em> O tripwire lê o <strong>mesmo</strong> texto que o parser? Se sim, não é independente.</td></tr>
+            <tr><th scope="row">🟡 <code>T-07</code></th>
+              <td class="text-nowrap"><code>W2</code><br><span class="small">deps: <code>T-02</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Estado derivado do programa</td>
-              <td><code>tools/derive-state.py</code> · a seção de estado deste documento</td></tr>
-            <tr><th scope="row">🟢 <code>T-08</code></th><td><code>T-03</code></td><td>tdd</td>
+              <td class="small"><code>tools/derive-state.py</code> · a seção de estado deste documento</td>
+              <td class="small"><code>python3 tools/derive-state.py --verificar</code> → exit 0 ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> marcar um card de onda tardia como concluído <strong>não pode</strong> aumentar a contagem de ondas concluídas — e o autoteste prova</td>
+              <td class="small text-body-secondary"><em>(1)</em> Uma linha nova em outro ponto da mesma seção satisfaz sozinha a exigência? <em>(2)</em> O script <strong>gera</strong> ou <strong>confere</strong> a prosa editorial? Mover prosa para dentro do script é pior; deixá-la sem checagem é como ela apodrece.</td></tr>
+            <tr><th scope="row">🟢 <code>T-08</code></th>
+              <td class="text-nowrap"><code>W2</code><br><span class="small">deps: <code>T-03</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Instrumentação de custo e tempo por onda — substitui o cronograma por medição</td>
-              <td><code>tools/medir.py</code> · <code>docs/medicao/**</code></td></tr>
-
-            <tr class="table-active"><th colspan="5" scope="colgroup">🟠 W2.5 — infra · <strong>bloqueante</strong> para os estágios de resolução</th></tr>
-            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>I-02</code></th><td><code>I-01</code></td><td>—</td>
+              <td class="small"><code>tools/medir.py</code> · <code>docs/medicao/**</code></td>
+              <td class="small"><code>python3 tools/medir.py --onda W2</code> grava e valida o registro ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> uma onda sem registro de medição <strong>tem de</strong> deixar o gate amarelo (<code>NÃO-EXERCITADO</code>), nunca verde</td>
+              <td class="small text-body-secondary"><em>(1)</em> A métrica "chamadas de API" tem <strong>denominador</strong>? Zero chamadas é verdade quando o cache está perfeito <strong>e</strong> quando ninguém rodou nada. <em>(2)</em> O registro sobrevive ao fechamento do terminal?</td></tr>
+            <tr class="table-active"><th colspan="6" scope="colgroup">🟠 W2.5 — infra · <strong>bloqueante</strong> para os estágios de resolução</th></tr>
+            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>I-02</code></th>
+              <td class="text-nowrap"><code>W2.5</code><br><span class="small">deps: <code>I-01</code></span><br><span class="small text-body-secondary">—</span></td>
               <td>Contas, chaves e quotas — quota por provedor é o que dimensiona a concorrência da W4</td>
-              <td><code>.env.example</code> · <code>docs/contas.md</code> · ADR-0005</td></tr>
-
-            <tr class="table-active"><th colspan="5" scope="colgroup">🔵 W3 — os hubs · 5 cards · <em>onda estreita de propósito</em></th></tr>
-            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F1-01</code></th><td><code>F0-02</code> <code>F0-04</code> <code>F0-09</code> <code>T-01</code></td><td>ambos</td>
+              <td class="small"><code>.env.example</code> · <code>docs/contas.md</code> · ADR-0005</td>
+              <td class="small"><code>just contas:verificar</code> — cada provedor aprovado responde a um <em>ping</em> mínimo e a resposta é <strong>descartada</strong>, nunca gravada ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> <code>rg -i "sk-\|api[_-]?key\s<em>=\s</em>['\"][A-Za-z0-9]" -g '!.env.example' .</code> → <strong>sem resultado</strong>, e o hook de segurança prova que bloqueia</td>
+              <td class="small text-body-secondary"><em>(1)</em> Alguma chave real entrou em fixture, cassete ou log? <em>(2)</em> A quota anotada é a do plano contratado ou a da documentação pública? <em>(3)</em> Existe provedor usado por um card e não listado aqui?</td></tr>
+            <tr class="table-active"><th colspan="6" scope="colgroup">🔵 W3 — os hubs · 5 cards · <em>onda estreita de propósito</em></th></tr>
+            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F1-01</code></th>
+              <td class="text-nowrap"><code>W3</code><br><span class="small">deps: <code>F0-02</code> <code>F0-04</code> <code>F0-09</code> <code>T-01</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Composição raiz, contrato de nó e <strong>descoberta por convenção</strong> <span class="badge text-bg-info">hub 8</span></td>
-              <td><code>src/composicao/raiz.tsx</code> · <code>contrato-de-no.ts</code> · <code>descoberta.ts</code> · <code>tempo.ts</code></td></tr>
-            <tr><th scope="row">🔴 <code>F1-02</code></th><td><code>F0-04</code> <code>T-01</code></td><td>tdd</td>
+              <td class="small"><code>src/composicao/raiz.tsx</code> · <code>contrato-de-no.ts</code> · <code>descoberta.ts</code> · <code>tempo.ts</code></td>
+              <td class="small"><code>just comp:testar</code> — a raiz renderiza a fixture canônica com <strong>nós de mentira</strong> e o timing bate ·<br><code>just comp:unicidade</code> — varre o disco e exige id único por nó descoberto ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> <code>just comp:pureza</code> falha se achar <code>Date.now</code>/<code>Math.random</code>/<code>setTimeout</code>/<code>fetch</code> sob <code>src/composicao/</code> — e passa hoje, com o diretório quase vazio, que é o ponto</td>
+              <td class="small text-body-secondary"><em>(1)</em> A descoberta acha um arquivo que <strong>não</strong> casa o contrato e o ignora em silêncio? Deve falhar. <em>(2)</em> O cálculo de duração com transição sobreposta bate com a soma manual? Escreva o caso de três cenas e duas transições. <em>(3)</em> A raiz renderizaria um manifesto com nó de tipo desconhecido? Deve recusar, não pular.</td></tr>
+            <tr><th scope="row">🔴 <code>F1-02</code></th>
+              <td class="text-nowrap"><code>W3</code><br><span class="small">deps: <code>F0-04</code> <code>T-01</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Motor de layout: medição, ajuste e <strong>overflow como erro de build</strong></td>
-              <td><code>src/composicao/layout/**</code></td></tr>
-            <tr><th scope="row">🟡 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F1-03</code></th><td><code>F0-04</code> <code>T-01</code></td><td>tdd</td>
+              <td class="small"><code>src/composicao/layout/**</code></td>
+              <td class="small"><code>just layout:testar</code> — a fixture "texto que estoura" <strong>falha o build</strong> com mensagem nomeando o nó ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> remover a checagem de safe area <strong>tem de</strong> deixar um invariante vermelho</td>
+              <td class="small text-body-secondary"><em>(1)</em> A medição depende de fonte carregada? Se a fonte cair para fallback, a medida muda em silêncio. <em>(2)</em> O ajuste reduz o corpo abaixo do mínimo legível para "caber"? Isso é pior que falhar. <em>(3)</em> O teste roda com a mesma pilha gráfica do render, ou com outra?</td></tr>
+            <tr><th scope="row">🟡 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F1-03</code></th>
+              <td class="text-nowrap"><code>W3</code><br><span class="small">deps: <code>F0-04</code> <code>T-01</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Fontes locais embutidas e asserção de família resolvida</td>
-              <td><code>src/design/fontes/**</code> · <code>assets/fontes/**</code></td></tr>
-            <tr><th scope="row">🔴 <code>F2-01</code></th><td><code>F0-02</code> <code>F0-07</code></td><td>tdd</td>
+              <td class="small"><code>src/design/fontes/**</code> · <code>assets/fontes/**</code></td>
+              <td class="small"><code>just fontes:testar</code> — renderiza um still e asserta a família resolvida, não só que "renderizou" ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> <code>rg -i "fonts.googleapis\|cdn" src/ </code> → <strong>sem resultado</strong> · <code>rg -L "licenca:" assets/fontes/*.md</code> → vazio</td>
+              <td class="small text-body-secondary"><em>(1)</em> Como o teste distingue "carregou a fonte certa" de "caiu no fallback que por acaso parece igual"? <em>(2)</em> Alguma fonte foi embutida sem direito de embutir? <em>(3)</em> O peso/estilo específico está fixado, ou só a família?</td></tr>
+            <tr><th scope="row">🔴 <code>F2-01</code></th>
+              <td class="text-nowrap"><code>W3</code><br><span class="small">deps: <code>F0-02</code> <code>F0-07</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Contrato de estágio de resolução, cassetes e o orquestrador <span class="badge text-bg-info">hub 7</span></td>
-              <td><code>src/resolucao/contrato.ts</code> · <code>orquestrador.ts</code> · <code>cassete/**</code> · schema do manifesto-resolvido</td></tr>
-            <tr><th scope="row">🟡 <code>T-09</code></th><td><code>T-03</code> <code>T-06</code></td><td>tdd</td>
+              <td class="small"><code>src/resolucao/contrato.ts</code> · <code>orquestrador.ts</code> · <code>cassete/**</code> · schema do manifesto-resolvido</td>
+              <td class="small"><code>just res:offline</code> — a suíte inteira passa <strong>com a rede bloqueada</strong> ·<br><code>just res:cassete</code> — regravar um cassete e diffar: qualquer diferença não explicada refuta o determinismo ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> um estágio sem cassete <strong>tem de</strong> derrubar <code>just res:offline</code>, e não ser pulado</td>
+              <td class="small text-body-secondary"><em>(1)</em> A suíte "offline" de fato bloqueia a rede, ou só não usa? São coisas diferentes — prove com um estágio que tenta sair. <em>(2)</em> A chave de cache do contrato inclui a <strong>versão do estágio</strong>? Sem isso, mudar o código não invalida o cache. <em>(3)</em> O manifesto resolvido consegue conter uma URL? Deve ser impossível pelo schema, não por convenção.</td></tr>
+            <tr><th scope="row">🟡 <code>T-09</code></th>
+              <td class="text-nowrap"><code>W3</code><br><span class="small">deps: <code>T-03</code> <code>T-06</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>CI espelhado, lido pelo gate local — <strong>mergeia por último</strong></td>
-              <td><code>.github/workflows/**</code> · <code>tools/espelho-ci.py</code></td></tr>
-
-            <tr class="table-active"><th colspan="5" scope="colgroup">🟢 W4 — a mais larga · 13 cards · <strong>zero singletons tocados</strong></th></tr>
-            <tr><th scope="row">🟡 <code>F1-04</code></th><td><code>F1-01</code> <code>F1-02</code> <code>F1-03</code></td><td>ambos</td>
+              <td class="small"><code>.github/workflows/**</code> · <code>tools/espelho-ci.py</code></td>
+              <td class="small"><code>python3 tools/espelho-ci.py</code> → exit 0 ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> adicionar um job ao CI sem etapa correspondente <strong>tem de</strong> ficar vermelho, e vice-versa</td>
+              <td class="small text-body-secondary"><em>(1)</em> Um job novo que ninguém conecta fica vermelho ou <strong>invisível</strong>? <em>(2)</em> O filtro de caminho está invertido em algum job? Teste com uma mudança que <strong>não</strong> deveria acordar o job caro. <em>(3)</em> Todo projeto de teste do repositório é executado por <strong>algum</strong> job?</td></tr>
+            <tr class="table-active"><th colspan="6" scope="colgroup">🟢 W4 — a mais larga · 13 cards · <strong>zero singletons tocados</strong></th></tr>
+            <tr><th scope="row">🟡 <code>F1-04</code></th>
+              <td class="text-nowrap"><code>W4</code><br><span class="small">deps: <code>F1-01</code> <code>F1-02</code> <code>F1-03</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Nó: cabeçalho e título — mola nomeada dos tokens, <strong>nunca</strong> valor inline</td>
-              <td><code>nos/Cabecalho.tsx</code> + snapshots</td></tr>
-            <tr><th scope="row">🔴 <code>F1-05</code></th><td><code>F1-01</code> <code>F1-02</code> <code>F1-03</code></td><td>ambos</td>
+              <td class="small"><code>nos/Cabecalho.tsx</code> + snapshots</td>
+              <td class="small"><code>just no:&lt;nome&gt;</code> → exit 0 ·<br><code>just det:provar --no &lt;nome&gt;</code> — render 2× idêntico ·<br><code>git diff --exit-code fixtures/snapshots/no-&lt;nome&gt;/</code> <strong>combinado com</strong> <code>git status --porcelain</code> (porque <code>diff --exit-code</code> não enxerga arquivo não rastreado) ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> apagar um snapshot aprovado <strong>tem de</strong> ficar vermelho</td>
+              <td class="small text-body-secondary"><em>(1)</em> O smoke passaria com o componente devolvendo um quadro vazio? <em>(2)</em> Renderize 2× e diffe: <strong>qualquer</strong> byte diferente refuta o determinismo. <em>(3)</em> Algum literal de token foi redeclarado neste arquivo? <em>(4)</em> O componente respeita a duração declarada, ou desenha fora da própria janela?</td></tr>
+            <tr><th scope="row">🔴 <code>F1-05</code></th>
+              <td class="text-nowrap"><code>W4</code><br><span class="small">deps: <code>F1-01</code> <code>F1-02</code> <code>F1-03</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Nó: texto com destaque palavra a palavra — sem timing, degrada para frase; o teste prova os dois caminhos</td>
-              <td><code>nos/TextoDestaque.tsx</code> + snapshots</td></tr>
-            <tr><th scope="row">🟢 <code>F1-06</code></th><td><code>F1-01</code> <code>F1-02</code> <code>F1-03</code></td><td>ambos</td>
+              <td class="small"><code>nos/TextoDestaque.tsx</code> + snapshots</td>
+              <td class="small"><code>just no:&lt;nome&gt;</code> → exit 0 ·<br><code>just det:provar --no &lt;nome&gt;</code> — render 2× idêntico ·<br><code>git diff --exit-code fixtures/snapshots/no-&lt;nome&gt;/</code> <strong>combinado com</strong> <code>git status --porcelain</code> (porque <code>diff --exit-code</code> não enxerga arquivo não rastreado) ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> apagar um snapshot aprovado <strong>tem de</strong> ficar vermelho</td>
+              <td class="small text-body-secondary"><em>(1)</em> O smoke passaria com o componente devolvendo um quadro vazio? <em>(2)</em> Renderize 2× e diffe: <strong>qualquer</strong> byte diferente refuta o determinismo. <em>(3)</em> Algum literal de token foi redeclarado neste arquivo? <em>(4)</em> O componente respeita a duração declarada, ou desenha fora da própria janela?</td></tr>
+            <tr><th scope="row">🟢 <code>F1-06</code></th>
+              <td class="text-nowrap"><code>W4</code><br><span class="small">deps: <code>F1-01</code> <code>F1-02</code> <code>F1-03</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Nó: lista, grade e bullets — o caso "um item" e o caso "vinte itens"</td>
-              <td><code>nos/Lista.tsx</code> + snapshots</td></tr>
-            <tr><th scope="row">🔴 <code>F1-07</code></th><td><code>F1-01</code> <code>F1-02</code> <code>F1-03</code> <code>F0-07</code></td><td>ambos</td>
+              <td class="small"><code>nos/Lista.tsx</code> + snapshots</td>
+              <td class="small"><code>just no:&lt;nome&gt;</code> → exit 0 ·<br><code>just det:provar --no &lt;nome&gt;</code> — render 2× idêntico ·<br><code>git diff --exit-code fixtures/snapshots/no-&lt;nome&gt;/</code> <strong>combinado com</strong> <code>git status --porcelain</code> (porque <code>diff --exit-code</code> não enxerga arquivo não rastreado) ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> apagar um snapshot aprovado <strong>tem de</strong> ficar vermelho</td>
+              <td class="small text-body-secondary"><em>(1)</em> O smoke passaria com o componente devolvendo um quadro vazio? <em>(2)</em> Renderize 2× e diffe: <strong>qualquer</strong> byte diferente refuta o determinismo. <em>(3)</em> Algum literal de token foi redeclarado neste arquivo? <em>(4)</em> O componente respeita a duração declarada, ou desenha fora da própria janela?</td></tr>
+            <tr><th scope="row">🔴 <code>F1-07</code></th>
+              <td class="text-nowrap"><code>W4</code><br><span class="small">deps: <code>F1-01</code> <code>F1-02</code> <code>F1-03</code> <code>F0-07</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Nó: mídia com contrato de alfa — recebe <strong>hash</strong>, nunca URL; o GIF avança pelo frame, não pelo relógio</td>
-              <td><code>nos/Midia.tsx</code> + snapshots</td></tr>
-            <tr><th scope="row">🟡 <code>F1-08</code></th><td><code>F1-01</code> <code>F1-02</code> <code>F1-03</code></td><td>ambos</td>
+              <td class="small"><code>nos/Midia.tsx</code> + snapshots</td>
+              <td class="small"><code>just no:&lt;nome&gt;</code> → exit 0 ·<br><code>just det:provar --no &lt;nome&gt;</code> — render 2× idêntico ·<br><code>git diff --exit-code fixtures/snapshots/no-&lt;nome&gt;/</code> <strong>combinado com</strong> <code>git status --porcelain</code> (porque <code>diff --exit-code</code> não enxerga arquivo não rastreado) ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> apagar um snapshot aprovado <strong>tem de</strong> ficar vermelho</td>
+              <td class="small text-body-secondary"><em>(1)</em> O smoke passaria com o componente devolvendo um quadro vazio? <em>(2)</em> Renderize 2× e diffe: <strong>qualquer</strong> byte diferente refuta o determinismo. <em>(3)</em> Algum literal de token foi redeclarado neste arquivo? <em>(4)</em> O componente respeita a duração declarada, ou desenha fora da própria janela?</td></tr>
+            <tr><th scope="row">🟡 <code>F1-08</code></th>
+              <td class="text-nowrap"><code>W4</code><br><span class="small">deps: <code>F1-01</code> <code>F1-02</code> <code>F1-03</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Nó: código — consome tokens <strong>pré-computados</strong>, nunca destaca em tempo de render</td>
-              <td><code>nos/Codigo.tsx</code> + snapshots</td></tr>
-            <tr><th scope="row">🔴 <code>F1-09</code></th><td><code>F1-01</code> <code>F1-02</code> <code>F1-03</code> <code>F0-07</code></td><td>ambos</td>
+              <td class="small"><code>nos/Codigo.tsx</code> + snapshots</td>
+              <td class="small"><code>just no:&lt;nome&gt;</code> → exit 0 ·<br><code>just det:provar --no &lt;nome&gt;</code> — render 2× idêntico ·<br><code>git diff --exit-code fixtures/snapshots/no-&lt;nome&gt;/</code> <strong>combinado com</strong> <code>git status --porcelain</code> (porque <code>diff --exit-code</code> não enxerga arquivo não rastreado) ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> apagar um snapshot aprovado <strong>tem de</strong> ficar vermelho</td>
+              <td class="small text-body-secondary"><em>(1)</em> O smoke passaria com o componente devolvendo um quadro vazio? <em>(2)</em> Renderize 2× e diffe: <strong>qualquer</strong> byte diferente refuta o determinismo. <em>(3)</em> Algum literal de token foi redeclarado neste arquivo? <em>(4)</em> O componente respeita a duração declarada, ou desenha fora da própria janela?</td></tr>
+            <tr><th scope="row">🔴 <code>F1-09</code></th>
+              <td class="text-nowrap"><code>W4</code><br><span class="small">deps: <code>F1-01</code> <code>F1-02</code> <code>F1-03</code> <code>F0-07</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Nó: gráfico — "o alfa não é suportado" tem de falhar no <em>build</em>, não no vídeo</td>
-              <td><code>nos/Grafico.tsx</code> + snapshots</td></tr>
-            <tr><th scope="row">🔴 <code>F1-10</code></th><td><code>F1-01</code> <code>F1-02</code> <code>F1-03</code></td><td>ambos</td>
+              <td class="small"><code>nos/Grafico.tsx</code> + snapshots</td>
+              <td class="small"><code>just no:&lt;nome&gt;</code> → exit 0 ·<br><code>just det:provar --no &lt;nome&gt;</code> — render 2× idêntico ·<br><code>git diff --exit-code fixtures/snapshots/no-&lt;nome&gt;/</code> <strong>combinado com</strong> <code>git status --porcelain</code> (porque <code>diff --exit-code</code> não enxerga arquivo não rastreado) ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> apagar um snapshot aprovado <strong>tem de</strong> ficar vermelho</td>
+              <td class="small text-body-secondary"><em>(1)</em> O smoke passaria com o componente devolvendo um quadro vazio? <em>(2)</em> Renderize 2× e diffe: <strong>qualquer</strong> byte diferente refuta o determinismo. <em>(3)</em> Algum literal de token foi redeclarado neste arquivo? <em>(4)</em> O componente respeita a duração declarada, ou desenha fora da própria janela?</td></tr>
+            <tr><th scope="row">🔴 <code>F1-10</code></th>
+              <td class="text-nowrap"><code>W4</code><br><span class="small">deps: <code>F1-01</code> <code>F1-02</code> <code>F1-03</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Transições e composição de sequência — <strong>errar aqui erra a duração de todo vídeo, e o erro é invisível frame a frame</strong></td>
-              <td><code>transicoes/**</code> + snapshots</td></tr>
-            <tr><th scope="row">🟢 <code>F1-11</code></th><td><code>F1-01</code> <code>F1-02</code> <code>F1-03</code></td><td>ambos</td>
+              <td class="small"><code>transicoes/**</code> + snapshots</td>
+              <td class="small"><code>just no:&lt;nome&gt;</code> → exit 0 ·<br><code>just det:provar --no &lt;nome&gt;</code> — render 2× idêntico ·<br><code>git diff --exit-code fixtures/snapshots/no-&lt;nome&gt;/</code> <strong>combinado com</strong> <code>git status --porcelain</code> (porque <code>diff --exit-code</code> não enxerga arquivo não rastreado) ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> apagar um snapshot aprovado <strong>tem de</strong> ficar vermelho</td>
+              <td class="small text-body-secondary"><em>(1)</em> O smoke passaria com o componente devolvendo um quadro vazio? <em>(2)</em> Renderize 2× e diffe: <strong>qualquer</strong> byte diferente refuta o determinismo. <em>(3)</em> Algum literal de token foi redeclarado neste arquivo? <em>(4)</em> O componente respeita a duração declarada, ou desenha fora da própria janela?</td></tr>
+            <tr><th scope="row">🟢 <code>F1-11</code></th>
+              <td class="text-nowrap"><code>W4</code><br><span class="small">deps: <code>F1-01</code> <code>F1-02</code> <code>F1-03</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Camadas globais: fundo, grade, vinheta — o teste prova que a camada não cobre a safe area</td>
-              <td><code>camadas/**</code> + snapshots</td></tr>
-            <tr><th scope="row">🔴 <code>F2-02</code></th><td><code>F2-01</code> <code>F0-07</code> <code>F0-05</code></td><td>ambos</td>
+              <td class="small"><code>camadas/**</code> + snapshots</td>
+              <td class="small"><code>just no:&lt;nome&gt;</code> → exit 0 ·<br><code>just det:provar --no &lt;nome&gt;</code> — render 2× idêntico ·<br><code>git diff --exit-code fixtures/snapshots/no-&lt;nome&gt;/</code> <strong>combinado com</strong> <code>git status --porcelain</code> (porque <code>diff --exit-code</code> não enxerga arquivo não rastreado) ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> apagar um snapshot aprovado <strong>tem de</strong> ficar vermelho</td>
+              <td class="small text-body-secondary"><em>(1)</em> O smoke passaria com o componente devolvendo um quadro vazio? <em>(2)</em> Renderize 2× e diffe: <strong>qualquer</strong> byte diferente refuta o determinismo. <em>(3)</em> Algum literal de token foi redeclarado neste arquivo? <em>(4)</em> O componente respeita a duração declarada, ou desenha fora da própria janela?</td></tr>
+            <tr><th scope="row">🔴 <code>F2-02</code></th>
+              <td class="text-nowrap"><code>W4</code><br><span class="small">deps: <code>F2-01</code> <code>F0-07</code> <code>F0-05</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Resolução: gráfico (Manim headless) — absorve os quirks do 3b1b <strong>com citação de origem</strong></td>
-              <td><code>resolucao/grafico/**</code> + cassetes</td></tr>
-            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F2-03</code></th><td><code>F2-01</code> <code>F0-07</code></td><td>ambos</td>
+              <td class="small"><code>resolucao/grafico/**</code> + cassetes</td>
+              <td class="small"><code>just res:&lt;estagio&gt;</code> → exit 0 ·<br><code>just res:offline --estagio &lt;nome&gt;</code> — passa <strong>com a rede bloqueada</strong> ·<br><code>just res:chave --estagio &lt;nome&gt;</code> — muda um parâmetro por vez, exige <em>cache miss</em> em cada ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> <code>rg -L '"licenca"' fixtures/cassetes/&lt;nome&gt;/**/procedencia.json</code> → vazio</td>
+              <td class="small text-body-secondary"><em>(1)</em> O estágio chama a rede quando o cache acerta? Prove com a rede bloqueada e o cache quente. <em>(2)</em> A chave de cache inclui a versão do estágio? <em>(3)</em> O cassete contém alguma credencial? <em>(4)</em> O estágio "conserta" algo da resposta externa? Se conserta, ele esconde o defeito do cassete — o cassete tem de ser sósia, não sucessor.</td></tr>
+            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F2-03</code></th>
+              <td class="text-nowrap"><code>W4</code><br><span class="small">deps: <code>F2-01</code> <code>F0-07</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Resolução: locução — produz <em>audio</em> <strong>e</strong> <em>timing</em>. <span class="badge text-bg-danger">caminho crítico</span></td>
-              <td><code>resolucao/locucao/**</code> + cassetes</td></tr>
-            <tr><th scope="row">🟡 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F2-04</code></th><td><code>F2-01</code> <code>F0-07</code></td><td>ambos</td>
+              <td class="small"><code>resolucao/locucao/**</code> + cassetes</td>
+              <td class="small"><code>just res:&lt;estagio&gt;</code> → exit 0 ·<br><code>just res:offline --estagio &lt;nome&gt;</code> — passa <strong>com a rede bloqueada</strong> ·<br><code>just res:chave --estagio &lt;nome&gt;</code> — muda um parâmetro por vez, exige <em>cache miss</em> em cada ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> <code>rg -L '"licenca"' fixtures/cassetes/&lt;nome&gt;/**/procedencia.json</code> → vazio</td>
+              <td class="small text-body-secondary"><em>(1)</em> O estágio chama a rede quando o cache acerta? Prove com a rede bloqueada e o cache quente. <em>(2)</em> A chave de cache inclui a versão do estágio? <em>(3)</em> O cassete contém alguma credencial? <em>(4)</em> O estágio "conserta" algo da resposta externa? Se conserta, ele esconde o defeito do cassete — o cassete tem de ser sósia, não sucessor.</td></tr>
+            <tr><th scope="row">🟡 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F2-04</code></th>
+              <td class="text-nowrap"><code>W4</code><br><span class="small">deps: <code>F2-01</code> <code>F0-07</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Resolução: mídia externa — um provedor <strong>proíbe hotlink</strong>, outro o <strong>exige</strong>: decide qual vale <em>antes</em> de escrever o downloader</td>
-              <td><code>resolucao/midia/**</code> + cassetes</td></tr>
-            <tr><th scope="row">🟡 <code>F2-05</code></th><td><code>F2-01</code> <code>F0-07</code></td><td>ambos</td>
+              <td class="small"><code>resolucao/midia/**</code> + cassetes</td>
+              <td class="small"><code>just res:&lt;estagio&gt;</code> → exit 0 ·<br><code>just res:offline --estagio &lt;nome&gt;</code> — passa <strong>com a rede bloqueada</strong> ·<br><code>just res:chave --estagio &lt;nome&gt;</code> — muda um parâmetro por vez, exige <em>cache miss</em> em cada ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> <code>rg -L '"licenca"' fixtures/cassetes/&lt;nome&gt;/**/procedencia.json</code> → vazio</td>
+              <td class="small text-body-secondary"><em>(1)</em> O estágio chama a rede quando o cache acerta? Prove com a rede bloqueada e o cache quente. <em>(2)</em> A chave de cache inclui a versão do estágio? <em>(3)</em> O cassete contém alguma credencial? <em>(4)</em> O estágio "conserta" algo da resposta externa? Se conserta, ele esconde o defeito do cassete — o cassete tem de ser sósia, não sucessor.</td></tr>
+            <tr><th scope="row">🟡 <code>F2-05</code></th>
+              <td class="text-nowrap"><code>W4</code><br><span class="small">deps: <code>F2-01</code> <code>F0-07</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Resolução: destaque de código — nada de busca de tipos em CDN em tempo de execução</td>
-              <td><code>resolucao/codigo/**</code> + cassetes</td></tr>
-            <tr><th scope="row">🟡 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F2-06</code></th><td><code>F2-01</code> <code>F0-07</code></td><td>ambos</td>
+              <td class="small"><code>resolucao/codigo/**</code> + cassetes</td>
+              <td class="small"><code>just res:&lt;estagio&gt;</code> → exit 0 ·<br><code>just res:offline --estagio &lt;nome&gt;</code> — passa <strong>com a rede bloqueada</strong> ·<br><code>just res:chave --estagio &lt;nome&gt;</code> — muda um parâmetro por vez, exige <em>cache miss</em> em cada ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> <code>rg -L '"licenca"' fixtures/cassetes/&lt;nome&gt;/**/procedencia.json</code> → vazio</td>
+              <td class="small text-body-secondary"><em>(1)</em> O estágio chama a rede quando o cache acerta? Prove com a rede bloqueada e o cache quente. <em>(2)</em> A chave de cache inclui a versão do estágio? <em>(3)</em> O cassete contém alguma credencial? <em>(4)</em> O estágio "conserta" algo da resposta externa? Se conserta, ele esconde o defeito do cassete — o cassete tem de ser sósia, não sucessor.</td></tr>
+            <tr><th scope="row">🟡 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F2-06</code></th>
+              <td class="text-nowrap"><code>W4</code><br><span class="small">deps: <code>F2-01</code> <code>F0-07</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Resolução: música e efeitos — os efeitos do pacote do fornecedor são <strong>URLs remotas</strong>; precisam ir para o store</td>
-              <td><code>resolucao/musica/**</code> + cassetes</td></tr>
-
-            <tr class="table-active"><th colspan="5" scope="colgroup">🟣 W5 — onda de composição ★ · 5 cards · dois joins convergem</th></tr>
-            <tr><th scope="row">🔴 <code>F1-12</code></th><td><code>F0-06</code> <code>F1-04</code>…<code>F1-11</code></td><td>caract.</td>
+              <td class="small"><code>resolucao/musica/**</code> + cassetes</td>
+              <td class="small"><code>just res:&lt;estagio&gt;</code> → exit 0 ·<br><code>just res:offline --estagio &lt;nome&gt;</code> — passa <strong>com a rede bloqueada</strong> ·<br><code>just res:chave --estagio &lt;nome&gt;</code> — muda um parâmetro por vez, exige <em>cache miss</em> em cada ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> <code>rg -L '"licenca"' fixtures/cassetes/&lt;nome&gt;/**/procedencia.json</code> → vazio</td>
+              <td class="small text-body-secondary"><em>(1)</em> O estágio chama a rede quando o cache acerta? Prove com a rede bloqueada e o cache quente. <em>(2)</em> A chave de cache inclui a versão do estágio? <em>(3)</em> O cassete contém alguma credencial? <em>(4)</em> O estágio "conserta" algo da resposta externa? Se conserta, ele esconde o defeito do cassete — o cassete tem de ser sósia, não sucessor.</td></tr>
+            <tr class="table-active"><th colspan="6" scope="colgroup">🟣 W5 — onda de composição ★ · 5 cards · dois joins convergem</th></tr>
+            <tr><th scope="row">🔴 <code>F1-12</code></th>
+              <td class="text-nowrap"><code>W5</code><br><span class="small">deps: <code>F0-06</code> <code>F1-04</code>…<code>F1-11</code></span><br><span class="small text-body-secondary">caract.</span></td>
               <td>Suíte integrada de composição — é aqui que "merge limpo ≠ integração" aparece ou não <span class="badge text-bg-secondary">join 9</span></td>
-              <td><code>tests/integracao/composicao/**</code> · <code>fixtures/snapshots/integrado/**</code></td></tr>
-            <tr><th scope="row">🔴 <code>F2-07</code></th><td><code>F2-02</code>…<code>F2-06</code></td><td>caract.</td>
+              <td class="small"><code>tests/integracao/composicao/**</code> · <code>fixtures/snapshots/integrado/**</code></td>
+              <td class="small"><code>just int:composicao</code> → exit 0 ·<br><code>just det:provar --integrado</code> — 2× idêntico ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> remover um nó da fixture <strong>tem de</strong> ficar vermelho por <strong>ausência</strong>, e não passar por "menos frames para comparar"</td>
+              <td class="small text-body-secondary"><em>(1)</em> Dois nós escreveram testes contraditórios que passam separados? Procure asserções sobre <em>a lista completa</em> de algo. <em>(2)</em> A duração total bate com a soma, ou o teste só olha o exit code? <em>(3)</em> Algum snapshot foi aprovado a partir do Studio em vez do render?</td></tr>
+            <tr><th scope="row">🔴 <code>F2-07</code></th>
+              <td class="text-nowrap"><code>W5</code><br><span class="small">deps: <code>F2-02</code>…<code>F2-06</code></span><br><span class="small text-body-secondary">caract.</span></td>
               <td>Suíte offline de resolução e o <strong>guarda de rede</strong> — prova que o pipeline abaixo da autoria roda sem rede <span class="badge text-bg-secondary">join 5</span></td>
-              <td><code>tests/integracao/resolucao/**</code> · <code>tools/offline-guard.*</code></td></tr>
-            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F3-01</code></th><td><code>F2-01</code> <code>F2-03</code></td><td>tdd</td>
+              <td class="small"><code>tests/integracao/resolucao/**</code> · <code>tools/offline-guard.*</code></td>
+              <td class="small"><code>just res:offline</code> → exit 0 com a rede bloqueada ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> um estágio novo sem cassete <strong>tem de</strong> derrubar a suíte</td>
+              <td class="small text-body-secondary"><em>(1)</em> O guarda bloqueia DNS, socket e subprocesso, ou só o cliente HTTP da linguagem? <em>(2)</em> "Zero chamadas externas" tem denominador? Sem ele, é verdade quando o cache está perfeito <strong>e</strong> quando nada rodou. <em>(3)</em> Algum cassete foi gravado com a chave real dentro?</td></tr>
+            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F3-01</code></th>
+              <td class="text-nowrap"><code>W5</code><br><span class="small">deps: <code>F2-01</code> <code>F2-03</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Timing canônico — três consumidores, uma fonte <span class="badge text-bg-danger">caminho crítico</span></td>
-              <td><code>src/sincronia/timing/**</code> · <code>schema/timing.schema.json</code></td></tr>
-            <tr><th scope="row">🟡 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F4-01</code></th><td><code>F0-02</code> <code>F2-01</code></td><td>tdd</td>
+              <td class="small"><code>src/sincronia/timing/**</code> · <code>schema/timing.schema.json</code></td>
+              <td class="small"><code>just timing:testar</code> — a fixture canônica produz timing válido e monotônico ·<br><code>just timing:determinismo</code> — 2× idêntico ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> um timing com palavra fora de ordem, com sobreposição ou com duração negativa <strong>tem de</strong> ser rejeitado</td>
+              <td class="small text-body-secondary"><em>(1)</em> Existe caminho em que a legenda aparece <strong>antes</strong> de a palavra ser falada? Escreva o teste. <em>(2)</em> O timing e o áudio podem divergir sem nada ficar vermelho? <em>(3)</em> O oráculo do timing deriva da mesma premissa que o produtor dele? Se sim, as duas cópias erram juntas.</td></tr>
+            <tr><th scope="row">🟡 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F4-01</code></th>
+              <td class="text-nowrap"><code>W5</code><br><span class="small">deps: <code>F0-02</code> <code>F2-01</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Contrato de autoria: saída estruturada e cache — o LLM decide <em>narrativa</em>; o sistema decide frames, layout e cor</td>
-              <td><code>src/autoria/contrato/**</code></td></tr>
-            <tr><th scope="row">🟢 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F4-02</code></th><td><code>F0-01</code> <code>F0-02</code></td><td>tdd</td>
+              <td class="small"><code>src/autoria/contrato/**</code></td>
+              <td class="small"><code>just autoria:contrato</code> → exit 0 ·<br><code>just autoria:cache</code> — a mesma entrada não chama a API duas vezes; mudar qualquer componente da chave gera <em>miss</em> ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> uma saída que não valida contra o schema <strong>tem de</strong> ser rejeitada antes de tocar o pipeline</td>
+              <td class="small text-body-secondary"><em>(1)</em> O LLM consegue emitir coordenada, cor ou duração em frames? Deve ser impossível pelo schema. <em>(2)</em> "Temperatura zero" está sendo tratado como garantia de determinismo? Não é — o cache é. <em>(3)</em> O custo por vídeo é medido ou estimado?</td></tr>
+            <tr><th scope="row">🟢 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F4-02</code></th>
+              <td class="text-nowrap"><code>W5</code><br><span class="small">deps: <code>F0-01</code> <code>F0-02</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Biblioteca de prompt e decomposição narrativa <span class="badge text-bg-secondary">preenchedor de folga</span></td>
-              <td><code>docs/autoria/prompts/**</code></td></tr>
-
-            <tr class="table-active"><th colspan="5" scope="colgroup">🟣 W6 — onda de composição ★ · 5 cards · todos consomem <code>F3-01</code>/<code>F4-01</code></th></tr>
-            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F3-02</code></th><td><code>F3-01</code> <code>F1-05</code> <code>F0-04</code></td><td>ambos</td>
+              <td class="small"><code>docs/autoria/prompts/**</code></td>
+              <td class="small"><code>just prompts:testar</code> — cada prompt tem um caso de referência cuja saída valida contra o schema ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> <code>rg -L "^versao:" docs/autoria/prompts/*.md</code> → vazio</td>
+              <td class="small text-body-secondary"><em>(1)</em> Algum prompt pede ao modelo que decida algo que o sistema deveria decidir? <em>(2)</em> O dicionário de pronúncia está duplicado em outro lugar? <em>(3)</em> Os critérios editoriais são números com fonte, ou opinião?</td></tr>
+            <tr class="table-active"><th colspan="6" scope="colgroup">🟣 W6 — onda de composição ★ · 5 cards · todos consomem <code>F3-01</code>/<code>F4-01</code></th></tr>
+            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F3-02</code></th>
+              <td class="text-nowrap"><code>W6</code><br><span class="small">deps: <code>F3-01</code> <code>F1-05</code> <code>F0-04</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Legendas a partir do timing — o invariante é <strong>em segundos, nunca em frames</strong></td>
-              <td><code>src/sincronia/legendas/**</code></td></tr>
-            <tr><th scope="row">🔴 <code>F3-03</code></th><td><code>F3-01</code> <code>F0-04</code></td><td>tdd</td>
+              <td class="small"><code>src/sincronia/legendas/**</code></td>
+              <td class="small"><code>just legendas</code> ·<br><span class="badge text-bg-danger">∅-crit</span> <strong>apagar a regra de caracteres-por-segundo tem de ficar vermelho</strong> ·<br><strong>o invariante é em SEGUNDOS, nunca em frames:</strong> <code>duração &gt;= max(0,833 s; caracteres/20)</code> e <code>&lt;= 7 s</code> <code>[R14-01·R14-11 (2-0)]</code>. Num manifesto <em>frame-based</em>, esta é a regra que mais provavelmente será reescrita em frames por conveniência — e 20 frames a 60 fps são 0,333 s, <strong>quatro vezes abaixo do piso</strong>, em silêncio</td>
+              <td class="small text-body-secondary"><em>(1)</em> Uma legenda viola o mínimo ou o máximo de duração da norma? <em>(2)</em> Existe caminho em que a legenda aparece antes da palavra? <em>(3)</em> A paginação estoura a safe area em vertical?</td></tr>
+            <tr><th scope="row">🔴 <code>F3-03</code></th>
+              <td class="text-nowrap"><code>W6</code><br><span class="small">deps: <code>F3-01</code> <code>F0-04</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Envelope de ducking — <strong>calculado</strong>, não um compressor cuja saída muda entre versões</td>
-              <td><code>src/sincronia/ducking/**</code></td></tr>
-            <tr><th scope="row">🟡 <code>F3-04</code></th><td><code>F3-01</code></td><td>tdd</td>
+              <td class="small"><code>src/sincronia/ducking/**</code></td>
+              <td class="small"><code>just ducking</code> ·<br><span class="badge text-bg-danger">∅-crit</span> <strong>um trecho com locução e sem atenuação tem de ficar vermelho</strong></td>
+              <td class="small text-body-secondary"><em>(1)</em> O envelope é calculado ou depende de um compressor cuja saída muda entre versões? <em>(2)</em> A atenuação começa <strong>antes</strong> da fala, ou em cima dela? <em>(3)</em> Dois trechos de fala colados produzem um degrau audível?</td></tr>
+            <tr><th scope="row">🟡 <code>F3-04</code></th>
+              <td class="text-nowrap"><code>W6</code><br><span class="small">deps: <code>F3-01</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Ritmo: corte de silêncio e cadência — o teste prova que nenhuma palavra foi cortada</td>
-              <td><code>src/sincronia/ritmo/**</code></td></tr>
-            <tr><th scope="row">🔴 <code>F4-03</code></th><td><code>F4-01</code> <code>F0-02</code></td><td>tdd</td>
+              <td class="small"><code>src/sincronia/ritmo/**</code></td>
+              <td class="small"><code>just ritmo</code> ·<br><span class="badge text-bg-danger">∅-crit</span> <strong>o teste que prova que nenhuma palavra foi cortada</strong></td>
+              <td class="small text-body-secondary"><em>(1)</em> O corte de silêncio comeu o ataque de alguma palavra? Prove por comparação do timing antes e depois. <em>(2)</em> O resultado é idempotente? <em>(3)</em> O corte muda a duração total sem atualizar o manifesto?</td></tr>
+            <tr><th scope="row">🔴 <code>F4-03</code></th>
+              <td class="text-nowrap"><code>W6</code><br><span class="small">deps: <code>F4-01</code> <code>F0-02</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Validação e reparo do manifesto gerado — irreparável é <strong>rejeitado</strong>, nunca "melhorado" até passar</td>
-              <td><code>src/autoria/reparo/**</code></td></tr>
-            <tr><th scope="row">🟡 <code>F4-04</code></th><td><code>F4-01</code> <code>F2-07</code></td><td>caract.</td>
+              <td class="small"><code>src/autoria/reparo/**</code></td>
+              <td class="small"><code>just autoria:reparo</code> ·<br><span class="badge text-bg-danger">∅-crit</span> <strong>um manifesto irreparável tem de ser rejeitado, nunca "melhorado" até passar</strong></td>
+              <td class="small text-body-secondary"><em>(1)</em> O reparo altera semântica ou só forma? Alterar semântica é o LLM decidindo duas vezes. <em>(2)</em> Três tentativas com simplificação progressiva terminam? <em>(3)</em> O erro final diz <strong>qual</strong> regra falhou, ou só "inválido"?</td></tr>
+            <tr><th scope="row">🟡 <code>F4-04</code></th>
+              <td class="text-nowrap"><code>W6</code><br><span class="small">deps: <code>F4-01</code> <code>F2-07</code></span><br><span class="small text-body-secondary">caract.</span></td>
               <td>Cassete de autoria e a suíte de <strong>rejeição</strong> — só os manifestos bons não testa nada</td>
-              <td><code>fixtures/cassetes/autoria/**</code> · <code>tests/autoria/**</code></td></tr>
-
-            <tr class="table-active"><th colspan="5" scope="colgroup">🟠 W6.5 — infra · mede o teto real antes da fase 5</th></tr>
-            <tr><th scope="row">🔴 <code>I-03</code></th><td><code>T-08</code></td><td>—</td>
+              <td class="small"><code>fixtures/cassetes/autoria/**</code> · <code>tests/autoria/**</code></td>
+              <td class="small"><code>just autoria:offline</code> ·<br><span class="badge text-bg-danger">∅-crit</span> <strong>um manifesto inválido que passa tem de derrubar a suíte</strong></td>
+              <td class="small text-body-secondary"><em>(1)</em> O cassete tem manifesto <strong>inválido</strong> gravado, ou só os bons? Só os bons não testa nada. <em>(2)</em> A fixture alimenta a própria asserção? <em>(3)</em> O cassete contém a chave da API?</td></tr>
+            <tr class="table-active"><th colspan="6" scope="colgroup">🟠 W6.5 — infra · mede o teto real antes da fase 5</th></tr>
+            <tr><th scope="row">🔴 <code>I-03</code></th>
+              <td class="text-nowrap"><code>W6.5</code><br><span class="small">deps: <code>T-08</code></span><br><span class="small text-body-secondary">—</span></td>
               <td>Máquina de render: RAM por worker, ponto de saturação, sessões de encode, throughput de disco — <strong>cada número com o comando que o reproduz</strong></td>
-              <td><code>docs/medicao/maquina.md</code> · ADR-0006</td></tr>
-
-            <tr class="table-active"><th colspan="5" scope="colgroup">🔵 W7 — entrega e variantes · 6 cards · independentes entre si</th></tr>
-            <tr><th scope="row">🔴 <code>F3-05</code></th><td><code>F3-03</code> <code>F2-06</code></td><td>ambos</td>
+              <td class="small"><code>docs/medicao/maquina.md</code> · ADR-0006</td>
+              <td class="small"><code><span class="badge text-bg-danger">∅-crit</span></code> <code>rg -L "comando:" docs/medicao/maquina.md</code> → vazio — <strong>todo número traz o comando que o reproduz</strong> ·<br><code>just medir:maquina --conferir</code> compara os números do documento com uma medição curta e falha se divergirem além da tolerância declarada</td>
+              <td class="small text-body-secondary"><em>(1)</em> Algum número foi copiado de documentação em vez de medido aqui? <em>(2)</em> A medição de "sessões de encode" testou o <strong>limite</strong>, ou parou antes? <em>(3)</em> O teto declarado deixa margem para o gate rodar ao mesmo tempo?</td></tr>
+            <tr class="table-active"><th colspan="6" scope="colgroup">🔵 W7 — entrega e variantes · 6 cards · independentes entre si</th></tr>
+            <tr><th scope="row">🔴 <code>F3-05</code></th>
+              <td class="text-nowrap"><code>W7</code><br><span class="small">deps: <code>F3-03</code> <code>F2-06</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Trilha de áudio composta — "a música cobre a locução?" <strong>meça, não escute</strong></td>
-              <td><code>src/audio/mix/**</code></td></tr>
-            <tr><th scope="row">🔴 <code>F5-01</code></th><td><code>F1-12</code> <code>F2-07</code> <code>I-03</code></td><td>tdd</td>
+              <td class="small"><code>src/audio/mix/**</code></td>
+              <td class="small"><code>just audio:mix</code> · determinismo 2× ·<br><span class="badge text-bg-danger">∅-crit</span> <strong>um mix sem locução tem de ficar vermelho</strong></td>
+              <td class="small text-body-secondary"><em>(1)</em> A soma das faixas clipa em algum ponto? <em>(2)</em> O mix é determinístico entre versões da ferramenta? <em>(3)</em> A música cobre a locução em algum trecho? Meça, não escute.</td></tr>
+            <tr><th scope="row">🔴 <code>F5-01</code></th>
+              <td class="text-nowrap"><code>W7</code><br><span class="small">deps: <code>F1-12</code> <code>F2-07</code> <code>I-03</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Pipeline de render e paralelismo — render por faixa + concatenação tem de bater byte a byte com o render inteiro</td>
-              <td><code>src/render/pipeline/**</code></td></tr>
-            <tr><th scope="row">🟡 <code>F5-02</code></th><td><code>F0-04</code> <code>I-03</code></td><td>tdd</td>
+              <td class="small"><code>src/render/pipeline/**</code></td>
+              <td class="small"><code>just render:fixture</code> ·<br><span class="badge text-bg-danger">∅-crit</span> <strong>render por faixa de frames + concatenação tem de bater byte a byte com o render inteiro</strong></td>
+              <td class="small text-body-secondary"><em>(1)</em> A concatenação de faixas produz o mesmo resultado que o render contínuo? Se não, o paralelismo é ilusório. <em>(2)</em> A concorrência excede o teto medido em <code>I-03</code>? <em>(3)</em> Um worker que morre deixa o pipeline verde?</td></tr>
+            <tr><th scope="row">🟡 <code>F5-02</code></th>
+              <td class="text-nowrap"><code>W7</code><br><span class="small">deps: <code>F0-04</code> <code>I-03</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Perfis de encode — hardware e software não se comparam pelo mesmo eixo: um não tem CRF</td>
-              <td><code>src/render/encode/**</code></td></tr>
-            <tr><th scope="row">🟡 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F5-04</code></th><td><code>F1-12</code> <code>F0-04</code></td><td>ambos</td>
+              <td class="small"><code>src/render/encode/**</code></td>
+              <td class="small"><code>just encode:perfis</code> ·<br><span class="badge text-bg-danger">∅-crit</span> <strong>um perfil sem alvo de qualidade declarado tem de falhar</strong></td>
+              <td class="small text-body-secondary"><em>(1)</em> O perfil de hardware está sendo comparado com o de software pelo mesmo eixo? Não dá — um não tem CRF. <em>(2)</em> Metadado não-determinístico foi removido? <em>(3)</em> O fallback de hardware para software é silencioso?</td></tr>
+            <tr><th scope="row">🟡 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F5-04</code></th>
+              <td class="text-nowrap"><code>W7</code><br><span class="small">deps: <code>F1-12</code> <code>F0-04</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Variantes de proporção — conteúdo fora da safe area de qualquer plataforma fica vermelho</td>
-              <td><code>src/entrega/variantes/**</code></td></tr>
-            <tr><th scope="row">🟢 <code>F5-05</code></th><td><code>F1-12</code> <code>F0-04</code></td><td>ambos</td>
+              <td class="small"><code>src/entrega/variantes/**</code></td>
+              <td class="small"><code>just variantes</code> · snapshots por variante ·<br><span class="badge text-bg-danger">∅-crit</span> <strong>conteúdo fora da safe area de qualquer plataforma tem de ficar vermelho</strong></td>
+              <td class="small text-body-secondary"><em>(1)</em> O recorte vertical corta texto? <em>(2)</em> A safe area usada é a da plataforma certa? <em>(3)</em> A variante herda o mesmo timing, ou recalcula e diverge?</td></tr>
+            <tr><th scope="row">🟢 <code>F5-05</code></th>
+              <td class="text-nowrap"><code>W7</code><br><span class="small">deps: <code>F1-12</code> <code>F0-04</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Thumbnail — gerado do <em>mesmo</em> manifesto, nunca digitado à parte</td>
-              <td><code>src/entrega/thumbnail/**</code></td></tr>
-            <tr><th scope="row">🟡 <code>F5-06</code></th><td><code>F0-07</code> <code>F2-04</code> <code>F2-06</code></td><td>tdd</td>
+              <td class="small"><code>src/entrega/thumbnail/**</code></td>
+              <td class="small"><code>just thumb</code> · determinismo ·<br><span class="badge text-bg-danger">∅-crit</span> <strong>thumbnail com contraste abaixo do mínimo tem de falhar</strong></td>
+              <td class="small text-body-secondary"><em>(1)</em> O texto do thumbnail é legível no tamanho em que ele aparece de fato? <em>(2)</em> É gerado do mesmo manifesto, ou digitado à parte e divergindo?</td></tr>
+            <tr><th scope="row">🟡 <code>F5-06</code></th>
+              <td class="text-nowrap"><code>W7</code><br><span class="small">deps: <code>F0-07</code> <code>F2-04</code> <code>F2-06</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Relatório de procedência — cobre assets <strong>transitivos</strong>; permite reavaliar o já produzido <em>sem re-renderizar</em></td>
-              <td><code>src/entrega/procedencia/**</code></td></tr>
-
-            <tr class="table-active"><th colspan="5" scope="colgroup">🔵 W8 — pescoço · 2 cards · o mix final é singleton por natureza</th></tr>
-            <tr><th scope="row">🔴 <code>F5-03</code></th><td><code>F3-05</code> <code>F0-04</code></td><td>ambos</td>
+              <td class="small"><code>src/entrega/procedencia/**</code></td>
+              <td class="small"><code>just procedencia</code> ·<br><span class="badge text-bg-danger">∅-crit</span> <strong>um asset no vídeo final sem origem declarada tem de bloquear a entrega</strong></td>
+              <td class="small text-body-secondary"><em>(1)</em> O relatório cobre assets <strong>transitivos</strong> (o que entrou dentro de um gráfico)? <em>(2)</em> Ele registra a origem de cada asset com data e termos, ou só o nome do arquivo? <em>(3)</em> Se o enquadramento de uso mudar (<code>AB-950</code>), este relatório é suficiente para reavaliar o que já foi produzido — <strong>sem re-renderizar</strong>? Essa é a razão de ele existir agora que a licença não bloqueia</td></tr>
+            <tr class="table-active"><th colspan="6" scope="colgroup">🔵 W8 — pescoço · 2 cards · o mix final é singleton por natureza</th></tr>
+            <tr><th scope="row">🔴 <code>F5-03</code></th>
+              <td class="text-nowrap"><code>W8</code><br><span class="small">deps: <code>F3-05</code> <code>F0-04</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Pós-processamento: loudness e sidecar — <em>true peak</em> conferido <strong>depois</strong> da codificação <span class="badge text-bg-danger">caminho crítico</span></td>
-              <td><code>src/entrega/pos/**</code></td></tr>
-            <tr><th scope="row">🟡 <code>F5-09</code></th><td><code>F5-01</code> <code>F0-07</code></td><td>tdd</td>
+              <td class="small"><code>src/entrega/pos/**</code></td>
+              <td class="small"><code>just pos</code> ·<br><span class="badge text-bg-danger">∅-crit</span> <strong>um entregável fora do alvo de LUFS tem de bloquear</strong></td>
+              <td class="small text-body-secondary"><em>(1)</em> A normalização foi aplicada duas vezes em algum caminho? <em>(2)</em> O <em>true peak</em> está dentro do limite depois da codificação, ou só antes? <em>(3)</em> O sidecar de legenda bate com o queimado?</td></tr>
+            <tr><th scope="row">🟡 <code>F5-09</code></th>
+              <td class="text-nowrap"><code>W8</code><br><span class="small">deps: <code>F5-01</code> <code>F0-07</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td>Cache de render e invalidação — <strong>por conteúdo, nunca por data</strong>; por data é falso verde</td>
-              <td><code>src/render/cache/**</code></td></tr>
-
-            <tr class="table-active"><th colspan="5" scope="colgroup">🔴 W9 — o join · 1 card · mergeia sozinho, de propósito</th></tr>
-            <tr><th scope="row">🔴 <code>F5-07</code></th><td><code>F4-03</code> <code>F5-01</code> <code>F5-02</code> <code>F5-03</code> <code>F5-04</code> <code>F5-05</code> <code>F5-06</code></td><td>ambos</td>
+              <td class="small"><code>src/render/cache/**</code></td>
+              <td class="small"><code>just render:cache</code> ·<br><span class="badge text-bg-danger">∅-crit</span> <strong>mudar um token de design tem de invalidar o cache de render</strong></td>
+              <td class="small text-body-secondary"><em>(1)</em> A chave inclui a versão do compositor e a do navegador? <em>(2)</em> Um cache acertando pelo motivo errado é detectável? <em>(3)</em> A invalidação é por conteúdo ou por data? Por data é falso verde.</td></tr>
+            <tr class="table-active"><th colspan="6" scope="colgroup">🔴 W9 — o join · 1 card · mergeia sozinho, de propósito</th></tr>
+            <tr><th scope="row">🔴 <code>F5-07</code></th>
+              <td class="text-nowrap"><code>W9</code><br><span class="small">deps: <code>F4-03</code> <code>F5-01</code> <code>F5-02</code> <code>F5-03</code> <code>F5-04</code> <code>F5-05</code> <code>F5-06</code></span><br><span class="small text-body-secondary">ambos</span></td>
               <td>Orquestrador de ponta a ponta — um comando: tema → entrega completa <span class="badge text-bg-secondary">join 7</span></td>
-              <td><code>src/pipeline/**</code> · alvo <code>produzir</code> · <code>tests/e2e/**</code></td></tr>
-
-            <tr class="table-active"><th colspan="5" scope="colgroup">🟠 W9.5 — infra · canal e política editorial</th></tr>
-            <tr><th scope="row">🟡 <code>I-04</code></th><td><code>I-01</code></td><td>—</td>
+              <td class="small"><code>src/pipeline/**</code> · alvo <code>produzir</code> · <code>tests/e2e/**</code></td>
+              <td class="small"><code>just produzir --fixture canonico --estrito</code> → exit 0 e produz todos os artefatos de entrega ·<br><code><span class="badge text-bg-danger">∅-crit</span></code> remover <strong>qualquer</strong> artefato de entrega esperado tem de ficar vermelho por ausência, com o nome do artefato</td>
+              <td class="small text-body-secondary"><em>(1)</em> O pipeline declara sucesso com um artefato faltando? <em>(2)</em> Um estágio que falha deixa artefato parcial que o próximo consome? <em>(3)</em> A retomada por estágio usa cache velho quando a entrada mudou? <em>(4)</em> O relatório sobrevive ao fechamento do terminal?</td></tr>
+            <tr class="table-active"><th colspan="6" scope="colgroup">🟠 W9.5 — infra · canal e política editorial</th></tr>
+            <tr><th scope="row">🟡 <code>I-04</code></th>
+              <td class="text-nowrap"><code>W9.5</code><br><span class="small">deps: <code>I-01</code></span><br><span class="small text-body-secondary">—</span></td>
               <td>Canal de publicação e política editorial — a pergunta que nenhum agente pode responder: <strong>o que conta como vídeo publicável, em nome de quem</strong></td>
-              <td><code>docs/politica-editorial.md</code> · ADR-0007</td></tr>
-
-            <tr class="table-active"><th colspan="5" scope="colgroup">🔵 W10 → W12 — o oráculo final, a revisão humana e o corte</th></tr>
-            <tr><th scope="row">🔴 <code>F5-08</code></th><td><code>F5-07</code> <code>F0-06</code></td><td>caract.</td>
+              <td class="small"><code>docs/politica-editorial.md</code> · ADR-0007</td>
+              <td class="small"><code><span class="badge text-bg-danger">∅-crit</span></code> <code>rg -L "alavanca-mestra" docs/runbooks/*.md</code> → vazio — todo runbook subordinado cita a alavanca maior</td>
+              <td class="small text-body-secondary"><em>(1)</em> Quem reverte é a mesma pessoa que decide o que é válido? Não deveria — reverter tráfego e corrigir conteúdo são papéis diferentes. <em>(2)</em> A política diz o que fazer no caso em que ninguém pensou?</td></tr>
+            <tr class="table-active"><th colspan="6" scope="colgroup">🔵 W10 → W12 — o oráculo final, a revisão humana e o corte</th></tr>
+            <tr><th scope="row">🔴 <code>F5-08</code></th>
+              <td class="text-nowrap"><code>W10</code><br><span class="small">deps: <code>F5-07</code> <code>F0-06</code></span><br><span class="small text-body-secondary">caract.</span></td>
               <td><strong>W10</strong> · Golden master de ponta a ponta: manifesto resolvido + frames-chave + envelope de áudio</td>
-              <td><code>fixtures/gm/**</code></td></tr>
-            <tr><th scope="row">🔴 <code>F6-01</code></th><td><code>F5-07</code> <code>F5-06</code></td><td>tdd</td>
+              <td class="small"><code>fixtures/gm/**</code></td>
+              <td class="small"><code>just gm:e2e</code> · 2× idêntico ·<br><span class="badge text-bg-danger">∅-crit</span> <strong>qualquer mudança de token, de fonte ou de versão de ferramenta tem de acender o diff</strong></td>
+              <td class="small text-body-secondary"><em>(1)</em> O golden master compara o MP4 byte a byte? Isso é falso oráculo — o encoder muda. <em>(2)</em> O que ele <strong>não</strong> cobre está escrito? <em>(3)</em> Uma regressão de áudio sem regressão de vídeo é detectada?</td></tr>
+            <tr><th scope="row">🔴 <code>F6-01</code></th>
+              <td class="text-nowrap"><code>W10</code><br><span class="small">deps: <code>F5-07</code> <code>F5-06</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td><strong>W10</strong> · Checklist de revisão humana — entrega sem dossiê bloqueia a publicação</td>
-              <td><code>docs/revisao/**</code></td></tr>
-            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F6-02</code></th><td><code>F6-01</code> <code>F5-08</code></td><td>—</td>
+              <td class="small"><code>docs/revisao/**</code></td>
+              <td class="small"><code>just revisar</code> gera o dossiê ·<br><span class="badge text-bg-danger">∅-crit</span> <strong>entrega sem dossiê tem de bloquear a publicação</strong></td>
+              <td class="small text-body-secondary"><em>(1)</em> O checklist é assinável por papel nomeado, ou por "o time"? <em>(2)</em> Ele inclui os itens que só um humano pega? <em>(3)</em> Existe caminho que publica sem passar por aqui?</td></tr>
+            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F6-02</code></th>
+              <td class="text-nowrap"><code>W11</code><br><span class="small">deps: <code>F6-01</code> <code>F5-08</code></span><br><span class="small text-body-secondary">—</span></td>
               <td><strong>W11</strong> · Runbook de publicação — nasce <code>ENCERRADO COMO CONSTRUÍDO E NÃO DISPARADO</code></td>
-              <td><code>docs/runbooks/publicacao.md</code></td></tr>
-            <tr><th scope="row">🔴 <code>F6-03</code></th><td><code>F6-01</code></td><td>—</td>
+              <td class="small"><code>docs/runbooks/publicacao.md</code></td>
+              <td class="small"><code><span class="badge text-bg-danger">∅-crit</span></code> <strong><code>rg -L "## O que este documento NÃO cobre" docs/runbooks/*.md</code> → vazio</strong> · <code>rg -q "GATE P-1" docs/runbooks/publicacao.md</code></td>
+              <td class="small text-body-secondary"><em>(1)</em> Alguém que não participou consegue seguir? <em>(2)</em> Cada item traz a evidência junto? <em>(3)</em> As perguntas estão segregadas por interlocutor?</td></tr>
+            <tr><th scope="row">🔴 <code>F6-03</code></th>
+              <td class="text-nowrap"><code>W11</code><br><span class="small">deps: <code>F6-01</code></span><br><span class="small text-body-secondary">—</span></td>
               <td><strong>W11</strong> · Gates numerados de publicação — um veredito <code>CONFERE</code> sem evidência anexada falha</td>
-              <td><code>docs/gates/**</code></td></tr>
-            <tr><th scope="row">🔴 <code>F6-04</code></th><td><code>F0-03</code> <code>F5-08</code></td><td>tdd</td>
+              <td class="small"><code>docs/gates/**</code></td>
+              <td class="small"><code>just gates:validar</code> ·<br><span class="badge text-bg-danger">∅-crit</span> <strong>um gate com veredito <code>CONFERE</code> sem evidência anexada tem de falhar</strong></td>
+              <td class="small text-body-secondary"><em>(1)</em> Algum gate diz "boas práticas" em vez do dano concreto? <em>(2)</em> Existe <code>NÃO_COLETADO</code> que pode virar <code>CONFERE</code> sem evidência? <em>(3)</em> Quem assina está nomeado por papel?</td></tr>
+            <tr><th scope="row">🔴 <code>F6-04</code></th>
+              <td class="text-nowrap"><code>W11</code><br><span class="small">deps: <code>F0-03</code> <code>F5-08</code></span><br><span class="small text-body-secondary">tdd</span></td>
               <td><strong>W11</strong> · Fechamento do ledger — zero itens abertos nas categorias bloqueantes, com allowlist <strong>explícita</strong></td>
-              <td><code>ledger/fechamento.md</code></td></tr>
-            <tr><th scope="row">🟡 <code>F6-05</code></th><td><code>F6-02</code> <code>F6-03</code> <code>F6-04</code></td><td>—</td>
+              <td class="small"><code>ledger/fechamento.md</code></td>
+              <td class="small"><code>python3 tools/validate-ledger.py --exigir-fechados --categoria plataforma,infra,operacao</code> ·<br><span class="badge text-bg-danger">∅-crit</span> <strong>um item fechado com evidência da lista negra tem de falhar</strong> ·<br><code>--permitir-aberto AB-950</code> <strong>com justificativa exigida</strong> — allowlist explícita, nunca silenciosa</td>
+              <td class="small text-body-secondary"><em>(1)</em> Algum item foi fechado por dedução? <em>(2)</em> Algum ficou <code>INVIÁVEL</code> sem ADR? <em>(3)</em> A ferramenta estreou hoje? Se sim, ela vai falhar hoje. <em>(4)</em> <strong>A allowlist tem mais de um item?</strong> Cada item nela é uma exceção que ninguém mais vai reperguntar — duas já são um padrão, e padrão de exceção é o gate morrendo devagar</td></tr>
+            <tr><th scope="row">🟡 <code>F6-05</code></th>
+              <td class="text-nowrap"><code>W12</code><br><span class="small">deps: <code>F6-02</code> <code>F6-03</code> <code>F6-04</code></span><br><span class="small text-body-secondary">—</span></td>
               <td><strong>W12</strong> · Arquivamento e escopo negativo — congela por escrito o que era vivo, o que morreu e o que <strong>virou manual</strong></td>
-              <td><code>docs/arquivamento.md</code></td></tr>
+              <td class="small"><code>docs/arquivamento.md</code></td>
+              <td class="small"><code><span class="badge text-bg-danger">∅-crit</span></code> <strong><code>rg -L "virou manual" docs/arquivamento.md</code> → vazio quando existir gate removido</strong></td>
+              <td class="small text-body-secondary"><em>(1)</em> Algum gate automático foi removido sem registro de que a regra virou manual? A ausência de um verificador é indistinguível de conformidade. <em>(2)</em> A seção "o que ninguém conferiu" existe?</td></tr>
           </tbody>
         </table>
       </div>
@@ -2275,6 +2457,27 @@ command -v surf-search-normal surf-search-unlimit # os CLIs que a skill usa como
                   formulário para preencher à mão. O prompt de um card é <strong>gerado</strong> do
                   registro mais este template. <strong>Se você se pegar redigitando um prompt, pare:</strong>
                   você acabou de criar a segunda representação que vai divergir em silêncio.</div>
+              </div>
+
+              <div class="alert alert-danger d-flex gap-2" role="alert">
+                <i class="bi bi-arrow-repeat flex-shrink-0"></i>
+                <div><strong>A exceção de bootstrap — declarada, porque ela é circular.</strong>
+                  O gerador <code>tools/gerar-prompt-de-card.py</code> é propriedade do <code>T-02</code>,
+                  que está na <strong>W1</strong>. Mas a <strong>W0</strong> precisa dos prompts de
+                  <code>F0-01</code> e <code>T-01</code> para rodar — e a W1 depende da W0. O gerador não
+                  pode gerar os dois cards que o constroem.
+                  <br><br><strong>Logo: exatamente dois prompts são escritos à mão</strong>, e só esses
+                  dois. Uma exceção assim, deixada implícita, viraria permissão geral para redigitar — que
+                  é como a segunda representação nasce. Então ela vira <strong>critério de aceitação do
+                  <code>T-02</code></strong>:
+                  <br><br>
+                  <code>just cards:gerar F0-01 T-01 &amp;&amp; diff -u prompts/manuais/ prompts/gerados/</code>
+                  &nbsp;→&nbsp; <strong>tem de dar diff vazio</strong>
+                  <br><br>
+                  Se o gerador não reproduzir os dois prompts escritos à mão, ou o template está errado ou
+                  os prompts estão — e o <code>T-02</code> não fecha. É o mesmo mecanismo do
+                  <em>"capture 2× e diffe"</em>: a exceção não é eliminada, é <strong>tornada
+                  falsificável</strong>.</div>
               </div>
 <pre><code class="language-xml">&lt;task id="&lt;ID&gt;" nome="&lt;título curto&gt;"
       onda="&lt;Wn&gt;" disciplina="&lt;tdd|caracterizacao|ambos&gt;"
