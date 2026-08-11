@@ -42,7 +42,11 @@ skip-magic-trailing-comma = false
 [tool.pytest.ini_options]
 minversion = "8.0"
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+# Aceita as duas grafias. O repositorio ja tem testes nas duas formas
+# (validar_manifesto_test.py e *_selftest.py), e um padrao que nao casa faz o
+# pytest coletar zero testes e sair com codigo 5 -- que o gate le como falha,
+# sem distinguir "quebrou" de "nao rodou nada".
+python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --strict-markers --tb=short"

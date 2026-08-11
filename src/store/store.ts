@@ -26,6 +26,11 @@ import {
 import { join, dirname } from "node:path";
 import type { Procedencia } from "./procedencia.js";
 
+// Reexportado para que store.ts seja a fachada unica do store: quem consome o
+// Store consome tambem o tipo de procedencia, sem precisar saber que ele mora
+// num modulo vizinho. CacheKey e PutResult ja sao exportados daqui abaixo.
+export type { Procedencia };
+
 // ─── Constantes ────────────────────────────────────────────────────────────────
 
 /** Prefixo do diretorio de cache relativo a raiz do projeto. */

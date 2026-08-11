@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 try:
-    from jsonschema import Draft202012Validator, ValidationError
+    from jsonschema import Draft202012Validator
 except ImportError:
     print("SKIP: jsonschema nao instalado. Rode: pip install jsonschema")
     sys.exit(0)
