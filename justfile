@@ -69,6 +69,35 @@ install:
     npm install
     @echo "Python dependencies: run 'uv sync' or 'pip install -e .[dev]'"
 
+# =============================================================================
+# Design system — tokens e validacao
+# =============================================================================
+
+# Gera tokens.py (espelho Python) a partir de src/design/tokens.ts
+design-gerar:
+    npx tsx scripts/generate-tokens-py.ts
+    @echo "=== design-gerar: verificando git diff --exit-code ==="
+    git diff --exit-code tokens.py || (echo "ERRO: tokens.py difere do gerado. Rode just design-gerar e commit." && exit 1)
+    @echo "design-gerar: OK"
+
+# Roda testes de design (contraste + varredura de literais)
+design-testar:
+    @echo "=== design-testar: contraste WCAG AA ==="
+    npx vitest run tests/design/contrast.test.ts
+    @echo "=== design-testar: varredura de literais ==="
+    npx vitest run tests/design/literal-scan.test.ts
+    @echo "design-testar: OK"
+
+# Varredura de literais — falha se achar literal fora de src/design/
+design-varrer:
+    @echo "=== design-varrer: procurando literais fora de src/design/ ==="
+    npx vitest run tests/design/literal-scan.test.ts
+    @echo "design-varrer: OK"
+
+# =============================================================================
+# Validador de grafo
+# =============================================================================
+
 # Roda o validador de grafo
 validar-grafo:
     python3 tools/validate-graph.py tools/cards.json
@@ -85,7 +114,10 @@ ondas:gerar:
 prompt:card card_id:
     python3 tools/gerar-prompt-de-card.py {{card_id}} tools/cards.json
 
+# =============================================================================
 # Skills infrastructure
+# =============================================================================
+
 skills:lint:
     python3 .agents/scripts/skill_lint.py
 
