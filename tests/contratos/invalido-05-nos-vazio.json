@@ -1,0 +1,10 @@
+{
+  "schema_version": "Manifesto.1",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "nos": [],
+  "cenas": [
+    { "id": "cena-001", "nos": ["n-001"] }
+  ]
+}

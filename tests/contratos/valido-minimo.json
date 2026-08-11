@@ -1,0 +1,67 @@
+{
+  "schema_version": "Manifesto.1",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "duracao_total_frames": 450,
+  "nos": [
+    {
+      "id": "n-001",
+      "schema": "Cabecalho.1",
+      "type": "cabecalho",
+      "duracao_frames": 120,
+      "texto": "Como Funciona um Motor Eletrico",
+      "subtitulo": "Principios basicos de eletromagnetismo",
+      "alinhamento": "centro"
+    },
+    {
+      "id": "n-002",
+      "schema": "Texto.1",
+      "type": "texto",
+      "duracao_frames": 150,
+      "texto": "Um motor eletrico converte energia eletrica em energia mecanica usando campos magneticos. O principio fundamental e a forca de Lorentz: uma corrente eletrica em um campo magnetico sofre uma forca perpendicular a ambos.",
+      "alinhamento": "esquerda"
+    },
+    {
+      "id": "n-003",
+      "schema": "Lista.1",
+      "type": "lista",
+      "duracao_frames": 180,
+      "itens": [
+        "Estator: parte fixa que gera o campo magnetico",
+        "Rotor: parte movel que gira",
+        "Comutador: inverte a direcao da corrente",
+        "Escovas: fazem contato eletrico com o comutador"
+      ],
+      "ordenada": false,
+      "alinhamento": "esquerda",
+      "animacao": {
+        "tipo": "fade",
+        "duracao_frames": 15
+      }
+    }
+  ],
+  "cenas": [
+    {
+      "id": "cena-001",
+      "nos": ["n-001"],
+      "transicao_saida": {
+        "tipo": "fade",
+        "duracao_frames": 30
+      }
+    },
+    {
+      "id": "cena-002",
+      "nos": ["n-002", "n-003"],
+      "transicao_entrada": {
+        "tipo": "slide",
+        "duracao_frames": 30,
+        "direcao": "from-right"
+      }
+    }
+  ],
+  "audio": {
+    "trilha_sonora": "none",
+    "volume": 0.3
+  }
+}

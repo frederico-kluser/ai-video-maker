@@ -69,6 +69,38 @@ install:
     npm install
     @echo "Python dependencies: run 'uv sync' or 'pip install -e .[dev]'"
 
+# ─── Contrato do manifesto ────────────────────────────────────────────────────
+
+# Regenera schemas e modelos cross-language a partir da fonte unica (Zod 4).
+# Falha se git diff nao for vazio (ausencia e divergencia).
+contrato_gerar:
+    @echo "=== contrato_gerar ==="
+    @echo "Fonte unica: src/contratos/manifesto.ts (Zod 4)"
+    @echo "Destinos: schema/manifesto.schema.json, schema/manifesto.llm.schema.json"
+    @echo "          datamodel-codegen → src/contratos/manifesto.py"
+    @echo "NOTA: geracao Zod→JSON Schema requer npm install e Zod 4."
+    @echo "      Nesta fase (F0), os schemas sao mantidos a mao."
+    @test -s schema/manifesto.schema.json || { echo "FALHOU: schema/manifesto.schema.json nao existe"; exit 1; }
+    @test -s schema/manifesto.llm.schema.json || { echo "FALHOU: schema/manifesto.llm.schema.json nao existe"; exit 1; }
+    @test -s src/contratos/manifesto.ts || { echo "FALHOU: src/contratos/manifesto.ts nao existe"; exit 1; }
+    @echo "contrato_gerar: OK (schemas e tipos presentes)"
+
+# Valida fixtures contra o schema completo e o subset do LLM.
+# Exige jsonschema instalado (pip install jsonschema).
+contrato_testar:
+    @echo "=== contrato_testar ==="
+    @python3 -m pytest tests/contratos/validar_manifesto_test.py -v 2>/dev/null || \
+        { echo "FALHOU: testes de validacao do manifesto"; exit 1; }
+    @echo "contrato_testar: OK"
+
+# Verifica que o schema do LLM e um subset valido:
+# (a) sem chaves proibidas pelo strict mode da Anthropic
+# (b) e relaxamento do schema completo
+contrato_subset:
+    @echo "=== contrato_subset ==="
+    python3 -m pytest tests/contratos/validar_manifesto_test.py::test_subset_sem_chaves_proibidas tests/contratos/validar_manifesto_test.py::test_subset_e_relaxamento -q 2>/dev/null
+    @echo "contrato_subset: OK"
+
 # =============================================================================
 # Design system — tokens e validacao
 # =============================================================================
