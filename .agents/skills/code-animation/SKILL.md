@@ -6,6 +6,18 @@ metadata:
   tier: dominio
   verification_signal: 'curl -s -o /dev/null -w "%{http_code}" https://registry.npmjs.org/@remotion/code  # espera 404; se responder 200, o pacote oficial passou a existir e esta skill caducou'
 ---
+
+> **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em
+> `PROGRAMA.html` (arquivo único, na raiz do repositório) e os documentos originais ficaram
+> **congelados no histórico do git**, no commit `8737ad6`. Caminho e número de linha continuam
+> exatos — o commit os pina por conteúdo:
+>
+> - `docs/pesquisa/<arq>.md:<linha>` → `git show 8737ad6:docs/pesquisa/<arq>.md`
+> - `docs/00-panorama-verificado.md §<n>` → `git show 8737ad6:docs/00-panorama-verificado.md`
+> - `PROGRAMA.md §<seção>` → a aba correspondente de `PROGRAMA.html`
+>
+> Um id de claim (`R07-06`, `L02-C11`) ou de card (`F2-03`) continua sendo a âncora estável.
+> Prefira-o ao caminho de arquivo: ele não desliza.
 # Animação de código — o que existe, o que não existe e onde o determinismo morre
 
 ## Quando carregar

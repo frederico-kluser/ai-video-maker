@@ -6,6 +6,18 @@ metadata:
   tier: router
   verification_signal: "for s in project-router wave-planning parallel-worktrees adversarial-review falsifiable-gates uncertainty-ledger video-characterization timeline-manifest remotion-core remotion-render-pipeline manim-bridge audio-captions-sync asset-acquisition code-animation ffmpeg-media-ops llm-authoring motion-design-system tts-voiceover meta-skill-evolution meta-skill-consolidate; do test -f .agents/skills/$s/SKILL.md || { echo MISSING $s; exit 1; }; done && test $(ls -d .agents/skills/*/ | wc -l) -eq 20"
 ---
+
+> **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em
+> `PROGRAMA.html` (arquivo único, na raiz do repositório) e os documentos originais ficaram
+> **congelados no histórico do git**, no commit `8737ad6`. Caminho e número de linha continuam
+> exatos — o commit os pina por conteúdo:
+>
+> - `docs/pesquisa/<arq>.md:<linha>` → `git show 8737ad6:docs/pesquisa/<arq>.md`
+> - `docs/00-panorama-verificado.md §<n>` → `git show 8737ad6:docs/00-panorama-verificado.md`
+> - `PROGRAMA.md §<seção>` → a aba correspondente de `PROGRAMA.html`
+>
+> Um id de claim (`R07-06`, `L02-C11`) ou de card (`F2-03`) continua sendo a âncora estável.
+> Prefira-o ao caminho de arquivo: ele não desliza.
 # Roteador do programa — Editor de Vídeo IA
 
 Todas as perguntas ao usuário são feitas em **português brasileiro**. Este arquivo é a primeira

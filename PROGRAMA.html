@@ -1,0 +1,2248 @@
+<!doctype html>
+<html lang="pt-BR" data-bs-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>PROGRAMA — Editor de Vídeo IA</title>
+
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous">
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+      integrity="sha384-CK2SzKma4jA5H/MXDUU7i1TqZlCFaD4T01vtyDFvPlD97JQyS+IsSh1nI2EFbpyk"
+      crossorigin="anonymous">
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css"
+      integrity="sha384-wH75j6z1lH97ZOpMOInqhgKzFkAInZPPSPlZpYKYTOqsaizPvhQZmAtLcPKXpLyH"
+      crossorigin="anonymous">
+
+<style>
+  [id] { scroll-margin-top: 5rem; }
+
+  pre { position: relative; margin-bottom: 1rem; }
+  pre code.hljs { padding-right: 4rem; border-radius: var(--bs-border-radius); font-size: .875rem; }
+
+  .copy-btn { position: absolute; top: .5rem; right: .5rem; opacity: .4; transition: opacity .15s; }
+  pre:hover .copy-btn, .copy-btn:focus-visible { opacity: 1; }
+
+  .tab-pane:focus-visible { outline: 0; box-shadow: 0 0 0 .2rem rgba(var(--bs-emphasis-color-rgb), .15); }
+
+  @media print {
+    .nav-tabs, .copy-btn { display: none !important; }
+    .tab-content > .tab-pane { display: block !important; opacity: 1 !important; page-break-inside: avoid; }
+    .tab-pane::before { content: attr(data-print-title); display: block;
+                        font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 .5rem; }
+  }
+</style>
+</head>
+
+<body class="bg-body">
+
+<nav class="navbar navbar-expand-lg sticky-top bg-body-tertiary border-bottom d-print-none">
+  <div class="container">
+    <span class="navbar-brand fw-semibold"><i class="bi bi-film me-1"></i>PROGRAMA — Editor de Vídeo IA</span>
+    <span class="navbar-text small text-body-secondary d-none d-md-inline">contrato de execução · 65 cards · 13 ondas</span>
+  </div>
+</nav>
+
+<main class="container py-4" style="max-width: 68rem">
+
+  <header class="mb-4">
+    <h1 class="display-6 fw-semibold">Como vamos construir o Editor de Vídeo IA</h1>
+    <p class="lead text-body-secondary">65 tarefas particionadas por propriedade de arquivo, escalonadas
+      em 13 ondas, executadas por agentes de IA em git worktrees paralelas. Este arquivo é o contrato
+      de execução: a ordem, o método e a máquina de reprovar.</p>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <span class="badge text-bg-secondary">65 cards</span>
+      <span class="badge text-bg-secondary">13 ondas + 4 meias-ondas</span>
+      <span class="badge text-bg-secondary">profundidade 11</span>
+      <span class="badge text-bg-secondary">onda mais larga: 13</span>
+      <span class="badge text-bg-secondary">ago/2026</span>
+    </div>
+
+    <div class="alert alert-primary d-flex gap-2">
+      <i class="bi bi-info-circle-fill flex-shrink-0"></i>
+      <div><strong>Em uma linha:</strong> o vídeo é uma <strong>função pura</strong> de um manifesto
+        resolvido mais assets endereçados por conteúdo. Tudo que é impuro — LLM, TTS, download, rede —
+        sobe para <em>acima</em> da fronteira e é cacheado por hash. É isso que torna o programa
+        verificável, e é a <strong>distância a essa fronteira</strong> — não a camada de arquitetura —
+        que define a ordem das ondas.</div>
+    </div>
+
+    <div class="alert alert-warning d-flex gap-2" role="alert">
+      <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+      <div><strong>Nada aqui foi executado.</strong> Zero cards concluídos, zero frames renderizados,
+        zero itens de ledger fechados. Todo número da seção de cronograma é <strong>hipótese datada</strong>,
+        escrita para ser refutada pela primeira onda. A Parte de publicação nasce
+        <code>ENCERRADO COMO CONSTRUÍDO E NÃO DISPARADO</code>.</div>
+    </div>
+
+    <div class="alert alert-danger d-flex gap-2" role="alert">
+      <i class="bi bi-x-octagon-fill flex-shrink-0"></i>
+      <div><strong>A regra que define "iniciado" (ADR-0001):</strong> nenhum estágio do pipeline começa
+        enquanto não existir um oráculo <strong>capaz de reprová-lo</strong>. Não é recomendação — o card
+        do estágio <em>declara dependência</em> do card do oráculo, e o grafo faz o resto. Ninguém
+        precisa lembrar da regra: ela é uma aresta.</div>
+    </div>
+  </header>
+
+  <ul class="nav nav-tabs" id="doc-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="tab-ondas" data-bs-toggle="tab" data-bs-target="#pane-ondas"
+              type="button" role="tab" aria-controls="pane-ondas" aria-selected="true">
+        <i class="bi bi-diagram-3 me-1"></i>As ondas
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-arquitetura" data-bs-toggle="tab" data-bs-target="#pane-arquitetura"
+              type="button" role="tab" aria-controls="pane-arquitetura" aria-selected="false">
+        <i class="bi bi-layers me-1"></i>Arquitetura
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-cards" data-bs-toggle="tab" data-bs-target="#pane-cards"
+              type="button" role="tab" aria-controls="pane-cards" aria-selected="false">
+        <i class="bi bi-card-list me-1"></i>Os 65 cards
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-operacao" data-bs-toggle="tab" data-bs-target="#pane-operacao"
+              type="button" role="tab" aria-controls="pane-operacao" aria-selected="false">
+        <i class="bi bi-play-circle me-1"></i>Rodar a onda
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-verificacao" data-bs-toggle="tab" data-bs-target="#pane-verificacao"
+              type="button" role="tab" aria-controls="pane-verificacao" aria-selected="false">
+        <i class="bi bi-shield-check me-1"></i>Verificação
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-limites" data-bs-toggle="tab" data-bs-target="#pane-limites"
+              type="button" role="tab" aria-controls="pane-limites" aria-selected="false">
+        <i class="bi bi-exclamation-diamond me-1"></i>Limites
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content border border-top-0 rounded-bottom p-4" id="doc-tabs-content">
+
+    <!-- ══════════════════════════ 1. AS ONDAS ══════════════════════════ -->
+    <div class="tab-pane fade show active" id="pane-ondas" role="tabpanel"
+         aria-labelledby="tab-ondas" tabindex="0" data-print-title="As ondas">
+
+      <h2 class="h4">Em que ordem as 65 tarefas rodam, e por quê</h2>
+      <p>A onda não é um artefato criativo. Ela é <strong>escalonamento ASAP com barreira</strong>:
+        todo card que pode começar, começa; ninguém avança até a onda inteira fechar. A tabela abaixo
+        é <strong>derivada</strong> do atributo <code>deps</code> de cada card — se ela e os atributos
+        divergirem, o gate falha e <em>a tabela</em> é a que está errada.</p>
+
+<pre><code class="nohighlight">nivel(c) = 0                          se c não tem dependência
+nivel(c) = 1 + max(nivel(d))          para toda dependência d
+onda(c) &gt;= nivel(c)                   &lt;- invariante DURA, verificada por script</code></pre>
+
+      <p><strong>A onda é uma decisão de escalonamento; o nível é uma restrição.</strong> A onda nunca
+        é menor que o nível; pode ser maior — e quando é, a folga é <em>impressa</em> pelo validador,
+        nunca descoberta.</p>
+
+      <div class="alert alert-warning d-flex gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <div>Se você não consegue derivar as suas ondas <strong>por script</strong> a partir do grafo,
+          ou o grafo está errado ou as ondas estão. O validador (<code>T-02</code>) é escrito no
+          <strong>primeiro dia</strong> — não é ferramenta de conforto, é o que impede uma aresta de
+          sumir em silêncio quando o programa muda de ideia.</div>
+      </div>
+
+      <h2 class="h5 mt-4" id="tabela-de-ondas">A tabela de ondas</h2>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th scope="col">Onda</th><th scope="col">Nível</th><th scope="col">n</th>
+              <th scope="col" style="width: 8rem">Largura</th>
+              <th scope="col">Tipo</th><th scope="col">Por que esta largura</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">W0</th><td>0</td><td>2</td>
+              <td><div class="progress" role="progressbar" aria-label="2 de 13 cards" aria-valuenow="2" aria-valuemin="0" aria-valuemax="13" style="height:.4rem"><div class="progress-bar" style="width:15%"></div></div></td>
+              <td><span class="badge text-bg-primary">raiz</span></td>
+              <td>entrega <strong>vocabulário e esqueleto</strong>, não funcionalidade. Todo o resto herda daqui</td></tr>
+            <tr class="text-body-secondary"><th scope="row">W0.5</th><td>—</td><td>1</td><td></td>
+              <td><span class="badge text-bg-warning">infra</span></td>
+              <td>✅ <strong>respondido: uso pessoal</strong>. Sem worktree, no branch de integração. Não bloqueia mais</td></tr>
+            <tr><th scope="row">W1</th><td>1</td><td>8</td>
+              <td><div class="progress" role="progressbar" aria-label="8 de 13 cards" aria-valuenow="8" aria-valuemin="0" aria-valuemax="13" style="height:.4rem"><div class="progress-bar" style="width:62%"></div></div></td>
+              <td>fan-out da raiz</td>
+              <td>os quatro contratos + as quatro ferramentas. Nenhum se conhece</td></tr>
+            <tr><th scope="row">W2</th><td>2</td><td>8</td>
+              <td><div class="progress" role="progressbar" aria-label="8 de 13 cards" aria-valuenow="8" aria-valuemin="0" aria-valuemax="13" style="height:.4rem"><div class="progress-bar" style="width:62%"></div></div></td>
+              <td><span class="badge text-bg-info">fundação</span></td>
+              <td>o oráculo, o store, os invariantes, a fixture. A W3 nasce estreita e a W4 nasce enorme <em>por causa desta</em></td></tr>
+            <tr class="text-body-secondary"><th scope="row">W2.5</th><td>—</td><td>1</td><td></td>
+              <td><span class="badge text-bg-warning">infra</span></td>
+              <td>contas e chaves; <strong>bloqueia</strong> os estágios de resolução</td></tr>
+            <tr><th scope="row">W3</th><td>3</td><td>5</td>
+              <td><div class="progress" role="progressbar" aria-label="5 de 13 cards" aria-valuenow="5" aria-valuemin="0" aria-valuemax="13" style="height:.4rem"><div class="progress-bar" style="width:38%"></div></div></td>
+              <td><span class="badge text-bg-info">hubs</span></td>
+              <td>quatro hubs de out-degree ≥ 5. Onda estreita <strong>de propósito</strong></td></tr>
+            <tr class="table-active"><th scope="row">W4</th><td>4</td><td><strong>13</strong></td>
+              <td><div class="progress" role="progressbar" aria-label="13 de 13 cards" aria-valuenow="13" aria-valuemin="0" aria-valuemax="13" style="height:.4rem"><div class="progress-bar bg-success" style="width:100%"></div></div></td>
+              <td><span class="badge text-bg-success">a mais larga</span></td>
+              <td>o fan-out dos hubs. <strong>Zero singletons tocados</strong> — é o que a descoberta por convenção comprou</td></tr>
+            <tr><th scope="row">W5</th><td>5</td><td>5</td>
+              <td><div class="progress" role="progressbar" aria-label="5 de 13 cards" aria-valuenow="5" aria-valuemin="0" aria-valuemax="13" style="height:.4rem"><div class="progress-bar bg-danger" style="width:38%"></div></div></td>
+              <td><span class="badge text-bg-danger">composição ★</span></td>
+              <td>dois joins convergem (<code>F1-12</code> in-degree 9, <code>F2-07</code> in-degree 5); <code>F4-02</code> é preenchedor de folga</td></tr>
+            <tr><th scope="row">W6</th><td>5</td><td>5</td>
+              <td><div class="progress" role="progressbar" aria-label="5 de 13 cards" aria-valuenow="5" aria-valuemin="0" aria-valuemax="13" style="height:.4rem"><div class="progress-bar bg-danger" style="width:38%"></div></div></td>
+              <td><span class="badge text-bg-danger">composição ★</span></td>
+              <td>todos consomem <code>F3-01</code>/<code>F4-01</code>. Protocolo de onda de composição obrigatório</td></tr>
+            <tr class="text-body-secondary"><th scope="row">W6.5</th><td>—</td><td>1</td><td></td>
+              <td><span class="badge text-bg-warning">infra</span></td>
+              <td>máquina de render; mede o teto real <strong>antes</strong> da fase 5</td></tr>
+            <tr><th scope="row">W7</th><td>6</td><td>6</td>
+              <td><div class="progress" role="progressbar" aria-label="6 de 13 cards" aria-valuenow="6" aria-valuemin="0" aria-valuemax="13" style="height:.4rem"><div class="progress-bar" style="width:46%"></div></div></td>
+              <td>fan-out</td>
+              <td>entrega e variantes; independentes entre si</td></tr>
+            <tr><th scope="row">W8</th><td>7</td><td>2</td>
+              <td><div class="progress" role="progressbar" aria-label="2 de 13 cards" aria-valuenow="2" aria-valuemin="0" aria-valuemax="13" style="height:.4rem"><div class="progress-bar" style="width:15%"></div></div></td>
+              <td><span class="badge text-bg-secondary">pescoço</span></td>
+              <td>o mix final é singleton por natureza; não se alarga. Está no caminho crítico</td></tr>
+            <tr><th scope="row">W9</th><td>8</td><td>1</td>
+              <td><div class="progress" role="progressbar" aria-label="1 de 13 cards" aria-valuenow="1" aria-valuemin="0" aria-valuemax="13" style="height:.4rem"><div class="progress-bar" style="width:8%"></div></div></td>
+              <td><span class="badge text-bg-secondary">join</span></td>
+              <td>in-degree 7. É o ponto de integração de verdade</td></tr>
+            <tr class="text-body-secondary"><th scope="row">W9.5</th><td>—</td><td>1</td><td></td>
+              <td><span class="badge text-bg-warning">infra</span></td>
+              <td>canal e política editorial</td></tr>
+            <tr><th scope="row">W10</th><td>9</td><td>2</td>
+              <td><div class="progress" role="progressbar" aria-label="2 de 13 cards" aria-valuenow="2" aria-valuemin="0" aria-valuemax="13" style="height:.4rem"><div class="progress-bar" style="width:15%"></div></div></td>
+              <td>—</td>
+              <td>o golden master de ponta a ponta e o checklist humano</td></tr>
+            <tr><th scope="row">W11</th><td>10</td><td>3</td>
+              <td><div class="progress" role="progressbar" aria-label="3 de 13 cards" aria-valuenow="3" aria-valuemin="0" aria-valuemax="13" style="height:.4rem"><div class="progress-bar" style="width:23%"></div></div></td>
+              <td>fan-out</td>
+              <td>os três runbooks/gates, independentes</td></tr>
+            <tr><th scope="row">W12</th><td>11</td><td>1</td>
+              <td><div class="progress" role="progressbar" aria-label="1 de 13 cards" aria-valuenow="1" aria-valuemin="0" aria-valuemax="13" style="height:.4rem"><div class="progress-bar" style="width:8%"></div></div></td>
+              <td><span class="badge text-bg-secondary">fim de linha</span></td>
+              <td>arquivamento e escopo negativo</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-body-secondary small">61 cards de sequência principal + 4 de infra = <strong>65</strong>.
+        Profundidade do grafo = 11. Ondas com trabalho = 13 (W0–W12), mais 4 meias-ondas de infra.</p>
+
+      <h2 class="h5 mt-4" id="por-que-meia-onda">Por que a infra roda em meia-onda</h2>
+      <p>Os cards da trilha <code>I</code> exigem um humano, uma credencial, um cartão ou uma máquina
+        fora do alcance do agente. <strong>Não têm worktree</strong>, rodam direto no branch de
+        integração, e ocupam ondas fracionárias para encaixar entre ondas existentes
+        <strong>sem renumerar nada</strong>.</p>
+      <p>O motivo é de escalonamento, não de organização: um card de infra que virasse <code>W3</code>
+        empurraria dez cards para <code>W4</code> por uma decisão que leva cinco minutos de um humano.
+        <strong>A meia-onda é o mecanismo que impede uma assinatura de custar uma onda.</strong></p>
+
+      <h2 class="h5 mt-4" id="caminho-critico">O caminho crítico</h2>
+      <p>O eixo mais longo do programa — recalculado a partir das arestas, nunca redigitado:</p>
+
+<pre><code class="nohighlight">F0-01 → F0-02 → F2-01 → F2-03 → F3-01 → F3-03 → F3-05 → F5-03 → F5-07 → F6-01 → F6-02 → F6-05
+        contrato contrato locução  timing  ducking   mix   loudness   join   revisão runbook arquivo</code></pre>
+
+      <div class="alert alert-primary d-flex gap-2">
+        <i class="bi bi-lightbulb-fill flex-shrink-0"></i>
+        <div><strong>O eixo longo deste programa é o áudio, não a imagem.</strong> A cadeia
+          <em>locução → timing → ducking → mix → loudness</em> é estritamente sequencial e tem cinco
+          níveis; a de imagem tem quatro e converge antes.
+          <br><br>Consequência operacional: <strong>se sobrar capacidade numa onda, ela vai para a
+          cadeia de áudio</strong> — não para engrossar a onda de nós de composição, que é larga,
+          vistosa e <em>não está</em> no caminho crítico.</div>
+      </div>
+
+      <p class="small text-body-secondary">Uma versão anterior deste plano publicava um caminho crítico
+        diferente, passando por <code>F0-09 → F1-01 → F1-05 → F1-12</code>, e três números de fan-out
+        errados — todos redigitados de cabeça a partir da intuição de qual seria o eixo mais longo.
+        Rodar a checagem de recálculo derrubou os dois. É por isso que <em>todo número que aparece em
+        prosa e existe numa fonte estruturada é gerado ou conferido, nunca redigitado.</em></p>
+
+      <h2 class="h5 mt-4" id="fan-out">Fan-out — adiantar um hub encurta o programa inteiro</h2>
+
+      <div class="row g-3">
+        <div class="col-md-7">
+          <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+              <thead><tr><th scope="col">Card</th><th scope="col">out-degree</th><th scope="col">Adiantá-lo desbloqueia</th></tr></thead>
+              <tbody>
+                <tr><th scope="row"><code>T-01</code></th><td><strong>13</strong></td><td>tudo que compila; é o esqueleto</td></tr>
+                <tr><th scope="row"><code>F0-07</code> store</th><td><strong>10</strong></td><td>os cinco estágios de resolução + procedência + cache de render</td></tr>
+                <tr><th scope="row"><code>F0-04</code> tokens</th><td><strong>10</strong></td><td>tudo que produz pixel ou som</td></tr>
+                <tr><th scope="row"><code>F0-01</code> vocabulário</th><td><strong>9</strong></td><td>tudo</td></tr>
+                <tr><th scope="row"><code>F1-01</code> <code>F1-02</code> <code>F1-03</code></th><td><strong>8</strong> cada</td><td>os oito nós de composição</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="col-md-5">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h6">In-degree — os pontos de integração de verdade</h3>
+              <p class="card-text small mb-0">
+                <code>F1-12</code> = <strong>9</strong> · <code>F5-07</code> = <strong>7</strong> ·
+                <code>F2-07</code> = <strong>5</strong> · <code>F1-07</code>/<code>F1-09</code> = 4.
+                <br><br>Largura é fan-out do nível anterior: <strong>um nível de hubs produz um nível
+                largo, um nível depois.</strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="h5 mt-4" id="folga">Folga declarada</h2>
+      <p>Folga (<code>onda &gt; nível</code>) é legítima, mas tem de ser <strong>vista</strong>, não
+        descoberta — por isso o validador a imprime. A partir da W2 quase todo card carrega folga 1,
+        de propósito: <code>F0-07</code> tem nível 1 e está escalonado na W2 junto de
+        <code>F0-06</code> porque os dois são a fundação de tudo abaixo da fronteira, e mantê-los na
+        mesma onda significa <strong>um PREP, um gate, uma ordem de merge</strong>.</p>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">Card</th><th scope="col">nível</th><th scope="col">onda</th><th scope="col">folga</th><th scope="col">Por quê</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><code>F4-02</code></th><td>2</td><td>W5</td><td><strong>3</strong></td><td><strong>preenchedor de paralelismo</strong>: só é consumido três níveis depois, e foi puxado para a W5 justamente para engrossar uma onda magra</td></tr>
+            <tr><th scope="row"><code>F5-02</code></th><td>4</td><td>W7</td><td><strong>3</strong></td><td>depende de <code>I-03</code>, que mede o teto de hardware. Perfil de encode escolhido antes da medição é chute</td></tr>
+            <tr><th scope="row"><code>F5-06</code></th><td>4</td><td>W7</td><td><strong>3</strong></td><td>procedência só faz sentido depois que existe entregável; adiantá-la produziria um relatório sobre nada</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="h5 mt-4" id="a-decisao-que-compra-paralelismo">A decisão que transformou a onda mais larga de 3 em 13</h2>
+      <p>Antes da tabela existir, uma decisão que não é técnica — é <strong>de escalonamento</strong>:</p>
+
+      <div class="alert alert-success d-flex gap-2">
+        <i class="bi bi-check-circle-fill flex-shrink-0"></i>
+        <div><strong>Descoberta por convenção, nunca registro central.</strong> Nem os componentes de
+          nó, nem os estágios de resolução, nem os perfis de encode têm arquivo de registro. Cada um é
+          descoberto pelo caminho e pelo nome: <code>src/composicao/nos/&lt;Nome&gt;.tsx</code> exporta
+          um contrato conhecido, e o compositor varre o diretório.</div>
+      </div>
+
+      <p>O motivo não é elegância. Um registro central é um <strong>singleton</strong>: treze cards que
+        precisam adicionar uma linha ao mesmo arquivo ou <em>(a)</em> serializam, ou <em>(b)</em> recebem
+        um stub com treze blocos pré-abertos no PREP — que funciona, mas custa manutenção a cada onda.
+        A descoberta por convenção <strong>elimina o singleton</strong>, e o custo é um teste: varrer o
+        disco e exigir que todo arquivo do diretório case o contrato e que todo id seja único.</p>
+
+      <p>E esse teste é <em>melhor</em> que o registro que ele substitui, porque <strong>anda no disco
+        em vez de confiar numa lista memorizada</strong> — exatamente a classe de teste que pega o que
+        humano nenhum lembraria. Custo da reversão: um arquivo e uma linha por nó.</p>
+
+      <h2 class="h5 mt-4" id="ondas-de-composicao">Ondas de composição — o tipo perigoso</h2>
+      <p><strong>Definição operacional:</strong> onda em que N cards trabalham sobre <em>o mesmo
+        artefato entregue por um card anterior</em>, em vez de N fatias independentes.
+        <strong>Detecção mecânica:</strong> um card com out-degree alto cujos consumidores estão todos
+        na mesma onda seguinte. O validador <em>imprime</em> essa detecção; ela não depende de alguém
+        notar. Aqui, os artefatos que a disparam são <code>F0-02</code> (schema),
+        <code>F1-01</code> (composição base) e <code>F2-01</code> (store).</p>
+
+      <blockquote class="blockquote border-start border-3 ps-3">
+        <p class="mb-0 fs-6">Cards da mesma onda nascem em worktrees isoladas a partir da mesma base,
+          então <strong>o git não tem em que conflitar e mergeia em silêncio código que discorda</strong>.
+          O merge limpo prova ausência de conflito <em>de texto</em>, e nada mais.</p>
+      </blockquote>
+
+      <p>Quatro dispositivos que uma onda de composição exige e uma onda normal não:</p>
+      <ol>
+        <li><strong>Mapa de propriedade por arquivo</strong>, com a coluna literal "os outros: não editam".</li>
+        <li><strong>Contratos congelados por escrito</strong> — nome de campo, nome de flag, quem registra o quê.</li>
+        <li><strong>Faixas de id disjuntas</strong> para ledger, porta TCP e qualquer inventário sequencial.</li>
+        <li><strong>Onda em dois tempos</strong> quando a propriedade colide: roda 2 cards, mergeia, e só então o terceiro.</li>
+      </ol>
+
+      <h3 class="h6 mt-3">Os três tipos de discordância silenciosa esperados aqui</h3>
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">Discordância</th><th scope="col">Como acontece</th><th scope="col">O que a pega</th></tr></thead>
+          <tbody>
+            <tr><td>Dois cards declaram o mesmo token de design com valores diferentes, em arquivos diferentes</td><td>ambos "corretos" contra a própria base</td><td>teste que <strong>varre o disco</strong> procurando literal fora do arquivo de tokens</td></tr>
+            <tr><td>Um card muda a chave de cache; o snapshot de outro card recaptura sozinho no próximo run</td><td>o hash muda, o arquivo aprovado não</td><td>o snapshot aprovado é <strong>imutável</strong>; execução divergente escreve em <code>*.received/</code> e falha</td></tr>
+            <tr><td>Dois cards registram composição com o mesmo id</td><td>stub com blocos separados, merge limpo</td><td>teste que lista os ids registrados e exige unicidade</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="h5 mt-4" id="dependencia-lateral">Dependência lateral é proibida</h2>
+      <div class="alert alert-danger d-flex gap-2" role="alert">
+        <i class="bi bi-x-octagon-fill flex-shrink-0"></i>
+        <div>Um card <strong>não pode</strong> depender de nada que outro card da <strong>mesma onda</strong>
+          produza. Se ele depende, os dois não estão na mesma onda — o grafo está errado. O validador
+          recusa uma aresta cujos dois extremos declaram a mesma onda.
+          <br><br>Irmãos da mesma onda são <strong>cegos entre si por construção</strong>. No programa de
+          origem isso custou 95 testes fora do CI em silêncio: um card pediu, no próprio handoff, algo
+          que o irmão precisaria fazer — e o irmão não era descendente, então nunca leu.</div>
+      </div>
+
+      <h2 class="h5 mt-4" id="estreiteza">Estreiteza é sinal, não ineficiência</h2>
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">Causa</th><th scope="col">Tratamento</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Arquivo global (lockfile, config raiz)</th><td>mantenha sozinha</td></tr>
+            <tr><th scope="row">Join (in-degree alto)</th><td>mantenha sozinha — é o ponto de integração de verdade</td></tr>
+            <tr><th scope="row">Fundação compartilhada</th><td>sozinha <strong>de propósito</strong>; a onda seguinte nasce larga porque todos herdam vocabulário pronto</td></tr>
+            <tr><th scope="row">Fim de linha (out-degree 0)</th><td>nada a fazer</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="mb-0">Para <em>alargar</em>: <strong>gaste folga, nunca antecipe dependência.</strong>
+        É exatamente o que <code>F4-02</code> faz.</p>
+
+    </div>
+
+    <!-- ══════════════════════════ 2. ARQUITETURA ══════════════════════════ -->
+    <div class="tab-pane fade" id="pane-arquitetura" role="tabpanel"
+         aria-labelledby="tab-arquitetura" tabindex="0" data-print-title="Arquitetura">
+
+      <h2 class="h4">Por que a ordem é esta, e não a ordem intuitiva</h2>
+
+      <blockquote class="blockquote border-start border-3 ps-3">
+        <p class="mb-0 fs-6"><strong>O vídeo é uma função pura de um manifesto resolvido mais um
+          conjunto de assets endereçados por conteúdo.</strong> Tudo que não é puro é empurrado para
+          <em>fora</em> do render, para um estágio de resolução que cacheia por hash da entrada.</p>
+      </blockquote>
+
+      <p>Essa frase não é estética. Ela é o que permite que o programa seja verificável: uma função
+        pura tem golden master; um pipeline com rede no meio, não.</p>
+
+      <h2 class="h5 mt-4" id="cinco-estagios">Os cinco estágios e a fronteira</h2>
+
+<pre><code class="nohighlight">   brief / tema
+        │
+        ▼
+┌─────────────────┐
+│  1. AUTORIA     │  LLM → manifesto.json            NÃO determinístico
+│                 │  validado contra JSON Schema     cacheado por hash(brief+prompt+modelo)
+└────────┬────────┘
+         │  manifesto.json  ── contrato de dados nº 1
+         ▼
+┌─────────────────┐
+│  2. RESOLUÇÃO   │  cada sub-estágio é impuro e independente dos outros:
+│                 │    locução (TTS)      → audio/&lt;hash&gt;.wav + timing.json
+│                 │    gráficos (Manim)   → assets/&lt;hash&gt;.&lt;ext&gt;
+│                 │    mídia externa      → assets/&lt;hash&gt;.&lt;ext&gt; + procedencia.json
+│                 │    código (highlight) → tokens/&lt;hash&gt;.json
+│                 │    música             → audio/&lt;hash&gt;.wav + licenca.json
+└────────┬────────┘
+         │  manifesto-resolvido.json  ── contrato de dados nº 2
+         │  ╔══════════════════════════════════════════════════════════╗
+         │  ║  A FRONTEIRA.  Acima: nada é determinístico, tudo é      ║
+         │  ║  cacheado. Abaixo: tudo é determinístico, e o            ║
+         │  ║  determinismo é TESTADO. Nenhuma URL, nenhum tempo       ║
+         │  ║  relativo, nenhuma decisão pendente atravessa esta linha.║
+         │  ╚══════════════════════════════════════════════════════════╝
+         ▼
+┌─────────────────┐
+│  3. COMPOSIÇÃO  │  função pura de (manifesto-resolvido, assets)
+│                 │  nenhum acesso a rede, nenhum relógio, nenhum aleatório não semeado
+└────────┬────────┘
+         ▼
+┌─────────────────┐
+│  4. RENDER      │  frames → encode. Paralelizável por faixa de frames.
+└────────┬────────┘
+         ▼
+┌─────────────────┐
+│  5. PÓS/ENTREGA │  loudness, variantes (16:9 / 9:16), legenda sidecar, thumbnail,
+│                 │  manifesto de procedência (o que veio de onde, sob qual licença)
+└─────────────────┘</code></pre>
+
+      <h3 class="h6 mt-3">Três consequências, e as três viram regra de card</h3>
+
+      <div class="row row-cols-1 row-cols-md-3 g-3 mb-3">
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-body">
+              <h4 class="card-title h6"><i class="bi bi-1-circle me-1"></i>O oráculo mora na fronteira</h4>
+              <p class="card-text small mb-0">O golden master não é "o MP4". É o par
+                <em>(manifesto-resolvido, frames-chave)</em>. O manifesto diffa como JSON — barato,
+                legível, nomeia o que mudou. Comparar MP4 byte a byte é o falso oráculo clássico: o
+                encoder muda e tudo fica vermelho sem nenhuma regressão real.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-body">
+              <h4 class="card-title h6"><i class="bi bi-2-circle me-1"></i>A fase de risco é a resolução</h4>
+              <p class="card-text small mb-0">Todo estágio de resolução tem rede, licença, custo por
+                chamada e não-determinismo. Todo estágio abaixo da fronteira é uma função. Por isso a
+                ordem das fases é <strong>primeiro a fronteira e o que está abaixo dela</strong> — o
+                inverso do que a intuição sugere, e o que torna o programa testável cedo.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-body">
+              <h4 class="card-title h6"><i class="bi bi-3-circle me-1"></i>O paralelismo máximo vive na resolução</h4>
+              <p class="card-text small mb-0">Os cinco sub-estágios não se conhecem. Compartilham
+                exatamente um artefato — o store — e ele é <strong>append-only por hash</strong>, o que
+                significa que N agentes escrevem nele ao mesmo tempo sem conflito. É a onda mais larga
+                do programa.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="h5 mt-4" id="fases">As sete fases e as duas trilhas</h2>
+      <p>O eixo <strong>não</strong> é dados/serviço/UI. É <strong>distância da fronteira de
+        determinismo</strong>, do centro para fora, porque é isso que determina se um pedaço de
+        trabalho pode ser provado quando é escrito.</p>
+
+<pre><code class="nohighlight">F0  Fundação e oráculo        ← o vocabulário, os contratos, e a máquina de reprovar
+F1  Composição determinística ← abaixo da fronteira: função pura, snapshot desde o dia 1
+F2  Resolução (impura)        ← acima da fronteira: cada sub-estágio isolado atrás de cache
+F3  Sincronia                 ← o que amarra áudio e imagem; o núcleo de precisão
+F4  Autoria                   ← o LLM; a única parte que não se prova, só se cerca
+F5  Render, encode e entrega
+F6  Operação e publicação     ★ construído e NÃO disparado
+
+T   Trilha transversal        ← esqueleto, gate, CI, hooks, worktree, infra de skills
+                                corre EM PARALELO à F0 para não serializar atrás dela
+I   Trilha de infra           ← exige humano, credencial, cartão ou máquina
+                                sem worktree · meias-ondas W0.5 W2.5 W6.5 W9.5</code></pre>
+
+      <h2 class="h5 mt-4" id="singletons">Os singletons — o teto real de paralelismo</h2>
+      <p>O teto não é o modelo nem a CPU. É o número de <strong>recursos que só admitem um
+        escritor</strong>. Enumerados <em>antes</em> de qualquer onda ser dimensionada; cada um vira
+        dono exclusivo ou sequência.</p>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">#</th><th scope="col">Singleton</th><th scope="col">Tratamento</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">S-1</th><td><code>package.json</code> + lockfile Node</td><td>dono exclusivo por onda; nunca dois cards adicionam dependência na mesma onda</td></tr>
+            <tr><th scope="row">S-2</th><td><code>pyproject.toml</code> + lock Python</td><td>idem</td></tr>
+            <tr><th scope="row">S-3</th><td><code>src/Root.tsx</code> (registro de composições)</td><td><strong>stub commitado no PREP</strong>, um bloco por card, só acrescente</td></tr>
+            <tr><th scope="row">S-4</th><td><code>schema/manifesto.schema.json</code></td><td>dono único durante toda a fase 0; depois, só por ADR</td></tr>
+            <tr><th scope="row">S-5</th><td><code>src/design/tokens.ts</code> (+ espelho Python)</td><td>dono único; alteração exige recaptura de snapshot</td></tr>
+            <tr><th scope="row">S-6</th><td>definição do CI</td><td>dono exclusivo; <strong>quem muda o gate mergeia por último</strong></td></tr>
+            <tr><th scope="row">S-7</th><td><code>ledger/aberto.json</code></td><td><strong>nunca escrito por card</strong>; cada card escreve <code>ledger/inbox/&lt;CARD&gt;.json</code>, faixa pré-alocada</td></tr>
+            <tr><th scope="row">S-8</th><td>o diretório do store</td><td>append-only por hash; escrita atômica (tmp + rename)</td></tr>
+            <tr><th scope="row">S-9</th><td>portas TCP (Studio, preview)</td><td>faixa de porta por card, declarada no PREP da onda</td></tr>
+            <tr><th scope="row">S-10</th><td>GPU / sessões de encode simultâneas</td><td>fila explícita; o gate declara quantas sessões o hardware admite</td></tr>
+            <tr><th scope="row">S-11</th><td>a árvore de cards</td><td>escrita <strong>só</strong> por quem orquestra, em branch <code>PREP-*</code></td></tr>
+            <tr><th scope="row">S-12</th><td><code>.agents/skills/catalog.md</code></td><td>idem — é derivado dos SKILL.md, e derivado se <strong>gera</strong>, não se redigita</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-danger d-flex gap-2" role="alert">
+        <i class="bi bi-x-octagon-fill flex-shrink-0"></i>
+        <div>Um recurso que não aparece nesta tabela e que dois cards da mesma onda tocam é um incidente
+          esperando o merge. Antes de abrir uma onda, releia a tabela e some os singletons tocados por
+          ela. <strong>Se o número for maior que zero e não houver dono declarado, a onda não abre.</strong></div>
+      </div>
+
+      <h2 class="h5 mt-4" id="troca-barata">Pontos de troca barata</h2>
+      <p>Toda escolha abaixo é uma que se <strong>espera</strong> reverter. Cada uma ganha uma costura
+        fina, e o custo da reversão está escrito em unidade contável.
+        <em>Se você não consegue escrever o custo em unidade contável, o ponto não é barato.</em></p>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">Ponto</th><th scope="col">Custo da reversão</th><th scope="col">Acoplamento residual que a costura <strong>não</strong> isola</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Motor de composição</th><td>reescrever os componentes de nó; manifesto e store não mudam</td><td>o modelo <em>frame-based</em> está no manifesto; um motor time-based exige conversão</td></tr>
+            <tr><th scope="row">Motor de gráficos</th><td>trocar um executor; o contrato é "código → arquivo com alfa"</td><td>o formato de alfa escolhido amarra o que a composição consegue reproduzir</td></tr>
+            <tr><th scope="row">Provedor de locução</th><td>trocar um cliente + recachear; hash muda, snapshots recapturam</td><td>se o provedor fornece <em>timing</em> e o substituto não, o estágio de alinhamento volta ao pipeline</td></tr>
+            <tr><th scope="row">Provedor de mídia externa</th><td>trocar um cliente; a procedência já é por asset</td><td>licença: assets já baixados sob termos antigos não migram</td></tr>
+            <tr><th scope="row">Encoder final</th><td>uma flag</td><td>encoder de hardware não aceita CRF — o controle de qualidade muda de eixo</td></tr>
+            <tr><th scope="row">Formato do manifesto</th><td>um conversor de/para</td><td>os ids de nó vazam para snapshots e para o ledger</td></tr>
+            <tr><th scope="row">Runner de tarefas</th><td>reescrever o gate; o CI lê a mesma definição</td><td>nada, se a fonte de definição continuar única</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-warning d-flex gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <div><strong>O acoplamento que nenhuma costura isola:</strong> o <strong>modelo temporal</strong>.
+          Frame, fps e a decisão de guardar tempo em frames ou em milissegundos atravessam manifesto,
+          snapshot, legenda, áudio e teste. Trocar isso não é um ponto de troca barata — é um programa novo.</div>
+      </div>
+
+      <h2 class="h5 mt-4" id="calibracao">Passo zero: como as ferramentas mentem neste corpus</h2>
+      <p>Antes de contar qualquer coisa, descubra como as suas ferramentas mentem <em>neste</em>
+        projeto. Cada linha abaixo é um <strong>modo de falha</strong>, não uma dica — e o que as une é
+        que <strong>todas falham em silêncio, com sinal positivo</strong>. Estas doze vão para o
+        <code>AGENTS.md</code> da raiz; as críticas são reinjetadas por hook a cada mensagem, porque um
+        arquivo normativo é lido uma vez e sai de atenção numa sessão longa.</p>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">#</th><th scope="col">A ferramenta mente assim</th><th scope="col">O que fazer</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">C1</th><td><code>exit 0</code> de um render <strong>não prova que saiu imagem</strong>. Um quadro totalmente preto renderiza com sucesso</td><td>todo gate de render asserta <strong>conteúdo</strong> (entropia do frame), nunca só o código de saída</td></tr>
+            <tr><th scope="row">C2</th><td>Um runner de teste com <strong>filtro que não casa nada</strong> sai verde</td><td>sonda negativa por alvo</td></tr>
+            <tr><th scope="row">C3</th><td><code>git diff --exit-code</code> <strong>não enxerga arquivo não rastreado</strong></td><td>combine com <code>git status --porcelain</code></td></tr>
+            <tr><th scope="row">C4</th><td><code>ffprobe</code> reporta duração do <strong>container</strong>, que pode divergir da do <strong>stream</strong></td><td>leia duração <strong>por stream</strong>, e asserte a diferença</td></tr>
+            <tr><th scope="row">C5</th><td>O <strong>Chrome do Studio ≠ o Chrome do render</strong></td><td>nenhum snapshot é aprovado a partir do Studio; só a partir do render</td></tr>
+            <tr><th scope="row">C6</th><td>Uma fonte que <strong>não carregou</strong> cai para o fallback sem erro</td><td>fontes locais embutidas + asserção de que a família resolvida é a esperada</td></tr>
+            <tr><th scope="row">C7</th><td>Um asset da rede <strong>muda de conteúdo mantendo a URL</strong></td><td>nada de URL no manifesto resolvido: só hash de conteúdo</td></tr>
+            <tr><th scope="row">C8</th><td><code>nvidia-smi</code> presente <strong>não significa</strong> encoder disponível para o seu processo</td><td>prove o encoder com um encode de 1 segundo, não com a presença do driver</td></tr>
+            <tr><th scope="row">C9</th><td>Rodar duas vezes e comparar <strong>não pega</strong> o que muda por data, fuso ou máquina</td><td>congele relógio, fuso e locale; normalize <strong>por posição, nunca por valor</strong></td></tr>
+            <tr><th scope="row">C10</th><td>Uma skill que existe <strong>não significa</strong> que foi carregada</td><td>o card lista <code>skills_obrigatorias</code> com caminho literal, e o handoff declara quais foram carregadas</td></tr>
+            <tr><th scope="row">C11</th><td>Busca vazia em código gerado por LLM <strong>não é prova de ausência</strong> — o token pode estar quebrado por escape, unicode ou quebra de linha</td><td>busque também no texto normalizado (a técnica do tripwire)</td></tr>
+            <tr><th scope="row">C12</th><td>O cache <strong>acerta pelo motivo errado</strong> quando a chave omite um parâmetro</td><td>a chave inclui <strong>tudo</strong> que muda a saída, e existe teste que muda um parâmetro por vez e exige cache miss</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="h5 mt-4" id="valores-adivinhados">Os valores que um agente adivinharia errado</h2>
+      <p>O análogo do <em>"o inteiro 10 significa retirada no balcão"</em> de um legado. Aqui é o
+        conjunto de números e nomes que <strong>soam inferíveis e não são</strong> — e cada um,
+        adivinhado, produz um sistema plausível e errado que nenhum teste posterior pega.</p>
+
+      <div class="accordion mb-3" id="acc-valores">
+        <div class="accordion-item">
+          <h3 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#acc-val-1" aria-expanded="true" aria-controls="acc-val-1">
+              As 14 armadilhas de domínio já medidas
+            </button>
+          </h3>
+          <div id="acc-val-1" class="accordion-collapse collapse show" data-bs-parent="#acc-valores">
+            <div class="accordion-body">
+              <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                  <thead><tr><th scope="col">O que um agente assumiria</th><th scope="col">O que de fato é</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>interpolate()</code> limita o resultado ao intervalo de saída</td><td>o default é <strong><code>extend</code></strong>, não <code>clamp</code>. <code>interpolate(200,[0,100],[0,1])</code> devolve <code>2</code>, <strong>sem erro</strong></td></tr>
+                    <tr><td><code>durationRestThreshold</code> é ajuste fino de estética</td><td>é <code>0.005</code> por default e mexer nele <strong>alonga o cálculo</strong> — a medição de mola roda um laço <strong>sem teto</strong></td></tr>
+                    <tr><td><code>-t</code> no motor de gráficos produz WebM com alfa</td><td>sozinho produz <code>.mov</code> com <code>qtrle</code>/<code>argb</code>. WebM só com <code>--format=webm</code> junto</td></tr>
+                    <tr><td>o <code>.mov</code> transparente é ProRes 4444</td><td>é <strong><code>qtrle</code></strong>. ProRes não aparece em lugar nenhum do código do gerador</td></tr>
+                    <tr><td>o navegador do render reproduz esse <code>.mov</code></td><td><strong>não reproduz</strong> — mas isso <em>não é o gargalo</em>: a extração de frame acontece <strong>fora</strong> do navegador, via FFmpeg</td></tr>
+                    <tr><td><code>-qk</code> é 1440p e <code>-qp</code> é 4K</td><td><strong>invertido</strong>: <code>k</code> = 3840×2160, <code>p</code> = 2560×1440</td></tr>
+                    <tr><td><code>--disable_caching</code> não escreve cache</td><td>o help literal diz <em>"still generates cache files"</em>. Para limpar é <code>--flush_cache</code></td></tr>
+                    <tr><td><code>--seed</code> torna o render reproduzível</td><td>torna o <strong>RNG da cena</strong> reproduzível. Os <strong>bytes não</strong>: o gerador grava a própria versão no metadado</td></tr>
+                    <tr><td>a concorrência default é metade dos núcleos</td><td>é <code>min(8, max(1, núcleos/2))</code> — <strong>travada em 8</strong>. Numa máquina de 32 threads o default é 8, e a doc não menciona o teto</td></tr>
+                    <tr><td><code>--buffer-size</code> melhora a qualidade sob aceleração de hardware</td><td>é opção <strong>proibida</strong> com encoder acelerado: com <code>required</code> o render <strong>lança erro</strong>; com <code>if-possible</code> ele <strong>desliga a aceleração em silêncio</strong></td></tr>
+                    <tr><td><code>--hardware-acceleration required</code> verifica se há hardware</td><td><strong>não verifica</strong>. Em Linux seleciona o encoder por plataforma e a falha aparece depois, como erro do FFmpeg</td></tr>
+                    <tr><td>timestamps de locução por caractere e por palavra são a mesma coisa</td><td>um provedor devolve <strong>por caractere</strong>; palavra é <em>derivada</em> acumulando até o espaço. E há dois alinhamentos que <strong>não</strong> coincidem</td></tr>
+                    <tr><td>offsets de <em>speech mark</em> são posição de caractere</td><td>num provedor são <strong>offset de byte</strong> — e texto pt-BR com acento tem byte ≠ caractere em UTF-8</td></tr>
+                    <tr><td>o caminho local de transcrição devolve timing por palavra em qualquer idioma</td><td>a função de junção é guardada por idioma <strong>inglês</strong>. Em pt-BR local, <strong>o estágio de alinhamento não pode ser deletado</strong> — e isso vale para <code>F2-03</code> e <code>F3-01</code>, os dois no caminho crítico</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-primary d-flex gap-2">
+        <i class="bi bi-info-circle-fill flex-shrink-0"></i>
+        <div>É por isso que <code>F0-04</code> (tokens) tem out-degree 10 e é card crítico. Cada linha
+          acima é um valor que precisa viver num <strong>tipo nomeado único</strong>, com fonte citada.
+          Um literal repetido em dois arquivos é uma dessas linhas esperando divergir num merge limpo.</div>
+      </div>
+
+      <h2 class="h5 mt-4" id="padrao-do-erro">O padrão que se repete — e vale como regra</h2>
+      <p>Oito afirmações do panorama de origem caíram contra fonte primária, e três delas teriam virado
+        <em>arquitetura</em>. Em quase todos os casos o erro não foi inventar a coisa — foi
+        <strong>perder a condição de escopo</strong>.</p>
+      <blockquote class="blockquote border-start border-3 ps-3">
+        <p class="mb-0 fs-6">"Existe" era verdade; "existe <em>nesta versão</em>", "existe
+          <em>offline</em>", "existe <em>neste renderer</em>" não era.
+          <strong>Uma regra que perde sua condição de validade vira uma regra que está errada em todo
+          o resto.</strong></p>
+      </blockquote>
+      <p class="mb-0">Neste projeto isso é epidêmico: quase toda regra vale "no renderer OpenGL", ou
+        "acima da versão X", ou "só no encoder de hardware", ou "só quando o alfa é pré-multiplicado".
+        Ao editar qualquer skill ou ADR, <strong>nunca remova o escopo para economizar palavras</strong>.</p>
+
+    </div>
+
+    <!-- ══════════════════════════ 3. OS 65 CARDS ══════════════════════════ -->
+    <div class="tab-pane fade" id="pane-cards" role="tabpanel"
+         aria-labelledby="tab-cards" tabindex="0" data-print-title="Os 65 cards">
+
+      <h2 class="h4">A lista completa, na ordem de execução</h2>
+
+      <p>Um card é <strong>o maior pedaço de trabalho que ainda tem (a)</strong> um conjunto de arquivos
+        escritos disjunto dos irmãos da mesma onda <strong>e (b)</strong> um comando que sai
+        <code>exit 0</code> — <strong>e cujo <code>exit 0</code> seria <code>exit 1</code> se o trabalho
+        não fosse feito</strong>. A segunda metade de (b) não é redundante: um card cujo critério não
+        sabe reprovar não é um card, é uma intenção.</p>
+
+      <p>Divide-se por <strong>contrato</strong> e por <strong>consumidor</strong>, nunca por volume.
+        Faixa alvo: <strong>60–180 linhas</strong> de card. Um card de 20 linhas está subespecificado —
+        a sessão é amnésica e ele vai improvisar. Um card de 400 está fazendo o trabalho de três.</p>
+
+      <div class="d-flex flex-wrap gap-3 mb-3 small">
+        <span><span class="badge text-bg-danger">🔴</span> crítico — 41</span>
+        <span><span class="badge text-bg-warning">🟡</span> médio — 19</span>
+        <span><span class="badge text-bg-success">🟢</span> baixo — 5</span>
+        <span class="text-body-secondary">F0=9 · F1=12 · F2=7 · F3=5 · F4=4 · F5=9 · F6=5 · T=10 · I=4</span>
+      </div>
+
+      <div class="alert alert-primary d-flex gap-2">
+        <i class="bi bi-info-circle-fill flex-shrink-0"></i>
+        <div><strong>63% de críticos é informação, não descuido.</strong> Num programa em que quase tudo
+          produz artefato binário verificado por snapshot, ou o card tem oráculo capaz de reprovar, ou
+          ele não deveria existir (ADR-0001). Se essa proporção cair muito ao longo do programa, a
+          hipótese mais provável não é que o trabalho ficou mais fácil: é que <strong>alguém rebaixou a
+          severidade para escapar do gate</strong>.</div>
+      </div>
+
+      <p class="small text-body-secondary"><strong>disciplina</strong> é decidida por quem orquestra e
+        nunca pelo executor — um agente que escolhe a própria disciplina escolhe a que é mais fácil de
+        satisfazer. <code>tdd</code> onde não há oráculo a preservar (o teste <em>é</em> a
+        especificação); <code>caracterizacao</code> onde só há snapshot aprovado por humano;
+        <code>ambos</code> onde as duas coisas convivem no mesmo card.</p>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead>
+            <tr>
+              <th scope="col">Card</th><th scope="col">deps</th><th scope="col">disc.</th>
+              <th scope="col">Título</th><th scope="col">Dono de</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr class="table-active"><th colspan="5" scope="colgroup">🔵 W0 — raiz · 2 cards · entrega vocabulário, não funcionalidade</th></tr>
+            <tr><th scope="row">🔴 <code>F0-01</code></th><td>—</td><td>tdd</td>
+              <td>Vocabulário, convenções e o contrato de card</td>
+              <td><code>docs/vocabulario.md</code> · <code>convencoes.md</code> · <code>estrutura.md</code> · <code>AGENTS.md</code> · ADR-0001, ADR-0002</td></tr>
+            <tr><th scope="row">🔴 <code>T-01</code></th><td>—</td><td>tdd</td>
+              <td>Esqueleto do repositório e fixação da toolchain</td>
+              <td><code>package.json</code> · lockfiles · <code>tsconfig</code> · <code>pyproject</code> · <code>.gitignore</code> · <code>justfile</code></td></tr>
+
+            <tr class="table-active"><th colspan="5" scope="colgroup">🟠 W0.5 — infra · sem worktree, no branch de integração</th></tr>
+            <tr><th scope="row">🟡 <code>I-01</code></th><td>—</td><td>—</td>
+              <td>Enquadramento de uso — <strong>RESPONDIDO: uso pessoal</strong>. Desbloqueia <code>F2-04</code>, <code>F2-06</code>, <code>F5-06</code></td>
+              <td><code>docs/adr/0003-enquadramento-de-uso.md</code></td></tr>
+
+            <tr class="table-active"><th colspan="5" scope="colgroup">🔵 W1 — fan-out da raiz · 8 cards · os quatro contratos e as quatro ferramentas</th></tr>
+            <tr><th scope="row">🔴 <code>F0-02</code></th><td><code>F0-01</code> <code>T-01</code></td><td>tdd</td>
+              <td>Contrato do manifesto: schema e geração cross-language <span class="badge text-bg-info">hub 6</span></td>
+              <td><code>schema/**</code> · <code>src/contratos/manifesto.*</code> · <code>tests/contratos/**</code></td></tr>
+            <tr><th scope="row">🔴 <code>F0-03</code></th><td><code>F0-01</code> <code>T-01</code></td><td>tdd</td>
+              <td>Ledger de incerteza: schema, validador, faixas e inbox</td>
+              <td><code>ledger/**</code> · <code>tools/validate-ledger.py</code> · <code>tools/consolidar-ledger.py</code></td></tr>
+            <tr><th scope="row">🔴 <code>F0-04</code></th><td><code>F0-01</code> <code>T-01</code></td><td>tdd</td>
+              <td>Tokens de design em código <span class="badge text-bg-info">hub 10</span></td>
+              <td><code>src/design/tokens.ts</code> · <code>tokens.py</code> (gerado) · <code>tests/design/**</code></td></tr>
+            <tr><th scope="row">🟡 <code>F0-05</code></th><td><code>F0-01</code></td><td>—</td>
+              <td>Inventário de reuso do 3blue1brown, <strong>por call-site</strong></td>
+              <td><code>docs/reuso-3b1b.md</code> · ADR-0004</td></tr>
+            <tr><th scope="row">🔴 <code>T-02</code></th><td><code>F0-01</code> <code>T-01</code></td><td>tdd</td>
+              <td>Validador de grafo de tarefas — as 11 checagens</td>
+              <td><code>tools/validate-graph.py</code> · <code>gerar-tabela-de-ondas.py</code> · <code>gerar-prompt-de-card.py</code></td></tr>
+            <tr><th scope="row">🔴 <code>T-03</code></th><td><code>T-01</code></td><td>tdd</td>
+              <td>Gate local executável — uma etapa por job, três estados</td>
+              <td><code>tools/gate.sh</code> · <code>docs/gate.md</code></td></tr>
+            <tr><th scope="row">🔴 <code>T-04</code></th><td><code>T-01</code></td><td>tdd</td>
+              <td>Worktree por card, com preflight</td>
+              <td><code>tools/new-task-worktree.sh</code> · <code>tools/preflight.sh</code></td></tr>
+            <tr><th scope="row">🔴 <code>T-10</code></th><td><code>T-01</code></td><td>tdd</td>
+              <td>Infraestrutura de skills: linter, evals, staleness, catálogo gerado</td>
+              <td><code>.agents/scripts/**</code> · <code>.agents/skills/catalog.md</code> (gerado)</td></tr>
+
+            <tr class="table-active"><th colspan="5" scope="colgroup">🔵 W2 — fundação compartilhada · 8 cards · a W4 nasce enorme por causa desta</th></tr>
+            <tr><th scope="row">🔴 <code>F0-06</code></th><td><code>F0-01</code> <code>T-01</code> <code>T-03</code></td><td>tdd</td>
+              <td><strong>Harness de determinismo</strong> — o motor do oráculo. Sem ele, o ADR-0001 é uma frase</td>
+              <td><code>tools/determinismo/**</code> · <code>tests/harness/**</code> · <code>fixtures/canario/**</code></td></tr>
+            <tr><th scope="row">🔴 <code>F0-07</code></th><td><code>F0-01</code> <code>T-01</code></td><td>tdd</td>
+              <td>Store endereçado por conteúdo <span class="badge text-bg-info">hub 10</span></td>
+              <td><code>src/store/**</code> · <code>tools/store-*</code> · <code>tests/store/**</code></td></tr>
+            <tr><th scope="row">🔴 <code>F0-08</code></th><td><code>F0-01</code> <code>T-03</code></td><td>tdd</td>
+              <td>Invariantes estruturais e o catálogo de falso verde <strong>executável</strong></td>
+              <td><code>tools/invariantes/**</code> · <code>docs/falso-verde.md</code></td></tr>
+            <tr><th scope="row">🔴 <code>F0-09</code></th><td><code>F0-02</code> <code>F0-04</code></td><td>tdd</td>
+              <td>Fixture canônica — o manifesto de referência, com as <strong>entradas sujas</strong></td>
+              <td><code>fixtures/canonico/**</code> · <code>docs/fixtures.md</code></td></tr>
+            <tr><th scope="row">🔴 <code>T-05</code></th><td><code>T-01</code> <code>T-03</code> <code>T-10</code></td><td>tdd</td>
+              <td>Hooks: gate de segurança, gate de skill, barreira de onda, nudge</td>
+              <td><code>.claude/settings.json</code> · <code>.agents/scripts/*.py</code></td></tr>
+            <tr><th scope="row">🔴 <code>T-06</code></th><td><code>T-02</code> <code>T-03</code></td><td>tdd</td>
+              <td>Verificador de aceitação: sonda negativa e tripwire</td>
+              <td><code>tools/verify-acceptance.py</code></td></tr>
+            <tr><th scope="row">🟡 <code>T-07</code></th><td><code>T-02</code></td><td>tdd</td>
+              <td>Estado derivado do programa</td>
+              <td><code>tools/derive-state.py</code> · a seção de estado deste documento</td></tr>
+            <tr><th scope="row">🟢 <code>T-08</code></th><td><code>T-03</code></td><td>tdd</td>
+              <td>Instrumentação de custo e tempo por onda — substitui o cronograma por medição</td>
+              <td><code>tools/medir.py</code> · <code>docs/medicao/**</code></td></tr>
+
+            <tr class="table-active"><th colspan="5" scope="colgroup">🟠 W2.5 — infra · <strong>bloqueante</strong> para os estágios de resolução</th></tr>
+            <tr><th scope="row">🔴 <code>I-02</code></th><td><code>I-01</code></td><td>—</td>
+              <td>Contas, chaves e quotas — quota por provedor é o que dimensiona a concorrência da W4</td>
+              <td><code>.env.example</code> · <code>docs/contas.md</code> · ADR-0005</td></tr>
+
+            <tr class="table-active"><th colspan="5" scope="colgroup">🔵 W3 — os hubs · 5 cards · <em>onda estreita de propósito</em></th></tr>
+            <tr><th scope="row">🔴 <code>F1-01</code></th><td><code>F0-02</code> <code>F0-04</code> <code>F0-09</code> <code>T-01</code></td><td>ambos</td>
+              <td>Composição raiz, contrato de nó e <strong>descoberta por convenção</strong> <span class="badge text-bg-info">hub 8</span></td>
+              <td><code>src/composicao/raiz.tsx</code> · <code>contrato-de-no.ts</code> · <code>descoberta.ts</code> · <code>tempo.ts</code></td></tr>
+            <tr><th scope="row">🔴 <code>F1-02</code></th><td><code>F0-04</code> <code>T-01</code></td><td>tdd</td>
+              <td>Motor de layout: medição, ajuste e <strong>overflow como erro de build</strong></td>
+              <td><code>src/composicao/layout/**</code></td></tr>
+            <tr><th scope="row">🟡 <code>F1-03</code></th><td><code>F0-04</code> <code>T-01</code></td><td>tdd</td>
+              <td>Fontes locais embutidas e asserção de família resolvida</td>
+              <td><code>src/design/fontes/**</code> · <code>assets/fontes/**</code></td></tr>
+            <tr><th scope="row">🔴 <code>F2-01</code></th><td><code>F0-02</code> <code>F0-07</code></td><td>tdd</td>
+              <td>Contrato de estágio de resolução, cassetes e o orquestrador <span class="badge text-bg-info">hub 7</span></td>
+              <td><code>src/resolucao/contrato.ts</code> · <code>orquestrador.ts</code> · <code>cassete/**</code> · schema do manifesto-resolvido</td></tr>
+            <tr><th scope="row">🟡 <code>T-09</code></th><td><code>T-03</code> <code>T-06</code></td><td>tdd</td>
+              <td>CI espelhado, lido pelo gate local — <strong>mergeia por último</strong></td>
+              <td><code>.github/workflows/**</code> · <code>tools/espelho-ci.py</code></td></tr>
+
+            <tr class="table-active"><th colspan="5" scope="colgroup">🟢 W4 — a mais larga · 13 cards · <strong>zero singletons tocados</strong></th></tr>
+            <tr><th scope="row">🟡 <code>F1-04</code></th><td><code>F1-01</code> <code>F1-02</code> <code>F1-03</code></td><td>ambos</td>
+              <td>Nó: cabeçalho e título — mola nomeada dos tokens, <strong>nunca</strong> valor inline</td>
+              <td><code>nos/Cabecalho.tsx</code> + snapshots</td></tr>
+            <tr><th scope="row">🔴 <code>F1-05</code></th><td><code>F1-01</code> <code>F1-02</code> <code>F1-03</code></td><td>ambos</td>
+              <td>Nó: texto com destaque palavra a palavra — sem timing, degrada para frase; o teste prova os dois caminhos</td>
+              <td><code>nos/TextoDestaque.tsx</code> + snapshots</td></tr>
+            <tr><th scope="row">🟢 <code>F1-06</code></th><td><code>F1-01</code> <code>F1-02</code> <code>F1-03</code></td><td>ambos</td>
+              <td>Nó: lista, grade e bullets — o caso "um item" e o caso "vinte itens"</td>
+              <td><code>nos/Lista.tsx</code> + snapshots</td></tr>
+            <tr><th scope="row">🔴 <code>F1-07</code></th><td><code>F1-01</code> <code>F1-02</code> <code>F1-03</code> <code>F0-07</code></td><td>ambos</td>
+              <td>Nó: mídia com contrato de alfa — recebe <strong>hash</strong>, nunca URL; o GIF avança pelo frame, não pelo relógio</td>
+              <td><code>nos/Midia.tsx</code> + snapshots</td></tr>
+            <tr><th scope="row">🟡 <code>F1-08</code></th><td><code>F1-01</code> <code>F1-02</code> <code>F1-03</code></td><td>ambos</td>
+              <td>Nó: código — consome tokens <strong>pré-computados</strong>, nunca destaca em tempo de render</td>
+              <td><code>nos/Codigo.tsx</code> + snapshots</td></tr>
+            <tr><th scope="row">🔴 <code>F1-09</code></th><td><code>F1-01</code> <code>F1-02</code> <code>F1-03</code> <code>F0-07</code></td><td>ambos</td>
+              <td>Nó: gráfico — "o alfa não é suportado" tem de falhar no <em>build</em>, não no vídeo</td>
+              <td><code>nos/Grafico.tsx</code> + snapshots</td></tr>
+            <tr><th scope="row">🔴 <code>F1-10</code></th><td><code>F1-01</code> <code>F1-02</code> <code>F1-03</code></td><td>ambos</td>
+              <td>Transições e composição de sequência — <strong>errar aqui erra a duração de todo vídeo, e o erro é invisível frame a frame</strong></td>
+              <td><code>transicoes/**</code> + snapshots</td></tr>
+            <tr><th scope="row">🟢 <code>F1-11</code></th><td><code>F1-01</code> <code>F1-02</code> <code>F1-03</code></td><td>ambos</td>
+              <td>Camadas globais: fundo, grade, vinheta — o teste prova que a camada não cobre a safe area</td>
+              <td><code>camadas/**</code> + snapshots</td></tr>
+            <tr><th scope="row">🔴 <code>F2-02</code></th><td><code>F2-01</code> <code>F0-07</code> <code>F0-05</code></td><td>ambos</td>
+              <td>Resolução: gráfico (Manim headless) — absorve os quirks do 3b1b <strong>com citação de origem</strong></td>
+              <td><code>resolucao/grafico/**</code> + cassetes</td></tr>
+            <tr><th scope="row">🔴 <code>F2-03</code></th><td><code>F2-01</code> <code>F0-07</code></td><td>ambos</td>
+              <td>Resolução: locução — produz <em>audio</em> <strong>e</strong> <em>timing</em>. <span class="badge text-bg-danger">caminho crítico</span></td>
+              <td><code>resolucao/locucao/**</code> + cassetes</td></tr>
+            <tr><th scope="row">🟡 <code>F2-04</code></th><td><code>F2-01</code> <code>F0-07</code></td><td>ambos</td>
+              <td>Resolução: mídia externa — um provedor <strong>proíbe hotlink</strong>, outro o <strong>exige</strong>: decide qual vale <em>antes</em> de escrever o downloader</td>
+              <td><code>resolucao/midia/**</code> + cassetes</td></tr>
+            <tr><th scope="row">🟡 <code>F2-05</code></th><td><code>F2-01</code> <code>F0-07</code></td><td>ambos</td>
+              <td>Resolução: destaque de código — nada de busca de tipos em CDN em tempo de execução</td>
+              <td><code>resolucao/codigo/**</code> + cassetes</td></tr>
+            <tr><th scope="row">🟡 <code>F2-06</code></th><td><code>F2-01</code> <code>F0-07</code></td><td>ambos</td>
+              <td>Resolução: música e efeitos — os efeitos do pacote do fornecedor são <strong>URLs remotas</strong>; precisam ir para o store</td>
+              <td><code>resolucao/musica/**</code> + cassetes</td></tr>
+
+            <tr class="table-active"><th colspan="5" scope="colgroup">🟣 W5 — onda de composição ★ · 5 cards · dois joins convergem</th></tr>
+            <tr><th scope="row">🔴 <code>F1-12</code></th><td><code>F0-06</code> <code>F1-04</code>…<code>F1-11</code></td><td>caract.</td>
+              <td>Suíte integrada de composição — é aqui que "merge limpo ≠ integração" aparece ou não <span class="badge text-bg-secondary">join 9</span></td>
+              <td><code>tests/integracao/composicao/**</code> · <code>fixtures/snapshots/integrado/**</code></td></tr>
+            <tr><th scope="row">🔴 <code>F2-07</code></th><td><code>F2-02</code>…<code>F2-06</code></td><td>caract.</td>
+              <td>Suíte offline de resolução e o <strong>guarda de rede</strong> — prova que o pipeline abaixo da autoria roda sem rede <span class="badge text-bg-secondary">join 5</span></td>
+              <td><code>tests/integracao/resolucao/**</code> · <code>tools/offline-guard.*</code></td></tr>
+            <tr><th scope="row">🔴 <code>F3-01</code></th><td><code>F2-01</code> <code>F2-03</code></td><td>tdd</td>
+              <td>Timing canônico — três consumidores, uma fonte <span class="badge text-bg-danger">caminho crítico</span></td>
+              <td><code>src/sincronia/timing/**</code> · <code>schema/timing.schema.json</code></td></tr>
+            <tr><th scope="row">🟡 <code>F4-01</code></th><td><code>F0-02</code> <code>F2-01</code></td><td>tdd</td>
+              <td>Contrato de autoria: saída estruturada e cache — o LLM decide <em>narrativa</em>; o sistema decide frames, layout e cor</td>
+              <td><code>src/autoria/contrato/**</code></td></tr>
+            <tr><th scope="row">🟢 <code>F4-02</code></th><td><code>F0-01</code> <code>F0-02</code></td><td>tdd</td>
+              <td>Biblioteca de prompt e decomposição narrativa <span class="badge text-bg-secondary">preenchedor de folga</span></td>
+              <td><code>docs/autoria/prompts/**</code></td></tr>
+
+            <tr class="table-active"><th colspan="5" scope="colgroup">🟣 W6 — onda de composição ★ · 5 cards · todos consomem <code>F3-01</code>/<code>F4-01</code></th></tr>
+            <tr><th scope="row">🔴 <code>F3-02</code></th><td><code>F3-01</code> <code>F1-05</code> <code>F0-04</code></td><td>ambos</td>
+              <td>Legendas a partir do timing — o invariante é <strong>em segundos, nunca em frames</strong></td>
+              <td><code>src/sincronia/legendas/**</code></td></tr>
+            <tr><th scope="row">🔴 <code>F3-03</code></th><td><code>F3-01</code> <code>F0-04</code></td><td>tdd</td>
+              <td>Envelope de ducking — <strong>calculado</strong>, não um compressor cuja saída muda entre versões</td>
+              <td><code>src/sincronia/ducking/**</code></td></tr>
+            <tr><th scope="row">🟡 <code>F3-04</code></th><td><code>F3-01</code></td><td>tdd</td>
+              <td>Ritmo: corte de silêncio e cadência — o teste prova que nenhuma palavra foi cortada</td>
+              <td><code>src/sincronia/ritmo/**</code></td></tr>
+            <tr><th scope="row">🔴 <code>F4-03</code></th><td><code>F4-01</code> <code>F0-02</code></td><td>tdd</td>
+              <td>Validação e reparo do manifesto gerado — irreparável é <strong>rejeitado</strong>, nunca "melhorado" até passar</td>
+              <td><code>src/autoria/reparo/**</code></td></tr>
+            <tr><th scope="row">🟡 <code>F4-04</code></th><td><code>F4-01</code> <code>F2-07</code></td><td>caract.</td>
+              <td>Cassete de autoria e a suíte de <strong>rejeição</strong> — só os manifestos bons não testa nada</td>
+              <td><code>fixtures/cassetes/autoria/**</code> · <code>tests/autoria/**</code></td></tr>
+
+            <tr class="table-active"><th colspan="5" scope="colgroup">🟠 W6.5 — infra · mede o teto real antes da fase 5</th></tr>
+            <tr><th scope="row">🔴 <code>I-03</code></th><td><code>T-08</code></td><td>—</td>
+              <td>Máquina de render: RAM por worker, ponto de saturação, sessões de encode, throughput de disco — <strong>cada número com o comando que o reproduz</strong></td>
+              <td><code>docs/medicao/maquina.md</code> · ADR-0006</td></tr>
+
+            <tr class="table-active"><th colspan="5" scope="colgroup">🔵 W7 — entrega e variantes · 6 cards · independentes entre si</th></tr>
+            <tr><th scope="row">🔴 <code>F3-05</code></th><td><code>F3-03</code> <code>F2-06</code></td><td>ambos</td>
+              <td>Trilha de áudio composta — "a música cobre a locução?" <strong>meça, não escute</strong></td>
+              <td><code>src/audio/mix/**</code></td></tr>
+            <tr><th scope="row">🔴 <code>F5-01</code></th><td><code>F1-12</code> <code>F2-07</code> <code>I-03</code></td><td>tdd</td>
+              <td>Pipeline de render e paralelismo — render por faixa + concatenação tem de bater byte a byte com o render inteiro</td>
+              <td><code>src/render/pipeline/**</code></td></tr>
+            <tr><th scope="row">🟡 <code>F5-02</code></th><td><code>F0-04</code> <code>I-03</code></td><td>tdd</td>
+              <td>Perfis de encode — hardware e software não se comparam pelo mesmo eixo: um não tem CRF</td>
+              <td><code>src/render/encode/**</code></td></tr>
+            <tr><th scope="row">🟡 <code>F5-04</code></th><td><code>F1-12</code> <code>F0-04</code></td><td>ambos</td>
+              <td>Variantes de proporção — conteúdo fora da safe area de qualquer plataforma fica vermelho</td>
+              <td><code>src/entrega/variantes/**</code></td></tr>
+            <tr><th scope="row">🟢 <code>F5-05</code></th><td><code>F1-12</code> <code>F0-04</code></td><td>ambos</td>
+              <td>Thumbnail — gerado do <em>mesmo</em> manifesto, nunca digitado à parte</td>
+              <td><code>src/entrega/thumbnail/**</code></td></tr>
+            <tr><th scope="row">🟡 <code>F5-06</code></th><td><code>F0-07</code> <code>F2-04</code> <code>F2-06</code></td><td>tdd</td>
+              <td>Relatório de procedência — cobre assets <strong>transitivos</strong>; permite reavaliar o já produzido <em>sem re-renderizar</em></td>
+              <td><code>src/entrega/procedencia/**</code></td></tr>
+
+            <tr class="table-active"><th colspan="5" scope="colgroup">🔵 W8 — pescoço · 2 cards · o mix final é singleton por natureza</th></tr>
+            <tr><th scope="row">🔴 <code>F5-03</code></th><td><code>F3-05</code> <code>F0-04</code></td><td>ambos</td>
+              <td>Pós-processamento: loudness e sidecar — <em>true peak</em> conferido <strong>depois</strong> da codificação <span class="badge text-bg-danger">caminho crítico</span></td>
+              <td><code>src/entrega/pos/**</code></td></tr>
+            <tr><th scope="row">🟡 <code>F5-09</code></th><td><code>F5-01</code> <code>F0-07</code></td><td>tdd</td>
+              <td>Cache de render e invalidação — <strong>por conteúdo, nunca por data</strong>; por data é falso verde</td>
+              <td><code>src/render/cache/**</code></td></tr>
+
+            <tr class="table-active"><th colspan="5" scope="colgroup">🔴 W9 — o join · 1 card · mergeia sozinho, de propósito</th></tr>
+            <tr><th scope="row">🔴 <code>F5-07</code></th><td><code>F4-03</code> <code>F5-01</code> <code>F5-02</code> <code>F5-03</code> <code>F5-04</code> <code>F5-05</code> <code>F5-06</code></td><td>ambos</td>
+              <td>Orquestrador de ponta a ponta — um comando: tema → entrega completa <span class="badge text-bg-secondary">join 7</span></td>
+              <td><code>src/pipeline/**</code> · alvo <code>produzir</code> · <code>tests/e2e/**</code></td></tr>
+
+            <tr class="table-active"><th colspan="5" scope="colgroup">🟠 W9.5 — infra · canal e política editorial</th></tr>
+            <tr><th scope="row">🟡 <code>I-04</code></th><td><code>I-01</code></td><td>—</td>
+              <td>Canal de publicação e política editorial — a pergunta que nenhum agente pode responder: <strong>o que conta como vídeo publicável, em nome de quem</strong></td>
+              <td><code>docs/politica-editorial.md</code> · ADR-0007</td></tr>
+
+            <tr class="table-active"><th colspan="5" scope="colgroup">🔵 W10 → W12 — o oráculo final, a revisão humana e o corte</th></tr>
+            <tr><th scope="row">🔴 <code>F5-08</code></th><td><code>F5-07</code> <code>F0-06</code></td><td>caract.</td>
+              <td><strong>W10</strong> · Golden master de ponta a ponta: manifesto resolvido + frames-chave + envelope de áudio</td>
+              <td><code>fixtures/gm/**</code></td></tr>
+            <tr><th scope="row">🔴 <code>F6-01</code></th><td><code>F5-07</code> <code>F5-06</code></td><td>tdd</td>
+              <td><strong>W10</strong> · Checklist de revisão humana — entrega sem dossiê bloqueia a publicação</td>
+              <td><code>docs/revisao/**</code></td></tr>
+            <tr><th scope="row">🔴 <code>F6-02</code></th><td><code>F6-01</code> <code>F5-08</code></td><td>—</td>
+              <td><strong>W11</strong> · Runbook de publicação — nasce <code>ENCERRADO COMO CONSTRUÍDO E NÃO DISPARADO</code></td>
+              <td><code>docs/runbooks/publicacao.md</code></td></tr>
+            <tr><th scope="row">🔴 <code>F6-03</code></th><td><code>F6-01</code></td><td>—</td>
+              <td><strong>W11</strong> · Gates numerados de publicação — um veredito <code>CONFERE</code> sem evidência anexada falha</td>
+              <td><code>docs/gates/**</code></td></tr>
+            <tr><th scope="row">🔴 <code>F6-04</code></th><td><code>F0-03</code> <code>F5-08</code></td><td>tdd</td>
+              <td><strong>W11</strong> · Fechamento do ledger — zero itens abertos nas categorias bloqueantes, com allowlist <strong>explícita</strong></td>
+              <td><code>ledger/fechamento.md</code></td></tr>
+            <tr><th scope="row">🟡 <code>F6-05</code></th><td><code>F6-02</code> <code>F6-03</code> <code>F6-04</code></td><td>—</td>
+              <td><strong>W12</strong> · Arquivamento e escopo negativo — congela por escrito o que era vivo, o que morreu e o que <strong>virou manual</strong></td>
+              <td><code>docs/arquivamento.md</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="h5 mt-4" id="mapa-w4">Mapa <code>arquivo → dono</code> da W4 — a onda mais crítica</h2>
+      <p>Publicado no commit <code>PREP-w4</code>, <strong>antes</strong> de qualquer worktree existir.
+        A terceira coluna é o que dá contratualidade — sem ela é uma sugestão.</p>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">Arquivo / diretório</th><th scope="col">Dono</th><th scope="col">Os outros</th></tr></thead>
+          <tbody>
+            <tr><td><code>src/composicao/nos/Cabecalho.tsx</code> + <code>fixtures/snapshots/no-cabecalho/**</code></td><td><strong>F1-04</strong></td><td>não editam</td></tr>
+            <tr><td><code>src/composicao/nos/TextoDestaque.tsx</code> + snapshots</td><td><strong>F1-05</strong></td><td>não editam</td></tr>
+            <tr><td><code>src/composicao/nos/Lista.tsx</code> + snapshots</td><td><strong>F1-06</strong></td><td>não editam</td></tr>
+            <tr><td><code>src/composicao/nos/Midia.tsx</code> + snapshots</td><td><strong>F1-07</strong></td><td>não editam</td></tr>
+            <tr><td><code>src/composicao/nos/Codigo.tsx</code> + snapshots</td><td><strong>F1-08</strong></td><td>não editam</td></tr>
+            <tr><td><code>src/composicao/nos/Grafico.tsx</code> + snapshots</td><td><strong>F1-09</strong></td><td>não editam</td></tr>
+            <tr><td><code>src/composicao/transicoes/**</code> + snapshots</td><td><strong>F1-10</strong></td><td>não editam</td></tr>
+            <tr><td><code>src/composicao/camadas/**</code> + snapshots</td><td><strong>F1-11</strong></td><td>não editam</td></tr>
+            <tr><td><code>src/resolucao/grafico/**</code> + <code>fixtures/cassetes/grafico/**</code></td><td><strong>F2-02</strong></td><td>não editam</td></tr>
+            <tr><td><code>src/resolucao/locucao/**</code> + cassetes</td><td><strong>F2-03</strong></td><td>não editam</td></tr>
+            <tr><td><code>src/resolucao/midia/**</code> + cassetes</td><td><strong>F2-04</strong></td><td>não editam</td></tr>
+            <tr><td><code>src/resolucao/codigo/**</code> + cassetes</td><td><strong>F2-05</strong></td><td>não editam</td></tr>
+            <tr><td><code>src/resolucao/musica/**</code> + cassetes</td><td><strong>F2-06</strong></td><td>não editam</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>Compartilhados nesta onda — só acrescente:</strong> <code>docs/adr/</code> (um arquivo
+        novo por card, nunca edite o de outro) · <code>ledger/inbox/&lt;CARD&gt;.json</code> (um por card,
+        por construção).</p>
+
+      <div class="alert alert-danger d-flex gap-2" role="alert">
+        <i class="bi bi-x-octagon-fill flex-shrink-0"></i>
+        <div><strong>Nada mais é compartilhado nesta onda.</strong> Se um card precisar tocar
+          <code>src/design/tokens.ts</code>, <code>schema/manifesto.schema.json</code> ou
+          <code>package.json</code>, <strong>ele para e escreve no handoff</strong> — a mudança vira um
+          <code>PREP</code> da onda seguinte, feito por quem orquestra. Motivo: os três são singletons
+          (S-1, S-4, S-5), e treze agentes cegos entre si <strong>não negociam em tempo real</strong>.</div>
+      </div>
+
+      <p><strong>Ordem de merge da W4:</strong> os cinco de resolução primeiro
+        (<code>F2-02</code>…<code>F2-06</code>), depois os oito de composição. Motivo: os de resolução
+        gravam cassetes que os testes de composição podem consumir; mergeá-los antes faz um eventual
+        gate vermelho <strong>nomear o card certo</strong>.</p>
+
+      <h2 class="h5 mt-4" id="contratos-w6">Contratos congelados antes da W6</h2>
+      <p>Escritos no <code>PREP-w6</code>, não negociados em tempo real: o formato de
+        <code>timing.json</code> (campos, unidade de tempo, semântica de silêncio, dono
+        <code>F3-01</code>) · o nome e a semântica do envelope de ducking · o contrato de erro de
+        <code>F4-03</code> (o que é reparável e o que é rejeição definitiva).</p>
+
+      <h2 class="h5 mt-4" id="faixas-id">Faixas de id do ledger</h2>
+      <p>Pré-alocadas no <code>PREP</code> de cada onda. <strong>Ids nunca são reciclados</strong> — o
+        número é citado no código. Um card que esgotar a faixa <strong>para e pede uma faixa nova</strong>;
+        ele não invade a do vizinho.</p>
+
+<pre><code class="nohighlight">W0    F0-01 001..019 · T-01 020..029
+W1    F0-02 030..049 · F0-03 050..059 · F0-04 060..079 · F0-05 080..099
+      T-02  100..109 · T-03  110..119 · T-04  120..129 · T-10  130..139
+W2    F0-06 140..159 · F0-07 160..179 · F0-08 180..189 · F0-09 190..209
+      T-05  210..219 · T-06  220..229 · T-07  230..234 · T-08  235..239
+W3    F1-01 240..259 · F1-02 260..269 · F1-03 270..279 · F2-01 280..299 · T-09 300..309
+W4    F1-04..F1-11   310..389  (10 por card)
+      F2-02..F2-06   390..489  (20 por card — as maiores de propósito: é onde a incerteza se concentra)
+W5    F1-12 490..499 · F2-07 500..519 · F3-01 520..549 · F4-01 550..569 · F4-02 570..579
+W6    F3-02 580..599 · F3-03 600..614 · F3-04 615..629 · F4-03 630..649 · F4-04 650..659
+W7    F3-05 660..679 · F5-01 680..699 · F5-02 700..719 · F5-04 720..734
+      F5-05 735..744 · F5-06 745..769
+W8+   F5-03 770..789 · F5-09 790..799 · F5-07 800..829 · F5-08 830..849 · F6-01..F6-05 850..949
+infra I-01  950..969 · I-02  970..979 · I-03  980..989 · I-04  990..999</code></pre>
+
+      <p class="mb-0 small text-body-secondary">Uma faixa apertada num estágio de resolução força o
+        agente a escolher entre <em>não registrar</em> e <em>invadir</em> — e as duas saídas são piores
+        que uma faixa generosa.</p>
+
+    </div>
+
+    <!-- ══════════════════════════ 4. RODAR A ONDA ══════════════════════════ -->
+    <div class="tab-pane fade" id="pane-operacao" role="tabpanel"
+         aria-labelledby="tab-operacao" tabindex="0" data-print-title="Rodar a onda">
+
+      <h2 class="h4">Os sete passos de uma onda</h2>
+      <p>Nenhum é opcional, e cada um previne uma falha nomeada.</p>
+
+      <ol class="list-group list-group-numbered mb-3">
+        <li class="list-group-item">
+          <div class="fw-semibold">Commit <code>PREP-w&lt;N&gt;</code> — antes de qualquer worktree existir</div>
+          <p class="small mb-0 text-body-secondary">Traz, no <em>mesmo</em> commit: os stubs dos pontos
+            de composição, o contrato da onda (tabela <code>arquivo → dono</code>), as faixas de id do
+            ledger, as faixas de porta TCP, e qualquer mudança de ferramenta que a onda exija.
+            <br><strong>A razão mecânica:</strong> uma worktree materializa apenas o que está commitado.
+            Preparação deixada no checkout principal simplesmente não chega nos agentes, e a divergência
+            aparece no merge como trabalho a refazer.
+            <br><em>Prep é commit próprio, com nome próprio, fora de qualquer card — para poder ser
+            revisado, revertido e citado.</em></p>
+        </li>
+        <li class="list-group-item">
+          <div class="fw-semibold">Preflight por worktree</div>
+          <p class="small mb-0 text-body-secondary">O script de criação termina provando acesso ao insumo
+            crítico com um <strong>valor conhecido</strong>, não com "criei a pasta".</p>
+        </li>
+        <li class="list-group-item">
+          <div class="fw-semibold">Lançamento — N agentes, um por card, cada um na sua worktree</div>
+        </li>
+        <li class="list-group-item">
+          <div class="fw-semibold">Barreira — contador monotônico <em>por onda</em></div>
+          <p class="small mb-0 text-body-secondary">Escrito pelo próprio agente ao terminar; nunca
+            relógio e nunca leitura de tela. <strong>A barreira tem de valer para quem terminou
+            <em>antes</em> de você começar a esperar.</strong> A versão que contava "conclusões desde que
+            comecei a olhar" perdeu a corrida quando os agentes terminaram antes da espera começar:
+            timeout de 15 minutos com o dever feito.</p>
+        </li>
+        <li class="list-group-item">
+          <div class="fw-semibold">Teardown, a partir do repositório principal — <strong>três</strong> comandos, não um</div>
+        </li>
+        <li class="list-group-item">
+          <div class="fw-semibold">Merges um a um, na ordem declarada</div>
+          <p class="small mb-0 text-body-secondary">Nunca octopus — um octopus aborta inteiro no primeiro
+            conflito e você perde a atribuição. Ordem padrão: <strong>infra e ferramenta primeiro; quem
+            muda o gate, por último.</strong></p>
+        </li>
+        <li class="list-group-item">
+          <div class="fw-semibold">Gate completo após <strong>CADA</strong> merge</div>
+          <p class="small mb-0 text-body-secondary">Nunca ao fim da onda. <em>A bissecção é o produto,
+            não a limpeza:</em> com um merge dentro, um gate vermelho <strong>nomeia o card</strong>;
+            com quatro, não nomeia nada.</p>
+        </li>
+      </ol>
+
+      <h2 class="h5 mt-4" id="teardown">O teardown são três comandos</h2>
+
+<pre><code class="language-bash">git worktree remove ../wt-F1-07     # NÃO apaga o branch
+git branch -D card/F1-07            # sem isto, cada onda deixa N branches órfãos, para sempre
+git worktree prune</code></pre>
+
+      <div class="alert alert-warning d-flex gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <div><strong>"Remova de fora" tem o motivo trocado no folclore.</strong>
+          <code>git worktree remove</code> executado de dentro da própria worktree
+          <strong>retorna 0</strong>. Quem quebra é o <em>shell</em>, que fica com um <code>cwd</code>
+          inexistente. Não é recusa do git — e por isso o script tem de tratar o caso, não confiar num
+          erro que não vem.</div>
+      </div>
+
+      <h2 class="h5 mt-4" id="worktree">Worktree por card, com preflight</h2>
+      <p>Um <code>git worktree add</code> puro <strong>não resolve o problema</strong>: a worktree
+        materializa apenas o que está commitado, e aqui o insumo crítico é justamente o que não está —
+        o store de assets, os modelos baixados, o navegador do render, os binários. O agente busca,
+        encontra zero, e <strong>isso é indistinguível de "não existe"</strong>.</p>
+
+      <p>O script (<code>T-04</code>) faz cinco coisas:</p>
+      <ol>
+        <li><strong>valida o identificador</strong> contra os formatos aceitos (<code>&lt;FASE&gt;-&lt;NN&gt;</code>
+          da árvore, ou <code>PREP-&lt;slug&gt;</code> para trabalho que <em>não é card</em>);</li>
+        <li><strong>recusa</strong> os identificadores da trilha de infra, com explicação — eles rodam no
+          branch de integração;</li>
+        <li>cria a worktree a partir do branch de integração;</li>
+        <li><strong>symlinka o insumo gitignorado</strong> e o acrescenta ao exclude local — porque o
+          padrão de <code>.gitignore</code> com barra <strong>não cobre symlink</strong>;</li>
+        <li>roda um <strong>preflight</strong> com valores conhecidos, e falha com <code>exit 1</code>
+          deixando a worktree para inspeção.</li>
+      </ol>
+
+      <p>As quatro provas do preflight — todas contra um valor <em>conhecido</em>, nunca contra "existe":</p>
+<pre><code class="nohighlight">1. um asset conhecido resolve no store  E O HASH BATE
+2. o binário do FFmpeg responde         E A VERSÃO É A FIXADA
+3. uma composição-canário renderiza um still  E O HASH DO PNG BATE COM O ESPERADO
+4. o linter de skill roda               E SAI ZERO</code></pre>
+
+      <p>E imprime, ao final, <strong>o que não funciona por design naquele ambiente</strong> — para o
+        agente não gastar um ciclo descobrindo.</p>
+
+      <div class="alert alert-danger d-flex gap-2" role="alert">
+        <i class="bi bi-x-octagon-fill flex-shrink-0"></i>
+        <div>O setup de ambiente de agente termina com um <strong>teste que prova acesso ao insumo
+          crítico com um valor conhecido</strong> — não com "criei a pasta". Ambiente que falha em
+          silêncio produz agente confiante e errado, e a falha aparece só no merge.</div>
+      </div>
+
+      <h2 class="h5 mt-4" id="swarm">Swarm × subagentes — dois eixos diferentes</h2>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col"></th><th scope="col">decide</th><th scope="col">isolamento</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">worktree</th><td>paralelismo <strong>entre</strong> cards</td><td>diretório + branch</td></tr>
+            <tr><th scope="row">subagentes</th><td>paralelismo <strong>dentro</strong> de um card</td><td>contexto</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>"Agente único" é o default explícito de todo card</strong>, e o card que quiser fan-out
+        declara a topologia e justifica o custo. O padrão que funciona é <strong>fan-out para ler,
+        funil para escrever</strong>: N subagentes investigam em contexto isolado e devolvem ~1 página
+        destilada com citações; <strong>a escrita é do agente principal</strong>, que enxerga o conjunto.</p>
+
+      <div class="alert alert-primary d-flex gap-2">
+        <i class="bi bi-info-circle-fill flex-shrink-0"></i>
+        <div>Paralelize <strong>investigação</strong>. Serialize <strong>decisão e escrita</strong> quando
+          a consistência entre as peças é o produto. E quem detecta <em>classe</em> de erro precisa ver o
+          arquivo inteiro, não uma fatia — <strong>fatiar demais cega o agente para a categoria do
+          defeito</strong>.</div>
+      </div>
+
+      <h2 class="h5 mt-4" id="revisao-adversarial">Revisão adversarial</h2>
+      <p>Nenhum card pede "revise". Todo card pede <strong>refutação por um agente de contexto zero,
+        antes de concluir</strong>:</p>
+
+<pre><code class="nohighlight">Antes de concluir, lance um subagente de CONTEXTO FRESCO que recebe APENAS o diff e este
+card, e tenta REFUTAR:
+   &lt;pergunta falsificável 1, específica do domínio&gt;
+   &lt;pergunta falsificável 2&gt;
+   &lt;pergunta falsificável 3&gt;
+Corrija o que ele derrubar antes de encerrar.</code></pre>
+
+      <p><strong>Por que adversarial:</strong> o revisor não vê o histórico da conversa do implementador,
+        então não herda nem a pressa nem as premissas.</p>
+
+      <h3 class="h6 mt-3">O que faz uma pergunta boa</h3>
+      <p>Ela nomeia um <strong>resultado observável que, se acontecer, derruba o trabalho</strong>.
+        "Está bom?" não é pergunta. Exemplos deste domínio, e todos vêm do card:</p>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">Domínio</th><th scope="col">Pergunta</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">harness de render</th><td><em>o smoke passaria com o componente devolvendo um quadro vazio?</em></td></tr>
+            <tr><th scope="row">golden master</th><td><em>renderize 2× e diffe: <strong>qualquer</strong> byte diferente refuta o determinismo</em></td></tr>
+            <tr><th scope="row">store / cache</th><td><em>a chave omite algum parâmetro que muda a saída? Nomeie um e prove que ele gera miss</em></td></tr>
+            <tr><th scope="row">timing</th><td><em>existe caminho em que a legenda aparece <strong>antes</strong> de a palavra ser falada?</em></td></tr>
+            <tr><th scope="row">suíte offline</th><td><em>o guarda bloqueia DNS, socket e subprocesso, ou só o cliente HTTP da linguagem?</em></td></tr>
+            <tr><th scope="row">fixture</th><td><em>cadê o caso misto? Procure variação de domínio <strong>sem</strong> linha correspondente</em></td></tr>
+            <tr><th scope="row">cassete</th><td><em>o estágio "conserta" algo da resposta externa? Se conserta, ele esconde o defeito — o cassete tem de ser sósia, não sucessor</em></td></tr>
+            <tr><th scope="row">fontes</th><td><em>como o teste distingue "carregou a fonte certa" de "caiu no fallback que por acaso parece igual"?</em></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-danger d-flex gap-2" role="alert">
+        <i class="bi bi-x-octagon-fill flex-shrink-0"></i>
+        <div><strong>Regra dupla.</strong> <em>(1)</em> Contexto zero, tarefa escrita como
+          <em>tentativa de refutação</em>, nunca como "aprovar/reprovar". <em>(2)</em> <strong>O oráculo
+          e a implementação não podem derivar da mesma premissa não verificada</strong> — se o motor e o
+          teste repetem a mesma suposição errada, as duas cópias erram juntas e o teste diferencial fica
+          cego.
+          <br><br><strong>As perguntas vêm do card</strong>, escritas por quem orquestra, <em>antes</em>.
+          Não do executor. Essa é a única forma de fechar a brecha óbvia do mecanismo — quem escolhe a
+          pergunta escolhe o resultado.</div>
+      </div>
+
+      <p class="small text-body-secondary"><strong>Limite honesto, para não vender mais do que é:</strong>
+        a revisão adversarial reduz o erro que o autor não <em>veria</em>; não corrige o erro que ele não
+        <em>quer</em> ver. E não existe taxa: casos de sucesso são anedota.</p>
+
+      <h2 class="h5 mt-4" id="premissa-cai">Quando a premissa do card cai</h2>
+      <p>Vai acontecer, e é o mecanismo funcionando. Todo card autoriza explicitamente:
+        <em>uma consideração de um ancestral distante pode invalidar uma premissa deste card — se isso
+        ocorrer, ajuste o plano e diga por quê; <strong>não siga no automático</strong>.</em></p>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">A premissa é…</th><th scope="col">Exemplo neste projeto</th><th scope="col">O que fazer</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">(i) fato sobre o mundo</th><td>"o formato de alfa escolhido toca no navegador" — não toca</td><td>cumpra o card <strong>pelo que ele quis</strong>; entregue menos e <strong>nomeie a diferença</strong></td></tr>
+            <tr><th scope="row">(ii) uma entrada</th><td>"a fixture tem caso com acento" — não tinha</td><td><strong>estenda a entrada</strong>, anunciando quem mais depende dela</td></tr>
+            <tr><th scope="row">(iii) restrição de ancestral</th><td>o invariante proíbe o layout que o card pede</td><td><strong>o contrato vence, o card cede</strong>; a dívida é nomeada e endereçada a um card futuro</td></tr>
+            <tr><th scope="row">(iv) pressuposto de sequência</th><td>"o store ainda não existe" — já existe e mudou de forma</td><td><strong>só este exige reescrever o card</strong>, fora da onda</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>O que PARA: nada.</strong> O card continua até seus critérios de aceitação — que são
+        sobre o <em>resultado</em>, não sobre a premissa. A exceção é (iv).</p>
+
+      <h3 class="h6 mt-3">Autoridade, e ela é assimétrica</h3>
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <div class="small text-danger mb-1"><i class="bi bi-x-lg"></i> O agente executor <strong>não pode</strong> reescrever o card</div>
+          <p class="small text-body-secondary mb-0">Seu mandato é marcar concluído e escrever o handoff —
+            nenhum outro.</p>
+        </div>
+        <div class="col-md-6">
+          <div class="small text-success mb-1"><i class="bi bi-check-lg"></i> Quem orquestra <strong>pode</strong></div>
+          <p class="small text-body-secondary mb-0">Por outra via: branch <code>PREP-&lt;slug&gt;</code>,
+            fora da onda, commit próprio, autoria humana.</p>
+        </div>
+      </div>
+
+      <blockquote class="blockquote border-start border-3 ps-3">
+        <p class="mb-0 fs-6">Um card é uma <strong>hipótese datada</strong>, não um contrato. O que ele
+          afirma sobre o mundo pode ser falso; o que ele afirma sobre o <em>resultado esperado</em> é o
+          que vincula.
+          <br><br>O corpo do card é registro histórico <strong>imutável</strong>; a refutação é
+          <strong>append-only</strong> no handoff. Quem lê o card vê as duas coisas — o que se acreditava
+          e o que se descobriu. Reescrever apagaria a segunda.
+          <br><br>E <strong>a refutação tem endereço</strong>: escreva-a para o descendente
+          <strong>nomeado</strong> que vai tropeçar nela.</p>
+      </blockquote>
+
+      <h2 class="h5 mt-4" id="handoff">O handoff</h2>
+      <p>No programa de origem, 49 de 49 handoffs foram preenchidos, média de 5 KB, e
+        <strong>zero</strong> disseram "nada a propagar" — a válvula de escape existia e nunca foi usada.
+        Aqui ela é explícita:</p>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">Campo</th><th scope="col">Regra</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><code>destinatarios:</code></th><td><strong>obrigatório</strong>, ids de card nomeados. Vazio só é aceito como a string literal <code>NENHUM</code></td></tr>
+            <tr><th scope="row">tamanho</th><td><strong>teto de 2 KB</strong>. Acima disso o gate rejeita — o excesso vai para um documento próprio, citado</td></tr>
+            <tr><th scope="row">conteúdo</th><td>só o que <strong>muda o trabalho de um descendente nomeado</strong>. Não é diário</td></tr>
+            <tr><th scope="row">proveniência</th><td>toda afirmação com origem citada</td></tr>
+            <tr><th scope="row">válvula de escape</th><td><code>nada-a-propagar</code> é resposta legítima e <strong>esperada na maioria dos cards</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="h5 mt-4" id="ledger">O ledger de incerteza</h2>
+      <p><strong>Não é um registro de riscos. É uma fila de trabalho para um dia futuro.</strong>
+        A decisão de nível de programa vem primeiro, e é uma frase:</p>
+
+      <blockquote class="blockquote border-start border-3 ps-3">
+        <p class="mb-0 fs-6">Avançar o máximo possível contra o que se pode provar localmente, e deixar
+          <strong>EM ABERTO — nunca resolver por palpite</strong> — tudo o que só o ambiente real, uma
+          conta paga, uma licença ou uma decisão humana pode responder.</p>
+      </blockquote>
+
+      <p>Sem essa frase, cada agente resolve por plausibilidade e ninguém sabe onde. Os cinco campos —
+        e os dois últimos são os que importam:</p>
+
+      <ol>
+        <li>a pergunta</li>
+        <li>por que a base de código não responde</li>
+        <li>o que se assumiu enquanto isso</li>
+        <li><strong>o teste que fecha a questão</strong> — executável: um comando, uma query, um
+          experimento, ou a pergunta objetiva <strong>e para quem</strong></li>
+        <li><strong>o que se quebra se a resposta for outra</strong> — nomeando as fixtures, os snapshots
+          e os gates a recapturar</li>
+      </ol>
+
+      <p><em>Item aberto sem passo executável de verificação é item que ninguém consegue fechar no dia do
+        acesso; ele não está aberto, está <strong>esquecido</strong>.</em> Sem os dois últimos é um <code>TODO</code> —
+        e os campos obrigatórios são <strong>validados por script</strong>, não por revisão.</p>
+
+      <h3 class="h6 mt-3">Classifique por quem responde, não só por risco</h3>
+      <p>O ledger deriva, do texto de cada item, o <strong>interlocutor mais barato que ainda
+        responde</strong>: <code>dono</code> (mandato, orçamento, apetite de risco) ·
+        <code>jurídico</code> · <code>infra</code> (máquina, GPU, rede) · <code>plataforma</code> (conta
+        de API, quota) · <code>operação</code> (o que conta como vídeo publicável).
+        <strong>É isso que transforma o catálogo numa agenda.</strong></p>
+
+      <h3 class="h6 mt-3">Âncora no código</h3>
+<pre><code class="language-ts">// ABERTO AB-032: assume ORDER BY por chave; ver ledger.</code></pre>
+      <p>No ponto exato da suposição. <strong>O catálogo encontra o código e o código encontra o
+        catálogo.</strong> Um invariante do gate exige que todo id citado no código exista no ledger, e
+        que todo item aberto com âncora declarada tenha a âncora presente.</p>
+
+      <h3 class="h6 mt-3">Como sobreviver a N worktrees paralelas</h3>
+      <p>O arquivo do ledger é um array único: várias worktrees acrescentando ao fim dele
+        <strong>conflitam no fecho do array, sempre</strong>. A solução é obrigatória desde a W0:</p>
+      <ul>
+        <li><strong>ids pré-alocados por faixa</strong>, reservados no commit <code>PREP</code> da onda;</li>
+        <li><strong>um arquivo de inbox por card</strong>, nunca o arquivo compartilhado;</li>
+        <li><strong>consolidação pelo orquestrador</strong>, depois do merge;</li>
+        <li><strong>ids nunca reciclados</strong> — o número é citado no código;</li>
+        <li><strong>procurar antes de abrir</strong> — referenciar, não duplicar;</li>
+        <li><strong>vocabulário fechado de categorias</strong>, e o gerador <strong>recusa</strong>
+          categoria fora da lista. Sem isso, quatro worktrees paralelas inventam cinco categorias novas
+          ao mesmo tempo, cada uma sem ver as outras.</li>
+      </ul>
+
+      <h3 class="h6 mt-3">Fechar é mais regulado que abrir</h3>
+      <p>"Evidência" tem forma verificável por expressão regular — origem citada, saída de comando salva,
+        relatório de diff, ADR nominal, ou resposta atribuída com data — <strong>mais uma lista
+        negra</strong> que rejeita <code>"ok"</code>, <code>"confirmado"</code>,
+        <code>"conforme combinado"</code>, <code>"resolvido"</code>. Sem a lista negra, a regra vira
+        decorativa.</p>
+
+      <div class="alert alert-danger d-flex gap-2" role="alert">
+        <i class="bi bi-x-octagon-fill flex-shrink-0"></i>
+        <div>Item marcado <strong>CONFIRMADO sem evidência anexada é pior que item aberto</strong>: ele
+          para de ser reperguntado e vira premissa invisível.
+          <br><br>Estado terminal honesto: <code>INVIÁVEL</code>, com ADR. Sem ele, o inverificável ou
+          fica aberto para sempre — virando ruído — ou é fechado por dedução, virando mentira.</div>
+      </div>
+
+      <p><strong>E o script roda no gate desde o dia 1</strong>, verde com tudo aberto.
+        <em>Ferramenta que estreia no dia do fechamento é ferramenta que falha no dia do fechamento.</em></p>
+
+      <h2 class="h5 mt-4" id="skills">As 20 skills, e quando cada uma carrega</h2>
+      <p>Não é uma biblioteca de documentação: é o <strong>delta</strong> entre o que um modelo capaz já
+        sabe e o que este programa exige. Se uma passagem ensina a tecnologia, ela está no lugar errado.
+        Vivem em <code>.agents/skills/</code> e são carregadas por caminho literal, declarado no card.</p>
+
+      <div class="alert alert-warning d-flex gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <div><strong>20 skills está acima do limiar em que roteamento por palavra-chave degrada (~15).</strong>
+          Isso é uma escolha, e vem com duas obrigações: <strong>roteamento em dois níveis</strong> (o
+          router escolhe o <em>tier</em> e só então a skill) e <strong>evals de roteamento com
+          near-misses</strong> — queries que devem disparar uma skill específica e queries que
+          <em>não devem disparar nenhuma</em>. Precisão de roteamento é número medido, não impressão.</div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">Tier</th><th scope="col">Skill</th><th scope="col">Carregue quando</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">router</th><td><code>project-router</code></td><td>sempre, antes de qualquer passo</td></tr>
+            <tr><th scope="row" rowspan="6">método</th><td><code>wave-planning</code></td><td>escrever ou mudar cards, ondas, arestas, PREP</td></tr>
+            <tr><td><code>parallel-worktrees</code></td><td><span class="badge text-bg-danger">obrigatória</span> quando o card escreve em arquivo tocado por outro card</td></tr>
+            <tr><td><code>adversarial-review</code></td><td>antes de concluir qualquer card</td></tr>
+            <tr><td><code>falsifiable-gates</code></td><td>escrever critério de aceitação, verificador, invariante, autoteste</td></tr>
+            <tr><td><code>uncertainty-ledger</code></td><td>abrir, fechar ou validar item de incerteza</td></tr>
+            <tr><td><code>video-characterization</code></td><td><span class="badge text-bg-danger">obrigatória</span> quando o card altera saída visual ou sonora</td></tr>
+            <tr><th scope="row" rowspan="11">domínio</th><td><code>timeline-manifest</code></td><td>tocar o schema, o contrato de dados ou a unidade de tempo</td></tr>
+            <tr><td><code>remotion-core</code></td><td>composição, determinismo, tempo, transições</td></tr>
+            <tr><td><code>remotion-render-pipeline</code></td><td>render, concorrência, encode, aceleração</td></tr>
+            <tr><td><code>manim-bridge</code></td><td>gráficos, headless, alfa, reuso do projeto de origem</td></tr>
+            <tr><td><code>audio-captions-sync</code></td><td>timing, legenda, ducking, loudness</td></tr>
+            <tr><td><code>asset-acquisition</code></td><td>mídia externa, licença, procedência, cache de asset</td></tr>
+            <tr><td><code>code-animation</code></td><td>destaque de código, tokens pré-computados, fonte mono</td></tr>
+            <tr><td><code>ffmpeg-media-ops</code></td><td>encode, alfa, concatenação, normalização, probing</td></tr>
+            <tr><td><code>llm-authoring</code></td><td>prompt, saída estruturada, cache de autoria, reparo</td></tr>
+            <tr><td><code>motion-design-system</code></td><td>tokens, tipografia, cor, safe area, acessibilidade</td></tr>
+            <tr><td><code>tts-voiceover</code></td><td>locução, voz, prosódia, dicionário de pronúncia</td></tr>
+            <tr><th scope="row" rowspan="2">meta</th><td><code>meta-skill-evolution</code></td><td>ao concluir um card, para cada skill carregada</td></tr>
+            <tr><td><code>meta-skill-consolidate</code></td><td>catálogo crescendo, gatilhos sobrepostos, proveniência stale</td></tr>
+            <tr class="table-active"><th scope="row">externa</th><td><code>/surf-search-skill</code></td><td><span class="badge text-bg-danger">obrigatória</span> em todo card marcado <i class="bi bi-search"></i> na aba <em>Os 65 cards</em> — os que dependem de uma pergunta pública e datável. Regra completa <a href="#pesquisar-ou-perguntar">abaixo</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="h6 mt-3">Por que exatamente duas são obrigatórias</h3>
+      <p>De todo o conhecimento deste programa, exatamente duas skills têm carregamento obrigatório
+        <strong>por classe de tarefa</strong> — não por julgamento do agente. Duas, não vinte, porque as
+        duas falhas que elas cobrem são <strong>silenciosas e confirmatórias</strong>: nenhum teste
+        posterior as pega, e o sinal disponível diz o contrário do que aconteceu.</p>
+
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th scope="col">Skill</th><th scope="col">Classe de tarefa</th><th scope="col">A falha que ela cobre</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><code>video-characterization</code></th><td>altera saída visual ou sonora</td><td><strong>"o render passou" parece prova.</strong> Um quadro totalmente preto sai com <code>exit 0</code>. O sinal é positivo e o resultado é lixo</td></tr>
+            <tr><th scope="row"><code>parallel-worktrees</code></th><td>escreve em arquivo tocado por outro card</td><td><strong>"escopo contido" parece contido.</strong> O merge limpo <em>confirma</em> a ilusão: o git prova ausência de conflito de texto e nada mais</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="mb-0 small text-body-secondary">Uma terceira candidata foi considerada e <strong>rejeitada</strong>:
+        <code>asset-acquisition</code>. Rejeitada porque a falha dela <strong>não é silenciosa</strong> —
+        é bloqueada por um gate e por um card de infra com assinatura. Onde existe gate mecânico, não é
+        preciso regra de carregamento. <em>Gate onde o erro é irreversível; nudge no resto.</em></p>
+
+      <h2 class="h5 mt-4" id="pesquisar-ou-perguntar">Pesquisar, perguntar ou registrar — três regimes</h2>
+      <p>Confundi-los é caro, e a confusão tem sempre a mesma forma: um agente resolve por
+        plausibilidade uma pergunta que tinha resposta pública, ou queima a sessão de um humano com uma
+        pergunta que o Google respondia.</p>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead><tr><th scope="col">Regime</th><th scope="col">Quando</th><th scope="col">O que o card faz</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><i class="bi bi-search"></i> <strong>Pesquisar</strong></th>
+              <td>a resposta é <strong>pública e datável</strong>: uma versão, o status de manutenção de um pacote, um limite de API, uma cláusula de termos de uso, uma norma publicada, a semântica documentada de uma flag, uma licença</td>
+              <td>carrega <code>/surf-search-skill</code> em <code>skills_obrigatorias</code> e volta com <strong>placar</strong></td></tr>
+            <tr><th scope="row"><i class="bi bi-person-raised-hand"></i> <strong>Perguntar ao dono</strong></th>
+              <td>a resposta depende de <em>(i)</em> mandato e escopo, <em>(ii)</em> topologia física que ninguém no repositório enxerga, <em>(iii)</em> apetite de risco</td>
+              <td>vira card da trilha <code>I</code>, em meia-onda, com <strong>sign-off nominal e datado</strong> dentro do ADR — e a cláusula do que o sign-off <strong>não</strong> autoriza</td></tr>
+            <tr><th scope="row"><i class="bi bi-journal-text"></i> <strong>Registrar</strong></th>
+              <td>a resposta só existe no ambiente real, e ele ainda não chegou</td>
+              <td>vira item de ledger, com <em>como verificar</em> e <em>o que muda se divergir</em> escritos <strong>no ato de assumir</strong>, nunca depois</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-danger d-flex gap-2" role="alert">
+        <i class="bi bi-x-octagon-fill flex-shrink-0"></i>
+        <div><strong>O erro que os três regimes existem para impedir</strong> é o mesmo de C11 e do
+          ledger: <em>o modelo preenche a lacuna com o plausível, e o plausível vira contrato.</em>
+          Um card que precisava pesquisar e não declarou não falha — ele <strong>passa</strong>, com um
+          número inventado dentro.</div>
+      </div>
+
+      <h3 class="h6 mt-3">Como a skill entra no prompt do card</h3>
+      <p>Todo card marcado <i class="bi bi-search text-info"></i> na aba <em>Os 65 cards</em> carrega a
+        skill de pesquisa como <strong>primeira</strong> da lista — antes das skills de domínio, porque
+        o que ela devolve condiciona o que as outras vão consumir:</p>
+
+<pre><code class="language-xml">&lt;skills_obrigatorias&gt;
+- /surf-search-skill                             &lt;- PRIMEIRO. Este card fecha uma pergunta
+                                                    pública e datável; sem ela, o valor é palpite.
+- .agents/skills/project-router/SKILL.md
+- .agents/skills/asset-acquisition/SKILL.md
+&lt;/skills_obrigatorias&gt;</code></pre>
+
+      <p>E o card diz <strong>qual</strong> é a pergunta, nunca "pesquise sobre o assunto". Uma pergunta
+        de pesquisa sem resultado observável é a versão de "revise" da revisão adversarial — não produz
+        nada:</p>
+
+<pre><code class="nohighlight">RUIM   pesquise sobre limites de API dos provedores de mídia
+BOM    feche AB-431: um provedor proíbe hotlink e o outro o exige. Qual regra vale para
+       o downloader? Traga a cláusula literal de cada um, com URL e data de acesso,
+       e o placar. Se as duas se confirmarem, a decisão é um ADR, não um if.</code></pre>
+
+      <h3 class="h6 mt-3">O placar — pesquisa sem limiar declarado é opinião</h3>
+      <p>Toda pesquisa volta com <code>(N-M)</code>: <strong>N</strong> fontes independentes que
+        confirmam, <strong>M</strong> que contradizem. Sem isso, um claim de três fontes primárias e um
+        palpite de blog leem igual três meses depois.</p>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">Placar</th><th scope="col">Tier</th><th scope="col">Pode virar decisão de card?</th></tr></thead>
+          <tbody>
+            <tr><td><code>≥ 3-0</code>, com ≥1 fonte primária</td><td><span class="badge text-bg-success">CONFIRMADO</span></td><td>sim</td></tr>
+            <tr><td><code>2-0</code></td><td><span class="badge text-bg-primary">PROVÁVEL</span></td><td>sim, com a incerteza nomeada no card</td></tr>
+            <tr><td><code>1-0</code></td><td><span class="badge text-bg-warning">NÃO VERIFICADO</span></td><td><strong>não</strong> — vira item de ledger com data-limite de rechecagem</td></tr>
+            <tr><td><code>M ≥ 1</code></td><td><span class="badge text-bg-danger">EM DISPUTA</span></td><td><strong>não</strong> — planeje pelo pior caso e registre a disputa</td></tr>
+            <tr><td>contradito por fonte primária</td><td><span class="badge text-bg-secondary">REFUTADO</span></td><td>impede um card errado — é o desfecho mais valioso</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-warning d-flex gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <div><strong>Um claim com placar abaixo de 2-0 não pode virar decisão de card.</strong> E o placar
+          <strong>desce até o executor</strong>: o card recebe o claim já com o nível embutido — <em>"a
+          pesquisa confirmou (3-0): …"</em> — nunca a afirmação nua.
+          <br><br>Aceite <strong>fechamento parcial</strong>. Uma tarefa que fecha metade de uma flag de
+          rechecagem deve <em>recusar</em> fechar a outra metade: declarar a flag fechada ali seria trocar
+          "não verificado" por "verificado" sem nenhum dado no meio.</div>
+      </div>
+
+      <h3 class="h6 mt-3">O ponteiro tem de resolver</h3>
+      <p>Uma skill obrigatória que não existe é a versão mais cara de C10: o card declara o
+        carregamento, o agente não carrega nada, e o resultado <em>parece plausível</em>. O preflight da
+        worktree confere:</p>
+
+<pre><code class="language-bash">ls -d ~/.claude*/skills/surf-search-skill        # o diretório que dá nome ao comando
+command -v surf-search-normal surf-search-unlimit # os CLIs que a skill usa como ferramenta</code></pre>
+
+      <div class="alert alert-warning d-flex gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <div><strong>Nome ≠ diretório, e isso é uma armadilha real aqui.</strong> O diretório chama-se
+          <code>surf-search-skill</code>, mas o <code>name:</code> do frontmatter dela é
+          <code>surf-research-skill</code> — e um diretório irmão <code>surf-research-skill/</code>
+          existe como <strong>symlink quebrado</strong>. Se o seu harness rotear por <code>name:</code>,
+          o comando é <code>/surf-research-skill</code>; se rotear por diretório, é
+          <code>/surf-search-skill</code>.
+          <br><br>Os dois CLIs acima são o âncora que <strong>não depende dessa escolha</strong> —
+          estão no <code>PATH</code> e respondem a <code>--help</code>. É por isso que a verificação
+          confere os dois, e não só o slash.</div>
+      </div>
+
+      <h2 class="h5 mt-4" id="restricoes">O que <code>&lt;restricoes&gt;</code> proíbe</h2>
+      <p>É onde mora o <strong>conhecimento negativo</strong> — o que um profissional competente faria por
+        bom senso e que aqui é errado. Duas famílias, e a segunda só existe porque há paralelismo.</p>
+
+      <div class="row g-3">
+        <div class="col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h6">Família 1 — fidelidade e determinismo</h3>
+              <ol class="small mb-0">
+                <li><strong>Proibido "melhorar" a saída sem recapturar o snapshot.</strong> Ajustar um
+                  espaçamento, trocar uma cor "que ficou melhor", arredondar um valor — cada um invalida
+                  um golden master.</li>
+                <li><strong>Proibido introduzir não-determinismo.</strong> Nada de <code>Date.now()</code>,
+                  <code>Math.random()</code>, <code>setTimeout</code>, animação CSS, fonte de CDN ou
+                  imagem de URL remota dentro da composição.</li>
+                <li><strong>Proibido repetir um literal de domínio.</strong> Todo valor vive num
+                  <strong>único tipo nomeado</strong>. Quando ele mudar, a correção tem de ser uma linha
+                  em um arquivo.</li>
+                <li><strong>Proibido remover ou renomear id de contrato.</strong> Classes e atributos
+                  novos entram <em>ao lado</em>: aprovar um snapshot é copiar um arquivo, e copiar
+                  absorve a perda em silêncio.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h6">Família 2 — propriedade</h3>
+              <ol class="small mb-0" start="5">
+                <li><strong>Fronteira de propriedade nomeando o card dono.</strong> Nunca "não edite
+                  outros arquivos": sempre <em>"<code>caminho/X</code> pertence ao <code>F2-03</code>, que
+                  roda em PARALELO — entregue só o seu arquivo"</em>. Um agente obedece a uma proibição
+                  <strong>com nome</strong>; ignora uma genérica.</li>
+                <li><strong>Nunca <code>git add -A</code>.</strong> O repositório tem cache de assets,
+                  frames intermediários e worktrees irmãs no disco. Um <code>add -A</code> distraído
+                  commita gigabytes ou, pior, uma credencial.</li>
+                <li><strong>Nenhum segredo em arquivo versionado</strong>, nenhuma chave real em fixture
+                  ou cassete. Verificado por hook, não por convenção.</li>
+                <li><strong>Proibido reintroduzir o que foi removido por decisão</strong>, citando o
+                  invariante que quebra.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════ 5. VERIFICAÇÃO ══════════════════════════ -->
+    <div class="tab-pane fade" id="pane-verificacao" role="tabpanel"
+         aria-labelledby="tab-verificacao" tabindex="0" data-print-title="Verificação">
+
+      <h2 class="h4">A máquina de reprovar</h2>
+
+      <div class="alert alert-primary d-flex gap-2">
+        <i class="bi bi-question-circle-fill flex-shrink-0"></i>
+        <div><strong class="fs-5">Se isto desaparecer, o que fica vermelho?</strong>
+          <br>Uma camada que não responde essa pergunta não é camada, é decoração. E o corolário que
+          organiza tudo: <strong>ausência não falha sozinha. Se a cobertura pode encolher sem nada ficar
+          vermelho, ela vai encolher — e o verde continua com a mesma cara.</strong></div>
+      </div>
+
+      <h2 class="h5 mt-4" id="oraculo">O oráculo em seis camadas</h2>
+      <p>No legado, o oráculo é o sistema antigo. Aqui não existe "certo" independente:
+        <strong>um gerador de vídeo não tem resposta correta, tem resposta aprovada.</strong>
+        Ele é construído em camadas, cada uma respondendo a uma pergunta diferente.</p>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead><tr><th scope="col">#</th><th scope="col">Pergunta que responde</th><th scope="col">Artefato</th><th scope="col">Custo</th><th scope="col">Cobre</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">0 · Estrutural</th><td><em>o arquivo é sequer o tipo de coisa que eu pedi?</em></td><td><code>ffprobe</code>: duração <strong>por stream</strong>, fps, resolução, nº de streams, sample rate, pix_fmt</td><td><span class="badge text-bg-success">~zero</span></td><td>a casca — e pega a maioria dos desastres</td></tr>
+            <tr><th scope="row">1 · Determinismo</th><td><em>mudou alguma coisa sem que eu mandasse?</em></td><td>render 2× → hash por frame (<code>framemd5</code>)</td><td><span class="badge text-bg-success">barato</span></td><td>tudo, sempre</td></tr>
+            <tr><th scope="row">2 · Timeline resolvida</th><td><em>o que exatamente mudou na decisão?</em></td><td>diff do <code>manifesto-resolvido.json</code></td><td><span class="badge text-bg-success">baratíssimo</span></td><td>a decisão, não o pixel</td></tr>
+            <tr><th scope="row">3 · Frame-chave</th><td><em>o pixel é o que um humano aceitou?</em></td><td>PNG de frames escolhidos + envelope de áudio</td><td><span class="badge text-bg-warning">caro</span></td><td>só os pontos escolhidos</td></tr>
+            <tr><th scope="row">4 · Invariantes</th><td><em>a saída viola alguma regra que vale para todo vídeo?</em></td><td>duração de legenda, contraste, safe area, flashes/s, LUFS</td><td><span class="badge text-bg-success">barato</span></td><td>propriedades, não conteúdo</td></tr>
+            <tr class="table-active"><th scope="row">5 · Round-trip</th><td><em>o vídeo diz o que o roteiro mandou dizer?</em></td><td>transcrever o MP4 <strong>final</strong> e comparar com o roteiro de origem</td><td><span class="badge text-bg-warning">caro</span></td><td><strong>o único que fecha o laço</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-lg-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h6">A camada 0 é a mais subestimada e a primeira a construir</h3>
+              <p class="card-text small mb-0">Não sabe nada sobre estética e pega, sozinha, quase todo
+                desastre real: o vídeo com metade da duração, o que saiu a 30 fps em vez de 60, o que
+                perdeu a trilha de áudio, o que exportou em 1280×720 porque um default vazou. Custa um
+                comando e nunca dá falso positivo — mas <strong>a asserção é por stream</strong>, porque
+                a duração do container mente (C4).</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h6">A camada 2 força a existência do runner</h3>
+              <p class="card-text small mb-0">Um diff de manifesto resolvido é legível, nomeia o nó que
+                mudou e roda em milissegundos — <strong>mas só existe se alguém construir o estágio que
+                <em>produz</em> o manifesto resolvido</strong>. Nenhuma fase antiga do plano o construía;
+                é a camada 2 que a torna obrigatória.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="card h-100 border-primary">
+            <div class="card-body">
+              <h3 class="card-title h6">A camada 5 é a única que escapa do oráculo circular</h3>
+              <p class="card-text small mb-0">Gerar o vídeo a partir do manifesto e conferi-lo
+                <em>contra o mesmo manifesto</em> é o oráculo circular: as duas cópias erram juntas e o
+                teste diferencial fica cego. As camadas 0 a 4 <strong>todas</strong> derivam do manifesto.
+                <strong>Só a camada 5 entra por fora</strong> — lê o artefato final como um espectador
+                leria, transcrevendo o áudio.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="h6 mt-3">O que o oráculo NÃO cobre — declarado, não maquiado</h3>
+      <ul>
+        <li><strong>Se o vídeo presta.</strong> Nenhuma camada tem opinião sobre isso. Elas garantem que
+          ninguém mudou o que foi aprovado, e nada além. Por isso <code>F6-01</code> existe.</li>
+        <li><strong>Bytes de MP4.</strong> Comparar o container é falso oráculo: o encoder grava versão e
+          data, e o gerador de gráficos <strong>não é bit-exato por construção</strong>. O golden master
+          compara <strong>frame extraído</strong>, nunca arquivo.</li>
+        <li><strong>Não-determinismo do navegador.</strong> Fonte não carregada, backend gráfico,
+          <em>hinting</em> de fonte no Linux — cada um muda o pixel sem mudar o código. A resposta
+          documentada por dois projetos independentes é <strong>padronizar o ambiente em container</strong>,
+          não afrouxar o limiar.</li>
+        <li><strong>A política de congelamento de animação.</strong> Congelar antes do screenshot obriga a
+          declarar <em>em qual frame</em>: o primeiro ou o último. <em>Se a política e a ferramenta
+          discordarem, todo baseline nasce <strong>consistentemente</strong> errado — que é o pior caso,
+          porque passa.</em></li>
+        <li><strong>Áudio.</strong> Diff de forma de onda é frágil. A camada de snapshot usa
+          <strong>envelope por janela</strong> e, quando disponível, <em>fingerprint</em> — não amostra a
+          amostra.</li>
+        <li><strong>A parte que roda fora do render.</strong> Autoria por LLM não é determinística e não
+          tem snapshot: ela é cercada por <strong>cache mais validação de schema</strong>, e é isso, e o
+          card diz isso.</li>
+      </ul>
+
+      <div class="alert alert-danger d-flex gap-2" role="alert">
+        <i class="bi bi-x-octagon-fill flex-shrink-0"></i>
+        <div>Um limiar perceptual <strong>afrouxado para "parar de dar falso positivo"</strong> é o
+          mecanismo pelo qual um oráculo morre. Quando o snapshot ficar instável, a correção é
+          <strong>eliminar a fonte de variação</strong>, nunca subir o limiar. O limiar é um token
+          (<code>F0-04</code>), tem dono, e mudá-lo exige ADR.</div>
+      </div>
+
+      <h2 class="h5 mt-4" id="aceitacao">Aceitação falsificável — a camada mais importante</h2>
+      <p>O achado mais transferível do playbook: <strong>todo runner que aceita seletor sai verde quando o
+        seletor não casa nada.</strong> No programa de origem, <strong>25 de 42 cards</strong> tinham
+        exatamente esse critério — o critério passava <em>antes de a tarefa escrever a primeira linha</em>.</p>
+
+      <p>O verificador (<code>T-06</code>) faz cinco coisas, e as cinco são obrigatórias:</p>
+      <ol>
+        <li><strong>Parseia a própria árvore de cards</strong> e extrai os comandos de aceitação do
+          registro <em>e</em> do prompt gerado (união, deduplicada). O parser do documento de gestão é
+          <strong>código de produção</strong>: tem autoteste e falha fechado.</li>
+        <li>Para cada card marcado como concluído, exige que cada seletor case <strong>≥1 teste</strong>,
+          por descoberta e sem execução.</li>
+        <li><strong>Sonda negativa por alvo:</strong> um seletor deliberadamente impossível <em>tem de</em>
+          listar zero. Se uma regressão do runner fizer a descoberta ignorar o seletor,
+          <em>todo card passaria</em> — a sonda converte isso em vermelho.</li>
+        <li><strong>Tripwire independente:</strong> conta ocorrências num texto normalizado
+          <strong>diferente</strong> do que o parser lê. Existe porque um adversário — ou um merge
+          distraído — derruba um parser com HTML no meio do token, caractere de largura zero ou hífen
+          suave.</li>
+        <li><strong>Zero cards parseados = falha</strong>, nunca verde. Significa que o formato mudou e o
+          verificador ficou cego.</li>
+      </ol>
+
+      <p>E cada card carrega o guarda no próprio texto, como prosa que explica o mecanismo:</p>
+<pre><code class="nohighlight"># GUARD: o seletor acima TEM de casar &gt;=1 teste — 0 matches também sai exit 0 (falso verde).
+# A garantia não é este comentário; é T-06 rodando dentro do gate.</code></pre>
+
+      <h3 class="h6 mt-3">Como é um critério bom, neste projeto</h3>
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col"></th><th scope="col">Critério</th><th scope="col">Por quê</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><span class="text-success"><i class="bi bi-check-lg"></i> Bom</span></th><td><code>rg -L "PROCEDENCIA" assets/**/*.json</code> → <strong>saída vazia</strong></td><td>falha por <strong>ausência</strong>: um asset novo sem procedência derruba. A maioria dos testes só falha por presença errada</td></tr>
+            <tr><th scope="row"><span class="text-success"><i class="bi bi-check-lg"></i> Bom</span></th><td>renderizar 2× em rascunho + <code>diff</code> byte a byte dos frames</td><td><strong>dois oráculos</strong>: executa <em>e</em> prova determinismo</td></tr>
+            <tr><th scope="row"><span class="text-success"><i class="bi bi-check-lg"></i> Bom</span></th><td>render + asserção de que a entropia do frame &gt; limiar</td><td>pega o quadro preto que <code>exit 0</code> não pega</td></tr>
+            <tr><th scope="row"><span class="text-success"><i class="bi bi-check-lg"></i> Bom</span></th><td>mudar um parâmetro da chave de cache e exigir <strong>cache miss</strong></td><td>prova que a chave não omite entrada</td></tr>
+            <tr><th scope="row"><span class="text-danger"><i class="bi bi-x-lg"></i> Fraco</span></th><td><code>npm test -- -t "X"</code></td><td>passa com zero testes casados</td></tr>
+            <tr><th scope="row"><span class="text-danger"><i class="bi bi-x-lg"></i> Fraco</span></th><td>"o vídeo ficou bom"</td><td>não é comando</td></tr>
+            <tr><th scope="row"><span class="text-warning"><i class="bi bi-dash-lg"></i> Irredutível</span></th><td>"pipeline verde (registrar a URL do run)"</td><td>não roda localmente; a evidência é uma URL colada à mão. Aceito, mas <strong>declarado como irredutível</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-success d-flex gap-2">
+        <i class="bi bi-check-circle-fill flex-shrink-0"></i>
+        <div><strong>Todo card inclui ao menos um critério que falha por ausência</strong> — o
+          <code>∅-crit</code>. É a classe que o resto não cobre, e a única que detecta cobertura
+          encolhendo.
+          <br><br>A pergunta que gera o critério: <strong>"o que este comando imprime se a tarefa não
+          fizer nada?"</strong> Se a resposta for "verde", o critério é decorativo.</div>
+      </div>
+
+      <h2 class="h5 mt-4" id="invariantes">Invariantes estruturais — verificáveis sem executar nada</h2>
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">Invariante</th><th scope="col">O que impede</th></tr></thead>
+          <tbody>
+            <tr><td>Todo projeto de teste do repositório é executado por <strong>algum</strong> job</td><td>o buraco real do programa de origem: <strong>95 de 219 testes fora do CI em silêncio</strong></td></tr>
+            <tr><td>Nenhum literal de token de design aparece fora de <code>src/design/tokens.*</code></td><td>o valor duplicado que diverge no merge</td></tr>
+            <tr><td>Nenhum arquivo em <code>assets/</code> sem <code>procedencia.json</code> correspondente</td><td>asset sem licença rastreável dentro do MP4 publicado</td></tr>
+            <tr><td>Nenhuma URL remota em <code>manifesto-resolvido.json</code></td><td>render não reproduzível offline</td></tr>
+            <tr><td>Nenhum <code>Date.now</code>/<code>Math.random</code>/<code>setTimeout</code> sob <code>src/composicao/</code></td><td>não-determinismo no lado puro</td></tr>
+            <tr><td>Todo id de composição registrado é único</td><td>dois cards registrando o mesmo id, merge limpo</td></tr>
+            <tr><td>Nenhum segredo literal — varredura <strong>estrutural</strong> no arquivo já parseado, não no texto cru</td><td>varrer texto cru acusa o próprio padrão escrito dentro do script</td></tr>
+            <tr><td>Etapas caras (render completo, VM, GPU) são <strong>terminais</strong> no grafo de jobs</td><td>job rápido esperando infraestrutura pesada</td></tr>
+            <tr><td><strong>Ausência do que foi removido por decisão</strong>, nos dois sentidos</td><td>reintrodução silenciosa, e divergência CI × gate local</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Quatro detalhes que valem mais que a lista:</p>
+      <ul>
+        <li><strong>Um invariante que perde o objeto muda de tipo, não é apagado.</strong> Se um estágio
+          sai do pipeline, o invariante vira <em>ausência</em> — e ausência é uma afirmação verificável.
+          É por isso que o script continua existindo em vez de ser deletado.</li>
+        <li><strong>Falha fechado.</strong> Um detector que não entende o que está lendo
+          <strong>recusa explicitamente</strong>, em vez de pular em silêncio. Aceitar seria afirmar uma
+          garantia sobre um documento que não foi inteiramente lido.</li>
+        <li><strong>Duas redes ortogonais</strong> sempre que possível: o que o job <em>declara</em> e o
+          que o job <em>executa</em>.</li>
+        <li><strong>Prefira prefixo/substring a igualdade exata</strong> em detectores de segurança: um
+          falso positivo é barulhento e corrigível; o silêncio é como o problema volta.</li>
+      </ul>
+
+      <h2 class="h5 mt-4" id="autoteste">O autoteste roda ANTES do verificador</h2>
+      <blockquote class="blockquote border-start border-3 ps-3">
+        <p class="mb-0 fs-6">Um verificador que só sabe dizer OK é um comentário com <code>exit 0</code>.</p>
+      </blockquote>
+      <p>Toda ferramenta de verificação (validador de grafo, verificador de aceitação, checador de
+        invariantes, linter de skill, validador de ledger) carrega um autoteste que:</p>
+      <ul>
+        <li>roda <strong>antes</strong> dela no gate;</li>
+        <li><strong>asserta a mensagem, não o código de saída</strong> — porque, com uma perna sintética,
+          um invariante qualquer dispararia sozinho e todo caso "passaria pelo motivo errado".
+          <em>Um autoteste que asserta só o código de saída não distingue "acusou" de "quebrou".</em></li>
+        <li>usa mutações <strong>calculadas do documento corrente, nunca literais</strong> — mutações
+          literais viram no-op a cada merge, o autoteste grita "a mutação passou" e <strong>ensina a
+          ignorá-lo</strong>.</li>
+      </ul>
+
+      <h2 class="h5 mt-4" id="gate-local">O gate local é o pipeline</h2>
+      <p>Uma etapa <strong>por job</strong> da definição de CI — não por <em>stage</em>. Confundir os dois
+        é como se edita a definição errado. Três decisões que valem mais que a lista de etapas:</p>
+
+      <div class="row row-cols-1 row-cols-md-3 g-3 mb-3">
+        <div class="col"><div class="card h-100"><div class="card-body">
+          <h3 class="card-title h6">Ferramenta ausente é VERMELHO, não "pulado"</h3>
+          <p class="card-text small mb-0">"Pulado" e "passou" imprimem a mesma conclusão operacional —
+            <em>o gate não reclamou</em> — e a máquina onde falta a ferramenta é justamente a que vai
+            declarar verde para sempre. Este projeto tem <strong>seis</strong> dependências de sistema que
+            podem faltar. Cada ausência é vermelha e <strong>nomeada</strong>.</p>
+        </div></div></div>
+        <div class="col"><div class="card h-100"><div class="card-body">
+          <h3 class="card-title h6">Três estados, não dois</h3>
+          <p class="card-text small mb-0"><code>PASS</code>, <code>FAIL</code> e
+            <strong><code>NÃO-EXERCITADO</code></strong>, e o terceiro imprime junto com o veredito.
+            <strong>Um gate novo que ninguém conecta não fica vermelho: fica invisível.</strong> Por isso
+            gate que ainda não existe é anunciado como <code>PENDENTE</code>, nunca omitido.</p>
+        </div></div></div>
+        <div class="col"><div class="card h-100"><div class="card-body">
+          <h3 class="card-title h6">Fonte única de definição</h3>
+          <p class="card-text small mb-0">O gate local <strong>lê</strong> a definição do CI em vez de
+            duplicá-la. Duas listas mantidas à mão recriam o mesmo buraco do outro lado.</p>
+        </div></div></div>
+      </div>
+
+      <h2 class="h5 mt-4" id="hooks">Hooks — separe <em>nudge</em> de <em>gate</em></h2>
+      <blockquote class="blockquote border-start border-3 ps-3">
+        <p class="mb-0 fs-6">Prosa numa skill é conselho; um hook é <strong>garantia</strong>.</p>
+      </blockquote>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">Hook</th><th scope="col">Evento</th><th scope="col">Papel</th><th scope="col">Falha</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Gate de escrita de skill</th><td>antes de editar <code>SKILL.md</code></td><td>bloqueia escrita sem token verde de verificação, TTL curto</td><td><span class="badge text-bg-danger">fechado</span></td></tr>
+            <tr><th scope="row">Gate de segurança</th><td>antes de ler/escrever/executar</td><td>segredos, chaves, reescrita de história do git, <code>add -A</code>, e a leitura de segredo via shell que contornaria a guarda de caminho. Vale <strong>recursivamente para subagentes</strong></td><td><span class="badge text-bg-danger">fechado</span></td></tr>
+            <tr><th scope="row">Barreira de onda</th><td>ao terminar a resposta</td><td>anexa uma linha por agente ao arquivo de status da onda — é isto que torna a barreira <strong>durável e contável</strong></td><td><span class="badge text-bg-secondary">aberto</span></td></tr>
+            <tr><th scope="row">Nudge de calibração</th><td>a cada mensagem</td><td>reinjeta as regras C1, C2, C9 e C12 (~130 tokens) porque o arquivo normativo é lido <strong>uma vez</strong> e sai de atenção</td><td><span class="badge text-bg-secondary">aberto</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-warning d-flex gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <div><strong>Escopo estreito o bastante para não ser desligado.</strong> Uma proteção que dispara
+          em trabalho comum acaba desligada, o que é pior que não tê-la. E:
+          <strong><em>um gate que só pode ser satisfeito contornando-o ensina a contornar.</em></strong>
+          <br><br>Gate mecânico <strong>só</strong> onde o erro é irreversível ou auto-amplificante —
+          memória persistida, segredo, história do git, snapshot aprovado. Nudge de contexto para o resto.
+          E diga, no arquivo, qual é qual.</div>
+      </div>
+
+      <p class="small text-body-secondary"><strong>Duas reescritas obrigatórias, e nenhuma é cópia do
+        projeto de origem:</strong> <em>(a)</em> o guardrail de shell troca denylist por allowlist mais
+        gate de propriedade de arquivo por card, porque a denylist herdada deixa passar
+        <code>rm -rf /</code> e <code>rm -rf ~</code>; <em>(b)</em> o gate de escrita de skill ganha token
+        gitignorado, TTL de 30 min, hash do arquivo que passou, e resolução de caminho pela raiz do
+        repositório — o herdado é um JSON versionado, editável à mão, sem TTL, que
+        <strong>libera escrita quando executado de outro <code>cwd</code></strong>.</p>
+
+      <h2 class="h5 mt-4" id="estado-derivado">Estado derivado, nunca escrito à mão</h2>
+      <blockquote class="blockquote border-start border-3 ps-3">
+        <p class="mb-0 fs-6">Um cabeçalho velho é pior que nenhum: é lido com a autoridade de documentação
+          e está errado.</p>
+      </blockquote>
+      <p>Duas sutilezas que só aparecem na prática:</p>
+      <ul>
+        <li><strong>"Concluídas" é o prefixo ininterrupto de ondas, não o conjunto.</strong> Uma onda
+          tardia terminando cedo não pode ser reportada como progresso que o programa não fez.</li>
+        <li><strong>A comparação é isolada por linha, não por seção.</strong> Uma linha nova em outro
+          ponto da mesma seção pode satisfazer sozinha a exigência e a checagem passa sem olhar o que devia.</li>
+      </ul>
+      <p><strong>Todo número que aparece em prosa e existe numa fonte estruturada é gerado ou conferido,
+        nunca redigitado.</strong> Onde a prosa editorial cita um número da fonte, <em>confira em vez de
+        gerar</em> — mover a prosa para dentro do script é pior, mas deixá-la sem checagem é como ela
+        apodrece.</p>
+
+      <h2 class="h5 mt-4" id="nove-camadas">As nove camadas, na ordem em que se constroem</h2>
+      <ol class="list-group list-group-numbered mb-3">
+        <li class="list-group-item">Gate local executável, <strong>antes</strong> de qualquer CI. Uma etapa por job; ferramenta ausente = vermelho.</li>
+        <li class="list-group-item">Fonte única de definição — o gate local <em>lê</em> o CI.</li>
+        <li class="list-group-item">Invariantes estruturais, verificáveis sem executor.</li>
+        <li class="list-group-item">Autoteste adversarial de cada verificador, rodando <em>antes</em> dele, assertando <strong>a mensagem</strong>.</li>
+        <li class="list-group-item">Espelhamento bidirecional CI ⇄ gate local, ele próprio um invariante.</li>
+        <li class="list-group-item">Aceitação de card amarrada a teste real, com sonda negativa e tripwire.</li>
+        <li class="list-group-item">Documento de estado derivado.</li>
+        <li class="list-group-item">Hooks de máquina só onde o erro é irreversível ou se auto-amplifica.</li>
+        <li class="list-group-item">Setup de worktree com preflight que prova acesso ao insumo.</li>
+      </ol>
+
+      <h2 class="h5 mt-4" id="falso-verde">Catálogo de falso verde deste projeto</h2>
+      <p>Cada linha é uma coisa que <em>parece</em> verde. A pergunta que gera a lista:
+        <strong>se isto desaparecer, o que fica vermelho?</strong> O card <code>F0-08</code> existe para
+        transformar esta tabela em <strong>script</strong> — cada linha que não vira verificação é
+        decoração.</p>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">O que parece verde</th><th scope="col">Por quê não é</th><th scope="col">Onde é pego</th></tr></thead>
+          <tbody>
+            <tr><td><code>exit 0</code> de um render</td><td>um quadro preto renderiza com sucesso</td><td><code>F0-06</code> — asserção de entropia do frame</td></tr>
+            <tr><td>runner com seletor que casa <strong>zero</strong> testes</td><td>sai 0 quando o filtro não casa nada</td><td><code>T-06</code> — sonda negativa por alvo</td></tr>
+            <tr><td><code>git diff --exit-code</code> num diretório de saída</td><td><strong>não enxerga arquivo não rastreado</strong></td><td>combinado com <code>git status --porcelain</code></td></tr>
+            <tr><td>snapshot aprovado a partir do Studio</td><td>o navegador do preview ≠ o do render</td><td><code>F0-06</code> — só aprova do render</td></tr>
+            <tr><td>"o vídeo tem a duração certa"</td><td>duração do <strong>container</strong> ≠ duração do <strong>stream</strong></td><td><code>F5-07</code> — lê por stream</td></tr>
+            <tr><td>suíte "offline" que apenas não usa a rede</td><td>não é o mesmo que a rede <strong>bloqueada</strong></td><td><code>F2-07</code> — guarda que bloqueia</td></tr>
+            <tr><td>cache com 100% de acerto</td><td>a chave omite um parâmetro e serve o asset velho</td><td><code>F0-07</code> — teste de miss por parâmetro</td></tr>
+            <tr><td>"zero chamadas externas"</td><td>verdade com o cache perfeito <strong>e</strong> com nada rodando</td><td>denominador obrigatório (<code>T-08</code>)</td></tr>
+            <tr><td>fonte que "carregou"</td><td>caiu no fallback sem erro</td><td><code>F1-03</code> — asserta a família resolvida</td></tr>
+            <tr><td>teste que asserta <strong>a documentação</strong></td><td>apagar o artefato real mantém o teste verde</td><td><code>F0-08</code> — invariante estrutural</td></tr>
+            <tr><td><strong>fixture fabricada alimentando a própria asserção</strong></td><td>não é teste</td><td>revisão adversarial, pergunta padrão</td></tr>
+            <tr><td><strong>motor e oráculo repetindo a mesma premissa</strong></td><td>as duas cópias erram juntas e o diferencial fica cego</td><td>dono nomeado por semântica</td></tr>
+            <tr><td>dois testes de irmãos que passam separados</td><td>cada um verdade contra a própria base, contraditórios juntos</td><td><code>F1-12</code> + gate após cada merge</td></tr>
+            <tr><td>verificador que <strong>pula</strong> o que não entende</td><td>verde por omissão</td><td><code>F0-08</code> — falha fechado</td></tr>
+            <tr><td>autoteste que asserta <strong>só o exit code</strong></td><td>não distingue "acusou" de "quebrou"</td><td>todos os autotestes assertam a mensagem</td></tr>
+            <tr><td>mutações de autoteste escritas como <strong>literais</strong></td><td>viram no-op no merge e ensinam a ignorar o alarme</td><td>mutações calculadas do documento corrente</td></tr>
+            <tr><td>barreira de onda por leitura de tela</td><td>declara "terminaram" com os agentes trabalhando</td><td><code>T-05</code> — contador monotônico durável</td></tr>
+            <tr><td>citação de proveniência <strong>sem o caminho</strong></td><td>a regex nunca casa e o token é pulado em silêncio</td><td><code>T-10</code> — rejeita a forma degenerada</td></tr>
+            <tr><td>skill que existe</td><td>não significa que foi carregada</td><td><code>skills_obrigatorias</code> + handoff declara</td></tr>
+            <tr><td>gate novo que ninguém conecta</td><td>não fica vermelho, fica <strong>invisível</strong></td><td>três estados; <code>PENDENTE</code> é impresso</td></tr>
+            <tr><td>ausência de reclamação</td><td><strong>não é sinal</strong></td><td>pergunta ativa</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="h5 mt-4" id="proveniencia">A deriva de proveniência já aconteceu aqui, e foi medida</h2>
+      <p>Não é hipótese. As 20 skills foram escritas em paralelo, citando <code>arquivo:linha</code> do
+        documento de programa. Depois disso, <strong>o documento foi editado pesadamente</strong>. Toda
+        âncora de linha escrita antes dessas edições apontava para um alvo que se moveu.</p>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">Forma de citação</th><th scope="col">Antes</th><th scope="col">Depois</th><th scope="col">Sobrevive a uma edição do alvo?</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><code>arquivo:linha</code> para documento <strong>vivo</strong></th><td>438</td><td><strong>0</strong></td><td><span class="text-danger">não</span> — o alvo desliza</td></tr>
+            <tr><th scope="row"><code>§seção</code> / id de card</th><td>37</td><td><strong>456</strong></td><td><span class="text-success">sim</span></td></tr>
+            <tr><th scope="row">id de claim</th><td>109</td><td><strong>231</strong></td><td><span class="text-success">sim</span> — o id é estável</td></tr>
+            <tr><th scope="row"><code>arquivo:linha</code> para documento <strong>congelado</strong></th><td>—</td><td>mantidos</td><td><span class="text-success">sim</span>, por acordo: aqueles arquivos não são editados</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-danger d-flex gap-2" role="alert">
+        <i class="bi bi-x-octagon-fill flex-shrink-0"></i>
+        <div><strong>A lição que só a medição dá.</strong> A varredura barata (procurar âncora apontando
+          para linha vazia) achou <strong>0,7%</strong>. A cara — abrir cada alvo e conferir se ele
+          <em>sustenta</em> a afirmação — achou <strong>~75%</strong>: 16 de 21 pinos numa skill e 7 de 9
+          noutra apontavam para conteúdo alheio. Nenhum aparecia na varredura barata. Todos liam como
+          proveniência forte.
+          <br><br><strong>Um verificador que só sabe detectar a forma degenerada mais óbvia não mede o
+          defeito — mede a si mesmo.</strong> Por isso a correção não foi "somar o offset": foi
+          <strong>eliminar a forma</strong>.</div>
+      </div>
+
+      <p class="mb-0 small text-body-secondary">E a demonstração ao vivo, registrada por um dos agentes de
+        conversão <em>enquanto trabalhava</em>: <em>"o documento foi editado por outro processo enquanto
+        eu trabalhava — 2.966 para 3.000 linhas; o card <code>I-01</code> saiu da linha 997 para a 1031.
+        Toda verificação final foi feita por busca de conteúdo, não por número de linha."</em>
+        O documento se moveu <strong>durante o conserto do problema causado por ele se mover</strong>.</p>
+
+    </div>
+
+    <!-- ══════════════════════════ 6. LIMITES ══════════════════════════ -->
+    <div class="tab-pane fade" id="pane-limites" role="tabpanel"
+         aria-labelledby="tab-limites" tabindex="0" data-print-title="Limites">
+
+      <h2 class="h4">O que este plano não é</h2>
+
+      <p>Ele <strong>não</strong> prova que o produto funciona. No momento em que foi escrito, o programa
+        tinha zero cards executados, zero frames renderizados e zero itens de ledger fechados. O que
+        existe é a construção do aparato: 65 tarefas particionadas por propriedade de arquivo, um grafo
+        cujas ondas são deriváveis por script, e uma cadeia de verificação desenhada para achar defeito
+        <strong>em si mesma</strong> antes de ser apontada para o produto.</p>
+
+      <p>Ele também <strong>não</strong> é um tutorial de motor de composição, de motor de gráficos ou de
+        FFmpeg. Esse conhecimento mora nas skills, é carregado por classe de tarefa, e é
+        <em>citado</em> — nunca repetido aqui.</p>
+
+      <h2 class="h5 mt-4" id="greenfield">A única adaptação estrutural: não há legado</h2>
+      <p>O playbook de origem foi extraído de uma <strong>modernização de legado</strong>. Lá havia um
+        oráculo pronto — o sistema antigo, rodando, respondendo — e a regra número um daquele programa
+        era <em>"nenhuma conversão começa sem um golden master pinado"</em>. O golden master vinha de
+        graça: bastava capturar.</p>
+
+      <div class="alert alert-danger d-flex gap-2" role="alert">
+        <i class="bi bi-x-octagon-fill flex-shrink-0"></i>
+        <div><strong>Aqui não há legado.</strong> Não há sistema antigo, não há comportamento a
+          preservar, não há defeito que seja requisito. <strong>O oráculo não existe: ele precisa ser
+          construído antes do produto.</strong>
+          <br><br>Daí o ADR-0001, que reescreve a regra número um: <em>nenhum estágio é considerado
+          iniciado enquanto não existir um oráculo capaz de reprová-lo.</em> "Capaz de reprovar" não é
+          opinião — é uma sonda negativa que prova que o critério fica vermelho quando o trabalho não é
+          feito. E a consequência é estrutural: <strong>o card do estágio declara dependência do card do
+          oráculo</strong>, e o grafo faz o resto.</div>
+      </div>
+
+      <p>Tudo o mais transfere quase intacto, porque o que o playbook descreve não é uma técnica de
+        migração: é uma técnica de <strong>coordenar agentes cegos entre si</strong>, e esse problema é
+        idêntico aqui.</p>
+
+      <h2 class="h5 mt-4" id="tdd">Isto não é TDD, e a distinção importa mais aqui do que lá</h2>
+      <p>Num legado, caracterização vence TDD porque o requisito é "o que o sistema faz hoje". Aqui,
+        <strong>metade do trabalho não tem comportamento anterior</strong> — o gate local, o validador de
+        grafo, o cache endereçado por conteúdo: para todos esses, o teste <em>é</em> a especificação e TDD
+        clássico é a disciplina certa. A outra metade — tudo que produz pixel ou som — não tem requisito
+        escrito em lugar nenhum e só pode ser travada por <strong>snapshot aprovado por humano mais prova
+        de determinismo</strong>.</p>
+
+      <p>Por isso todo card carrega um campo obrigatório, decidido na <strong>escrita do card</strong>,
+        nunca pelo agente executor:</p>
+<pre><code class="nohighlight">disciplina: tdd | caracterizacao | ambos</code></pre>
+      <p class="small text-body-secondary">Um agente que escolhe a própria disciplina escolhe a que é
+        mais fácil de satisfazer.</p>
+
+      <h2 class="h5 mt-4" id="publicacao">Publicação e o corte — construído e NÃO disparado</h2>
+
+      <div class="alert alert-warning d-flex gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <div>Toda esta seção nasce como <code>ENCERRADO COMO CONSTRUÍDO E NÃO DISPARADO</code>. É desenho
+          revisado, não prática validada. Nenhum vídeo deste programa foi publicado. Trate como plano em
+          papel — e mantenha o cabeçalho quando o primeiro for publicado, <strong>mudando o status, não
+          apagando a confissão</strong>.</div>
+      </div>
+
+      <p>O análogo do <em>strangler</em> aqui não é substituir um sistema: é passar de "o pipeline produz
+        um arquivo" para "o pipeline <strong>publica em nome de alguém</strong>". A irreversibilidade não
+        está no código, está na publicação — um vídeo publicado com asset de licença errada, com voz
+        clonada sem consentimento ou com áudio fora de norma <strong>não se despublica sem custo</strong>.</p>
+
+      <p>Por isso a ordem: <strong>toda etapa reversível vem antes da primeira irreversível</strong>, e a
+        fronteira é declarada.</p>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead><tr><th scope="col">#</th><th scope="col">Fase</th><th scope="col">Mecanismo</th><th scope="col">Reverter</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">0</th><td><strong>Saída em arquivo, nada publicado</strong></td><td>o piso seguro</td><td>— é o estado base</td></tr>
+            <tr><th scope="row">1</th><td><strong>Revisão humana obrigatória</strong></td><td>a entrega inclui o relatório de procedência e o checklist; nenhuma publicação sem aprovação nominal</td><td>não se publica</td></tr>
+            <tr><th scope="row">2</th><td><strong>Publicação privada / não listada</strong></td><td>canal de teste, audiência zero</td><td>apagar</td></tr>
+            <tr><th scope="row">3</th><td><strong>Publicação listada, um vídeo</strong></td><td>um item, escolhido por menor exposição</td><td>despublicar (não apaga o que já foi visto)</td></tr>
+            <tr><th scope="row">4</th><td><strong>Cadência regular</strong></td><td>N por semana, com portões datados</td><td>pausar a cadência</td></tr>
+            <tr><th scope="row">5</th><td><strong>Soak</strong> — um ciclo de negócio real</td><td>—</td><td>ainda reversível</td></tr>
+            <tr class="table-danger"><th scope="row">6</th><td><strong>Automação de ponta a ponta sem revisão humana</strong></td><td>★ <strong>a primeira etapa irreversível</strong></td><td><strong>deixa de ser edição</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>A partir da fase 6 a reversão deixa de ser uma edição de configuração.</strong> Um
+        pipeline que publica sozinho pode publicar errado antes de alguém acordar. A janela mínima entre
+        5 e 6 é declarada explicitamente e <strong>não é redonda</strong>: ela é um <em>ciclo de negócio
+        completo</em>, justificado — menos que isso não cobre o caso raro; mais que isso mantém dois
+        processos vivos sem aprender nada novo.</p>
+
+      <p><strong>Uma alavanca por fase, e uma alavanca-mestra.</strong> A alavanca-mestra é a flag que
+        desliga a publicação inteira, citada em <em>todos</em> os runbooks subordinados. Reversão é sempre
+        uma edição de configuração, sem redeploy; edição inválida é <strong>recusada e logada</strong>, e
+        a configuração anterior continua valendo.</p>
+
+      <h2 class="h5 mt-4" id="denominador">A armadilha do denominador</h2>
+
+      <div class="alert alert-danger d-flex gap-2" role="alert">
+        <i class="bi bi-x-octagon-fill flex-shrink-0"></i>
+        <div><strong>Zero não é sinal sozinho — precisa de denominador.</strong> "Zero vídeos rejeitados
+          na revisão" é verdade quando o gerador está perfeito <strong>e</strong> quando ninguém está
+          revisando. As duas leituras produzem o mesmo número e significam o oposto.
+          <br><br>Daí a linha obrigatória de <strong>volume ao lado de todo sinal de erro</strong> que
+          idealmente é zero. E: <em>ausência de reclamação não é sinal</em> — pergunta ativa.</div>
+      </div>
+
+      <h2 class="h5 mt-4" id="nao-pode-desligar">O que não pode ser desligado</h2>
+      <p>O checklist é escrito em <strong>duas listas simétricas</strong>, e a do "não pode" vem primeiro
+        em esforço, com a origem citada para cada item.</p>
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <div class="small text-success mb-1"><i class="bi bi-check-lg"></i> §1 PODE desligar — depois do soak</div>
+          <p class="small text-body-secondary mb-0">O que o soak provou dispensável, item a item, com o
+            ato separado do efeito.</p>
+        </div>
+        <div class="col-md-6">
+          <div class="small text-danger mb-1"><i class="bi bi-x-lg"></i> §2 NÃO PODE desligar — e o motivo</div>
+          <p class="small text-body-secondary mb-0">Os candidatos previsíveis aqui: <strong>o store de
+            assets</strong> (a procedência de tudo já publicado mora nele); <strong>o registro de
+            licenças</strong>; <strong>os snapshots aprovados</strong> (sem eles nenhuma regressão futura
+            é detectável); <strong>o ledger</strong>.</p>
+        </div>
+      </div>
+
+      <p>Três mecanismos de escrita que valem como padrão:</p>
+      <ol>
+        <li><strong>Separe atos que parecem um só.</strong> "Despublicar o vídeo" e "apagar os assets" são
+          dois atos, com raios de alcance diferentes — tabela <em>ato × o que quebra × reversível</em>.</li>
+        <li><strong>Nomeie a armadilha que parece refutação</strong> — a cópia esquecida que faz alguém
+          concluir que um artefato é descartável.</li>
+        <li><strong>Preservar arquivo ≠ preservar função.</strong></li>
+      </ol>
+
+      <p><strong>Gradação de irreversibilidade:</strong> desativar é reversível, apagar não é. Nunca
+        apague: renomeie com prefixo de depreciação e espere um ciclo completo.</p>
+
+      <h2 class="h5 mt-4" id="runbooks">Runbooks para quem não estava lá</h2>
+      <blockquote class="blockquote border-start border-3 ps-3">
+        <p class="mb-0 fs-6">Quem executa isto provavelmente não participou da construção. Por isso cada
+          item traz a evidência junto, para ser reconferido no dia <strong>sem redescobrir nada</strong>.</p>
+      </blockquote>
+      <p>Isso <strong>não é tom, é estrutura</strong>. Cada runbook carrega, obrigatoriamente:</p>
+      <ul>
+        <li>um anexo <strong>"como reconferir tudo isto você mesmo"</strong>, com os comandos prontos;</li>
+        <li><strong>correções de citação antecipadas</strong>, para o leitor não concluir errado;</li>
+        <li><strong>perguntas segregadas por interlocutor</strong> — o risco concreto é queimar a sessão de
+          um interlocutor caro com pergunta que era de outro;</li>
+        <li>uma seção final <strong>"o que ninguém conferiu"</strong> — para que a lista não precise ser
+          reconstruída por arqueologia;</li>
+        <li>e o cabeçalho que declara <strong>o que não foi executado</strong>.</li>
+      </ul>
+      <p>Um runbook que só o autor consegue seguir não é um runbook. E <strong>o escopo negativo é parte
+        do entregável</strong>: termine com "o que este documento NÃO cobre".</p>
+
+      <h2 class="h5 mt-4" id="custo">O que esperar de custo — e o que satura antes do modelo</h2>
+
+      <div class="alert alert-warning d-flex gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <div><strong>Nenhum número desta seção é medido.</strong> São hipóteses datadas, escritas para
+          serem refutadas pela primeira onda. A primeira coisa que o programa faz depois da W2 é
+          <strong>substituir esta seção por medição</strong> — e o card <code>T-08</code> existe
+          exatamente para isso.</div>
+      </div>
+
+      <p>Por analogia com o programa de origem, só para calibrar ordem de grandeza:
+        <strong>9 agentes em paralelo</strong> foi o máximo praticado numa onda (4 e 6 nas demais); uma
+        onda de composição levou <strong>~1 hora por agente</strong>; <strong>revisão automatizada dobra
+        o custo por slot</strong> (3 agentes com revisor = até 6). E: <em>o histórico da janela do
+        terminal recupera pouco, e zero se a janela fechar</em> — se o conteúdo importa, o lugar dele é
+        um arquivo no repositório, escrito <strong>pelo</strong> agente. Aqui isso é regra de card, não
+        conselho.</p>
+
+      <p>Este programa é mais pesado em máquina que o de origem, porque renderiza vídeo. A ordem esperada
+        de saturação:</p>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">Ordem</th><th scope="col">Recurso</th><th scope="col">Por que satura aqui</th><th scope="col">Mitigação declarada</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">1</th><td><strong>RAM</strong></td><td>cada worker de render é uma aba de navegador; cada worktree é uma cópia da árvore</td><td>teto de concorrência por card, declarado no PREP</td></tr>
+            <tr><th scope="row">2</th><td><strong>Disco</strong></td><td>store + frames intermediários + N worktrees + modelos baixados — e <strong>cada worktree baixa o seu próprio navegador</strong></td><td>store fora das worktrees, por symlink; limpeza de frames por card</td></tr>
+            <tr><th scope="row">3</th><td><strong>GPU / sessões de encode</strong></td><td>encoders de consumo limitam sessões simultâneas</td><td>fila explícita; o gate declara o teto, medido por <code>I-03</code></td></tr>
+            <tr><th scope="row">4</th><td><strong>Portas TCP</strong></td><td>Studio e previews simultâneos</td><td>faixa de porta por card, no PREP</td></tr>
+            <tr><th scope="row">5</th><td><strong>Rate limit de API</strong></td><td>TTS, LLM, mídia externa — N agentes chamando ao mesmo tempo</td><td><strong>o cache absorve</strong>: o segundo agente que pede o mesmo hash não chama a API</td></tr>
+            <tr><th scope="row">6</th><td>Contexto do modelo</td><td>—</td><td>último da lista, e isso é intencional</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-success d-flex gap-2">
+        <i class="bi bi-check-circle-fill flex-shrink-0"></i>
+        <div><strong>O item 5 é onde a arquitetura paga por si mesma.</strong> O store endereçado por
+          conteúdo não é elegância: é o que permite que dez agentes trabalhem em paralelo
+          <strong>sem multiplicar por dez a conta de API</strong> nem o risco de rate limit.</div>
+      </div>
+
+      <h2 class="h5 mt-4" id="seis-erros">Os seis erros que este programa se compromete a não cometer</h2>
+      <p>Os cinco primeiros são herdados diretamente do que o programa de origem pagou para aprender.
+        O sexto o de origem não tinha como cometer.</p>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">#</th><th scope="col">O erro lá</th><th scope="col">O que fazemos aqui</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">1</th><td>A seção de incerteza entrou só na onda 6. <strong>22 cards rodaram antes dela existir</strong> e o inventário de premissas ficou incompleto por construção</td><td>entra no <strong>card 1</strong></td></tr>
+            <tr><th scope="row">2</th><td>Nunca houve validador do grafo. Um card ficou <strong>órfão</strong> e 4 arestas divergiram entre as duas representações, em silêncio</td><td><code>T-02</code>, escrito no <strong>dia 1</strong>, com 11 checagens</td></tr>
+            <tr><th scope="row">3</th><td>O handoff não tinha teto nem destinatário. 49 de 49 preenchidos, média 5 KB, e <strong>zero</strong> disseram "nada a propagar"</td><td>teto de 2 KB + <code>destinatarios:</code> obrigatório desde o primeiro card</td></tr>
+            <tr><th scope="row">4</th><td>Irmãos da mesma onda são cegos entre si por construção — <strong>95 testes fora do CI em silêncio</strong></td><td><strong>dependência lateral proibida e verificada</strong> pelo validador</td></tr>
+            <tr><th scope="row">5</th><td>O critério de aceitação mais comum da árvore <strong>passava vazio</strong> — 25 de 42 cards</td><td><strong>sonda negativa desde o começo</strong>, mais <code>∅-crit</code> em todo card</td></tr>
+            <tr class="table-active"><th scope="row">6</th><td><em>(o de origem não tinha como cometer: o oráculo dele vinha de graça)</em></td><td><strong>Nenhum card produz pixel ou som antes de existir o oráculo capaz de reprovar aquele pixel ou som.</strong> É o ADR-0001, e ele é <em>uma aresta do grafo</em>, não uma recomendação</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="h5 mt-4" id="frase-final">A frase que atravessa tudo</h2>
+
+      <div class="alert alert-primary d-flex gap-2">
+        <i class="bi bi-quote flex-shrink-0"></i>
+        <div class="fs-5"><strong>Verde quer dizer "confere com o snapshot aprovado", nunca "o vídeo está
+          bom". Não se valida uma geração contra ela mesma — é um limite de lógica, não de
+          ferramenta.</strong></div>
+      </div>
+
+      <p>O snapshot foi aprovado por um humano <em>uma vez</em>. Tudo o que a cadeia garante é que ninguém
+        mudou aquilo sem perceber. Quem decide que o vídeo presta continua sendo gente — e o card
+        <code>F6-01</code> existe exatamente para não deixar essa parte virar automática por descuido.</p>
+
+      <p class="mb-0">A diferença entre um programa destes que dá certo e um que dá errado
+        <strong>não é a ausência de retrabalho</strong> — é o gate entre cada merge, que nomeia o defeito
+        <strong>enquanto ele ainda cabe num card</strong>.</p>
+
+    </div>
+
+  </div>
+
+  <footer class="text-body-secondary small border-top mt-5 pt-3">
+    <p class="mb-1"><strong>PROGRAMA — Editor de Vídeo IA</strong> · contrato de execução, ago/2026 ·
+      documento de arquivo único: salve, mande por anexo, abra offline.</p>
+    <p class="mb-0">Este arquivo substitui os 26 documentos markdown que o precederam. A cadeia de
+      evidência — 19 clusters de pesquisa com placar por claim, o panorama verificado e a auditoria
+      cruzada — continua no histórico do git, no commit <code>8737ad6</code>. As 20 agent skills
+      seguem vivas em <code>.agents/skills/</code>, porque são carregadas por caminho em tempo de
+      tarefa e não são documentação.</p>
+  </footer>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"
+        integrity="sha384-RH2xi4eIQ/gjtbs9fUXM68sLSi99C7ZWBRX1vDrVv6GQXRibxXLbwO2NGZB74MbU"
+        crossorigin="anonymous"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  var sources = new WeakMap();
+  document.querySelectorAll('pre > code').forEach(function (code) {
+    sources.set(code, code.textContent.replace(/\n$/, ''));
+  });
+
+  if (window.hljs) hljs.highlightAll();
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(function () { return true; },
+                                                      function () { return legacyCopy(text); });
+    }
+    return Promise.resolve(legacyCopy(text));
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  document.querySelectorAll('pre > code').forEach(function (code) {
+    var pre = code.parentElement;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-sm btn-outline-secondary copy-btn';
+    btn.innerHTML = '<i class="bi bi-clipboard"></i>';
+    btn.setAttribute('aria-label', 'Copiar código');
+    btn.addEventListener('click', function () {
+      copyText(sources.get(code) || code.textContent).then(function (ok) {
+        btn.innerHTML = ok ? '<i class="bi bi-check-lg"></i>' : '<i class="bi bi-x-lg"></i>';
+        btn.classList.toggle('btn-outline-success', ok);
+        btn.classList.toggle('btn-outline-danger', !ok);
+        btn.classList.remove('btn-outline-secondary');
+        setTimeout(function () {
+          btn.innerHTML = '<i class="bi bi-clipboard"></i>';
+          btn.className = 'btn btn-sm btn-outline-secondary copy-btn';
+        }, 1500);
+      });
+    });
+    pre.appendChild(btn);
+  });
+
+  var tabs = document.querySelectorAll('[data-bs-toggle="tab"]');
+  if (!tabs.length) return;
+
+  function activateFromHash() {
+    var hash = window.location.hash;
+    if (!hash || hash.length < 2) return;
+    var target = document.querySelector(hash);
+    if (!target) return;
+    var pane = target.closest('.tab-pane') || (target.classList.contains('tab-pane') ? target : null);
+    if (!pane) return;
+    var trigger = document.querySelector('[data-bs-target="#' + CSS.escape(pane.id) + '"]');
+    if (trigger) bootstrap.Tab.getOrCreateInstance(trigger).show();
+    var scrollTo = target !== pane ? target : (trigger && trigger.closest('[role="tablist"]')) || pane;
+    requestAnimationFrame(function () { scrollTo.scrollIntoView({ block: 'start' }); });
+  }
+
+  tabs.forEach(function (t) {
+    t.addEventListener('shown.bs.tab', function (e) {
+      var id = (e.target.getAttribute('data-bs-target') || '').slice(1);
+      if (id) history.replaceState(null, '', '#' + id);
+    });
+  });
+
+  window.addEventListener('hashchange', activateFromHash);
+  activateFromHash();
+})();
+</script>
+</body>
+</html>

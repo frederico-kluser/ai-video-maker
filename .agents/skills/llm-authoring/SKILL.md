@@ -16,6 +16,18 @@ metadata:
   tier: dominio
   verification_signal: "curl -sS https://platform.claude.com/docs/en/build-with-claude/structured-outputs.md | grep -c output_config.format"
 ---
+
+> **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em
+> `PROGRAMA.html` (arquivo único, na raiz do repositório) e os documentos originais ficaram
+> **congelados no histórico do git**, no commit `8737ad6`. Caminho e número de linha continuam
+> exatos — o commit os pina por conteúdo:
+>
+> - `docs/pesquisa/<arq>.md:<linha>` → `git show 8737ad6:docs/pesquisa/<arq>.md`
+> - `docs/00-panorama-verificado.md §<n>` → `git show 8737ad6:docs/00-panorama-verificado.md`
+> - `PROGRAMA.md §<seção>` → a aba correspondente de `PROGRAMA.html`
+>
+> Um id de claim (`R07-06`, `L02-C11`) ou de card (`F2-03`) continua sendo a âncora estável.
+> Prefira-o ao caminho de arquivo: ele não desliza.
 # Autoria por LLM — o modelo escreve o manifesto, o sistema escreve o vídeo
 
 ## Quando carregar

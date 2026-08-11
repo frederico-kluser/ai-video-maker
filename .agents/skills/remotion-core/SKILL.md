@@ -15,6 +15,18 @@ metadata:
   tier: dominio
   verification_signal: "node -e \"const {interpolate}=require('remotion'); if (interpolate(200,[0,100],[0,1]) !== 2) throw new Error('interpolate deixou de extrapolar por extend');\" && node -e \"const t=require('@remotion/transitions'); if (typeof t.springTiming !== 'function' || typeof t.linearTiming !== 'function') throw new Error('catalogo de timings mudou');\" && npm ls remotion @remotion/transitions"
 ---
+
+> **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em
+> `PROGRAMA.html` (arquivo único, na raiz do repositório) e os documentos originais ficaram
+> **congelados no histórico do git**, no commit `8737ad6`. Caminho e número de linha continuam
+> exatos — o commit os pina por conteúdo:
+>
+> - `docs/pesquisa/<arq>.md:<linha>` → `git show 8737ad6:docs/pesquisa/<arq>.md`
+> - `docs/00-panorama-verificado.md §<n>` → `git show 8737ad6:docs/00-panorama-verificado.md`
+> - `PROGRAMA.md §<seção>` → a aba correspondente de `PROGRAMA.html`
+>
+> Um id de claim (`R07-06`, `L02-C11`) ou de card (`F2-03`) continua sendo a âncora estável.
+> Prefira-o ao caminho de arquivo: ele não desliza.
 # Remotion — composição determinística
 
 > **Como esta skill cita o panorama:** por **id de claim** (`R02-03`, `R07-12`, `R09-15`), nunca por

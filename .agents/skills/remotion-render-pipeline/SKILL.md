@@ -6,6 +6,18 @@ metadata:
   tier: dominio
   verification_signal: 'grep -rho "Math.min(8, Math.max(1, maxCpus / 2))" node_modules/@remotion/renderer/dist/ && npx remotion render --help | grep -c -- "--hardware-acceleration"'
 ---
+
+> **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em
+> `PROGRAMA.html` (arquivo único, na raiz do repositório) e os documentos originais ficaram
+> **congelados no histórico do git**, no commit `8737ad6`. Caminho e número de linha continuam
+> exatos — o commit os pina por conteúdo:
+>
+> - `docs/pesquisa/<arq>.md:<linha>` → `git show 8737ad6:docs/pesquisa/<arq>.md`
+> - `docs/00-panorama-verificado.md §<n>` → `git show 8737ad6:docs/00-panorama-verificado.md`
+> - `PROGRAMA.md §<seção>` → a aba correspondente de `PROGRAMA.html`
+>
+> Um id de claim (`R07-06`, `L02-C11`) ou de card (`F2-03`) continua sendo a âncora estável.
+> Prefira-o ao caminho de arquivo: ele não desliza.
 # Remotion — pipeline de render, concorrência e aceleração
 
 Âncora de versão: **Remotion 4.0.507**. Todo piso de versão citado aqui é literal; abaixo dele a

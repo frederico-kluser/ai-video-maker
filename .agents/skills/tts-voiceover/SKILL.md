@@ -6,6 +6,18 @@ metadata:
   tier: dominio
   verification_signal: "curl -sS https://raw.githubusercontent.com/hexgrad/kokoro/main/kokoro/pipeline.py | grep -c \"lang_code in 'ab'\"   # >=1 enquanto o ramo pt-BR do Kokoro nao alinhar; 0 significa que a guarda caiu e esta skill precisa ser reescrita"
 ---
+
+> **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em
+> `PROGRAMA.html` (arquivo único, na raiz do repositório) e os documentos originais ficaram
+> **congelados no histórico do git**, no commit `8737ad6`. Caminho e número de linha continuam
+> exatos — o commit os pina por conteúdo:
+>
+> - `docs/pesquisa/<arq>.md:<linha>` → `git show 8737ad6:docs/pesquisa/<arq>.md`
+> - `docs/00-panorama-verificado.md §<n>` → `git show 8737ad6:docs/00-panorama-verificado.md`
+> - `PROGRAMA.md §<seção>` → a aba correspondente de `PROGRAMA.html`
+>
+> Um id de claim (`R07-06`, `L02-C11`) ou de card (`F2-03`) continua sendo a âncora estável.
+> Prefira-o ao caminho de arquivo: ele não desliza.
 # Locução (TTS) — timing, cache, prosódia e direito de voz
 
 O estágio `locução (TTS) → audio/<hash>.wav + timing.json` fica **acima da fronteira de
