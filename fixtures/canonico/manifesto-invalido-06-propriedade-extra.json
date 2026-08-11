@@ -1,0 +1,22 @@
+{
+  "schema_version": "Manifesto.1",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "nos": [
+    {
+      "id": "n-001",
+      "schema": "Texto.1",
+      "type": "texto",
+      "duracao_frames": 90,
+      "texto": "Texto normal",
+      "cor_fonte": "#FF0000"
+    }
+  ],
+  "cenas": [
+    {
+      "id": "c-001",
+      "nos": ["n-001"]
+    }
+  ]
+}

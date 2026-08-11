@@ -1,0 +1,24 @@
+{
+  "schema_version": "Manifesto.1",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "nos": [
+    {
+      "id": "n-001",
+      "schema": "Grafico.1",
+      "type": "grafico",
+      "duracao_frames": 90,
+      "tipo_grafico": "radar",
+      "dados": [
+        { "rotulo": "A", "valor": 10 }
+      ]
+    }
+  ],
+  "cenas": [
+    {
+      "id": "c-001",
+      "nos": ["n-001"]
+    }
+  ]
+}

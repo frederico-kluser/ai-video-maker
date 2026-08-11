@@ -1,0 +1,21 @@
+{
+  "schema_version": "Manifesto.1",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "nos": [
+    {
+      "id": "n-001",
+      "schema": "Invalido.1",
+      "type": "invalido",
+      "duracao_frames": 90,
+      "texto": "Este tipo não existe no schema"
+    }
+  ],
+  "cenas": [
+    {
+      "id": "c-001",
+      "nos": ["n-001"]
+    }
+  ]
+}

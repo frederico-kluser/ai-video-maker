@@ -1,0 +1,306 @@
+{
+  "schema_version": "Manifesto.1",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "duracao_total_frames": 930,
+  "nos": [
+    {
+      "id": "n-001",
+      "schema": "Cabecalho.1",
+      "type": "cabecalho",
+      "duracao_frames": 90,
+      "entrada_frames": 0,
+      "texto": "Editor de Vídeo IA — Pipeline Declarativo",
+      "subtitulo": "Da ideia ao frame final, sem edição manual",
+      "alinhamento": "centro",
+      "animacao": {
+        "tipo": "fade",
+        "duracao_frames": 15
+      }
+    },
+    {
+      "id": "n-002",
+      "schema": "Texto.1",
+      "type": "texto",
+      "duracao_frames": 120,
+      "entrada_frames": 0,
+      "texto": "O pipeline converte um manifesto JSON em vídeo renderizado. Cada nó visual é uma unidade atômica com tipo, duração e animação independentes.",
+      "destaque": true,
+      "alinhamento": "esquerda",
+      "animacao": {
+        "tipo": "slide",
+        "direcao": "from-left",
+        "duracao_frames": 20
+      }
+    },
+    {
+      "id": "n-003",
+      "schema": "Lista.1",
+      "type": "lista",
+      "duracao_frames": 180,
+      "entrada_frames": 30,
+      "itens": [
+        "Cabeçalho: título e subtítulo com alinhamento configurável",
+        "Texto: corpo com destaque opcional e animação de entrada",
+        "Lista: itens ordenados ou não, com bullets automáticos"
+      ],
+      "ordenada": false,
+      "alinhamento": "esquerda",
+      "animacao": {
+        "tipo": "scale",
+        "duracao_frames": 12
+      }
+    },
+    {
+      "id": "n-004",
+      "schema": "Lista.1",
+      "type": "lista",
+      "duracao_frames": 150,
+      "itens": [
+        "Primeiro passo: definir o manifesto",
+        "Segundo passo: validar contra o schema",
+        "Terceiro passo: resolver timeline",
+        "Quarto passo: renderizar com Remotion"
+      ],
+      "ordenada": true,
+      "alinhamento": "esquerda",
+      "animacao": {
+        "tipo": "spring",
+        "configuracao_mola": {
+          "damping": 10,
+          "stiffness": 100,
+          "mass": 1
+        }
+      }
+    },
+    {
+      "id": "n-005",
+      "schema": "Midia.1",
+      "type": "midia",
+      "duracao_frames": 90,
+      "hash": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
+      "tipo_midia": "imagem",
+      "ajuste": "cover",
+      "texto_alternativo": "Diagrama do pipeline de renderização mostrando as etapas: manifesto → validação → timeline → Remotion → vídeo",
+      "licenca": "CC-BY-4.0",
+      "animacao": {
+        "tipo": "fade",
+        "duracao_frames": 10
+      }
+    },
+    {
+      "id": "n-006",
+      "schema": "Midia.1",
+      "type": "midia",
+      "duracao_frames": 60,
+      "hash": "b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3",
+      "tipo_midia": "video",
+      "ajuste": "contain",
+      "texto_alternativo": "Demonstração curta do editor em ação: uma cena com transição slide entre dois nós de texto",
+      "licenca": "MIT",
+      "animacao": {
+        "tipo": "none"
+      }
+    },
+    {
+      "id": "n-007",
+      "schema": "Midia.1",
+      "type": "midia",
+      "duracao_frames": 45,
+      "hash": "c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4",
+      "tipo_midia": "gif",
+      "ajuste": "fill",
+      "licenca": "CC0-1.0",
+      "entrada_frames": 15
+    },
+    {
+      "id": "n-008",
+      "schema": "Codigo.1",
+      "type": "codigo",
+      "duracao_frames": 180,
+      "codigo": "import { Composition } from 'remotion';\nimport { Manifesto } from './contratos/manifesto';\n\nexport const VideoEditor: React.FC<{ manifesto: Manifesto }> = ({ manifesto }) => {\n  return manifesto.cenas.map((cena) => (\n    <Sequence key={cena.id}>\n      {cena.nos.map((nodeId) => renderNode(nodeId))}\n    </Sequence>\n  ));\n};",
+      "linguagem": "typescript",
+      "linhas_destaque": [1, 3, 5],
+      "nome_arquivo": "VideoEditor.tsx",
+      "animacao": {
+        "tipo": "slide",
+        "direcao": "from-bottom",
+        "duracao_frames": 16
+      }
+    },
+    {
+      "id": "n-009",
+      "schema": "Grafico.1",
+      "type": "grafico",
+      "duracao_frames": 120,
+      "tipo_grafico": "barras",
+      "titulo": "Tempo de Render por Tipo de Nó (ms)",
+      "dados": [
+        { "rotulo": "Cabeçalho", "valor": 45, "cor": "#3B82F6" },
+        { "rotulo": "Texto", "valor": 32, "cor": "#22C55E" },
+        { "rotulo": "Lista", "valor": 78, "cor": "#F59E0B" },
+        { "rotulo": "Mídia", "valor": 210, "cor": "#EF4444" },
+        { "rotulo": "Código", "valor": 156, "cor": "#A855F7" },
+        { "rotulo": "Gráfico", "valor": 95, "cor": "#06B6D4" }
+      ],
+      "animacao": {
+        "tipo": "scale",
+        "duracao_frames": 20
+      }
+    },
+    {
+      "id": "n-010",
+      "schema": "Grafico.1",
+      "type": "grafico",
+      "duracao_frames": 90,
+      "tipo_grafico": "linha",
+      "titulo": "Evolução do Tempo Total de Render",
+      "dados": [
+        { "rotulo": "Dia 1", "valor": 1200 },
+        { "rotulo": "Dia 2", "valor": 980 },
+        { "rotulo": "Dia 3", "valor": 750 },
+        { "rotulo": "Dia 4", "valor": 620 },
+        { "rotulo": "Dia 5", "valor": 510 }
+      ]
+    },
+    {
+      "id": "n-011",
+      "schema": "Grafico.1",
+      "type": "grafico",
+      "duracao_frames": 90,
+      "tipo_grafico": "pizza",
+      "titulo": "Distribuição de Tipos de Nó",
+      "dados": [
+        { "rotulo": "Texto", "valor": 35, "cor": "#3B82F6" },
+        { "rotulo": "Cabeçalho", "valor": 20, "cor": "#22C55E" },
+        { "rotulo": "Mídia", "valor": 15, "cor": "#F59E0B" },
+        { "rotulo": "Código", "valor": 15, "cor": "#EF4444" },
+        { "rotulo": "Gráfico", "valor": 10, "cor": "#A855F7" },
+        { "rotulo": "Lista", "valor": 5, "cor": "#06B6D4" }
+      ]
+    },
+    {
+      "id": "n-012",
+      "schema": "Grafico.1",
+      "type": "grafico",
+      "duracao_frames": 90,
+      "tipo_grafico": "area",
+      "dados": [
+        { "rotulo": "Jan", "valor": 100 },
+        { "rotulo": "Fev", "valor": 200 },
+        { "rotulo": "Mar", "valor": 150 }
+      ]
+    },
+    {
+      "id": "n-013",
+      "schema": "Grafico.1",
+      "type": "grafico",
+      "duracao_frames": 90,
+      "tipo_grafico": "dispersao",
+      "dados": [
+        { "rotulo": "A", "valor": 1.5 },
+        { "rotulo": "B", "valor": 3.2 },
+        { "rotulo": "C", "valor": 2.8 }
+      ]
+    },
+    {
+      "id": "n-014",
+      "schema": "Texto.1",
+      "type": "texto",
+      "duracao_frames": 150,
+      "texto": "O manifesto é a fonte única de verdade. Um arquivo JSON versionado por objeto, validado contra JSON Schema 2020-12, com subset para LLM. A timeline resolvida é gerada deterministicamente a partir das âncoras absolutas — nunca somando durações.",
+      "destaque": false,
+      "alinhamento": "direita",
+      "entrada_frames": 30
+    },
+    {
+      "id": "n-015",
+      "schema": "Cabecalho.1",
+      "type": "cabecalho",
+      "duracao_frames": 60,
+      "texto": "Fim",
+      "alinhamento": "centro"
+    }
+  ],
+  "cenas": [
+    {
+      "id": "c-001",
+      "nos": ["n-001"],
+      "transicao_saida": {
+        "tipo": "fade",
+        "duracao_frames": 15
+      }
+    },
+    {
+      "id": "c-002",
+      "nos": ["n-002", "n-003"],
+      "transicao_entrada": {
+        "tipo": "slide",
+        "duracao_frames": 15,
+        "direcao": "from-left"
+      },
+      "transicao_saida": {
+        "tipo": "wipe",
+        "duracao_frames": 20,
+        "direcao": "from-right"
+      }
+    },
+    {
+      "id": "c-003",
+      "nos": ["n-005", "n-008", "n-004"],
+      "transicao_entrada": {
+        "tipo": "flip",
+        "duracao_frames": 12
+      },
+      "transicao_saida": {
+        "tipo": "clockWipe",
+        "duracao_frames": 18,
+        "timing": {
+          "kind": "spring",
+          "config": {
+            "damping": 15,
+            "stiffness": 150,
+            "mass": 0.8
+          }
+        }
+      }
+    },
+    {
+      "id": "c-004",
+      "nos": ["n-009", "n-010", "n-011", "n-012", "n-013"],
+      "transicao_entrada": {
+        "tipo": "cube",
+        "duracao_frames": 24,
+        "direcao": "from-bottom"
+      },
+      "audio_cena": {
+        "hash_locucao": "d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5",
+        "volume": 0.9,
+        "texto_locucao": "Nesta seção, apresentamos os dados de desempenho do pipeline. Cada tipo de nó tem características de renderização distintas."
+      }
+    },
+    {
+      "id": "c-005",
+      "nos": ["n-014", "n-006", "n-007", "n-015"],
+      "transicao_entrada": {
+        "tipo": "none",
+        "duracao_frames": 0
+      },
+      "transicao_saida": {
+        "tipo": "fade",
+        "duracao_frames": 30
+      },
+      "audio_cena": {
+        "hash_locucao": "e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6",
+        "volume": 0.85,
+        "texto_locucao": "Concluindo, o manifesto é a peça central do pipeline. Obrigado por assistir."
+      }
+    }
+  ],
+  "audio": {
+    "trilha_sonora": "f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7",
+    "volume": 0.25,
+    "inicio_frames": 0
+  }
+}
