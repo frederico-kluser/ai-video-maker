@@ -126,6 +126,12 @@
         <i class="bi bi-exclamation-diamond me-1"></i>Limites
       </button>
     </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-formularios" data-bs-toggle="tab" data-bs-target="#pane-formularios"
+              type="button" role="tab" aria-controls="pane-formularios" aria-selected="false">
+        <i class="bi bi-clipboard-check me-1"></i>Formulários
+      </button>
+    </li>
   </ul>
 
   <div class="tab-content border border-top-0 rounded-bottom p-4" id="doc-tabs-content">
@@ -696,6 +702,16 @@ I   Trilha de infra           ← exige humano, credencial, cartão ou máquina
           severidade para escapar do gate</strong>.</div>
       </div>
 
+      <div class="alert alert-primary d-flex gap-2">
+        <i class="bi bi-search flex-shrink-0"></i>
+        <div><strong>O ícone <i class="bi bi-search"></i> marca os 15 cards que dependem de um fato
+          público e datável</strong> — uma versão, um limite de API, uma cláusula de termos, uma norma
+          publicada, uma licença. Esses cards carregam <code>/surf-search-skill</code> como
+          <strong>primeira</strong> entrada de <code>skills_obrigatorias</code>, e o card nomeia
+          <em>qual</em> é a pergunta. A regra completa, a tabela de perguntas e o contrato de placar
+          estão na aba <a href="#pesquisar-ou-perguntar">Rodar a onda</a>.</div>
+      </div>
+
       <p class="small text-body-secondary"><strong>disciplina</strong> é decidida por quem orquestra e
         nunca pelo executor — um agente que escolhe a própria disciplina escolhe a que é mais fácil de
         satisfazer. <code>tdd</code> onde não há oráculo a preservar (o teste <em>é</em> a
@@ -716,7 +732,7 @@ I   Trilha de infra           ← exige humano, credencial, cartão ou máquina
             <tr><th scope="row">🔴 <code>F0-01</code></th><td>—</td><td>tdd</td>
               <td>Vocabulário, convenções e o contrato de card</td>
               <td><code>docs/vocabulario.md</code> · <code>convencoes.md</code> · <code>estrutura.md</code> · <code>AGENTS.md</code> · ADR-0001, ADR-0002</td></tr>
-            <tr><th scope="row">🔴 <code>T-01</code></th><td>—</td><td>tdd</td>
+            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>T-01</code></th><td>—</td><td>tdd</td>
               <td>Esqueleto do repositório e fixação da toolchain</td>
               <td><code>package.json</code> · lockfiles · <code>tsconfig</code> · <code>pyproject</code> · <code>.gitignore</code> · <code>justfile</code></td></tr>
 
@@ -726,13 +742,13 @@ I   Trilha de infra           ← exige humano, credencial, cartão ou máquina
               <td><code>docs/adr/0003-enquadramento-de-uso.md</code></td></tr>
 
             <tr class="table-active"><th colspan="5" scope="colgroup">🔵 W1 — fan-out da raiz · 8 cards · os quatro contratos e as quatro ferramentas</th></tr>
-            <tr><th scope="row">🔴 <code>F0-02</code></th><td><code>F0-01</code> <code>T-01</code></td><td>tdd</td>
+            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F0-02</code></th><td><code>F0-01</code> <code>T-01</code></td><td>tdd</td>
               <td>Contrato do manifesto: schema e geração cross-language <span class="badge text-bg-info">hub 6</span></td>
               <td><code>schema/**</code> · <code>src/contratos/manifesto.*</code> · <code>tests/contratos/**</code></td></tr>
             <tr><th scope="row">🔴 <code>F0-03</code></th><td><code>F0-01</code> <code>T-01</code></td><td>tdd</td>
               <td>Ledger de incerteza: schema, validador, faixas e inbox</td>
               <td><code>ledger/**</code> · <code>tools/validate-ledger.py</code> · <code>tools/consolidar-ledger.py</code></td></tr>
-            <tr><th scope="row">🔴 <code>F0-04</code></th><td><code>F0-01</code> <code>T-01</code></td><td>tdd</td>
+            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F0-04</code></th><td><code>F0-01</code> <code>T-01</code></td><td>tdd</td>
               <td>Tokens de design em código <span class="badge text-bg-info">hub 10</span></td>
               <td><code>src/design/tokens.ts</code> · <code>tokens.py</code> (gerado) · <code>tests/design/**</code></td></tr>
             <tr><th scope="row">🟡 <code>F0-05</code></th><td><code>F0-01</code></td><td>—</td>
@@ -778,18 +794,18 @@ I   Trilha de infra           ← exige humano, credencial, cartão ou máquina
               <td><code>tools/medir.py</code> · <code>docs/medicao/**</code></td></tr>
 
             <tr class="table-active"><th colspan="5" scope="colgroup">🟠 W2.5 — infra · <strong>bloqueante</strong> para os estágios de resolução</th></tr>
-            <tr><th scope="row">🔴 <code>I-02</code></th><td><code>I-01</code></td><td>—</td>
+            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>I-02</code></th><td><code>I-01</code></td><td>—</td>
               <td>Contas, chaves e quotas — quota por provedor é o que dimensiona a concorrência da W4</td>
               <td><code>.env.example</code> · <code>docs/contas.md</code> · ADR-0005</td></tr>
 
             <tr class="table-active"><th colspan="5" scope="colgroup">🔵 W3 — os hubs · 5 cards · <em>onda estreita de propósito</em></th></tr>
-            <tr><th scope="row">🔴 <code>F1-01</code></th><td><code>F0-02</code> <code>F0-04</code> <code>F0-09</code> <code>T-01</code></td><td>ambos</td>
+            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F1-01</code></th><td><code>F0-02</code> <code>F0-04</code> <code>F0-09</code> <code>T-01</code></td><td>ambos</td>
               <td>Composição raiz, contrato de nó e <strong>descoberta por convenção</strong> <span class="badge text-bg-info">hub 8</span></td>
               <td><code>src/composicao/raiz.tsx</code> · <code>contrato-de-no.ts</code> · <code>descoberta.ts</code> · <code>tempo.ts</code></td></tr>
             <tr><th scope="row">🔴 <code>F1-02</code></th><td><code>F0-04</code> <code>T-01</code></td><td>tdd</td>
               <td>Motor de layout: medição, ajuste e <strong>overflow como erro de build</strong></td>
               <td><code>src/composicao/layout/**</code></td></tr>
-            <tr><th scope="row">🟡 <code>F1-03</code></th><td><code>F0-04</code> <code>T-01</code></td><td>tdd</td>
+            <tr><th scope="row">🟡 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F1-03</code></th><td><code>F0-04</code> <code>T-01</code></td><td>tdd</td>
               <td>Fontes locais embutidas e asserção de família resolvida</td>
               <td><code>src/design/fontes/**</code> · <code>assets/fontes/**</code></td></tr>
             <tr><th scope="row">🔴 <code>F2-01</code></th><td><code>F0-02</code> <code>F0-07</code></td><td>tdd</td>
@@ -827,16 +843,16 @@ I   Trilha de infra           ← exige humano, credencial, cartão ou máquina
             <tr><th scope="row">🔴 <code>F2-02</code></th><td><code>F2-01</code> <code>F0-07</code> <code>F0-05</code></td><td>ambos</td>
               <td>Resolução: gráfico (Manim headless) — absorve os quirks do 3b1b <strong>com citação de origem</strong></td>
               <td><code>resolucao/grafico/**</code> + cassetes</td></tr>
-            <tr><th scope="row">🔴 <code>F2-03</code></th><td><code>F2-01</code> <code>F0-07</code></td><td>ambos</td>
+            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F2-03</code></th><td><code>F2-01</code> <code>F0-07</code></td><td>ambos</td>
               <td>Resolução: locução — produz <em>audio</em> <strong>e</strong> <em>timing</em>. <span class="badge text-bg-danger">caminho crítico</span></td>
               <td><code>resolucao/locucao/**</code> + cassetes</td></tr>
-            <tr><th scope="row">🟡 <code>F2-04</code></th><td><code>F2-01</code> <code>F0-07</code></td><td>ambos</td>
+            <tr><th scope="row">🟡 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F2-04</code></th><td><code>F2-01</code> <code>F0-07</code></td><td>ambos</td>
               <td>Resolução: mídia externa — um provedor <strong>proíbe hotlink</strong>, outro o <strong>exige</strong>: decide qual vale <em>antes</em> de escrever o downloader</td>
               <td><code>resolucao/midia/**</code> + cassetes</td></tr>
             <tr><th scope="row">🟡 <code>F2-05</code></th><td><code>F2-01</code> <code>F0-07</code></td><td>ambos</td>
               <td>Resolução: destaque de código — nada de busca de tipos em CDN em tempo de execução</td>
               <td><code>resolucao/codigo/**</code> + cassetes</td></tr>
-            <tr><th scope="row">🟡 <code>F2-06</code></th><td><code>F2-01</code> <code>F0-07</code></td><td>ambos</td>
+            <tr><th scope="row">🟡 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F2-06</code></th><td><code>F2-01</code> <code>F0-07</code></td><td>ambos</td>
               <td>Resolução: música e efeitos — os efeitos do pacote do fornecedor são <strong>URLs remotas</strong>; precisam ir para o store</td>
               <td><code>resolucao/musica/**</code> + cassetes</td></tr>
 
@@ -847,18 +863,18 @@ I   Trilha de infra           ← exige humano, credencial, cartão ou máquina
             <tr><th scope="row">🔴 <code>F2-07</code></th><td><code>F2-02</code>…<code>F2-06</code></td><td>caract.</td>
               <td>Suíte offline de resolução e o <strong>guarda de rede</strong> — prova que o pipeline abaixo da autoria roda sem rede <span class="badge text-bg-secondary">join 5</span></td>
               <td><code>tests/integracao/resolucao/**</code> · <code>tools/offline-guard.*</code></td></tr>
-            <tr><th scope="row">🔴 <code>F3-01</code></th><td><code>F2-01</code> <code>F2-03</code></td><td>tdd</td>
+            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F3-01</code></th><td><code>F2-01</code> <code>F2-03</code></td><td>tdd</td>
               <td>Timing canônico — três consumidores, uma fonte <span class="badge text-bg-danger">caminho crítico</span></td>
               <td><code>src/sincronia/timing/**</code> · <code>schema/timing.schema.json</code></td></tr>
-            <tr><th scope="row">🟡 <code>F4-01</code></th><td><code>F0-02</code> <code>F2-01</code></td><td>tdd</td>
+            <tr><th scope="row">🟡 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F4-01</code></th><td><code>F0-02</code> <code>F2-01</code></td><td>tdd</td>
               <td>Contrato de autoria: saída estruturada e cache — o LLM decide <em>narrativa</em>; o sistema decide frames, layout e cor</td>
               <td><code>src/autoria/contrato/**</code></td></tr>
-            <tr><th scope="row">🟢 <code>F4-02</code></th><td><code>F0-01</code> <code>F0-02</code></td><td>tdd</td>
+            <tr><th scope="row">🟢 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F4-02</code></th><td><code>F0-01</code> <code>F0-02</code></td><td>tdd</td>
               <td>Biblioteca de prompt e decomposição narrativa <span class="badge text-bg-secondary">preenchedor de folga</span></td>
               <td><code>docs/autoria/prompts/**</code></td></tr>
 
             <tr class="table-active"><th colspan="5" scope="colgroup">🟣 W6 — onda de composição ★ · 5 cards · todos consomem <code>F3-01</code>/<code>F4-01</code></th></tr>
-            <tr><th scope="row">🔴 <code>F3-02</code></th><td><code>F3-01</code> <code>F1-05</code> <code>F0-04</code></td><td>ambos</td>
+            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F3-02</code></th><td><code>F3-01</code> <code>F1-05</code> <code>F0-04</code></td><td>ambos</td>
               <td>Legendas a partir do timing — o invariante é <strong>em segundos, nunca em frames</strong></td>
               <td><code>src/sincronia/legendas/**</code></td></tr>
             <tr><th scope="row">🔴 <code>F3-03</code></th><td><code>F3-01</code> <code>F0-04</code></td><td>tdd</td>
@@ -889,7 +905,7 @@ I   Trilha de infra           ← exige humano, credencial, cartão ou máquina
             <tr><th scope="row">🟡 <code>F5-02</code></th><td><code>F0-04</code> <code>I-03</code></td><td>tdd</td>
               <td>Perfis de encode — hardware e software não se comparam pelo mesmo eixo: um não tem CRF</td>
               <td><code>src/render/encode/**</code></td></tr>
-            <tr><th scope="row">🟡 <code>F5-04</code></th><td><code>F1-12</code> <code>F0-04</code></td><td>ambos</td>
+            <tr><th scope="row">🟡 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F5-04</code></th><td><code>F1-12</code> <code>F0-04</code></td><td>ambos</td>
               <td>Variantes de proporção — conteúdo fora da safe area de qualquer plataforma fica vermelho</td>
               <td><code>src/entrega/variantes/**</code></td></tr>
             <tr><th scope="row">🟢 <code>F5-05</code></th><td><code>F1-12</code> <code>F0-04</code></td><td>ambos</td>
@@ -924,7 +940,7 @@ I   Trilha de infra           ← exige humano, credencial, cartão ou máquina
             <tr><th scope="row">🔴 <code>F6-01</code></th><td><code>F5-07</code> <code>F5-06</code></td><td>tdd</td>
               <td><strong>W10</strong> · Checklist de revisão humana — entrega sem dossiê bloqueia a publicação</td>
               <td><code>docs/revisao/**</code></td></tr>
-            <tr><th scope="row">🔴 <code>F6-02</code></th><td><code>F6-01</code> <code>F5-08</code></td><td>—</td>
+            <tr><th scope="row">🔴 <i class="bi bi-search text-info" title="precisa de pesquisa web — carrega /surf-search-skill em skills_obrigatorias"></i> <code>F6-02</code></th><td><code>F6-01</code> <code>F5-08</code></td><td>—</td>
               <td><strong>W11</strong> · Runbook de publicação — nasce <code>ENCERRADO COMO CONSTRUÍDO E NÃO DISPARADO</code></td>
               <td><code>docs/runbooks/publicacao.md</code></td></tr>
             <tr><th scope="row">🔴 <code>F6-03</code></th><td><code>F6-01</code></td><td>—</td>
@@ -1468,6 +1484,87 @@ BOM    feche AB-431: um provedor proíbe hotlink e o outro o exige. Qual regra v
           <br><br>Aceite <strong>fechamento parcial</strong>. Uma tarefa que fecha metade de uma flag de
           rechecagem deve <em>recusar</em> fechar a outra metade: declarar a flag fechada ali seria trocar
           "não verificado" por "verificado" sem nenhum dado no meio.</div>
+      </div>
+
+      <h3 class="h6 mt-4" id="as-quinze-perguntas">Os 15 cards marcados, e a pergunta de cada um</h3>
+      <p>Um card marcado sem pergunta escrita é um card que vai pesquisar "sobre o assunto" e voltar com
+        uma URL. A pergunta abaixo é o que ele tem de <strong>fechar</strong>, e ela vem do registro do
+        card — escrita por quem orquestra, antes.</p>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead><tr><th scope="col">Card</th><th scope="col">O que ele entrega que é externo</th><th scope="col">A pergunta que fecha</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><code>T-01</code></th>
+              <td class="small">os pinos de versão de toda a toolchain</td>
+              <td class="small">Quais versões de motor de composição, Node, Python, motor de gráficos e FFmpeg (a) ainda são mantidas, (b) são mutuamente compatíveis e (c) são aquelas em que as 14 armadilhas medidas valem? <strong>Com data de acesso e placar.</strong> Um pino adivinhado invalida as 14 de uma vez.</td></tr>
+            <tr><th scope="row"><code>F0-02</code></th>
+              <td class="small">o subset de JSON Schema que o modo estruturado aceita</td>
+              <td class="small">Qual é hoje a <strong>interseção efetiva</strong> do subset aceito no modo estrito de cada fornecedor: quais keywords de constraint são de fato aceitas, qual a profundidade máxima, e schema recursivo passa? <span class="badge text-bg-danger">D-08 · 1-1</span> os dois fornecedores se contradizem sobre metade das chaves.</td></tr>
+            <tr><th scope="row"><code>F0-04</code></th>
+              <td class="small">os números normativos que viram invariante</td>
+              <td class="small">Cada número tem de chegar com fonte: safe area por plataforma, caracteres por segundo de legenda, limite de flashes por segundo, contraste mínimo, LUFS alvo e <em>true peak</em>. <span class="badge text-bg-warning">1-0</span> os valores provisórios de safe area estão marcados <em>"sem fonte"/"folclore"</em>, e o subset de legenda também é fonte única. Dono de ADR-0013 e ADR-0015.</td></tr>
+            <tr><th scope="row"><code>F1-01</code></th>
+              <td class="small">a lista de causas de não-determinismo que o lint de pureza proíbe</td>
+              <td class="small">Quais causas a documentação do motor enumera <strong>nominalmente</strong>, corroboradas por fonte fora do domínio do fornecedor? <span class="badge text-bg-warning">1-0</span> e o dossiê congelado registra que a lista do programa está <strong>incompleta</strong> — faltam <code>background-image</code>, <code>&lt;img&gt;</code> cru e fonte não aguardada, <em>que nenhum grep por <code>Date.now</code> pega</em>. Herdada cega pelos 8 nós da W4.</td></tr>
+            <tr><th scope="row"><code>F1-03</code></th>
+              <td class="small">a licença de cada fonte embutida</td>
+              <td class="small">A licença de cada família permite redistribuição no repositório <strong>e</strong> embutir no vídeo renderizado e publicado — OFL contra EULA <em>desktop-only</em>? Cláusula literal, URL e data. Mesma classe de <code>F2-04</code> e <code>F2-06</code>: o artefato publicado carrega o asset dentro.</td></tr>
+            <tr><th scope="row"><code>F2-03</code></th>
+              <td class="small">o timing por palavra da locução</td>
+              <td class="small">Por provedor e na data de execução: qual devolve timing por <strong>palavra</strong> em pt-BR nativamente, e em que unidade? O caminho local ainda é guardado por idioma inglês? <span class="badge text-bg-danger">D-05</span> — <strong>em disputa</strong>, e está no caminho crítico.</td></tr>
+            <tr><th scope="row"><code>F3-01</code></th>
+              <td class="small">a origem do timing canônico (ADR-0009)</td>
+              <td class="small">Se o provedor não fornece alinhamento, qual caminho alternativo existe e o que ele custa? <span class="badge text-bg-danger">D-05</span> mesma disputa de <code>F2-03</code>, e o custo de errar, na palavra do panorama, é <em>um subsistema inteiro</em>. Planeje pelo pior caso até fechar.</td></tr>
+            <tr><th scope="row"><code>F3-02</code></th>
+              <td class="small">os números de legendagem em pt-BR</td>
+              <td class="small">Existe norma ou guia público de legendagem em <strong>português brasileiro</strong> que fixe caracteres por linha, número de linhas e velocidade de leitura — e quais os números, a edição e o ano? Os 42 CPL / 20 CPS herdados são norma proprietária <strong>calibrada para inglês</strong>; pt-BR é mais longo.</td></tr>
+            <tr><th scope="row"><code>F2-04</code></th>
+              <td class="small">a política de cada provedor de mídia externa</td>
+              <td class="small">Por provedor e com data do termo: teto de requisições, obrigação de cache, e política de <em>hotlink</em>. <span class="badge text-bg-danger">contradição</span> um provedor <strong>proíbe</strong> hotlink e outro o <strong>exige</strong> — as duas regras não coexistem numa política única, e isso se decide <em>antes</em> de escrever o downloader.</td></tr>
+            <tr><th scope="row"><code>F2-06</code></th>
+              <td class="small">a licença de cada som e de cada faixa</td>
+              <td class="small">Qual a licença de <strong>cada som</strong> exportado pelo pacote de efeitos? O pacote é MIT mas exporta <strong>URLs remotas</strong>, e a licença é <strong>por som</strong> — só um foi lido até hoje. E a biblioteca de trilha: continua sem API e exclusiva do estúdio da plataforma?</td></tr>
+            <tr><th scope="row"><code>F4-01</code></th>
+              <td class="small">os limites do modo estrito de saída estruturada</td>
+              <td class="small">Por fornecedor: quais chaves o modo estrito aceita e recusa, e quais os limites de profundidade, número de propriedades e de enums? <span class="badge text-bg-warning">divergente</span> a doc do fornecedor e a da plataforma gerenciada dão números diferentes para os mesmos limites.</td></tr>
+            <tr><th scope="row"><code>F4-02</code></th>
+              <td class="small">os critérios editoriais mensuráveis e o dicionário de pronúncia</td>
+              <td class="small">Quais números editoriais têm fonte — palavras por minuto para locução técnica em pt-BR, densidade de corte, tempo mínimo de leitura? O card exige <em>"números com fonte, ou opinião"</em> na própria refutação, e hoje não há fonte para nenhum.</td></tr>
+            <tr><th scope="row"><code>F5-04</code></th>
+              <td class="small">as safe areas por plataforma</td>
+              <td class="small">Em 2026, onde ficam as zonas de UI que as plataformas de vídeo vertical desenham <strong>por cima</strong> do quadro 1080×1920 — topo, base e laterais, em px ou % — segundo especificação publicada pela própria plataforma? <span class="badge text-bg-warning">1-0</span> três sondagens, três bloqueios de natureza diferente: artigo removido, SPA sem conteúdo no HTML, HTTP 400.</td></tr>
+            <tr><th scope="row"><code>I-02</code></th>
+              <td class="small">a quota real de cada provedor que ganha chave</td>
+              <td class="small">Para cada provedor com conta e chave: qual o limite publicado hoje, a obrigação de cache ou renovação de URL, e a exigência de atribuição como <strong>condição da chave de produção</strong>? É esta resposta que dimensiona a concorrência da W4 — não o palpite.</td></tr>
+            <tr><th scope="row"><code>F6-02</code></th>
+              <td class="small">as obrigações de publicação do canal</td>
+              <td class="small">Para o canal decidido em ADR-0007: custo em quota de um upload e quota diária default; se o escopo exige verificação do app e qual o prazo dela; e <strong>qual campo do payload declara conteúdo sintético</strong>. Este último não é opcional — é obrigação de plataforma.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-warning d-flex gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <div><strong>Upstream pesquisa, downstream consome.</strong> É por isso que <code>F0-04</code>
+          está marcado e <code>F5-03</code> (loudness) não: o alvo de LUFS vive no <em>tipo nomeado
+          único</em>, e quem o consome não repesquisa. O mesmo vale para <code>F2-02</code>, cujo formato
+          de alfa já está fixado, e para <code>F5-01</code>/<code>F5-02</code>, cujas flags de encoder
+          resolvem por <code>--help</code> local. <strong>Se um card marcado e um card que o consome
+          pesquisam a mesma coisa, um dos dois está errado.</strong></div>
+      </div>
+
+      <div class="alert alert-primary d-flex gap-2">
+        <i class="bi bi-lightbulb-fill flex-shrink-0"></i>
+        <div><strong>Nota de método — o eixo do corte.</strong> A primeira classificação desta lista foi
+          feita <em>por letra de trilha</em>: <code>T-*</code> é transversal, logo interno, logo não
+          pesquisa. Errado. <code>T-01</code> é o maior hub do grafo (out-degree 13) e sua entrega é
+          <strong>inteiramente composta de fatos externos datáveis</strong> — os pinos de versão. Ele caiu
+          junto com <code>T-02</code>…<code>T-10</code>, que de fato são validador, gate, hooks e medição
+          local. O mesmo erro varreu <code>F1-03</code> junto com os oito componentes de nó.
+          <br><br><strong>A regra que sai disso:</strong> classifique <em>pelo que o card entrega</em>,
+          nunca pela família a que ele pertence. Agregação por prefixo é a forma mais barata de produzir
+          um falso negativo — e falso negativo aqui é o card que preenche a lacuna com o plausível.</div>
       </div>
 
       <h3 class="h6 mt-3">O ponteiro tem de resolver</h3>
@@ -2141,6 +2238,656 @@ command -v surf-search-normal surf-search-unlimit # os CLIs que a skill usa como
 
     </div>
 
+
+    <!-- ══════════════════════════ 7. FORMULÁRIOS ══════════════════════════ -->
+    <div class="tab-pane fade" id="pane-formularios" role="tabpanel"
+         aria-labelledby="tab-formularios" tabindex="0" data-print-title="Formulários">
+
+      <h2 class="h4">O que se copia para começar</h2>
+      <p>As abas anteriores explicam o método. Esta tem os <strong>formulários</strong> — o que um card,
+        um ADR, um item de ledger, um mapa de propriedade e um gate precisam conter para serem lidos por
+        ferramenta. Tudo aqui é template, não exemplo: os <code>&lt;placeholders&gt;</code> são para trocar.</p>
+
+      <div class="alert alert-primary d-flex gap-2">
+        <i class="bi bi-info-circle-fill flex-shrink-0"></i>
+        <div><strong>Cada card existe em duas representações, e a segunda é gerada da primeira.</strong>
+          O <em>registro</em> (o que está na aba <em>Os 65 cards</em>) é a fonte de verdade; o
+          <em>prompt XML de 12 tags</em> é <strong>gerado</strong> dele pelo <code>T-02</code>. É por isso
+          que este documento não carrega 65 prompts: copiá-los para cá reintroduziria, multiplicado por
+          65, exatamente o defeito de duas representações divergindo em silêncio.
+          <br><br><strong>Para executar um card, você roda o gerador — não copia daqui.</strong></div>
+      </div>
+
+      <div class="accordion" id="acc-formularios">
+        <div class="accordion-item">
+          <h3 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#acc-form-a" aria-expanded="true" aria-controls="acc-form-a">
+              <strong>A ·</strong> Prompt do card — as 12 tags
+            </button>
+          </h3>
+          <div id="acc-form-a" class="accordion-collapse collapse show">
+            <div class="accordion-body">
+              <div class="alert alert-warning d-flex gap-2" role="alert">
+                <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+                <div>Este template é a <strong>entrada do gerador</strong>
+                  <code>tools/gerar-prompt-de-card.py</code> (dono: <code>T-02</code>), não um
+                  formulário para preencher à mão. O prompt de um card é <strong>gerado</strong> do
+                  registro mais este template. <strong>Se você se pegar redigitando um prompt, pare:</strong>
+                  você acabou de criar a segunda representação que vai divergir em silêncio.</div>
+              </div>
+<pre><code class="language-xml">&lt;task id="&lt;ID&gt;" nome="&lt;título curto&gt;"
+      onda="&lt;Wn&gt;" disciplina="&lt;tdd|caracterizacao|ambos&gt;"
+      worktree="bash tools/new-task-worktree.sh create &lt;ID&gt;"&gt;
+
+  &lt;ultrathink&gt;
+    1–2 linhas dizendo ONDE gastar raciocínio e o dano a jusante se errar ali.
+    Não "pense bem": "o erro aqui contamina os N descendentes porque &lt;mecanismo&gt;".
+  &lt;/ultrathink&gt;
+
+  &lt;contexto&gt;
+    3–6 linhas de domínio, não de projeto. A sessão é amnésica: o que ela precisa saber sobre
+    o PROBLEMA e que não está no diff. Encolhe conforme o programa acumula contratos publicados.
+  &lt;/contexto&gt;
+
+  &lt;ler_consideracoes_dos_anteriores&gt;
+    ANTES de planejar: leia a linha "Considerações" (o handoff) de TODAS as tarefas das quais
+    esta depende — direta E transitivamente. Siga o atributo `deps` de cada card recursivamente
+    até a raiz e junte as considerações de todos os ancestrais.
+    Dependências diretas desta tarefa: &lt;LISTA&gt;.
+    Uma consideração de um ancestral distante pode invalidar uma premissa deste card — se isso
+    ocorrer, classifique a premissa (fato | entrada | restrição de ancestral | sequência),
+    ajuste o TASK_PLAN.md e diga por quê. NÃO siga no automático. Você NÃO pode reescrever
+    este card: seu mandato é marcar concluído e escrever o handoff.
+  &lt;/ler_consideracoes_dos_anteriores&gt;
+
+  &lt;questoes_abertas&gt;
+    Ritual de 3 passos, obrigatório desde o primeiro card:
+    (1) tome a decisão provisória e escreva-a;
+    (2) abra o item em `ledger/inbox/&lt;ID&gt;.json` usando SÓ a sua faixa &lt;AB-nnn..AB-mmm&gt;,
+        com os cinco campos — em especial a verificação EXECUTÁVEL e o que quebra se divergir;
+    (3) marque o ponto exato no código com `// ABERTO AB-nnn: &lt;o que se assumiu&gt;`.
+    Procure antes de abrir: referencie um item existente em vez de duplicar.
+    Categoria só do vocabulário fechado de `ledger/CATEGORIAS.md`.
+    Esperado neste card: &lt;n&gt; itens (pode ser zero, e zero é uma resposta legítima).
+  &lt;/questoes_abertas&gt;
+
+  &lt;skills_obrigatorias&gt;
+    Caminhos literais, COM ORDEM. As duas não negociáveis entram automaticamente quando a
+    classificação do card as dispara. Se o card estiver marcado 🔎, a skill de pesquisa vem
+    PRIMEIRO — o que ela devolve condiciona o que as de domínio vão consumir.
+    - /surf-search-skill                      &lt;- só nos cards marcados 🔎
+    - .agents/skills/&lt;primeira&gt;/SKILL.md
+    - .agents/skills/&lt;segunda&gt;/SKILL.md
+  &lt;/skills_obrigatorias&gt;
+
+  &lt;entradas&gt;
+    Arquivos COM INSTRUÇÃO DE MÉTODO de leitura — não basta dizer qual arquivo.
+    Ex.: "PROGRAMA.html, aba Arquitetura §os-valores-adivinhados — leia o placar antes do
+          claim; claim com placar &lt; 2-0 não pode virar decisão deste card."
+  &lt;/entradas&gt;
+
+  &lt;o_que_fazer&gt;
+    3–5 passos numerados, cada um com o CAMINHO DE SAÍDA LITERAL.
+    O caminho literal é o que impede dois cards da mesma onda de escreverem no mesmo arquivo.
+  &lt;/o_que_fazer&gt;
+
+  &lt;restricoes&gt;
+    PROIBIDO, por propriedade: &lt;arquivo&gt; pertence ao &lt;CARD-DONO&gt;, que roda em PARALELO nesta
+      onda — entregue SÓ os seus arquivos.
+    PROIBIDO tocar em: src/design/tokens.*, schema/*.json, package.json, pyproject.toml
+      (singletons S-1, S-2, S-4, S-5). Se precisar, PARE e escreva no handoff.
+    PROIBIDO introduzir não-determinismo: Date.now, Math.random, setTimeout, animação CSS,
+      fonte de CDN, URL remota no manifesto resolvido.
+    PROIBIDO repetir literal de domínio — todo valor vive no tipo nomeado único.
+    PROIBIDO remover ou renomear id de contrato; o novo entra AO LADO.
+    PROIBIDO `git add -A`.
+    PROIBIDO "melhorar" a saída sem recapturar o snapshot e declarar no handoff.
+    &lt;+ as proibições específicas deste card&gt;
+  &lt;/restricoes&gt;
+
+  &lt;swarm&gt;
+    &lt;subagents&gt;
+      Agente único. (Default explícito. Fan-out custa 3–10× tokens sem ganho na escrita.)
+      Se este card declarar fan-out, ele declara a topologia E a justificativa de custo, e o
+      padrão é sempre fan-out para LER, funil para ESCREVER.
+    &lt;/subagents&gt;
+    &lt;worktree&gt;bash tools/new-task-worktree.sh create &lt;ID&gt;
+      (o preflight prova acesso ao insumo com valor conhecido; falhou =&gt; exit 1, e a worktree
+       fica para inspeção. Você NUNCA remove a própria worktree.)&lt;/worktree&gt;
+    &lt;revisao_adversarial&gt;
+      Antes de concluir, lance um subagente de CONTEXTO FRESCO que recebe APENAS o diff e este
+      card, e tenta REFUTAR:
+        &lt;pergunta falsificável 1 — vinda do registro do card, escrita por quem orquestra&gt;
+        &lt;pergunta falsificável 2&gt;
+        &lt;pergunta falsificável 3&gt;
+      Corrija o que ele derrubar antes de encerrar.
+    &lt;/revisao_adversarial&gt;
+  &lt;/swarm&gt;
+
+  &lt;criterios_aceitacao&gt;
+    &lt;comando 1&gt;                                    # exit 0
+    # GUARD: o seletor acima TEM de casar &gt;=1 teste — 0 matches também sai exit 0 (falso verde).
+    # Este comentário é PROSA. A garantia é T-06 rodando dentro do gate.
+    &lt;comando 2 — o critério que falha por AUSÊNCIA&gt;  # saída vazia
+    bash tools/gate.sh                              # VERDE (sem etapa em FAIL)
+  &lt;/criterios_aceitacao&gt;
+
+  &lt;ao_concluir_marque_feito_e_publique&gt;
+    (a) marque o estado do SEU card no registro — só as suas linhas, nada mais;
+    (b) escreva o handoff no campo Considerações do SEU card:
+        - teto de 2 KB;
+        - campo `destinatarios:` OBRIGATÓRIO, com ids de card nomeados
+          (a string literal NENHUM é uma resposta válida e esperada);
+        - só o que muda o trabalho de um descendente nomeado — não é diário;
+        - toda afirmação com proveniência citada;
+        - se você refutou uma premissa deste card, escreva PARA QUEM ela importa.
+  &lt;/ao_concluir_marque_feito_e_publique&gt;
+
+  &lt;evolucao&gt;
+    Rode o pipeline de memória (`meta-skill-evolution`) para cada skill carregada.
+    DEFAULT: DESCARTAR. A maioria dos achados falha no filtro de importância, e esse é o
+    desfecho saudável. Se nada importante E verificado foi aprendido, não escreva nada.
+    Apague TASK_PLAN.md.
+  &lt;/evolucao&gt;
+&lt;/task&gt;</code></pre>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#acc-form-arq" aria-expanded="false" aria-controls="acc-form-arq">
+              <strong>A-1..A-6 ·</strong> Os seis arquétipos de card
+            </button>
+          </h3>
+          <div id="acc-form-arq" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <p>Seis arquétipos. Cada um <strong>substitui</strong> as tags citadas; o resto do
+                template continua igual.</p>
+              <h4 class="h6 mt-3">A-1 · raiz</h4>
+              <p class="small text-body-secondary mb-2">O único sem ancestral, e o único que
+                <strong>não pode citar tecnologia de destino além do runtime</strong>. Se precisar dizer o
+                nome do compositor para existir, a análise não terminou.</p>
+<pre><code class="language-xml">&lt;ultrathink&gt;Você está escrevendo o vocabulário que 64 cards vão herdar sem poder discutir.
+  Um termo ambíguo aqui vira duas implementações divergentes na W4, em worktrees que não se
+  enxergam, e o merge vai ficar limpo.&lt;/ultrathink&gt;
+&lt;ler_consideracoes_dos_anteriores&gt;Nenhuma — este é o card raiz.&lt;/ler_consideracoes_dos_anteriores&gt;
+&lt;restricoes&gt;PROIBIDO citar tecnologia de destino. Diga "o compositor", "o motor de gráficos",
+  "o provedor de locução". O nome do produto entra por ADR na W1, não aqui.&lt;/restricoes&gt;</code></pre>
+              <h4 class="h6 mt-3">A-2 · hub (out-degree alto)</h4>
+<pre><code class="language-xml">&lt;ultrathink&gt;Este card tem out-degree &lt;n&gt;. Toda decisão de interface aqui é herdada por &lt;n&gt;
+  cards que rodam em paralelo e não podem renegociar. Gaste o raciocínio na SUPERFÍCIE
+  (nomes, assinaturas, contrato de erro), não na implementação — a implementação é
+  substituível, a superfície não.&lt;/ultrathink&gt;
+&lt;o_que_fazer&gt;
+  ...
+  N. Publique a superfície no handoff, com a assinatura EXATA, para que os &lt;n&gt; descendentes
+     não tenham de ler o código. Handoff de hub é o único que pode chegar perto do teto de 2 KB.
+&lt;/o_que_fazer&gt;</code></pre>
+              <h4 class="h6 mt-3">A-3 · onda larga</h4>
+<pre><code class="language-xml">&lt;contexto&gt;Você é 1 de 13 agentes desta onda. Os outros 12 não te enxergam e você não os
+  enxerga. Tudo que vocês precisam em comum já foi commitado no PREP-w4.&lt;/contexto&gt;
+&lt;restricoes&gt;
+  Sua propriedade: &lt;lista literal&gt;. Os outros: não editam.
+  PROIBIDO: tudo fora dessa lista. Se você precisar de algo de outro card desta onda,
+  isso é DEPENDÊNCIA LATERAL e é proibida por construção — pare, entregue o que
+  dá, e nomeie a diferença no handoff.
+&lt;/restricoes&gt;</code></pre>
+              <h4 class="h6 mt-3">A-4 · onda de composição</h4>
+<pre><code class="language-xml">&lt;contexto&gt;Esta é uma ONDA DE COMPOSIÇÃO: você e os outros trabalham sobre o MESMO artefato
+  entregue por &lt;CARD-ANCESTRAL&gt;. O git não vai ter em que conflitar, então ele vai mergear
+  em silêncio código que discorda. O contrato abaixo foi congelado no PREP e não é
+  negociável em tempo real.&lt;/contexto&gt;
+&lt;entradas&gt;
+  docs/contrato-w&lt;N&gt;.md — os nomes de campo, os nomes de flag, e quem corta o quê.
+  Leia ANTES de planejar. Se o contrato estiver errado, isso é um PREP, não um card.
+&lt;/entradas&gt;
+&lt;revisao_adversarial&gt;
+  ... + a pergunta obrigatória desta onda:
+  "Existe alguma asserção neste diff sobre a LISTA COMPLETA de alguma coisa? Se sim, ela é
+   verdade contra a sua base e pode ser falsa depois do merge do irmão. Reescreva como
+   asserção sobre a presença do SEU item, nunca sobre a ausência dos outros."
+&lt;/revisao_adversarial&gt;</code></pre>
+              <p class="small text-body-secondary">A última pergunta existe por causa de um caso real:
+                dois cards escreveram, cada um <em>no seu arquivo</em>, um teste exigindo que a metade do
+                <strong>outro</strong> continuasse na lista. Um assertava <code>Todos == [x]</code>; o outro
+                assertava exatamente os sete ids do primeiro. Cada um era verdade contra a própria base, os
+                dois são contraditórios juntos, e <strong>mergearam em silêncio</strong>.</p>
+              <h4 class="h6 mt-3">A-5 · join (in-degree alto)</h4>
+<pre><code class="language-xml">&lt;ultrathink&gt;Você é o primeiro a ver as &lt;n&gt; peças juntas. O defeito que você procura não está
+  em nenhuma delas: está na COSTURA. Gaste o raciocínio em achar a asserção que só é falsa
+  quando as peças se encontram.&lt;/ultrathink&gt;
+&lt;ler_consideracoes_dos_anteriores&gt;
+  ... este card tem in-degree &lt;n&gt;: leia os &lt;n&gt; handoffs ANTES de escrever a primeira linha.
+  Espere encontrar ao menos uma contradição — se você não encontrou nenhuma, releia.
+&lt;/ler_consideracoes_dos_anteriores&gt;
+&lt;ao_concluir_marque_feito_e_publique&gt;
+  ... + escreva no commit a CHECAGEM SEMÂNTICA DO MERGE: que costura fechou, qual contrato
+  bate, e qual asserção cada lado assumiu.
+&lt;/ao_concluir_marque_feito_e_publique&gt;</code></pre>
+              <h4 class="h6 mt-3">A-6 · infra</h4>
+              <p class="small text-body-secondary mb-2">Cards de infra <strong>não têm worktree</strong> e
+                rodam no branch de integração. O gerador <strong>recusa</strong> criar worktree para um id
+                de infra, com explicação.</p>
+<pre><code class="language-xml">&lt;task id="I-0n" ... worktree="NENHUMA — card de infra roda no branch de integração"&gt;
+  &lt;swarm&gt;
+    &lt;worktree&gt;NENHUMA. `tools/new-task-worktree.sh create I-0n` sai com erro de propósito.
+      Motivo: este card exige um humano, uma credencial ou uma máquina, e isolar isso numa
+      worktree só esconde onde o trabalho de fato acontece.&lt;/worktree&gt;
+  &lt;/swarm&gt;
+  &lt;criterios_aceitacao&gt;
+    ... o critério de um card de infra é SEMPRE um artefato versionado com evidência anexada,
+    nunca "conversei com fulano". Evidência tem forma verificável (padrão de gate).
+  &lt;/criterios_aceitacao&gt;
+&lt;/task&gt;</code></pre>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#acc-form-b" aria-expanded="false" aria-controls="acc-form-b">
+              <strong>B ·</strong> Registro do card — os quatro eixos
+            </button>
+          </h3>
+          <div id="acc-form-b" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <p><strong>Quatro atributos, quatro eixos independentes.</strong> Confundir escalonamento
+                com progresso é o erro que faz uma onda parecer pronta sem estar.</p>
+<pre><code class="nohighlight">| Campo | Conteúdo |
+|---|---|
+| id · Wn · deps · disciplina · severidade | os quatro eixos, separados |
+| Objetivo | uma frase, no afirmativo, dizendo o que existe depois que este card fecha |
+| Dono de | caminhos literais — lido pelo validador de grafo (checagem 7) |
+| Entrega | o conteúdo, em prosa densa |
+| Aceitação | comandos com exit code; ∅-crit obrigatório, marcado |
+| refuta | 3–4 perguntas falsificáveis, escritas por quem orquestra, ANTES |
+| ledger | AB-nnn..AB-mmm |
+| Considerações | o handoff; preenchido ao concluir; teto 2 KB; destinatarios: obrigatório |</code></pre>
+              <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                  <thead><tr><th scope="col">Atributo</th><th scope="col">Eixo</th><th scope="col">Quem escreve</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>deps</code></td><td><strong>grafo</strong> — de onde saem as ondas</td><td>quem orquestra, em <code>PREP</code></td></tr>
+                    <tr><td><code>id</code> + estado</td><td><strong>identidade e progresso</strong></td><td>o executor marca o estado; nada mais</td></tr>
+                    <tr><td><code>Wn</code></td><td><strong>escalonamento</strong> — decisão, não derivação</td><td>quem orquestra</td></tr>
+                    <tr><td><code>Dono de</code></td><td><strong>propriedade</strong> — a condição suficiente do paralelismo</td><td>quem orquestra, em <code>PREP</code></td></tr>
+                    <tr><td><code>Considerações</code></td><td><strong>handoff</strong> — append-only</td><td>o executor, antes do merge</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="alert alert-danger d-flex gap-2" role="alert">
+                <i class="bi bi-x-octagon-fill flex-shrink-0"></i>
+                <div><strong>O que é lido por ferramenta não se mexe.</strong> <code>deps</code>,
+                  <code>Dono de</code>, <code>Wn</code> e o estado são parseados pelo validador de grafo e
+                  pelo verificador de aceitação. Uma reescrita de card preserva esses quatro e
+                  <strong>enumera o que mudou</strong>.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#acc-form-c" aria-expanded="false" aria-controls="acc-form-c">
+              <strong>C ·</strong> ADR com guarda executável, e os 15 previstos
+            </button>
+          </h3>
+          <div id="acc-form-c" class="accordion-collapse collapse">
+            <div class="accordion-body">
+<pre><code class="language-markdown"># ADR NNNN — &lt;título que é a DECISÃO, não o tema&gt;
+
+- **Status:** Aceito | PROPOSTO — esqueleto vazio | ENCERRADO SEM DECISÃO
+              | ENCERRADO COMO CONSTRUÍDO E NÃO DISPARADO
+              [+ "(sign-off de &lt;nome&gt;, &lt;data&gt;)" e POR QUE o sign-off era exigido]
+- **Data:** AAAA-MM-DD [· encerrado em AAAA-MM-DD]
+- **Card:** &lt;ID&gt; (onda Wn). Depende de &lt;ids&gt;. Consumida por &lt;ids&gt;.
+- **Supera, no que diverge:** &lt;documento + seção exata&gt;
+- **Reafirma explicitamente:** &lt;ADR §n, §n&gt;          &lt;- o que NÃO mudou
+- **Guarda executável:** &lt;comando que FALHA se a decisão for violada&gt;
+- **Itens de ledger ligados:** &lt;AB-nnn, AB-mmm&gt;
+
+## Contexto            &lt;- inclui "premissas de ancestrais que me vinculam"
+## Decisão             &lt;- numerada: D1, D2… cada uma citável isoladamente
+## Alternativas consideradas / descartadas   &lt;- com o motivo da rejeição
+## Consequências       &lt;- Positivas | Custos e desvios registrados
+## Revisão adversarial &lt;- o que a crítica derrubou
+## O que este ADR NÃO decide / explicitamente fora de escopo
+## Limites do que é verificável aqui
+## Adendo do sign-off (data) &lt;- o que o aceite autoriza e o que NÃO autoriza</code></pre>
+              <div class="alert alert-warning d-flex gap-2" role="alert">
+                <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+                <div><strong>Se você não consegue escrever a guarda executável, a decisão é uma
+                  intenção.</strong> É o campo mais fácil de deixar vazio e o único cuja ausência
+                  transforma o ADR em prosa.</div>
+              </div>
+              <h4 class="h6 mt-3">Os 15 ADRs previstos</h4>
+              <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle">
+                  <thead><tr><th scope="col">ADR</th><th scope="col">Título</th><th scope="col">Card</th><th scope="col">Sign-off?</th><th scope="col">Estado</th></tr></thead>
+                  <tbody>
+                    <tr><td>0001</td><td>Oráculo antes do pixel</td><td><code>F0-01</code></td><td>—</td><td>Aceito</td></tr>
+                    <tr><td>0002</td><td>A fronteira de determinismo</td><td><code>F0-01</code></td><td>—</td><td>Aceito</td></tr>
+                    <tr class="table-active"><td><strong>0003</strong></td><td><strong>Enquadramento de uso</strong> (P-01, e com ele P-02..P-04)</td><td><code>I-01</code></td><td><strong>sim</strong></td><td>✅ <strong>ACEITO — uso pessoal</strong>, com condição de escopo e gatilho <code>AB-950</code></td></tr>
+                    <tr><td>0004</td><td>Absorver × integrar o projeto de origem</td><td><code>F0-05</code></td><td>—</td><td>Aceito</td></tr>
+                    <tr><td>0005</td><td>Política de segredos</td><td><code>I-02</code></td><td>—</td><td>Aceito</td></tr>
+                    <tr><td>0006</td><td>Teto de concorrência medido</td><td><code>I-03</code></td><td>—</td><td>Aceito</td></tr>
+                    <tr><td><strong>0007</strong></td><td><strong>Canal e política editorial</strong></td><td><code>I-04</code></td><td><strong>sim</strong></td><td>pendente</td></tr>
+                    <tr><td>0008</td><td>Formato de alfa entre gráficos e composição</td><td><code>F2-02</code></td><td>—</td><td>Aceito</td></tr>
+                    <tr><td><strong>0009</strong></td><td><strong>Origem do timing</strong> (provedor × alinhamento)</td><td><code>F3-01</code></td><td><strong>sim</strong></td><td>pendente — o leque abriu: pesos não-comerciais agora entram</td></tr>
+                    <tr><td>0010</td><td>Unidade de tempo do manifesto</td><td><code>F0-02</code></td><td>—</td><td>Aceito</td></tr>
+                    <tr><td><strong>0011</strong></td><td><strong>Fronteira de rede do pipeline</strong> (P-05)</td><td><code>F2-01</code></td><td><strong>sim</strong></td><td>pendente</td></tr>
+                    <tr><td><strong>0012</strong></td><td><strong>Formato e armazenamento do golden master</strong> (P-06)</td><td><code>F0-06</code></td><td><strong>sim</strong></td><td>pendente</td></tr>
+                    <tr><td><strong>0013</strong></td><td><strong>Acessibilidade e fotossensibilidade</strong> (P-07)</td><td><code>F0-04</code></td><td><strong>sim</strong></td><td>pendente</td></tr>
+                    <tr><td>0014</td><td>Forma do contrato de dados do manifesto (P-08)</td><td><code>F0-02</code></td><td>—</td><td>Aceito</td></tr>
+                    <tr><td><strong>0015</strong></td><td><strong>Alvos numéricos de saída — LUFS e sincronia</strong> (P-09)</td><td><code>F0-04</code></td><td><strong>sim</strong></td><td>pendente</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="alert alert-warning d-flex gap-2" role="alert">
+                <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+                <div><strong>A dívida nomeada.</strong> A pesquisa isolou <strong>18 perguntas ao dono</strong>
+                  (P-01..P-18). <code>I-01</code> fechou quatro de uma vez — as três seguintes dependiam de
+                  cláusulas condicionadas a <em>uso comercial</em> e perderam o objeto. <strong>Catorze
+                  continuam abertas, e nove delas (P-10..P-18) ainda não têm destino declarado.</strong>
+                  Cada uma precisa virar ADR previsto, item de ledger com gatilho, ou ser declarada fora de
+                  escopo <em>por escrito, com o motivo</em>. Uma pergunta ao dono que some do plano vira
+                  decisão por omissão dentro de um card — a <em>premissa invisível</em>.
+                  <br><br><strong>E duas têm a propriedade perversa:</strong> P-06 (o limiar do golden
+                  master) e P-09 (o alvo de LUFS) — <em>afrouxá-las depois não dá erro</em>. Cada ponto de
+                  afrouxamento é uma classe de regressão que deixa de ser detectada, e a perda é invisível.
+                  Por isso o próprio ADR declara que afrouxar exige <strong>nova</strong> decisão registrada.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#acc-form-d" aria-expanded="false" aria-controls="acc-form-d">
+              <strong>D ·</strong> Item do ledger — schema, validação e lista negra
+            </button>
+          </h3>
+          <div id="acc-form-d" class="accordion-collapse collapse">
+            <div class="accordion-body">
+<pre><code class="language-json">{
+  "id": "AB-032",
+  "titulo": "&lt;uma frase&gt;",
+  "pergunta": "&lt;a pergunta objetiva&gt;",
+  "por_que_aberto": "&lt;por que a base de código não responde&gt;",
+  "decisao_provisoria": "&lt;o que se assumiu enquanto isso&gt;",
+  "origem": ["&lt;proveniência citável&gt;", "&lt;proveniência citável&gt;"],
+  "verificacao": "&lt;comando literal, query, experimento — OU a pergunta e PARA QUEM&gt;",
+  "impacto_se_divergir": "&lt;o que quebra, NOMEANDO fixtures, snapshots e gates a recapturar&gt;",
+  "risco": "baixo|medio|alto",
+  "categoria": "&lt;um do vocabulário FECHADO&gt;",
+  "responde": "dono|juridico|infra|plataforma|operacao",
+  "antecedencia": "&lt;dias necessários para conseguir a resposta&gt;",
+  "status": "ABERTO|CONFIRMADO|REFUTADO|PARCIAL|INVIÁVEL",
+  "evidencia": "",
+  "data_resolucao": "",
+  "adr": ""
+}</code></pre>
+              <h4 class="h6 mt-3">Validado por script, não por revisão</h4>
+              <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                  <thead><tr><th scope="col">estado</th><th scope="col">exige</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>ABERTO</code></td><td><code>por_que_aberto</code> + <code>decisao_provisoria</code> + <code>verificacao</code> + <code>impacto_se_divergir</code> <strong>não-vazios</strong>, e <code>evidencia</code> <strong>vazia</strong></td></tr>
+                    <tr><td><code>CONFIRMADO</code> / <code>REFUTADO</code> / <code>PARCIAL</code></td><td><code>evidencia</code> casando a regex de forma citável + <code>data_resolucao</code> ISO</td></tr>
+                    <tr><td><code>INVIÁVEL</code></td><td><code>evidencia</code> + <code>data_resolucao</code> + <strong><code>adr</code> não-vazio</strong></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p><strong>Formas de evidência aceitas</strong> (regex): proveniência citável · caminho de
+                saída de comando salva · caminho de relatório de diff · <code>ADR-nnnn</code> ·
+                <code>&lt;nome&gt;, &lt;AAAA-MM-DD&gt;</code> (resposta atribuída e datada).</p>
+              <div class="alert alert-danger d-flex gap-2" role="alert">
+                <i class="bi bi-x-octagon-fill flex-shrink-0"></i>
+                <div><strong>Lista negra de não-evidências</strong> — sem ela a regra vira decorativa:
+                  <code>ok</code> · <code>OK</code> · <code>confirmado</code> ·
+                  <code>conforme combinado</code> · <code>resolvido</code> · <code>feito</code> ·
+                  <code>checado</code> · <code>sim</code> · <code>n/a</code> · qualquer string com
+                  <strong>menos de 12 caracteres</strong>.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#acc-form-e" aria-expanded="false" aria-controls="acc-form-e">
+              <strong>E ·</strong> Tabela <code>arquivo → dono</code> de uma onda
+            </button>
+          </h3>
+          <div id="acc-form-e" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <p>O exemplo real está na aba <em>Os 65 cards</em>. O que vale como padrão é a
+                <strong>forma</strong>:</p>
+<pre><code class="language-markdown">### Um dono por arquivo — onda W&lt;N&gt;
+
+| Arquivo | Dono | Os outros |
+|---|---|---|
+| caminho/literal/A.ext | **CARD-1** | não editam |
+| caminho/literal/B/**  | **CARD-2** | não editam |
+
+### Compartilhados — só acrescente
+
+&lt;lista&gt;
+
+Regras: nunca reordene, nunca renomeie, nunca reindente, nunca mexa em membro que não é seu.
+Acrescente no fim do bloco correspondente. Diffs por acréscimo mergeiam mecanicamente.
+
+### Faixas de id (para não conflitar no fecho do array)
+
+CARD-1: AB-nnn..mmm · CARD-2: AB-ppp..qqq
+
+### Faixas de porta TCP
+
+CARD-1: 3100–3109 · CARD-2: 3110–3119
+
+### Ordem de merge
+
+1. &lt;card&gt; — motivo
+2. &lt;card&gt; — motivo
+…
+N. &lt;card que muda o gate&gt; — por último, sempre</code></pre>
+              <p><strong>A terceira coluna é o que dá contratualidade.</strong> Sem "os outros: não editam"
+                escrito, é uma sugestão — e uma sugestão não sobrevive a treze agentes que não se enxergam.</p>
+              <div class="alert alert-success d-flex gap-2">
+                <i class="bi bi-check-circle-fill flex-shrink-0"></i>
+                <div><strong>A assimetria que sustenta tudo:</strong> um card mal isolado custa uma onda
+                  inteira de retrabalho; a preparação que o isola custa algumas dezenas de linhas.
+                  <strong>Prepare demais.</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#acc-form-f" aria-expanded="false" aria-controls="acc-form-f">
+              <strong>F ·</strong> Banco de perguntas adversariais
+            </button>
+          </h3>
+          <div id="acc-form-f" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <p><strong>O que faz uma pergunta boa:</strong> ela nomeia um <strong>resultado
+                observável</strong> que, se acontecer, derruba o trabalho. "Está bom?" não é pergunta.
+                <em>"O smoke passaria com um quadro preto?"</em> é.</p>
+              <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle">
+                  <thead><tr><th scope="col">Domínio</th><th scope="col">Perguntas</th></tr></thead>
+                  <tbody>
+                    <tr><th scope="row">Esqueleto / ferramenta</th><td>o build passa com o diretório de fonte vazio? · o <code>.gitignore</code> bloqueia mesmo o store, ou só o caminho relativo — testou com symlink? · o autoteste asserta a mensagem ou só o exit code?</td></tr>
+                    <tr><th scope="row">Contrato de dados</th><td>o schema aceita campo desconhecido? · um tipo novo pode entrar sem tocar em nenhum outro <code>$def</code>? · o gerado está commitado e é reprodutível? · o schema roda offline?</td></tr>
+                    <tr><th scope="row">Determinismo</th><td><strong>renderize DUAS vezes e diffe: qualquer byte diferente refuta o determinismo</strong> · o que muda à meia-noite? e entre máquinas? · a normalização substitui por valor em algum ponto? · a execução vermelha consegue sobrescrever a base?</td></tr>
+                    <tr><th scope="row">Composição / pixel</th><td><strong>o smoke passaria com um quadro totalmente preto?</strong> · o componente desenha fora da própria janela de tempo? · a fonte veio da rede? · algum literal de token foi redeclarado aqui? · o texto estoura o quadro em pt-BR, que é mais longo que em inglês?</td></tr>
+                    <tr><th scope="row">Cache / store</th><td>a chave omite algum parâmetro que muda a saída? nomeie um e prove o miss · dois processos gravando o mesmo hash com conteúdo diferente — o que acontece? · a GC apaga algo que um snapshot aprovado referencia? · o cache acertou pelo motivo certo?</td></tr>
+                    <tr><th scope="row">Resolução / rede</th><td>o estágio chama a rede quando o cache acerta? prove com a rede bloqueada e o cache quente · o guarda bloqueia DNS e subprocesso, ou só o cliente HTTP? · o cassete contém credencial? · <strong>o estágio "conserta" algo da resposta externa?</strong> o cassete tem de ser sósia, não sucessor</td></tr>
+                    <tr><th scope="row">Áudio / sincronia</th><td><strong>existe caminho em que a legenda aparece antes de a palavra ser falada?</strong> · o corte de silêncio comeu o ataque de alguma palavra? · a normalização foi aplicada duas vezes? · o teste passaria com a faixa muda? · o timing e o áudio podem divergir sem nada ficar vermelho?</td></tr>
+                    <tr><th scope="row">Licença / procedência</th><td>o relatório cobre assets <strong>transitivos</strong> — o que entrou dentro de um gráfico? · licença incompatível é aviso ou bloqueio? aviso é decorativo · o sign-off cobre "vira frame de um MP4" ou só "usar a API"?</td></tr>
+                    <tr><th scope="row">LLM / autoria</th><td>o modelo consegue emitir coordenada, cor ou duração em frames? deve ser impossível pelo schema · "temperatura zero" está sendo tratado como garantia? não é · o reparo altera semântica ou só forma? · o cassete tem manifesto inválido, ou só os bons?</td></tr>
+                    <tr><th scope="row">Onda de composição</th><td><strong>existe asserção neste diff sobre a LISTA COMPLETA de alguma coisa?</strong> reescreva como asserção sobre a presença do SEU item · dois testes em paralelo colidem no mesmo recurso? · você tocou um singleton?</td></tr>
+                    <tr><th scope="row">Gate / verificador</th><td>o que este comando imprime se a tarefa não fizer nada? · a sonda negativa é por alvo ou uma só para todos? · o tripwire lê o mesmo texto que o parser? então não é independente · o verificador pula o que não entende?</td></tr>
+                    <tr><th scope="row">Pesquisa web</th><td>a resposta veio com <strong>placar</strong>, ou é uma URL solta? · alguma fonte é primária, ou são três blogs citando o mesmo blog? · o claim tem <strong>condição de escopo</strong> — versão, plataforma, renderer? · o que muda se a fonte estiver desatualizada?</td></tr>
+                    <tr><th scope="row">Runbook / operação</th><td>alguém que não participou consegue seguir? · cada item traz a evidência junto? · existe veredito <code>CONFERE</code> sem evidência anexada? · o sinal de erro tem denominador?</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="alert alert-warning d-flex gap-2" role="alert">
+                <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+                <div><strong>Se a revisão for automatizada e mesclar código:</strong> simule o merge antes
+                  de aplicá-lo. Um merge direto deixaria marcadores de conflito na worktree onde o agente
+                  <strong>ainda trabalha</strong> — e marcador de conflito é o material que faz um modelo
+                  alucinar e apagar lógica.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#acc-form-g" aria-expanded="false" aria-controls="acc-form-g">
+              <strong>G ·</strong> Padrão de gate, e os 7 previstos
+            </button>
+          </h3>
+          <div id="acc-form-g" class="accordion-collapse collapse">
+            <div class="accordion-body">
+<pre><code class="language-markdown">### GATE &lt;ID&gt; — &lt;a asserção em UMA frase, no afirmativo&gt;
+
+&lt;Por que existe: o dano CONCRETO se for pulado. Não "boas práticas".
+ Se você não consegue nomear o dano, o gate não deveria existir.&gt;
+
+Antes de &lt;ação&gt;, numa sessão com &lt;quem, POR PAPEL NOMEADO — nunca "o time"&gt;:
+1. &lt;comando/consulta executável, literal, copiável&gt;
+2. &lt;como confrontar o resultado com o artefato do repositório&gt;
+3. **Registrar o resultado em &lt;caminho de ADR nominal&gt;** — item a item, com o veredito
+   (igual | divergente | inexistente) e o que muda se divergir.
+
+- [ ] &lt;artefato de saída&gt; existe e cobre todos os itens
+- [ ] Toda divergência corrigida **e** os snapshots recapturados</code></pre>
+              <p><strong>Os quatro elementos obrigatórios:</strong> condição de entrada · evidência exigida
+                (<strong>saída de comando salva, nunca afirmação</strong>) · artefato nominal onde a
+                evidência mora · <strong>quem assina, por papel nomeado</strong>.</p>
+              <div class="alert alert-danger d-flex gap-2" role="alert">
+                <i class="bi bi-x-octagon-fill flex-shrink-0"></i>
+                <div><strong>Um veredito que não pode existir:</strong> <code>CONFERE</code> sem evidência
+                  anexada. É pior que <code>ABERTO</code> — ele para de ser reperguntado e vira premissa
+                  invisível. Use um estado explícito <code>NÃO_COLETADO</code> que <strong>nunca</strong>
+                  vira <code>CONFERE</code>.</div>
+              </div>
+              <h4 class="h6 mt-3">Os gates previstos</h4>
+              <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle">
+                  <thead><tr><th scope="col">Gate</th><th scope="col">Asserção</th><th scope="col">Card</th><th scope="col">Quem assina</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>G-LIC</code></td><td>Toda obrigação jurídica tem sign-off nominal e datado</td><td><code>I-01</code></td><td>dono</td></tr>
+                    <tr><td><code>G-DET</code></td><td>Todo artefato visual e sonoro renderiza duas vezes idêntico</td><td><code>F0-06</code></td><td>automático</td></tr>
+                    <tr><td><code>G-OFF</code></td><td>O pipeline abaixo da autoria roda com a rede bloqueada</td><td><code>F2-07</code></td><td>automático</td></tr>
+                    <tr><td><code>G-PROC</code></td><td>Todo asset do entregável tem licença declarada e compatível</td><td><code>F5-06</code></td><td>dono</td></tr>
+                    <tr><td><code>G-LED</code></td><td>Zero itens abertos nas categorias bloqueantes, salvo allowlist justificada</td><td><code>F6-04</code></td><td>dono</td></tr>
+                    <tr><td><code>G-HUM</code></td><td>Nenhuma publicação sem dossiê assinado</td><td><code>F6-01</code></td><td>operação</td></tr>
+                    <tr><td><code>P-1..P-5</code></td><td>Os pré-requisitos numerados de publicação</td><td><code>F6-03</code></td><td>por papel</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#acc-form-check" aria-expanded="false" aria-controls="acc-form-check">
+              <strong>H ·</strong> Checklist de arranque, em uma página
+            </button>
+          </h3>
+          <div id="acc-form-check" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <h4 class="h6 mt-3">Antes de existir tarefa</h4>
+              <ul class="list-group list-group-flush">
+                  <li class="list-group-item">As 12 regras de calibração escritas e commitadas, com as críticas no hook</li>
+                  <li class="list-group-item">O panorama verificado fechado, com placar por claim e o tier "não verificado" declarado</li>
+                  <li class="list-group-item">Refutações do panorama antigo enumeradas — cada uma impede um card errado</li>
+                  <li class="list-group-item">Pontos de troca barata com <strong>custo em unidade contável</strong>; os que não têm, marcados "NÃO É BARATO"</li>
+                  <li class="list-group-item">Perguntas ao dono separadas, com o ADR que recebe cada sign-off</li>
+                  <li class="list-group-item">Sementes do ledger numeradas, com verificação executável e quem responde</li>
+                  <li class="list-group-item">Singletons enumerados — <strong>antes</strong> de dimensionar qualquer onda</li>
+                  <li class="list-group-item">O documento que vence em caso de conflito, <strong>nomeado</strong></li>
+              </ul>
+              <h4 class="h6 mt-3">A árvore</h4>
+              <ul class="list-group list-group-flush">
+                  <li class="list-group-item">Biblioteca de skills <strong>antes</strong> dos cards</li>
+                  <li class="list-group-item">Cards cortados por propriedade de arquivo e por consumidor, nunca por volume</li>
+                  <li class="list-group-item">Cada lacuna da análise virou card da fase 0</li>
+                  <li class="list-group-item">Trilha transversal e trilha de infra separadas das fases; infra em onda fracionária</li>
+                  <li class="list-group-item">Grafo declarado em atributo legível por máquina</li>
+                  <li class="list-group-item"><strong>Validador de grafo escrito no mesmo dia</strong> — 11 checagens</li>
+                  <li class="list-group-item">Caminho crítico publicado <strong>e recalculável</strong></li>
+                  <li class="list-group-item">Fan-out publicado (adiantar um hub encurta o programa)</li>
+                  <li class="list-group-item">Nenhuma dependência lateral; o validador recusa</li>
+                  <li class="list-group-item">Cards que dependem de fato público marcados 🔎, com a skill de pesquisa em <code>skills_obrigatorias</code></li>
+              </ul>
+              <h4 class="h6 mt-3">Antes da primeira onda paralela</h4>
+              <ul class="list-group list-group-flush">
+                  <li class="list-group-item">Script de worktree com preflight que <strong>prova acesso com valor conhecido</strong></li>
+                  <li class="list-group-item">Gate local executável, uma etapa por job, ferramenta ausente = vermelho, três estados</li>
+                  <li class="list-group-item">Autoteste de cada verificador, rodando <strong>antes</strong> dele, assertando <strong>a mensagem</strong></li>
+                  <li class="list-group-item">Verificador de aceitação com sonda negativa e tripwire independente</li>
+                  <li class="list-group-item">Hooks: gate onde o erro é irreversível; nudge no resto; cada um declara sua política de falha</li>
+                  <li class="list-group-item">Ledger com validador rodando no gate desde o dia 1, verde com tudo aberto</li>
+                  <li class="list-group-item">Estado do programa <strong>derivado</strong>, não escrito à mão</li>
+                  <li class="list-group-item">Harness de determinismo antes do primeiro pixel (ADR-0001)</li>
+              </ul>
+              <h4 class="h6 mt-3">Por onda</h4>
+              <ul class="list-group list-group-flush">
+                  <li class="list-group-item">Commit <code>PREP-w&lt;N&gt;</code> <strong>antes</strong> das worktrees: stubs, contrato, faixas de id, faixas de porta, ferramenta</li>
+                  <li class="list-group-item">Tabela <code>arquivo → dono</code> publicada, com a terceira coluna</li>
+                  <li class="list-group-item">Singletons tocados pela onda: contados, e cada um com dono ou sequência</li>
+                  <li class="list-group-item">Se ≥2 cards consomem o mesmo artefato anterior → <strong>onda de composição</strong>, protocolo próprio</li>
+                  <li class="list-group-item">Ordem de merge declarada, com motivo</li>
+                  <li class="list-group-item"><strong>Gate completo após CADA merge</strong></li>
+                  <li class="list-group-item">Handoff escrito dentro da worktree, antes do merge, com <code>destinatarios:</code> e teto de 2 KB</li>
+                  <li class="list-group-item">Medição da onda gravada em arquivo</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#acc-form-humano" aria-expanded="false" aria-controls="acc-form-humano">
+              <strong>I ·</strong> Equivalente humano de cada mecanismo
+            </button>
+          </h3>
+          <div id="acc-form-humano" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <p>Para a parte do trabalho que fica com gente, ou para um time que não vai orquestrar agentes.</p>
+              <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle">
+                  <thead><tr><th scope="col">Mecanismo de agente</th><th scope="col">Equivalente humano</th></tr></thead>
+                  <tbody>
+                    <tr><th scope="row">Worktree + preflight</th><td>Branch por tarefa <strong>com ambiente reproduzível de um comando</strong>. O ponto não é o branch: é que ninguém perde meio dia montando o ambiente nem descobre no fim que faltava um insumo. O preflight é o <em>"prove que você consegue renderizar o canário"</em> antes da primeira linha</td></tr>
+                    <tr><th scope="row">Mapa <code>arquivo → dono</code></th><td>Propriedade de diretório publicada <strong>antes</strong> da sprint, com a exceção declarada onde dois times tocam a mesma pasta</td></tr>
+                    <tr><th scope="row">Barreira de onda</th><td>Checkpoint com definição de pronto <strong>executável</strong> (comando com exit 0), nunca "verde no board". Cada tarefa fecha marcando <strong>no próprio artefato versionado</strong>, dentro do branch, antes do merge</td></tr>
+                    <tr><th scope="row">Revisão adversarial</th><td>Um revisor que <strong>não participou</strong>, recebendo <strong>só o diff e o card</strong>, com instrução escrita de <em>derrubar</em> e 3–4 perguntas falsificáveis do domínio. Time-box. <strong>O implementador corrige antes de abrir o PR, não depois</strong></td></tr>
+                    <tr><th scope="row">Subagentes</th><td>Fan-out de <strong>investigação</strong>: N pessoas leem N artefatos e devolvem <strong>uma página destilada com citações</strong>; <strong>uma pessoa só escreve o código</strong></td></tr>
+                    <tr><th scope="row">Merge um a um + gate entre cada</th><td>Integração serializada, com a ordem declarada quando importa</td></tr>
+                    <tr><th scope="row">Handoff</th><td>Campo obrigatório no ticket, preenchido <strong>antes do merge</strong>, com proveniência citada, teto de tamanho e <strong>destinatários nomeados</strong></td></tr>
+                    <tr><th scope="row">Hooks de máquina</th><td>Hook de pre-commit / regra de CI obrigatória. Nunca convenção em documento</td></tr>
+                    <tr><th scope="row">Ledger + âncora no código</th><td>Registro de decisões assumidas, com id, e um comentário <code>// ABERTO &lt;id&gt;</code> no ponto exato</td></tr>
+                    <tr><th scope="row">Skills por classe de tarefa</th><td>Checklist de onboarding <strong>por tipo de mudança</strong>, não por pessoa</td></tr>
+                    <tr><th scope="row">Skill de pesquisa marcada por card</th><td>Regra escrita de <strong>quem tem mandato para decidir sem pesquisar</strong> e quem não tem — e a exigência de que toda afirmação externa chegue com fonte e data</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <footer class="text-body-secondary small border-top mt-5 pt-3">
