@@ -1,0 +1,13 @@
+{
+  "//": "Card F1-01. Type-check ESCOPADO em src/composicao/ e nos seus testes.",
+  "//2": "Existe para o gate `just comp-testar` reprovar por causa DESTE card,",
+  "//3": "nao por causa de outro. O type-check do repo inteiro continua em",
+  "//4": "`just typecheck` / `just build` — este arquivo nao substitui aquele.",
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/composicao/**/*.ts",
+    "src/composicao/**/*.tsx",
+    "tests/composicao/**/*.ts",
+    "tests/composicao/**/*.tsx"
+  ]
+}

@@ -135,28 +135,28 @@ validar-grafo:
     python3 tools/validate-graph.py tools/cards.json
 
 # Roda o autoteste do validador
-validar-grafo:selftest:
+validar-grafo-selftest:
     python3 tools/validate-graph_selftest.py
 
 # Gera a tabela de ondas
-ondas:gerar:
+ondas-gerar:
     python3 tools/gerar-tabela-de-ondas.py tools/cards.json
 
 # Gera prompt de um card (ex: just prompt:card F0-01)
-prompt:card card_id:
+prompt-card card_id:
     python3 tools/gerar-prompt-de-card.py {{card_id}} tools/cards.json
 
 # =============================================================================
 # Skills infrastructure
 # =============================================================================
 
-skills:lint:
+skills-lint:
     python3 .agents/scripts/skill_lint.py
 
-skills:test:
+skills-test:
     python3 .agents/scripts/skill_lint_selftest.py
 
-skills:catalogo:
+skills-catalogo:
     python3 .agents/scripts/gerar-catalogo.py
     git diff --exit-code .agents/skills/catalog.md || (echo "ERROR: catalog.md is out of date. Run 'just skills:catalogo' to regenerate." && exit 1)
 # Alias
@@ -167,17 +167,59 @@ default: build
 # =============================================================================
 
 # Prova de determinismo: renderiza o canário 2x e exige bytes idênticos
-det:provar:
+det-provar:
     bash tools/determinismo/provar.sh
 
 # Teste de mutação: injeta valor volátil e exige que o gate fique VERMELHO
-det:mutar:
+det-mutar:
     bash tools/determinismo/mutar.sh
 
 # Teste de ausência: apaga snapshot aprovado e exige que o gate fique VERMELHO
-det:ausencia:
+det-ausencia:
     bash tools/determinismo/ausencia.sh
 
 # Roda todos os testes de determinismo (vitest)
-det:testar:
+det-testar:
     npx vitest run tests/harness/
+
+# === F1-01 ===
+# =============================================================================
+# Composicao — raiz, contrato de no, descoberta por convencao e tempo
+# =============================================================================
+# NOTA DE NOME: o PROGRAMA escreve estas receitas como `comp:testar`. O `just`
+# 1.42 nao aceita ':' em nome de receita (o ':' separa nome de dependencia),
+# entao valem os nomes com hifen — a mesma saida ja adotada por `design-varrer`
+# e `contrato_gerar` neste arquivo.
+
+# A raiz renderiza a fixture canonica com nos de mentira e o timing bate
+comp-testar:
+    @echo "=== comp-testar: tipos de src/composicao/ ==="
+    npx tsc --noEmit -p tsconfig.composicao.json
+    @echo "=== comp-testar: render + timing ==="
+    npx vitest run tests/composicao/testar.test.ts
+
+# Varre o disco e exige id unico por no descoberto
+comp-unicidade:
+    @echo "=== comp-unicidade ==="
+    npx vitest run tests/composicao/unicidade.test.ts
+
+# (∅-crit) Falha se achar Date.now / Math.random / setTimeout / fetch
+# sob src/composicao/. Traz sonda negativa: o mesmo varredor tem de acusar
+# as quatro violacoes plantadas em tests/composicao/impuro/.
+comp-pureza:
+    @echo "=== comp-pureza (∅-crit) ==="
+    npx vitest run tests/composicao/pureza.test.ts
+
+# O ponto de entrada do Remotion tem de BUNDLAR de verdade.
+# O bundler e webpack e NAO le os `paths` do tsconfig: um import
+# "src/design/tokens" passa no tsc e no vitest e quebra so aqui.
+comp-bundle:
+    @echo "=== comp-bundle: webpack do Remotion ==="
+    npx remotion bundle src/composicao/raiz.tsx --out-dir=.remotion/bundle-composicao
+    @test -f .remotion/bundle-composicao/index.html || { echo "FALHOU: bundle sem index.html"; exit 1; }
+    @echo "comp-bundle: OK"
+
+# Os gates de composicao de uma vez (sem o bundle, que e lento)
+comp-gate: comp-pureza comp-unicidade comp-testar
+    @echo "comp-gate: VERDE"
+# === fim F1-01 ===

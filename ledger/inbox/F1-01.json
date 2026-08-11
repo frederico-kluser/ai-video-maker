@@ -1,0 +1,156 @@
+[
+  {
+    "id": "AB-240",
+    "titulo": "O schema deixa a mesma transicao ser declarada dos dois lados da fronteira",
+    "pergunta": "Uma sobreposicao entre duas cenas deve ser declarada uma vez (lista de fronteiras) ou continua declaravel por `cenas[i].transicao_saida` e `cenas[i+1].transicao_entrada` ao mesmo tempo?",
+    "por_que_aberto": "O schema atual permite as duas declaracoes e nao exige que concordem. Na fixture canonica de F0-09 elas DISCORDAM em tres das quatro fronteiras (wipe 20 contra flip 12; clockWipe 18 contra cube 24). Exigir concordancia reprovaria a propria fixture canonica; somar os dois campos conta a mesma sobreposicao duas vezes e encurta o video de 727 para 674 frames sem erro nenhum. F1-01 adotou precedencia (saida da anterior manda) porque precisava de um numero hoje, mas quem responde e o dono do contrato, nao o card de composicao.",
+    "decisao_provisoria": "Uma fronteira por par de cenas adjacentes. Duracao vem de `transicao_saida` da cena anterior; se ausente, de `transicao_entrada` da seguinte; se nenhuma, corte seco. Entrada da primeira cena e saida da ultima nao tem par e nao descontam nada. Registrado em docs/adr/0006-composicao-raiz.md, D2.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/testar.test.ts -t \"mesma fronteira declarada dos DOIS lados\"",
+      "espera": "1 teste passa: com a fronteira declarada dos dois lados, o total continua 250 frames (nao 200)",
+      "ambiente": "worktree do repo, node 24, vitest 3"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o contrato passar a exigir fronteira unica, o schema muda (S-4) e a fixture canonica muda junto; se passar a somar os dois campos, toda duracao ja calculada encolhe e os snapshots de render precisam ser recapturados.",
+      "artefatos": [
+        "schema/manifesto.schema.json",
+        "fixtures/canonico/manifesto-valido.json",
+        "src/composicao/tempo.ts",
+        "tests/composicao/testar.test.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-241",
+    "titulo": "Os nos de midia de W4 precisam de <Sequence> para deslocar audio e video",
+    "pergunta": "O envelope <Sequence> e suficiente para que <Audio> e <OffthreadVideo> dentro de um no recebam o deslocamento temporal correto, ou os nos de midia precisam receber tambem o frame absoluto por prop?",
+    "por_que_aberto": "F1-01 fixou o contrato do no como funcao pura de props e nenhum no chama useCurrentFrame(). No render de verdade o envelope e <Sequence>, que desloca o relogio interno do Remotion — que e o que a midia usa. Isso nao foi exercitado: nenhum no de F1 carrega asset. So um no de midia real (W4) prova.",
+    "decisao_provisoria": "Manter o envelope injetavel: EnvelopeSequence no render, EnvelopeJanela no teste. Um teste percorre a arvore de producao e exige que cada <Sequence> receba from/durationInFrames/name identicos aos do plano.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/testar.test.ts -t \"envelope de producao\"",
+      "espera": "2 testes passam: cada faixa vira um <Sequence> com a janela do plano e a composicao registrada usa a duracao derivada",
+      "ambiente": "worktree do repo, node 24, remotion 4.0.507"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se <Sequence> nao bastar, o contrato de no ganha um campo (frame absoluto ou offset da cena) e os oito nos de W4 mudam de assinatura ao mesmo tempo.",
+      "artefatos": [
+        "src/composicao/contrato-de-no.ts",
+        "src/composicao/raiz.tsx",
+        "src/composicao/ManifestoRaiz.tsx"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-242",
+    "titulo": "src/composicao/registro.ts e um registro central, que a Regra 6 proibe",
+    "pergunta": "O espelho estatico de nos (registro.ts), guardado por gate de divergencia contra o disco, e uma excecao aceitavel a Regra 6, ou o projeto quer descoberta no proprio bundle (require.context / import.meta.glob)?",
+    "por_que_aberto": "AGENTS.md, Regra 6, proibe registro central. Mas o bundle de render nao tem node:fs: importar descoberta.ts na raiz quebraria o render no navegador. F1-01 separou fronteira de registro (le disco, valida, estoura) de fronteira de render (imports estaticos) e pos um gate que reprova divergencia. A alternativa (magia do bundler) amarra a composicao ao webpack do Remotion e nao roda no tsc.",
+    "decisao_provisoria": "Manter registro.ts como espelho verificado. O disco continua sendo a verdade; a divergencia e vermelha. Registrado em docs/adr/0006-composicao-raiz.md, D3.",
+    "verificacao": {
+      "cmd": "just comp-unicidade",
+      "espera": "sai 0; inclui os tres testes de 'registro x disco' comparando tipos, meta e nome de componente",
+      "ambiente": "worktree do repo, node 24, just 1.42"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a Regra 6 for aplicada ao pe da letra, registro.ts sai e a descoberta passa a acontecer no bundler, o que muda o ponto de entrada do Remotion e o gate de unicidade.",
+      "artefatos": [
+        "src/composicao/registro.ts",
+        "src/composicao/raiz.tsx",
+        "tests/composicao/unicidade.test.ts",
+        "AGENTS.md"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-243",
+    "titulo": "O PROGRAMA nomeia receitas com dois-pontos e o just 1.42 nao parseia isso",
+    "pergunta": "As receitas do PROGRAMA que usam dois-pontos (comp:testar, det:provar, skills:lint, res:offline...) viram hifen no justfile, viram modulos do just (invocados com ::), ou o PROGRAMA passa a escrever hifen?",
+    "por_que_aberto": "just 1.42.4 nao aceita ':' em nome de receita: o ':' separa nome de dependencia. O justfile do HEAD (commit 9e99ad7) nao parseava — 'just --list' saia 1 no erro da linha 138, e portanto NENHUMA receita do repositorio rodava, incluindo as de cards ja mergeados. F0-04 ja tinha contornado com 'design-varrer' e F0-02 com 'contrato_gerar', mas cards posteriores voltaram ao dois-pontos. F1-01 renomeou dez receitas existentes (so a linha do nome) para destravar os proprios gates, o que contraria a regra de nao editar receita de outro card.",
+    "decisao_provisoria": "Nome com hifen no justfile, mantendo o nome com dois-pontos do PROGRAMA apenas como texto do card. Bloco de F1-01 delimitado por '# === F1-01 ==='. Os dez renomes estao listados no handoff do card.",
+    "verificacao": {
+      "cmd": "just --list",
+      "espera": "sai 0 e lista as receitas, incluindo comp-pureza, comp-unicidade e comp-testar",
+      "ambiente": "worktree do repo, just 1.42.4"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o programa insistir no dois-pontos, o justfile precisa virar modulos do just (invocacao com '::') e todo card que cita 'just x:y' muda de comando; se ficar hifen, o PROGRAMA e os cards de W4 em diante precisam ser reescritos.",
+      "artefatos": [
+        "justfile",
+        "PROGRAMA.html",
+        "tools/cards.json",
+        "tools/gate.sh"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "agentes-worktrees",
+    "responde": "operacao",
+    "antecedencia": "commit",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-244",
+    "titulo": "A fixture canonica declara 930 frames e a aritmetica subtrativa da 727",
+    "pergunta": "O campo duracao_total_frames do manifesto e derivado (e deve ser conferido contra o calculo) ou e anotacao humana informativa que ninguem verifica?",
+    "por_que_aberto": "fixtures/canonico/manifesto-valido.json declara duracao_total_frames = 930. A soma das cenas e 780 e as fronteiras somam 53, entao a composicao tem 727 frames. Os dois numeros nao se explicam um pelo outro (930 nao e nem a soma das duracoes dos nos, que da 1515). Se o campo for normativo, ou a fixture esta errada ou o calculo esta; se for informativo, ele e um valor que ninguem confere dentro de um manifesto cuja proposta e ser a fonte unica de verdade.",
+    "decisao_provisoria": "Tratar duracao_total_frames como informativo e nao usa-lo em lugar nenhum: a duracao vem sempre de calcularDuracao(). O gate nao compara os dois, e por isso esta divergencia esta aqui em vez de virar teste vermelho.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/testar.test.ts -t \"total = 780 - 53 = 727 frames\"",
+      "espera": "1 teste passa com totalFrames = 727, diferente dos 930 declarados na fixture",
+      "ambiente": "worktree do repo, node 24, vitest 3"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o campo for normativo, a fixture canonica muda (ou o calculo muda) e todo snapshot de render derivado dela e recapturado.",
+      "artefatos": [
+        "fixtures/canonico/manifesto-valido.json",
+        "schema/manifesto.schema.json",
+        "src/composicao/tempo.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-245",
+    "titulo": "O type-check do repositorio inteiro esta vermelho desde antes desta onda",
+    "pergunta": "Quem conserta o import de Procedencia em tests/store/store.test.ts, que deixa 'npx tsc --noEmit' vermelho no HEAD e derruba build, lint, typecheck e tools/gate.sh?",
+    "por_que_aberto": "No commit fcf9548 (onda2-store-conteudo), src/store/store.ts importa o tipo Procedencia de ./procedencia.js mas nao o reexporta; tests/store/store.test.ts importa Procedencia de src/store/store.js. tsc acusa TS2459 e sai 1. Isso ja estava no HEAD antes de F1-01 e nao e arquivo deste card. F1-01 nao mexeu: escopou o proprio type-check em tsconfig.composicao.json para reprovar pelo proprio codigo, e nao pelo de outro card.",
+    "decisao_provisoria": "Nao tocar em arquivo de outro card. O gate de F1-01 usa tsconfig.composicao.json; o type-check do repositorio inteiro continua vermelho ate o dono de src/store/ reexportar o tipo (uma linha) ou o teste importar de src/store/procedencia.js.",
+    "verificacao": {
+      "cmd": "npx tsc --noEmit",
+      "espera": "sai 0 sem nenhum erro; hoje sai 1 com TS2459 em tests/store/store.test.ts:21",
+      "ambiente": "worktree do repo, node 24, typescript 5.9"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Enquanto ficar vermelho, build, lint, typecheck e tools/gate.sh saem vermelhos para todo card da onda, e o gate geral perde poder de reprovar: quem olhar so o veredito nao distingue erro novo de erro herdado.",
+      "artefatos": [
+        "src/store/store.ts",
+        "tests/store/store.test.ts",
+        "tools/gate.sh",
+        "justfile"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "commit",
+    "status": "ABERTO"
+  }
+]
