@@ -168,8 +168,18 @@ if [ -f "$LINTER" ]; then
     # Run the linter and capture exit code
     LINT_OUTPUT="$(python3 "$LINTER" 2>&1)" && LINT_RC=$? || LINT_RC=$?
 
+    # O linter tem TRES estados, nao dois: 0 = limpo, 1 = so avisos,
+    # 2 = erro de verdade (ver .agents/scripts/skill_lint_selftest.py, que
+    # asserta exit 2 para cada violacao e exit 0 para skill valida).
+    # Tratar qualquer nao-zero como falha transformava "SKILL.md tem 407 linhas,
+    # aviso a partir de 400" em preflight vermelho -- e preflight vermelho
+    # deixa a worktree para inspecao e trava a criacao da onda inteira.
+    # Gate mecanico so onde o erro e irreversivel; no resto, nudge.
     if [ "$LINT_RC" -eq 0 ]; then
         pass "Skill linter passed (exit 0)"
+    elif [ "$LINT_RC" -eq 1 ]; then
+        echo "$LINT_OUTPUT" | sed 's/^/  | /'
+        pass "Skill linter passed com avisos (exit 1) — avisos nao bloqueiam"
     else
         echo "$LINT_OUTPUT" | sed 's/^/  | /'
         fail "Skill linter returned non-zero (exit $LINT_RC)"
@@ -201,9 +211,9 @@ echo "=== Preflight summary: $PASS passed, $FAIL failed, $SKIP skipped ==="
 
 if [ "$FAIL" -gt 0 ]; then
     echo ""
-    echo "Preflight ${RED}FAILED${NC} — worktree left for inspection"
+    echo -e "Preflight ${RED}FAILED${NC} — worktree left for inspection"
     exit 1
 fi
 
-echo "Preflight ${GREEN}PASSED${NC}"
+echo -e "Preflight ${GREEN}PASSED${NC}"
 exit 0
