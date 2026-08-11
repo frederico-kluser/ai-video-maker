@@ -56,3 +56,5 @@ Thumbs.db
 # TASK_PLAN (transient — per PLAYBOOK)
 # =============================================================================
 TASK_PLAN.md
+
+.deep-orchestrator/
