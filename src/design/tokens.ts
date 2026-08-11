@@ -348,14 +348,22 @@ export const contrastPairs: ContrastPair[] = [
 //   (escopo: UI de app, nao video — e ancora do argumento, nao piso importavel)
 
 /** Familia tipografica */
+// F1-03: a primeira familia de sans/display/mono e EMBUTIDA — carregada de
+// assets/fontes/ por src/design/fontes/index.ts. Zero rede, zero endereco remoto.
+// Peso e estilo tambem sao fixados la: Inter 400 e 700 normal, JetBrains Mono
+// 400 normal. O resto de cada pilha e rede de seguranca do CSS e NAO deve
+// entrar em uso — AGENTS.md C6: uma fonte que nao carregou cai para fallback
+// sem erro. tests/design/font-resolve.test.ts renderiza um still e le, dentro
+// do navegador do render, qual familia foi de fato resolvida em cada pilha.
+// Licenca e direito de embutir por familia: assets/fontes/*.md
 export const fontFamily = {
-  /** Texto corrido, legendas, UI */
+  /** Texto corrido, legendas, UI — Inter embutida, peso 400 normal */
   sans: "Inter, system-ui, -apple-system, sans-serif",
-  /** Titulos, display */
+  /** Titulos, display — Inter embutida, peso 700 normal */
   display: "Inter, system-ui, -apple-system, sans-serif",
-  /** Codigo fonte */
+  /** Codigo fonte — JetBrains Mono embutida, peso 400 normal */
   mono: "JetBrains Mono, Fira Code, monospace",
-  /** Serif para contraste estilistico */
+  /** Serif para contraste estilistico — pilha de sistema, nao embutida */
   serif: "Georgia, Times New Roman, serif",
 } as const;
 

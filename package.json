@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@remotion/captions": "4.0.507",
+    "@remotion/fonts": "4.0.507",
     "@remotion/paths": "4.0.507",
     "@remotion/player": "4.0.507",
     "@remotion/renderer": "4.0.507",
@@ -22,8 +23,8 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-"@remotion/bundler": "^4.0.507",
-    "@remotion/cli": "^4.0.507",
+    "@remotion/bundler": "4.0.507",
+    "@remotion/cli": "4.0.507",
     "@types/node": "^26.2.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

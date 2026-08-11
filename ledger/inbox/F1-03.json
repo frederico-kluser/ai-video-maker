@@ -1,0 +1,129 @@
+[
+  {
+    "id": "AB-270",
+    "titulo": "O ∅-crit de licenca do card usa uma flag que significa outra coisa",
+    "pergunta": "O criterio `rg -L \"licenca:\" assets/fontes/*.md` -> vazio realmente verifica que toda ficha declara licenca, ou verifica o contrario?",
+    "por_que_aberto": "Em ripgrep, -L e --follow (seguir links simbolicos). A flag que lista arquivos SEM correspondencia e --files-without-match, que nao tem forma curta. Com -L, o comando imprime as LINHAS que casam: ele sai vazio exatamente quando NENHUMA ficha declara licenca, que e a falha que o criterio queria pegar. O criterio, do jeito que esta escrito, e um falso verde perfeito: apagar a palavra 'licenca:' de todas as fichas faz ele passar.",
+    "decisao_provisoria": "O gate `just fontes-licenca` usa `rg --files-without-match \"licenca:\" assets/fontes/*.md`, que exprime a intencao, e o teste tests/design/font-resolve.test.ts assere o mesmo criterio em codigo. O comando literal do card fica registrado aqui como armadilha conhecida.",
+    "verificacao": {
+      "cmd": "rg --files-without-match \"licenca:\" assets/fontes/*.md; test $? -eq 1",
+      "espera": "exit 1 e saida vazia: nenhum arquivo .md sem 'licenca:'",
+      "ambiente": "ripgrep 15.0.0, Linux"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se outros cards copiarem o padrao `rg -L` como prova de ausencia, cada um deles vira um gate que passa justamente quando o requisito nao foi cumprido.",
+      "artefatos": [
+        "justfile",
+        "tests/design/font-resolve.test.ts",
+        "docs/adr/0006-fontes-locais-embutidas.md"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "assets-licenca",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-271",
+    "titulo": "justfile inteiro nao parseia: `just fontes:testar` e impossivel",
+    "pergunta": "As receitas com ':' no nome (validar-grafo:selftest, det:provar, skills:lint, ...) vao ser renomeadas, ou o projeto vai trocar de task runner?",
+    "por_que_aberto": "just 1.42 nao aceita ':' em nome de receita: ele le `a:b` como 'receita a depende de b', e o ':' final vira erro de sintaxe. O erro esta na linha 138 do justfile desde antes deste card, e um erro de parse e global — nenhuma receita do arquivo roda hoje, nem `just build`. Renomear as dez receitas afetadas invadiria o territorio de F0-02, F0-06 e T-01.",
+    "decisao_provisoria": "O bloco `# === F1-03 ===` usa hifen (fontes-testar, fontes-licenca, fontes-offline), a mesma convencao das receitas que funcionam no arquivo (design-gerar, design-testar, design-varrer). Os comandos equivalentes rodam direto por npx enquanto o justfile estiver quebrado.",
+    "verificacao": {
+      "cmd": "just --list",
+      "espera": "hoje: erro de parse na linha 138. Depois da correcao: lista com fontes-testar, fontes-licenca e fontes-offline",
+      "ambiente": "just 1.42.4, Linux"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Todo criterio de aceitacao escrito como `just x:y` e inexecutavel. Os gates existem em arquivo mas nenhum deles roda pelo caminho documentado.",
+      "artefatos": [
+        "justfile",
+        "tools/gate.sh",
+        "PROGRAMA.html"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-272",
+    "titulo": "public/fontes e link simbolico: bundle self-contained e Windows nao verificados",
+    "pergunta": "O bundle gerado por bundle() copia os bytes das fontes atraves do link simbolico, ou apenas repassa o link e depende do disco local?",
+    "por_que_aberto": "O render local funciona: as tres fontes carregam com status 'loaded' e o still sai correto. Mas @remotion/bundler tem as opcoes symlinkPublicDir e onSymlinkDetected, cuja documentacao avisa que o bundle pode ficar nao-autossuficiente quando o diretorio publico e um link. Isso so importa quando o bundle for empacotado para outra maquina (render distribuido, Lambda), o que ainda nao existe no projeto. Em Windows sem modo desenvolvedor o link nem e criado.",
+    "decisao_provisoria": "Manter o link simbolico relativo public/fontes -> ../assets/fontes, que evita duplicar bytes e nao toca em nenhum arquivo de configuracao compartilhado. Reavaliar quando existir render fora desta maquina.",
+    "verificacao": {
+      "cmd": "npx tsx -e \"import {bundle} from '@remotion/bundler'; import {execSync} from 'node:child_process'; const dir = await bundle({entryPoint:'fixtures/fontes/index.tsx', onProgress:()=>{}, ignoreRegisterRootWarning:true}); console.log(execSync('find ' + dir + \\\" -name Inter-Regular.woff2 -type f\\\").toString())\"",
+      "espera": "o .woff2 aparece como arquivo regular dentro do diretorio do bundle; vazio significa que o bundle so repassou o link",
+      "ambiente": "Linux, Node 24, @remotion/bundler 4.0.507"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um bundle empacotado e enviado para outra maquina renderizaria sem as fontes. Como loadFont() chama cancelRender(), o render falharia alto em vez de sair errado, mas falharia.",
+      "artefatos": [
+        "public/fontes",
+        "src/design/fontes/index.ts",
+        "docs/adr/0006-fontes-locais-embutidas.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "card",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-273",
+    "titulo": "fontFamily.serif nao e embutida e nao tem sonda",
+    "pergunta": "A familia serif dos tokens (Georgia, Times New Roman) vai ser embutida, ou removida dos tokens?",
+    "por_que_aberto": "sans, display e mono resolvem para fontes embutidas e tem sonda no still. serif e uma pilha puramente de sistema: Georgia e Times New Roman nao existem no Chrome Headless Shell do render e nao ha arquivo para elas em assets/fontes/. Um no de composicao que use fontFamily.serif cai em fallback do sistema, que e exatamente C6 — e o gate deste card NAO pega, porque nao ha sonda para uma familia que ninguem prometeu embutir.",
+    "decisao_provisoria": "Nenhuma sonda para serif: prometer o que nao foi embutido deixaria o gate vermelho sem que houvesse trabalho a fazer aqui. O token fica documentado como pilha de sistema, nao embutida.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/design/font-resolve.test.ts -t \"catalogo tem ficha\"",
+      "espera": "verde enquanto serif nao tiver arquivo; se alguem adicionar um arquivo serif em assets/fontes/ sem entrar em FONTES_LOCAIS, fica vermelho",
+      "ambiente": "vitest 3.2.7, Node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um video que use serif sai com a tipografia do sistema, que varia por maquina — e quebra o determinismo alem da tipografia.",
+      "artefatos": [
+        "src/design/tokens.ts",
+        "src/design/fontes/index.ts",
+        "tests/design/font-resolve.test.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-274",
+    "titulo": "Fontes embutidas inteiras, sem subsetting",
+    "pergunta": "Vale reduzir os .woff2 ao subconjunto de glifos que o video usa?",
+    "por_que_aberto": "As tres fontes somam cerca de 318 KB e vao inteiras para dentro de todo bundle. Subsetting cortaria a maior parte, mas muda os bytes: os hashes declarados nas fichas de licenca teriam de ser recalculados, e a OFL-FAQ 1.12 permite subset explicitamente, entao nao ha impedimento juridico. Ainda nao ha medicao de quanto isso custa no tempo de bundle nem no tamanho do artefato final.",
+    "decisao_provisoria": "Embutir os arquivos completos. 318 KB nao aparece perto do custo de um render de video, e subsetting introduz um passo de build que precisaria do proprio gate.",
+    "verificacao": {
+      "cmd": "du -sh assets/fontes/*.woff2",
+      "espera": "cerca de 318 KB no total; reavaliar se passar de 1 MB",
+      "ambiente": "Linux"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Bundle maior do que precisa em todo render. Se um dia houver render distribuido, isso vira custo de transferencia por job.",
+      "artefatos": [
+        "assets/fontes/Inter-Regular.woff2",
+        "assets/fontes/Inter-Bold.woff2",
+        "assets/fontes/JetBrainsMono-Regular.woff2",
+        "assets/fontes/Inter.md",
+        "assets/fontes/JetBrainsMono.md"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "assets-licenca",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]

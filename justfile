@@ -283,3 +283,52 @@ res-schema:
 # Tudo do card F2-01, em ordem.
 res-tudo: res-offline res-cassete res-sem-cassete
 # === fim F2-01 ===
+
+# === F1-03 ===
+# =============================================================================
+# Fontes locais embutidas — F1-03
+# =============================================================================
+# AGENTS.md C6: "Uma fonte que nao carregou cai para fallback sem erro."
+# Estas receitas existem para que isso nunca passe em silencio.
+#
+# NOME DAS RECEITAS: o card pediu `just fontes:testar`, mas `just` 1.42 nao
+# aceita ':' em nome de receita — ele le `a:b` como "receita a depende de b".
+# Todas as receitas `x:y` deste justfile (validar-grafo:selftest em diante) ja
+# tornam o arquivo inteiro impossivel de parsear, desde antes deste card. Por
+# isso o bloco abaixo segue a convencao que FUNCIONA neste mesmo arquivo
+# (design-gerar, design-testar, design-varrer): hifen, nao dois-pontos.
+# Ver docs/adr/0006-fontes-locais-embutidas.md e ledger/inbox/F1-03.json (AB-271).
+
+# Renderiza um still e asserta a FAMILIA RESOLVIDA — nao "renderizou sem erro".
+# Inclui a sonda negativa: um arquivo de fonte ausente TEM de derrubar o render.
+fontes-testar:
+    @echo "=== fontes-testar: familia resolvida no render ==="
+    npx vitest run tests/design/font-resolve.test.ts
+    @echo "fontes-testar: OK"
+
+# Licenca e direito de embutir. Embutir e uma permissao separada de usar e de
+# redistribuir: mora na OFL 1.1 E no bit OS/2.fsType dentro do proprio binario.
+fontes-licenca:
+    @echo "=== fontes-licenca: ficha de licenca de cada fonte embutida ==="
+    @# ATENCAO: em ripgrep, -L e --follow (symlinks), NAO --files-without-match.
+    @# O ∅-crit do card, `rg -L "licenca:" ...`, sai VAZIO justamente quando
+    @# NENHUMA ficha declara licenca. Aqui usamos a flag que exprime a intencao.
+    @test -n "$(ls assets/fontes/*.md 2>/dev/null)" || { echo "FALHOU: nenhuma ficha .md em assets/fontes/"; exit 1; }
+    @sem_licenca=$(rg --files-without-match "licenca:" assets/fontes/*.md || true); \
+        if [ -n "$sem_licenca" ]; then echo "FALHOU: ficha sem 'licenca:':"; echo "$sem_licenca"; exit 1; fi
+    @echo "  toda ficha .md declara licenca:"
+    @# C2: um filtro -t que nao casa nada faz o vitest sair verde sem olhar nada.
+    @saida=$(npx vitest run tests/design/font-resolve.test.ts -t "binario" 2>&1); \
+        echo "$saida" | tail -6; \
+        echo "$saida" | grep -qE "Tests +[1-9][0-9]* passed" || \
+            { echo "FALHOU: o filtro -t nao selecionou nenhum teste (falso verde)"; exit 1; }
+    @echo "fontes-licenca: OK"
+
+# Zero fonte remota: o render e offline por construcao.
+fontes-offline:
+    @echo "=== fontes-offline: nenhuma fonte remota em src/ ==="
+    @if rg -i -n "fonts.googleapis|cdn" src/; then \
+        echo "FALHOU: referencia a fonte remota em src/"; exit 1; \
+    fi
+    @echo "fontes-offline: OK (sem resultado)"
+# === fim F1-03 ===
