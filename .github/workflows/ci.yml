@@ -1,0 +1,160 @@
+# =============================================================================
+# CI espelhado — Editor de Video IA
+# =============================================================================
+# Cada job aqui tem uma etapa correspondente em tools/gate.sh.
+# Adicionar job sem etapa no gate quebra tools/espelho-ci.py (VERMELHO).
+# Adicionar etapa no gate sem job aqui tambem quebra.
+#
+# Toolchain pinada: Node 24, Python 3.12, FFmpeg (via actions/setup)
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # build — Compila TypeScript e verifica sintaxe Python
+  # ---------------------------------------------------------------------------
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (TypeScript + Python syntax)
+        run: |
+          npx tsc --noEmit
+          python3 -c 'print("Python syntax OK")'
+
+  # ---------------------------------------------------------------------------
+  # test — Roda todos os testes (vitest + pytest)
+  # ---------------------------------------------------------------------------
+  test:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run vitest
+        run: npx vitest run
+
+      - name: Run pytest
+        run: python3 -m pytest tests/
+
+  # ---------------------------------------------------------------------------
+  # lint — Roda linters (TypeScript + Python ruff)
+  # ---------------------------------------------------------------------------
+  lint:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: npm ci && pip install ruff
+
+      - name: Lint TypeScript
+        run: npx tsc --noEmit
+
+      - name: Lint Python (ruff)
+        run: python3 -m ruff check src/ tests/
+
+  # ---------------------------------------------------------------------------
+  # typecheck — Type-check TypeScript (sem emitir JS)
+  # ---------------------------------------------------------------------------
+  typecheck:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check TypeScript
+        run: npx tsc --noEmit
+
+  # ---------------------------------------------------------------------------
+  # versoes — Reporta versoes da toolchain (node, python, ffmpeg)
+  # ---------------------------------------------------------------------------
+  versoes:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Setup FFmpeg
+        uses: federicocarboni/setup-ffmpeg@v3
+        with:
+          ffmpeg-version: release
+
+      - name: Report toolchain versions
+        run: |
+          echo "=== Toolchain versions ==="
+          echo "Node: $(node --version)"
+          echo "Python: $(python3 --version)"
+          echo "FFmpeg: $(ffmpeg -version 2>&1 | head -1)"
