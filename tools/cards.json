@@ -1,0 +1,917 @@
+[
+  {
+    "id": "F0-01",
+    "wave": "W0",
+    "deps": [],
+    "discipline": "tdd",
+    "title": "Vocabulário, convenções e o contrato de card",
+    "owned_files": "docs/vocabulario.md · convencoes.md · estrutura.md · AGENTS.md · ADR-0001, ADR-0002",
+    "acceptance": "python3 tools/lint-vocabulario.py — falha se um termo do glossário aparece em outro doc com grafia divergente · ∅-crit rg -L \"^## O que este documento NÃO cobre\" docs/*.md → saída vazia",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "T-01",
+    "wave": "W0",
+    "deps": [],
+    "discipline": "tdd",
+    "title": "Esqueleto do repositório e fixação da toolchain",
+    "owned_files": "package.json · lockfiles · tsconfig · pyproject · .gitignore · justfile",
+    "acceptance": "just build → exit 0 com a solução vazia · just versoes imprime as versões e falha se alguma divergir do pinado · ∅-crit git status --porcelain após just build → saída vazia (nenhum artefato de build escapou do .gitignore )",
+    "severity": "critico",
+    "needs_search": true
+  },
+  {
+    "id": "I-01",
+    "wave": "W0.5",
+    "deps": [],
+    "discipline": "—",
+    "title": "Enquadramento de uso — RESPONDIDO: uso pessoal. Desbloqueia F2-04, F2-06, F5-06",
+    "owned_files": "docs/adr/0003-enquadramento-de-uso.md",
+    "acceptance": "∅-crit rg -L \"condição de escopo\" docs/adr/0003-*.md → saída vazia · python3 tools/validate-ledger.py --id AB-950 --exigir-gatilho — o item de escopo existe e declara o evento que o reabre",
+    "severity": "medio",
+    "needs_search": false
+  },
+  {
+    "id": "F0-02",
+    "wave": "W1",
+    "deps": [
+      "F0-01",
+      "T-01"
+    ],
+    "discipline": "tdd",
+    "title": "Contrato do manifesto: schema e geração cross-language hub 6",
+    "owned_files": "schema/** · src/contratos/manifesto.* · tests/contratos/**",
+    "acceptance": "just contrato:gerar &amp;&amp; git diff --exit-code src/contratos/ — prova que o gerado está commitado e é reprodutível · just contrato:testar — os dois lados aceitam a mesma fixture válida e rejeitam as 12 fixtures inválidas · just contrato:subset — o schema-para-o-LLM não contém nenhuma chave fora do subset aceito , verificado por lista, e o schema-de-validação contém as invariantes que o outro não pode ter · ∅-crit rg -L '\"additionalProperties\": false' schema/*.json → vazio",
+    "severity": "critico",
+    "needs_search": true
+  },
+  {
+    "id": "F0-03",
+    "wave": "W1",
+    "deps": [
+      "F0-01",
+      "T-01"
+    ],
+    "discipline": "tdd",
+    "title": "Ledger de incerteza: schema, validador, faixas e inbox",
+    "owned_files": "ledger/** · tools/validate-ledger.py · tools/consolidar-ledger.py",
+    "acceptance": "python3 tools/validate-ledger.py → exit 0 com o ledger vazio · python3 tools/validate-ledger_selftest.py → asserta a mensagem de cada uma das 9 mutações, não o exit code · ∅-crit um item fechado com evidência \"ok\" tem de falhar — e o autoteste prova isso",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F0-04",
+    "wave": "W1",
+    "deps": [
+      "F0-01",
+      "T-01"
+    ],
+    "discipline": "tdd",
+    "title": "Tokens de design em código hub 10",
+    "owned_files": "src/design/tokens.ts · tokens.py (gerado) · tests/design/**",
+    "acceptance": "just design:testar — verifica contraste de cada par de cor por cálculo e falha abaixo do mínimo · just design:gerar &amp;&amp; git diff --exit-code src/design/tokens.py · ∅-crit just design:varrer procura literal de token fora de src/design/ em todo o repositório e falha se achar — com o repositório vazio ela passa, e é por isso que ela roda desde hoje",
+    "severity": "critico",
+    "needs_search": true
+  },
+  {
+    "id": "F0-05",
+    "wave": "W1",
+    "deps": [
+      "F0-01"
+    ],
+    "discipline": "—",
+    "title": "Inventário de reuso do 3blue1brown, por call-site",
+    "owned_files": "docs/reuso-3b1b.md · ADR-0004",
+    "acceptance": "∅-crit rg -L \"call-sites:\" docs/reuso-3b1b.md → vazio (toda linha de \"absorver\" declara quantos call-sites justificam) · rg -c \"3blue1brown/.*:[0-9]+\" docs/reuso-3b1b.md ≥ 15 — toda afirmação sobre o projeto de origem carrega arquivo:linha",
+    "severity": "medio",
+    "needs_search": false
+  },
+  {
+    "id": "T-02",
+    "wave": "W1",
+    "deps": [
+      "F0-01",
+      "T-01"
+    ],
+    "discipline": "tdd",
+    "title": "Validador de grafo de tarefas — as 11 checagens",
+    "owned_files": "tools/validate-graph.py · gerar-tabela-de-ondas.py · gerar-prompt-de-card.py",
+    "acceptance": "python3 tools/validate-graph.py PROGRAMA.md → exit 0 · python3 tools/validate-graph_selftest.py — 11 mutações calculadas do documento corrente , cada caso assertando a mensagem · just ondas:gerar &amp;&amp; git diff --exit-code PROGRAMA.md — a tabela commitada é a gerada · ∅-crit zero cards parseados = falha , com a mensagem \"o formato mudou e este verificador ficou cego\"",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "T-03",
+    "wave": "W1",
+    "deps": [
+      "T-01"
+    ],
+    "discipline": "tdd",
+    "title": "Gate local executável — uma etapa por job, três estados",
+    "owned_files": "tools/gate.sh · docs/gate.md",
+    "acceptance": "bash tools/gate.sh → exit 0 no repositório limpo, com todas as etapas em PENDENTE e o veredito dizendo isso · bash tools/gate_selftest.sh — asserta a mensagem de cada estado · ∅-crit esconder o FFmpeg do PATH tem de produzir vermelho, e o autoteste prova",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "T-04",
+    "wave": "W1",
+    "deps": [
+      "T-01"
+    ],
+    "discipline": "tdd",
+    "title": "Worktree por card, com preflight",
+    "owned_files": "tools/new-task-worktree.sh · tools/preflight.sh",
+    "acceptance": "bash tools/new-task-worktree.sh create PREP-teste &amp;&amp; bash tools/preflight.sh → exit 0 · bash tools/new-task-worktree.sh create I-01 → exit ≠ 0 com a explicação · ∅-crit mover o store para fora e rodar o preflight tem de dar exit 1 deixando a worktree para inspeção",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "T-10",
+    "wave": "W1",
+    "deps": [
+      "T-01"
+    ],
+    "discipline": "tdd",
+    "title": "Infraestrutura de skills: linter, evals, staleness, catálogo gerado",
+    "owned_files": ".agents/scripts/** · .agents/skills/catalog.md (gerado)",
+    "acceptance": "python3 .agents/scripts/skill_lint.py → exit 0 · just skills:catalogo &amp;&amp; git diff --exit-code .agents/skills/catalog.md · python3 .agents/scripts/skill_lint_selftest.py — asserta a mensagem de cada regra · ∅-crit uma skill com data no corpo tem de dar erro (não aviso), e uma citação sem caminho tem de ser rejeitada",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F0-06",
+    "wave": "W2",
+    "deps": [
+      "F0-01",
+      "T-01",
+      "T-03"
+    ],
+    "discipline": "tdd",
+    "title": "Harness de determinismo — o motor do oráculo. Sem ele, o ADR-0001 é uma frase",
+    "owned_files": "tools/determinismo/** · tests/harness/** · fixtures/canario/**",
+    "acceptance": "just det:provar — renderiza o canário 2× e exige bytes idênticos · just det:mutar — injeta um valor volátil e exige vermelho com a mensagem certa · ∅-crit apagar um snapshot aprovado tem de deixar o gate vermelho (ausência falha), e não passar por \"nada a comparar\"",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F0-07",
+    "wave": "W2",
+    "deps": [
+      "F0-01",
+      "T-01"
+    ],
+    "discipline": "tdd",
+    "title": "Store endereçado por conteúdo hub 10",
+    "owned_files": "src/store/** · tools/store-* · tests/store/**",
+    "acceptance": "just store:testar — N escritores concorrentes do mesmo conteúdo produzem um arquivo e zero corrupção · just store:chave — muda um parâmetro por vez e exige cache miss em cada um · ∅-crit rg -L '\"licenca\"' .cache/store/ /procedencia.json → vazio · rg \"https?://\" manifesto-resolvido.json → sem resultado**",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F0-08",
+    "wave": "W2",
+    "deps": [
+      "F0-01",
+      "T-03"
+    ],
+    "discipline": "tdd",
+    "title": "Invariantes estruturais e o catálogo de falso verde executável",
+    "owned_files": "tools/invariantes/** · docs/falso-verde.md",
+    "acceptance": "just invariantes → exit 0 · just invariantes:autoteste — cada invariante tem uma mutação calculada que o dispara, e o caso asserta a mensagem · ∅-crit remover um projeto de teste do CI tem de ficar vermelho pelo invariante \"todo projeto de teste é executado por algum job\"",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F0-09",
+    "wave": "W2",
+    "deps": [
+      "F0-02",
+      "F0-04"
+    ],
+    "discipline": "tdd",
+    "title": "Fixture canônica — o manifesto de referência, com as entradas sujas",
+    "owned_files": "fixtures/canonico/** · docs/fixtures.md",
+    "acceptance": "just fixtures:validar — todas as válidas passam, todas as inválidas são rejeitadas com a mensagem certa · ∅-crit python3 tools/validate-fixtures.py --exigir-classificacao falha se qualquer fixture não aparecer na tabela CONTRATO × BUG",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "T-05",
+    "wave": "W2",
+    "deps": [
+      "T-01",
+      "T-03",
+      "T-10"
+    ],
+    "discipline": "tdd",
+    "title": "Hooks: gate de segurança, gate de skill, barreira de onda, nudge",
+    "owned_files": ".claude/settings.json · .agents/scripts/*.py",
+    "acceptance": "python3 .agents/scripts/hooks_selftest.py — cada hook, cada estado, assertando a mensagem · ∅-crit remover o gate de escrita de skill tem de deixar um invariante vermelho — a ausência de um hook não pode ser indistinguível de conformidade · ∅-crit rm -rf / , rm -rf ~ e sudo rm -rf / têm de ser bloqueados, e o autoteste prova os três — este é o critério que reprova a cópia herdada · ∅-crit rodar o gate de escrita de outro cwd tem de negar , nunca liberar",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "T-06",
+    "wave": "W2",
+    "deps": [
+      "T-02",
+      "T-03"
+    ],
+    "discipline": "tdd",
+    "title": "Verificador de aceitação: sonda negativa e tripwire",
+    "owned_files": "tools/verify-acceptance.py",
+    "acceptance": "python3 tools/verify-acceptance.py → exit 0 · python3 tools/verify-acceptance_selftest.py — inclui o caso adversarial: HTML no meio do token, caractere de largura zero e hífen suave · ∅-crit um card marcado concluído com seletor que casa zero testes tem de ficar vermelho",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "T-07",
+    "wave": "W2",
+    "deps": [
+      "T-02"
+    ],
+    "discipline": "tdd",
+    "title": "Estado derivado do programa",
+    "owned_files": "tools/derive-state.py · a seção de estado deste documento",
+    "acceptance": "python3 tools/derive-state.py --verificar → exit 0 · ∅-crit marcar um card de onda tardia como concluído não pode aumentar a contagem de ondas concluídas — e o autoteste prova",
+    "severity": "medio",
+    "needs_search": false
+  },
+  {
+    "id": "T-08",
+    "wave": "W2",
+    "deps": [
+      "T-03"
+    ],
+    "discipline": "tdd",
+    "title": "Instrumentação de custo e tempo por onda — substitui o cronograma por medição",
+    "owned_files": "tools/medir.py · docs/medicao/**",
+    "acceptance": "python3 tools/medir.py --onda W2 grava e valida o registro · ∅-crit uma onda sem registro de medição tem de deixar o gate amarelo ( NÃO-EXERCITADO ), nunca verde",
+    "severity": "baixo",
+    "needs_search": false
+  },
+  {
+    "id": "I-02",
+    "wave": "W2.5",
+    "deps": [
+      "I-01"
+    ],
+    "discipline": "—",
+    "title": "Contas, chaves e quotas — quota por provedor é o que dimensiona a concorrência da W4",
+    "owned_files": ".env.example · docs/contas.md · ADR-0005",
+    "acceptance": "just contas:verificar — cada provedor aprovado responde a um ping mínimo e a resposta é descartada , nunca gravada · ∅-crit rg -i \"sk-\\|api[_-]?key\\s =\\s ['\\\"][A-Za-z0-9]\" -g '!.env.example' . → sem resultado , e o hook de segurança prova que bloqueia",
+    "severity": "critico",
+    "needs_search": true
+  },
+  {
+    "id": "F1-01",
+    "wave": "W3",
+    "deps": [
+      "F0-02",
+      "F0-04",
+      "F0-09",
+      "T-01"
+    ],
+    "discipline": "ambos",
+    "title": "Composição raiz, contrato de nó e descoberta por convenção hub 8",
+    "owned_files": "src/composicao/raiz.tsx · contrato-de-no.ts · descoberta.ts · tempo.ts",
+    "acceptance": "just comp:testar — a raiz renderiza a fixture canônica com nós de mentira e o timing bate · just comp:unicidade — varre o disco e exige id único por nó descoberto · ∅-crit just comp:pureza falha se achar Date.now / Math.random / setTimeout / fetch sob src/composicao/ — e passa hoje, com o diretório quase vazio, que é o ponto",
+    "severity": "critico",
+    "needs_search": true
+  },
+  {
+    "id": "F1-02",
+    "wave": "W3",
+    "deps": [
+      "F0-04",
+      "T-01"
+    ],
+    "discipline": "tdd",
+    "title": "Motor de layout: medição, ajuste e overflow como erro de build",
+    "owned_files": "src/composicao/layout/**",
+    "acceptance": "just layout:testar — a fixture \"texto que estoura\" falha o build com mensagem nomeando o nó · ∅-crit remover a checagem de safe area tem de deixar um invariante vermelho",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F1-03",
+    "wave": "W3",
+    "deps": [
+      "F0-04",
+      "T-01"
+    ],
+    "discipline": "tdd",
+    "title": "Fontes locais embutidas e asserção de família resolvida",
+    "owned_files": "src/design/fontes/** · assets/fontes/**",
+    "acceptance": "just fontes:testar — renderiza um still e asserta a família resolvida, não só que \"renderizou\" · ∅-crit rg -i \"fonts.googleapis\\|cdn\" src/ → sem resultado · rg -L \"licenca:\" assets/fontes/*.md → vazio",
+    "severity": "medio",
+    "needs_search": true
+  },
+  {
+    "id": "F2-01",
+    "wave": "W3",
+    "deps": [
+      "F0-02",
+      "F0-07"
+    ],
+    "discipline": "tdd",
+    "title": "Contrato de estágio de resolução, cassetes e o orquestrador hub 7",
+    "owned_files": "src/resolucao/contrato.ts · orquestrador.ts · cassete/** · schema do manifesto-resolvido",
+    "acceptance": "just res:offline — a suíte inteira passa com a rede bloqueada · just res:cassete — regravar um cassete e diffar: qualquer diferença não explicada refuta o determinismo · ∅-crit um estágio sem cassete tem de derrubar just res:offline , e não ser pulado",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "T-09",
+    "wave": "W3",
+    "deps": [
+      "T-03",
+      "T-06"
+    ],
+    "discipline": "tdd",
+    "title": "CI espelhado, lido pelo gate local — mergeia por último",
+    "owned_files": ".github/workflows/** · tools/espelho-ci.py",
+    "acceptance": "python3 tools/espelho-ci.py → exit 0 · ∅-crit adicionar um job ao CI sem etapa correspondente tem de ficar vermelho, e vice-versa",
+    "severity": "medio",
+    "needs_search": false
+  },
+  {
+    "id": "F1-04",
+    "wave": "W4",
+    "deps": [
+      "F1-01",
+      "F1-02",
+      "F1-03"
+    ],
+    "discipline": "ambos",
+    "title": "Nó: cabeçalho e título — mola nomeada dos tokens, nunca valor inline",
+    "owned_files": "nos/Cabecalho.tsx + snapshots",
+    "acceptance": "just no:&lt;nome&gt; → exit 0 · just det:provar --no &lt;nome&gt; — render 2× idêntico · git diff --exit-code fixtures/snapshots/no-&lt;nome&gt;/ combinado com git status --porcelain (porque diff --exit-code não enxerga arquivo não rastreado) · ∅-crit apagar um snapshot aprovado tem de ficar vermelho",
+    "severity": "medio",
+    "needs_search": false
+  },
+  {
+    "id": "F1-05",
+    "wave": "W4",
+    "deps": [
+      "F1-01",
+      "F1-02",
+      "F1-03"
+    ],
+    "discipline": "ambos",
+    "title": "Nó: texto com destaque palavra a palavra — sem timing, degrada para frase; o teste prova os dois caminhos",
+    "owned_files": "nos/TextoDestaque.tsx + snapshots",
+    "acceptance": "just no:&lt;nome&gt; → exit 0 · just det:provar --no &lt;nome&gt; — render 2× idêntico · git diff --exit-code fixtures/snapshots/no-&lt;nome&gt;/ combinado com git status --porcelain (porque diff --exit-code não enxerga arquivo não rastreado) · ∅-crit apagar um snapshot aprovado tem de ficar vermelho",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F1-06",
+    "wave": "W4",
+    "deps": [
+      "F1-01",
+      "F1-02",
+      "F1-03"
+    ],
+    "discipline": "ambos",
+    "title": "Nó: lista, grade e bullets — o caso \"um item\" e o caso \"vinte itens\"",
+    "owned_files": "nos/Lista.tsx + snapshots",
+    "acceptance": "just no:&lt;nome&gt; → exit 0 · just det:provar --no &lt;nome&gt; — render 2× idêntico · git diff --exit-code fixtures/snapshots/no-&lt;nome&gt;/ combinado com git status --porcelain (porque diff --exit-code não enxerga arquivo não rastreado) · ∅-crit apagar um snapshot aprovado tem de ficar vermelho",
+    "severity": "baixo",
+    "needs_search": false
+  },
+  {
+    "id": "F1-07",
+    "wave": "W4",
+    "deps": [
+      "F1-01",
+      "F1-02",
+      "F1-03",
+      "F0-07"
+    ],
+    "discipline": "ambos",
+    "title": "Nó: mídia com contrato de alfa — recebe hash, nunca URL; o GIF avança pelo frame, não pelo relógio",
+    "owned_files": "nos/Midia.tsx + snapshots",
+    "acceptance": "just no:&lt;nome&gt; → exit 0 · just det:provar --no &lt;nome&gt; — render 2× idêntico · git diff --exit-code fixtures/snapshots/no-&lt;nome&gt;/ combinado com git status --porcelain (porque diff --exit-code não enxerga arquivo não rastreado) · ∅-crit apagar um snapshot aprovado tem de ficar vermelho",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F1-08",
+    "wave": "W4",
+    "deps": [
+      "F1-01",
+      "F1-02",
+      "F1-03"
+    ],
+    "discipline": "ambos",
+    "title": "Nó: código — consome tokens pré-computados, nunca destaca em tempo de render",
+    "owned_files": "nos/Codigo.tsx + snapshots",
+    "acceptance": "just no:&lt;nome&gt; → exit 0 · just det:provar --no &lt;nome&gt; — render 2× idêntico · git diff --exit-code fixtures/snapshots/no-&lt;nome&gt;/ combinado com git status --porcelain (porque diff --exit-code não enxerga arquivo não rastreado) · ∅-crit apagar um snapshot aprovado tem de ficar vermelho",
+    "severity": "medio",
+    "needs_search": false
+  },
+  {
+    "id": "F1-09",
+    "wave": "W4",
+    "deps": [
+      "F1-01",
+      "F1-02",
+      "F1-03",
+      "F0-07"
+    ],
+    "discipline": "ambos",
+    "title": "Nó: gráfico — \"o alfa não é suportado\" tem de falhar no build, não no vídeo",
+    "owned_files": "nos/Grafico.tsx + snapshots",
+    "acceptance": "just no:&lt;nome&gt; → exit 0 · just det:provar --no &lt;nome&gt; — render 2× idêntico · git diff --exit-code fixtures/snapshots/no-&lt;nome&gt;/ combinado com git status --porcelain (porque diff --exit-code não enxerga arquivo não rastreado) · ∅-crit apagar um snapshot aprovado tem de ficar vermelho",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F1-10",
+    "wave": "W4",
+    "deps": [
+      "F1-01",
+      "F1-02",
+      "F1-03"
+    ],
+    "discipline": "ambos",
+    "title": "Transições e composição de sequência — errar aqui erra a duração de todo vídeo, e o erro é invisível frame a frame",
+    "owned_files": "transicoes/** + snapshots",
+    "acceptance": "just no:&lt;nome&gt; → exit 0 · just det:provar --no &lt;nome&gt; — render 2× idêntico · git diff --exit-code fixtures/snapshots/no-&lt;nome&gt;/ combinado com git status --porcelain (porque diff --exit-code não enxerga arquivo não rastreado) · ∅-crit apagar um snapshot aprovado tem de ficar vermelho",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F1-11",
+    "wave": "W4",
+    "deps": [
+      "F1-01",
+      "F1-02",
+      "F1-03"
+    ],
+    "discipline": "ambos",
+    "title": "Camadas globais: fundo, grade, vinheta — o teste prova que a camada não cobre a safe area",
+    "owned_files": "camadas/** + snapshots",
+    "acceptance": "just no:&lt;nome&gt; → exit 0 · just det:provar --no &lt;nome&gt; — render 2× idêntico · git diff --exit-code fixtures/snapshots/no-&lt;nome&gt;/ combinado com git status --porcelain (porque diff --exit-code não enxerga arquivo não rastreado) · ∅-crit apagar um snapshot aprovado tem de ficar vermelho",
+    "severity": "baixo",
+    "needs_search": false
+  },
+  {
+    "id": "F2-02",
+    "wave": "W4",
+    "deps": [
+      "F2-01",
+      "F0-07",
+      "F0-05"
+    ],
+    "discipline": "ambos",
+    "title": "Resolução: gráfico (Manim headless) — absorve os quirks do 3b1b com citação de origem",
+    "owned_files": "resolucao/grafico/** + cassetes",
+    "acceptance": "just res:&lt;estagio&gt; → exit 0 · just res:offline --estagio &lt;nome&gt; — passa com a rede bloqueada · just res:chave --estagio &lt;nome&gt; — muda um parâmetro por vez, exige cache miss em cada · ∅-crit rg -L '\"licenca\"' fixtures/cassetes/&lt;nome&gt;/**/procedencia.json → vazio",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F2-03",
+    "wave": "W4",
+    "deps": [
+      "F2-01",
+      "F0-07"
+    ],
+    "discipline": "ambos",
+    "title": "Resolução: locução — produz audio e timing. caminho crítico",
+    "owned_files": "resolucao/locucao/** + cassetes",
+    "acceptance": "just res:&lt;estagio&gt; → exit 0 · just res:offline --estagio &lt;nome&gt; — passa com a rede bloqueada · just res:chave --estagio &lt;nome&gt; — muda um parâmetro por vez, exige cache miss em cada · ∅-crit rg -L '\"licenca\"' fixtures/cassetes/&lt;nome&gt;/**/procedencia.json → vazio",
+    "severity": "critico",
+    "needs_search": true
+  },
+  {
+    "id": "F2-04",
+    "wave": "W4",
+    "deps": [
+      "F2-01",
+      "F0-07"
+    ],
+    "discipline": "ambos",
+    "title": "Resolução: mídia externa — um provedor proíbe hotlink, outro o exige: decide qual vale antes de escrever o downloader",
+    "owned_files": "resolucao/midia/** + cassetes",
+    "acceptance": "just res:&lt;estagio&gt; → exit 0 · just res:offline --estagio &lt;nome&gt; — passa com a rede bloqueada · just res:chave --estagio &lt;nome&gt; — muda um parâmetro por vez, exige cache miss em cada · ∅-crit rg -L '\"licenca\"' fixtures/cassetes/&lt;nome&gt;/**/procedencia.json → vazio",
+    "severity": "medio",
+    "needs_search": true
+  },
+  {
+    "id": "F2-05",
+    "wave": "W4",
+    "deps": [
+      "F2-01",
+      "F0-07"
+    ],
+    "discipline": "ambos",
+    "title": "Resolução: destaque de código — nada de busca de tipos em CDN em tempo de execução",
+    "owned_files": "resolucao/codigo/** + cassetes",
+    "acceptance": "just res:&lt;estagio&gt; → exit 0 · just res:offline --estagio &lt;nome&gt; — passa com a rede bloqueada · just res:chave --estagio &lt;nome&gt; — muda um parâmetro por vez, exige cache miss em cada · ∅-crit rg -L '\"licenca\"' fixtures/cassetes/&lt;nome&gt;/**/procedencia.json → vazio",
+    "severity": "medio",
+    "needs_search": false
+  },
+  {
+    "id": "F2-06",
+    "wave": "W4",
+    "deps": [
+      "F2-01",
+      "F0-07"
+    ],
+    "discipline": "ambos",
+    "title": "Resolução: música e efeitos — os efeitos do pacote do fornecedor são URLs remotas; precisam ir para o store",
+    "owned_files": "resolucao/musica/** + cassetes",
+    "acceptance": "just res:&lt;estagio&gt; → exit 0 · just res:offline --estagio &lt;nome&gt; — passa com a rede bloqueada · just res:chave --estagio &lt;nome&gt; — muda um parâmetro por vez, exige cache miss em cada · ∅-crit rg -L '\"licenca\"' fixtures/cassetes/&lt;nome&gt;/**/procedencia.json → vazio",
+    "severity": "medio",
+    "needs_search": true
+  },
+  {
+    "id": "F1-12",
+    "wave": "W5",
+    "deps": [
+      "F0-06",
+      "F1-04",
+      "F1-11"
+    ],
+    "discipline": "caract.",
+    "title": "Suíte integrada de composição — é aqui que \"merge limpo ≠ integração\" aparece ou não join 9",
+    "owned_files": "tests/integracao/composicao/** · fixtures/snapshots/integrado/**",
+    "acceptance": "just int:composicao → exit 0 · just det:provar --integrado — 2× idêntico · ∅-crit remover um nó da fixture tem de ficar vermelho por ausência , e não passar por \"menos frames para comparar\"",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F2-07",
+    "wave": "W5",
+    "deps": [
+      "F2-02",
+      "F2-06"
+    ],
+    "discipline": "caract.",
+    "title": "Suíte offline de resolução e o guarda de rede — prova que o pipeline abaixo da autoria roda sem rede join 5",
+    "owned_files": "tests/integracao/resolucao/** · tools/offline-guard.*",
+    "acceptance": "just res:offline → exit 0 com a rede bloqueada · ∅-crit um estágio novo sem cassete tem de derrubar a suíte",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F3-01",
+    "wave": "W5",
+    "deps": [
+      "F2-01",
+      "F2-03"
+    ],
+    "discipline": "tdd",
+    "title": "Timing canônico — três consumidores, uma fonte caminho crítico",
+    "owned_files": "src/sincronia/timing/** · schema/timing.schema.json",
+    "acceptance": "just timing:testar — a fixture canônica produz timing válido e monotônico · just timing:determinismo — 2× idêntico · ∅-crit um timing com palavra fora de ordem, com sobreposição ou com duração negativa tem de ser rejeitado",
+    "severity": "critico",
+    "needs_search": true
+  },
+  {
+    "id": "F4-01",
+    "wave": "W5",
+    "deps": [
+      "F0-02",
+      "F2-01"
+    ],
+    "discipline": "tdd",
+    "title": "Contrato de autoria: saída estruturada e cache — o LLM decide narrativa; o sistema decide frames, layout e cor",
+    "owned_files": "src/autoria/contrato/**",
+    "acceptance": "just autoria:contrato → exit 0 · just autoria:cache — a mesma entrada não chama a API duas vezes; mudar qualquer componente da chave gera miss · ∅-crit uma saída que não valida contra o schema tem de ser rejeitada antes de tocar o pipeline",
+    "severity": "medio",
+    "needs_search": true
+  },
+  {
+    "id": "F4-02",
+    "wave": "W5",
+    "deps": [
+      "F0-01",
+      "F0-02"
+    ],
+    "discipline": "tdd",
+    "title": "Biblioteca de prompt e decomposição narrativa preenchedor de folga",
+    "owned_files": "docs/autoria/prompts/**",
+    "acceptance": "just prompts:testar — cada prompt tem um caso de referência cuja saída valida contra o schema · ∅-crit rg -L \"^versao:\" docs/autoria/prompts/*.md → vazio",
+    "severity": "baixo",
+    "needs_search": true
+  },
+  {
+    "id": "F3-02",
+    "wave": "W6",
+    "deps": [
+      "F3-01",
+      "F1-05",
+      "F0-04"
+    ],
+    "discipline": "ambos",
+    "title": "Legendas a partir do timing — o invariante é em segundos, nunca em frames",
+    "owned_files": "src/sincronia/legendas/**",
+    "acceptance": "just legendas · ∅-crit apagar a regra de caracteres-por-segundo tem de ficar vermelho · o invariante é em SEGUNDOS, nunca em frames: duração &gt;= max(0,833 s; caracteres/20) e &lt;= 7 s [R14-01·R14-11 (2-0)] . Num manifesto frame-based , esta é a regra que mais provavelmente será reescrita em frames por conveniência — e 20 frames a 60 fps são 0,333 s, quatro vezes abaixo do piso , em silêncio",
+    "severity": "critico",
+    "needs_search": true
+  },
+  {
+    "id": "F3-03",
+    "wave": "W6",
+    "deps": [
+      "F3-01",
+      "F0-04"
+    ],
+    "discipline": "tdd",
+    "title": "Envelope de ducking — calculado, não um compressor cuja saída muda entre versões",
+    "owned_files": "src/sincronia/ducking/**",
+    "acceptance": "just ducking · ∅-crit um trecho com locução e sem atenuação tem de ficar vermelho",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F3-04",
+    "wave": "W6",
+    "deps": [
+      "F3-01"
+    ],
+    "discipline": "tdd",
+    "title": "Ritmo: corte de silêncio e cadência — o teste prova que nenhuma palavra foi cortada",
+    "owned_files": "src/sincronia/ritmo/**",
+    "acceptance": "just ritmo · ∅-crit o teste que prova que nenhuma palavra foi cortada",
+    "severity": "medio",
+    "needs_search": false
+  },
+  {
+    "id": "F4-03",
+    "wave": "W6",
+    "deps": [
+      "F4-01",
+      "F0-02"
+    ],
+    "discipline": "tdd",
+    "title": "Validação e reparo do manifesto gerado — irreparável é rejeitado, nunca \"melhorado\" até passar",
+    "owned_files": "src/autoria/reparo/**",
+    "acceptance": "just autoria:reparo · ∅-crit um manifesto irreparável tem de ser rejeitado, nunca \"melhorado\" até passar",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F4-04",
+    "wave": "W6",
+    "deps": [
+      "F4-01",
+      "F2-07"
+    ],
+    "discipline": "caract.",
+    "title": "Cassete de autoria e a suíte de rejeição — só os manifestos bons não testa nada",
+    "owned_files": "fixtures/cassetes/autoria/** · tests/autoria/**",
+    "acceptance": "just autoria:offline · ∅-crit um manifesto inválido que passa tem de derrubar a suíte",
+    "severity": "medio",
+    "needs_search": false
+  },
+  {
+    "id": "I-03",
+    "wave": "W6.5",
+    "deps": [
+      "T-08"
+    ],
+    "discipline": "—",
+    "title": "Máquina de render: RAM por worker, ponto de saturação, sessões de encode, throughput de disco — cada número com o comando que o reproduz",
+    "owned_files": "docs/medicao/maquina.md · ADR-0006",
+    "acceptance": "∅-crit rg -L \"comando:\" docs/medicao/maquina.md → vazio — todo número traz o comando que o reproduz · just medir:maquina --conferir compara os números do documento com uma medição curta e falha se divergirem além da tolerância declarada",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F3-05",
+    "wave": "W7",
+    "deps": [
+      "F3-03",
+      "F2-06"
+    ],
+    "discipline": "ambos",
+    "title": "Trilha de áudio composta — \"a música cobre a locução?\" meça, não escute",
+    "owned_files": "src/audio/mix/**",
+    "acceptance": "just audio:mix · determinismo 2× · ∅-crit um mix sem locução tem de ficar vermelho",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F5-01",
+    "wave": "W7",
+    "deps": [
+      "F1-12",
+      "F2-07",
+      "I-03"
+    ],
+    "discipline": "tdd",
+    "title": "Pipeline de render e paralelismo — render por faixa + concatenação tem de bater byte a byte com o render inteiro",
+    "owned_files": "src/render/pipeline/**",
+    "acceptance": "just render:fixture · ∅-crit render por faixa de frames + concatenação tem de bater byte a byte com o render inteiro",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F5-02",
+    "wave": "W7",
+    "deps": [
+      "F0-04",
+      "I-03"
+    ],
+    "discipline": "tdd",
+    "title": "Perfis de encode — hardware e software não se comparam pelo mesmo eixo: um não tem CRF",
+    "owned_files": "src/render/encode/**",
+    "acceptance": "just encode:perfis · ∅-crit um perfil sem alvo de qualidade declarado tem de falhar",
+    "severity": "medio",
+    "needs_search": false
+  },
+  {
+    "id": "F5-04",
+    "wave": "W7",
+    "deps": [
+      "F1-12",
+      "F0-04"
+    ],
+    "discipline": "ambos",
+    "title": "Variantes de proporção — conteúdo fora da safe area de qualquer plataforma fica vermelho",
+    "owned_files": "src/entrega/variantes/**",
+    "acceptance": "just variantes · snapshots por variante · ∅-crit conteúdo fora da safe area de qualquer plataforma tem de ficar vermelho",
+    "severity": "medio",
+    "needs_search": true
+  },
+  {
+    "id": "F5-05",
+    "wave": "W7",
+    "deps": [
+      "F1-12",
+      "F0-04"
+    ],
+    "discipline": "ambos",
+    "title": "Thumbnail — gerado do mesmo manifesto, nunca digitado à parte",
+    "owned_files": "src/entrega/thumbnail/**",
+    "acceptance": "just thumb · determinismo · ∅-crit thumbnail com contraste abaixo do mínimo tem de falhar",
+    "severity": "baixo",
+    "needs_search": false
+  },
+  {
+    "id": "F5-06",
+    "wave": "W7",
+    "deps": [
+      "F0-07",
+      "F2-04",
+      "F2-06"
+    ],
+    "discipline": "tdd",
+    "title": "Relatório de procedência — cobre assets transitivos; permite reavaliar o já produzido sem re-renderizar",
+    "owned_files": "src/entrega/procedencia/**",
+    "acceptance": "just procedencia · ∅-crit um asset no vídeo final sem origem declarada tem de bloquear a entrega",
+    "severity": "medio",
+    "needs_search": false
+  },
+  {
+    "id": "F5-03",
+    "wave": "W8",
+    "deps": [
+      "F3-05",
+      "F0-04"
+    ],
+    "discipline": "ambos",
+    "title": "Pós-processamento: loudness e sidecar — true peak conferido depois da codificação caminho crítico",
+    "owned_files": "src/entrega/pos/**",
+    "acceptance": "just pos · ∅-crit um entregável fora do alvo de LUFS tem de bloquear",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F5-09",
+    "wave": "W8",
+    "deps": [
+      "F5-01",
+      "F0-07"
+    ],
+    "discipline": "tdd",
+    "title": "Cache de render e invalidação — por conteúdo, nunca por data; por data é falso verde",
+    "owned_files": "src/render/cache/**",
+    "acceptance": "just render:cache · ∅-crit mudar um token de design tem de invalidar o cache de render",
+    "severity": "medio",
+    "needs_search": false
+  },
+  {
+    "id": "F5-07",
+    "wave": "W9",
+    "deps": [
+      "F4-03",
+      "F5-01",
+      "F5-02",
+      "F5-03",
+      "F5-04",
+      "F5-05",
+      "F5-06"
+    ],
+    "discipline": "ambos",
+    "title": "Orquestrador de ponta a ponta — um comando: tema → entrega completa join 7",
+    "owned_files": "src/pipeline/** · alvo produzir · tests/e2e/**",
+    "acceptance": "just produzir --fixture canonico --estrito → exit 0 e produz todos os artefatos de entrega · ∅-crit remover qualquer artefato de entrega esperado tem de ficar vermelho por ausência, com o nome do artefato",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "I-04",
+    "wave": "W9.5",
+    "deps": [
+      "I-01"
+    ],
+    "discipline": "—",
+    "title": "Canal de publicação e política editorial — a pergunta que nenhum agente pode responder: o que conta como vídeo publicável, em nome de quem",
+    "owned_files": "docs/politica-editorial.md · ADR-0007",
+    "acceptance": "∅-crit rg -L \"alavanca-mestra\" docs/runbooks/*.md → vazio — todo runbook subordinado cita a alavanca maior",
+    "severity": "medio",
+    "needs_search": false
+  },
+  {
+    "id": "F5-08",
+    "wave": "W10",
+    "deps": [
+      "F5-07",
+      "F0-06"
+    ],
+    "discipline": "caract.",
+    "title": "W10 · Golden master de ponta a ponta: manifesto resolvido + frames-chave + envelope de áudio",
+    "owned_files": "fixtures/gm/**",
+    "acceptance": "just gm:e2e · 2× idêntico · ∅-crit qualquer mudança de token, de fonte ou de versão de ferramenta tem de acender o diff",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F6-01",
+    "wave": "W10",
+    "deps": [
+      "F5-07",
+      "F5-06"
+    ],
+    "discipline": "tdd",
+    "title": "W10 · Checklist de revisão humana — entrega sem dossiê bloqueia a publicação",
+    "owned_files": "docs/revisao/**",
+    "acceptance": "just revisar gera o dossiê · ∅-crit entrega sem dossiê tem de bloquear a publicação",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F6-02",
+    "wave": "W11",
+    "deps": [
+      "F6-01",
+      "F5-08"
+    ],
+    "discipline": "—",
+    "title": "W11 · Runbook de publicação — nasce ENCERRADO COMO CONSTRUÍDO E NÃO DISPARADO",
+    "owned_files": "docs/runbooks/publicacao.md",
+    "acceptance": "∅-crit rg -L \"## O que este documento NÃO cobre\" docs/runbooks/*.md → vazio · rg -q \"GATE P-1\" docs/runbooks/publicacao.md",
+    "severity": "critico",
+    "needs_search": true
+  },
+  {
+    "id": "F6-03",
+    "wave": "W11",
+    "deps": [
+      "F6-01"
+    ],
+    "discipline": "—",
+    "title": "W11 · Gates numerados de publicação — um veredito CONFERE sem evidência anexada falha",
+    "owned_files": "docs/gates/**",
+    "acceptance": "just gates:validar · ∅-crit um gate com veredito CONFERE sem evidência anexada tem de falhar",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F6-04",
+    "wave": "W11",
+    "deps": [
+      "F0-03",
+      "F5-08"
+    ],
+    "discipline": "tdd",
+    "title": "W11 · Fechamento do ledger — zero itens abertos nas categorias bloqueantes, com allowlist explícita",
+    "owned_files": "ledger/fechamento.md",
+    "acceptance": "python3 tools/validate-ledger.py --exigir-fechados --categoria plataforma,infra,operacao · ∅-crit um item fechado com evidência da lista negra tem de falhar · --permitir-aberto AB-950 com justificativa exigida — allowlist explícita, nunca silenciosa",
+    "severity": "critico",
+    "needs_search": false
+  },
+  {
+    "id": "F6-05",
+    "wave": "W12",
+    "deps": [
+      "F6-02",
+      "F6-03",
+      "F6-04"
+    ],
+    "discipline": "—",
+    "title": "W12 · Arquivamento e escopo negativo — congela por escrito o que era vivo, o que morreu e o que virou manual",
+    "owned_files": "docs/arquivamento.md",
+    "acceptance": "∅-crit rg -L \"virou manual\" docs/arquivamento.md → vazio quando existir gate removido",
+    "severity": "medio",
+    "needs_search": false
+  }
+]

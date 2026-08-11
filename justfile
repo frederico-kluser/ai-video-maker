@@ -69,6 +69,22 @@ install:
     npm install
     @echo "Python dependencies: run 'uv sync' or 'pip install -e .[dev]'"
 
+# Roda o validador de grafo
+validar-grafo:
+    python3 tools/validate-graph.py tools/cards.json
+
+# Roda o autoteste do validador
+validar-grafo:selftest:
+    python3 tools/validate-graph_selftest.py
+
+# Gera a tabela de ondas
+ondas:gerar:
+    python3 tools/gerar-tabela-de-ondas.py tools/cards.json
+
+# Gera prompt de um card (ex: just prompt:card F0-01)
+prompt:card card_id:
+    python3 tools/gerar-prompt-de-card.py {{card_id}} tools/cards.json
+
 # Skills infrastructure
 skills:lint:
     python3 .agents/scripts/skill_lint.py
@@ -79,6 +95,5 @@ skills:test:
 skills:catalogo:
     python3 .agents/scripts/gerar-catalogo.py
     git diff --exit-code .agents/skills/catalog.md || (echo "ERROR: catalog.md is out of date. Run 'just skills:catalogo' to regenerate." && exit 1)
-
 # Alias
 default: build
