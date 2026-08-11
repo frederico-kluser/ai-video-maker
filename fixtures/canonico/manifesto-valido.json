@@ -3,7 +3,7 @@
   "fps": 30,
   "width": 1920,
   "height": 1080,
-  "duracao_total_frames": 930,
+  "duracao_total_frames": 727,
   "nos": [
     {
       "id": "n-001",
@@ -121,7 +121,11 @@
       "duracao_frames": 180,
       "codigo": "import { Composition } from 'remotion';\nimport { Manifesto } from './contratos/manifesto';\n\nexport const VideoEditor: React.FC<{ manifesto: Manifesto }> = ({ manifesto }) => {\n  return manifesto.cenas.map((cena) => (\n    <Sequence key={cena.id}>\n      {cena.nos.map((nodeId) => renderNode(nodeId))}\n    </Sequence>\n  ));\n};",
       "linguagem": "typescript",
-      "linhas_destaque": [1, 3, 5],
+      "linhas_destaque": [
+        1,
+        3,
+        5
+      ],
       "nome_arquivo": "VideoEditor.tsx",
       "animacao": {
         "tipo": "slide",
@@ -137,12 +141,36 @@
       "tipo_grafico": "barras",
       "titulo": "Tempo de Render por Tipo de Nó (ms)",
       "dados": [
-        { "rotulo": "Cabeçalho", "valor": 45, "cor": "#3B82F6" },
-        { "rotulo": "Texto", "valor": 32, "cor": "#22C55E" },
-        { "rotulo": "Lista", "valor": 78, "cor": "#F59E0B" },
-        { "rotulo": "Mídia", "valor": 210, "cor": "#EF4444" },
-        { "rotulo": "Código", "valor": 156, "cor": "#A855F7" },
-        { "rotulo": "Gráfico", "valor": 95, "cor": "#06B6D4" }
+        {
+          "rotulo": "Cabeçalho",
+          "valor": 45,
+          "cor": "#3B82F6"
+        },
+        {
+          "rotulo": "Texto",
+          "valor": 32,
+          "cor": "#22C55E"
+        },
+        {
+          "rotulo": "Lista",
+          "valor": 78,
+          "cor": "#F59E0B"
+        },
+        {
+          "rotulo": "Mídia",
+          "valor": 210,
+          "cor": "#EF4444"
+        },
+        {
+          "rotulo": "Código",
+          "valor": 156,
+          "cor": "#A855F7"
+        },
+        {
+          "rotulo": "Gráfico",
+          "valor": 95,
+          "cor": "#06B6D4"
+        }
       ],
       "animacao": {
         "tipo": "scale",
@@ -157,11 +185,26 @@
       "tipo_grafico": "linha",
       "titulo": "Evolução do Tempo Total de Render",
       "dados": [
-        { "rotulo": "Dia 1", "valor": 1200 },
-        { "rotulo": "Dia 2", "valor": 980 },
-        { "rotulo": "Dia 3", "valor": 750 },
-        { "rotulo": "Dia 4", "valor": 620 },
-        { "rotulo": "Dia 5", "valor": 510 }
+        {
+          "rotulo": "Dia 1",
+          "valor": 1200
+        },
+        {
+          "rotulo": "Dia 2",
+          "valor": 980
+        },
+        {
+          "rotulo": "Dia 3",
+          "valor": 750
+        },
+        {
+          "rotulo": "Dia 4",
+          "valor": 620
+        },
+        {
+          "rotulo": "Dia 5",
+          "valor": 510
+        }
       ]
     },
     {
@@ -172,12 +215,36 @@
       "tipo_grafico": "pizza",
       "titulo": "Distribuição de Tipos de Nó",
       "dados": [
-        { "rotulo": "Texto", "valor": 35, "cor": "#3B82F6" },
-        { "rotulo": "Cabeçalho", "valor": 20, "cor": "#22C55E" },
-        { "rotulo": "Mídia", "valor": 15, "cor": "#F59E0B" },
-        { "rotulo": "Código", "valor": 15, "cor": "#EF4444" },
-        { "rotulo": "Gráfico", "valor": 10, "cor": "#A855F7" },
-        { "rotulo": "Lista", "valor": 5, "cor": "#06B6D4" }
+        {
+          "rotulo": "Texto",
+          "valor": 35,
+          "cor": "#3B82F6"
+        },
+        {
+          "rotulo": "Cabeçalho",
+          "valor": 20,
+          "cor": "#22C55E"
+        },
+        {
+          "rotulo": "Mídia",
+          "valor": 15,
+          "cor": "#F59E0B"
+        },
+        {
+          "rotulo": "Código",
+          "valor": 15,
+          "cor": "#EF4444"
+        },
+        {
+          "rotulo": "Gráfico",
+          "valor": 10,
+          "cor": "#A855F7"
+        },
+        {
+          "rotulo": "Lista",
+          "valor": 5,
+          "cor": "#06B6D4"
+        }
       ]
     },
     {
@@ -187,9 +254,18 @@
       "duracao_frames": 90,
       "tipo_grafico": "area",
       "dados": [
-        { "rotulo": "Jan", "valor": 100 },
-        { "rotulo": "Fev", "valor": 200 },
-        { "rotulo": "Mar", "valor": 150 }
+        {
+          "rotulo": "Jan",
+          "valor": 100
+        },
+        {
+          "rotulo": "Fev",
+          "valor": 200
+        },
+        {
+          "rotulo": "Mar",
+          "valor": 150
+        }
       ]
     },
     {
@@ -199,9 +275,18 @@
       "duracao_frames": 90,
       "tipo_grafico": "dispersao",
       "dados": [
-        { "rotulo": "A", "valor": 1.5 },
-        { "rotulo": "B", "valor": 3.2 },
-        { "rotulo": "C", "valor": 2.8 }
+        {
+          "rotulo": "A",
+          "valor": 1.5
+        },
+        {
+          "rotulo": "B",
+          "valor": 3.2
+        },
+        {
+          "rotulo": "C",
+          "valor": 2.8
+        }
       ]
     },
     {
@@ -226,7 +311,9 @@
   "cenas": [
     {
       "id": "c-001",
-      "nos": ["n-001"],
+      "nos": [
+        "n-001"
+      ],
       "transicao_saida": {
         "tipo": "fade",
         "duracao_frames": 15
@@ -234,12 +321,10 @@
     },
     {
       "id": "c-002",
-      "nos": ["n-002", "n-003"],
-      "transicao_entrada": {
-        "tipo": "slide",
-        "duracao_frames": 15,
-        "direcao": "from-left"
-      },
+      "nos": [
+        "n-002",
+        "n-003"
+      ],
       "transicao_saida": {
         "tipo": "wipe",
         "duracao_frames": 20,
@@ -248,11 +333,11 @@
     },
     {
       "id": "c-003",
-      "nos": ["n-005", "n-008", "n-004"],
-      "transicao_entrada": {
-        "tipo": "flip",
-        "duracao_frames": 12
-      },
+      "nos": [
+        "n-005",
+        "n-008",
+        "n-004"
+      ],
       "transicao_saida": {
         "tipo": "clockWipe",
         "duracao_frames": 18,
@@ -268,12 +353,13 @@
     },
     {
       "id": "c-004",
-      "nos": ["n-009", "n-010", "n-011", "n-012", "n-013"],
-      "transicao_entrada": {
-        "tipo": "cube",
-        "duracao_frames": 24,
-        "direcao": "from-bottom"
-      },
+      "nos": [
+        "n-009",
+        "n-010",
+        "n-011",
+        "n-012",
+        "n-013"
+      ],
       "audio_cena": {
         "hash_locucao": "d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5",
         "volume": 0.9,
@@ -282,11 +368,12 @@
     },
     {
       "id": "c-005",
-      "nos": ["n-014", "n-006", "n-007", "n-015"],
-      "transicao_entrada": {
-        "tipo": "none",
-        "duracao_frames": 0
-      },
+      "nos": [
+        "n-014",
+        "n-006",
+        "n-007",
+        "n-015"
+      ],
       "transicao_saida": {
         "tipo": "fade",
         "duracao_frames": 30
@@ -295,6 +382,10 @@
         "hash_locucao": "e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6",
         "volume": 0.85,
         "texto_locucao": "Concluindo, o manifesto é a peça central do pipeline. Obrigado por assistir."
+      },
+      "transicao_entrada": {
+        "tipo": "none",
+        "duracao_frames": 0
       }
     }
   ],

@@ -1,1 +1,434 @@
-[]
+[
+  {
+    "id": "AB-240",
+    "titulo": "O schema deixa a mesma transicao ser declarada dos dois lados da fronteira",
+    "pergunta": "Uma sobreposicao entre duas cenas deve ser declarada uma vez (lista de fronteiras) ou continua declaravel por `cenas[i].transicao_saida` e `cenas[i+1].transicao_entrada` ao mesmo tempo?",
+    "por_que_aberto": "O schema atual permite as duas declaracoes e nao exige que concordem. Na fixture canonica de F0-09 elas DISCORDAM em tres das quatro fronteiras (wipe 20 contra flip 12; clockWipe 18 contra cube 24). Exigir concordancia reprovaria a propria fixture canonica; somar os dois campos conta a mesma sobreposicao duas vezes e encurta o video de 727 para 674 frames sem erro nenhum. F1-01 adotou precedencia (saida da anterior manda) porque precisava de um numero hoje, mas quem responde e o dono do contrato, nao o card de composicao.",
+    "decisao_provisoria": "Uma fronteira por par de cenas adjacentes. Duracao vem de `transicao_saida` da cena anterior; se ausente, de `transicao_entrada` da seguinte; se nenhuma, corte seco. Entrada da primeira cena e saida da ultima nao tem par e nao descontam nada. Registrado em docs/adr/0006-composicao-raiz.md, D2.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/testar.test.ts -t \"mesma fronteira declarada dos DOIS lados\"",
+      "espera": "1 teste passa: com a fronteira declarada dos dois lados, o total continua 250 frames (nao 200)",
+      "ambiente": "worktree do repo, node 24, vitest 3"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o contrato passar a exigir fronteira unica, o schema muda (S-4) e a fixture canonica muda junto; se passar a somar os dois campos, toda duracao ja calculada encolhe e os snapshots de render precisam ser recapturados.",
+      "artefatos": [
+        "schema/manifesto.schema.json",
+        "fixtures/canonico/manifesto-valido.json",
+        "src/composicao/tempo.ts",
+        "tests/composicao/testar.test.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-241",
+    "titulo": "Os nos de midia de W4 precisam de <Sequence> para deslocar audio e video",
+    "pergunta": "O envelope <Sequence> e suficiente para que <Audio> e <OffthreadVideo> dentro de um no recebam o deslocamento temporal correto, ou os nos de midia precisam receber tambem o frame absoluto por prop?",
+    "por_que_aberto": "F1-01 fixou o contrato do no como funcao pura de props e nenhum no chama useCurrentFrame(). No render de verdade o envelope e <Sequence>, que desloca o relogio interno do Remotion — que e o que a midia usa. Isso nao foi exercitado: nenhum no de F1 carrega asset. So um no de midia real (W4) prova.",
+    "decisao_provisoria": "Manter o envelope injetavel: EnvelopeSequence no render, EnvelopeJanela no teste. Um teste percorre a arvore de producao e exige que cada <Sequence> receba from/durationInFrames/name identicos aos do plano.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/testar.test.ts -t \"envelope de producao\"",
+      "espera": "2 testes passam: cada faixa vira um <Sequence> com a janela do plano e a composicao registrada usa a duracao derivada",
+      "ambiente": "worktree do repo, node 24, remotion 4.0.507"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se <Sequence> nao bastar, o contrato de no ganha um campo (frame absoluto ou offset da cena) e os oito nos de W4 mudam de assinatura ao mesmo tempo.",
+      "artefatos": [
+        "src/composicao/contrato-de-no.ts",
+        "src/composicao/raiz.tsx",
+        "src/composicao/ManifestoRaiz.tsx"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-242",
+    "titulo": "src/composicao/registro.ts e um registro central, que a Regra 6 proibe",
+    "pergunta": "O espelho estatico de nos (registro.ts), guardado por gate de divergencia contra o disco, e uma excecao aceitavel a Regra 6, ou o projeto quer descoberta no proprio bundle (require.context / import.meta.glob)?",
+    "por_que_aberto": "AGENTS.md, Regra 6, proibe registro central. Mas o bundle de render nao tem node:fs: importar descoberta.ts na raiz quebraria o render no navegador. F1-01 separou fronteira de registro (le disco, valida, estoura) de fronteira de render (imports estaticos) e pos um gate que reprova divergencia. A alternativa (magia do bundler) amarra a composicao ao webpack do Remotion e nao roda no tsc.",
+    "decisao_provisoria": "Manter registro.ts como espelho verificado. O disco continua sendo a verdade; a divergencia e vermelha. Registrado em docs/adr/0006-composicao-raiz.md, D3.",
+    "verificacao": {
+      "cmd": "just comp-unicidade",
+      "espera": "sai 0; inclui os tres testes de 'registro x disco' comparando tipos, meta e nome de componente",
+      "ambiente": "worktree do repo, node 24, just 1.42"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a Regra 6 for aplicada ao pe da letra, registro.ts sai e a descoberta passa a acontecer no bundler, o que muda o ponto de entrada do Remotion e o gate de unicidade.",
+      "artefatos": [
+        "src/composicao/registro.ts",
+        "src/composicao/raiz.tsx",
+        "tests/composicao/unicidade.test.ts",
+        "AGENTS.md"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-243",
+    "titulo": "O PROGRAMA nomeia receitas com dois-pontos e o just 1.42 nao parseia isso",
+    "pergunta": "As receitas do PROGRAMA que usam dois-pontos (comp:testar, det:provar, skills:lint, res:offline...) viram hifen no justfile, viram modulos do just (invocados com ::), ou o PROGRAMA passa a escrever hifen?",
+    "por_que_aberto": "just 1.42.4 nao aceita ':' em nome de receita: o ':' separa nome de dependencia. O justfile do HEAD (commit 9e99ad7) nao parseava — 'just --list' saia 1 no erro da linha 138, e portanto NENHUMA receita do repositorio rodava, incluindo as de cards ja mergeados. F0-04 ja tinha contornado com 'design-varrer' e F0-02 com 'contrato_gerar', mas cards posteriores voltaram ao dois-pontos. F1-01 renomeou dez receitas existentes (so a linha do nome) para destravar os proprios gates, o que contraria a regra de nao editar receita de outro card.",
+    "decisao_provisoria": "Nome com hifen no justfile, mantendo o nome com dois-pontos do PROGRAMA apenas como texto do card. Bloco de F1-01 delimitado por '# === F1-01 ==='. Os dez renomes estao listados no handoff do card.",
+    "verificacao": {
+      "cmd": "just --list",
+      "espera": "sai 0 e lista as receitas, incluindo comp-pureza, comp-unicidade e comp-testar",
+      "ambiente": "worktree do repo, just 1.42.4"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o programa insistir no dois-pontos, o justfile precisa virar modulos do just (invocacao com '::') e todo card que cita 'just x:y' muda de comando; se ficar hifen, o PROGRAMA e os cards de W4 em diante precisam ser reescritos.",
+      "artefatos": [
+        "justfile",
+        "PROGRAMA.html",
+        "tools/cards.json",
+        "tools/gate.sh"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "agentes-worktrees",
+    "responde": "operacao",
+    "antecedencia": "commit",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-244",
+    "titulo": "A fixture canonica declara 930 frames e a aritmetica subtrativa da 727",
+    "pergunta": "O campo duracao_total_frames do manifesto e derivado (e deve ser conferido contra o calculo) ou e anotacao humana informativa que ninguem verifica?",
+    "por_que_aberto": "fixtures/canonico/manifesto-valido.json declara duracao_total_frames = 930. A soma das cenas e 780 e as fronteiras somam 53, entao a composicao tem 727 frames. Os dois numeros nao se explicam um pelo outro (930 nao e nem a soma das duracoes dos nos, que da 1515). Se o campo for normativo, ou a fixture esta errada ou o calculo esta; se for informativo, ele e um valor que ninguem confere dentro de um manifesto cuja proposta e ser a fonte unica de verdade.",
+    "decisao_provisoria": "Tratar duracao_total_frames como informativo e nao usa-lo em lugar nenhum: a duracao vem sempre de calcularDuracao(). O gate nao compara os dois, e por isso esta divergencia esta aqui em vez de virar teste vermelho.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/testar.test.ts -t \"total = 780 - 53 = 727 frames\"",
+      "espera": "1 teste passa com totalFrames = 727, diferente dos 930 declarados na fixture",
+      "ambiente": "worktree do repo, node 24, vitest 3"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o campo for normativo, a fixture canonica muda (ou o calculo muda) e todo snapshot de render derivado dela e recapturado.",
+      "artefatos": [
+        "fixtures/canonico/manifesto-valido.json",
+        "schema/manifesto.schema.json",
+        "src/composicao/tempo.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-245",
+    "titulo": "O type-check do repositorio inteiro esta vermelho desde antes desta onda",
+    "pergunta": "Quem conserta o import de Procedencia em tests/store/store.test.ts, que deixa 'npx tsc --noEmit' vermelho no HEAD e derruba build, lint, typecheck e tools/gate.sh?",
+    "por_que_aberto": "No commit fcf9548 (onda2-store-conteudo), src/store/store.ts importa o tipo Procedencia de ./procedencia.js mas nao o reexporta; tests/store/store.test.ts importa Procedencia de src/store/store.js. tsc acusa TS2459 e sai 1. Isso ja estava no HEAD antes de F1-01 e nao e arquivo deste card. F1-01 nao mexeu: escopou o proprio type-check em tsconfig.composicao.json para reprovar pelo proprio codigo, e nao pelo de outro card.",
+    "decisao_provisoria": "Nao tocar em arquivo de outro card. O gate de F1-01 usa tsconfig.composicao.json; o type-check do repositorio inteiro continua vermelho ate o dono de src/store/ reexportar o tipo (uma linha) ou o teste importar de src/store/procedencia.js.",
+    "verificacao": {
+      "cmd": "npx tsc --noEmit",
+      "espera": "sai 0 sem nenhum erro; hoje sai 1 com TS2459 em tests/store/store.test.ts:21",
+      "ambiente": "worktree do repo, node 24, typescript 5.9"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Enquanto ficar vermelho, build, lint, typecheck e tools/gate.sh saem vermelhos para todo card da onda, e o gate geral perde poder de reprovar: quem olhar so o veredito nao distingue erro novo de erro herdado.",
+      "artefatos": [
+        "src/store/store.ts",
+        "tests/store/store.test.ts",
+        "tools/gate.sh",
+        "justfile"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "commit",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-270",
+    "titulo": "O ∅-crit de licenca do card usa uma flag que significa outra coisa",
+    "pergunta": "O criterio `rg -L \"licenca:\" assets/fontes/*.md` -> vazio realmente verifica que toda ficha declara licenca, ou verifica o contrario?",
+    "por_que_aberto": "Em ripgrep, -L e --follow (seguir links simbolicos). A flag que lista arquivos SEM correspondencia e --files-without-match, que nao tem forma curta. Com -L, o comando imprime as LINHAS que casam: ele sai vazio exatamente quando NENHUMA ficha declara licenca, que e a falha que o criterio queria pegar. O criterio, do jeito que esta escrito, e um falso verde perfeito: apagar a palavra 'licenca:' de todas as fichas faz ele passar.",
+    "decisao_provisoria": "O gate `just fontes-licenca` usa `rg --files-without-match \"licenca:\" assets/fontes/*.md`, que exprime a intencao, e o teste tests/design/font-resolve.test.ts assere o mesmo criterio em codigo. O comando literal do card fica registrado aqui como armadilha conhecida.",
+    "verificacao": {
+      "cmd": "rg --files-without-match \"licenca:\" assets/fontes/*.md; test $? -eq 1",
+      "espera": "exit 1 e saida vazia: nenhum arquivo .md sem 'licenca:'",
+      "ambiente": "ripgrep 15.0.0, Linux"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se outros cards copiarem o padrao `rg -L` como prova de ausencia, cada um deles vira um gate que passa justamente quando o requisito nao foi cumprido.",
+      "artefatos": [
+        "justfile",
+        "tests/design/font-resolve.test.ts",
+        "docs/adr/0006-fontes-locais-embutidas.md"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "assets-licenca",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-271",
+    "titulo": "justfile inteiro nao parseia: `just fontes:testar` e impossivel",
+    "pergunta": "As receitas com ':' no nome (validar-grafo:selftest, det:provar, skills:lint, ...) vao ser renomeadas, ou o projeto vai trocar de task runner?",
+    "por_que_aberto": "just 1.42 nao aceita ':' em nome de receita: ele le `a:b` como 'receita a depende de b', e o ':' final vira erro de sintaxe. O erro esta na linha 138 do justfile desde antes deste card, e um erro de parse e global — nenhuma receita do arquivo roda hoje, nem `just build`. Renomear as dez receitas afetadas invadiria o territorio de F0-02, F0-06 e T-01.",
+    "decisao_provisoria": "O bloco `# === F1-03 ===` usa hifen (fontes-testar, fontes-licenca, fontes-offline), a mesma convencao das receitas que funcionam no arquivo (design-gerar, design-testar, design-varrer). Os comandos equivalentes rodam direto por npx enquanto o justfile estiver quebrado.",
+    "verificacao": {
+      "cmd": "just --list",
+      "espera": "hoje: erro de parse na linha 138. Depois da correcao: lista com fontes-testar, fontes-licenca e fontes-offline",
+      "ambiente": "just 1.42.4, Linux"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Todo criterio de aceitacao escrito como `just x:y` e inexecutavel. Os gates existem em arquivo mas nenhum deles roda pelo caminho documentado.",
+      "artefatos": [
+        "justfile",
+        "tools/gate.sh",
+        "PROGRAMA.html"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-272",
+    "titulo": "public/fontes e link simbolico: bundle self-contained e Windows nao verificados",
+    "pergunta": "O bundle gerado por bundle() copia os bytes das fontes atraves do link simbolico, ou apenas repassa o link e depende do disco local?",
+    "por_que_aberto": "O render local funciona: as tres fontes carregam com status 'loaded' e o still sai correto. Mas @remotion/bundler tem as opcoes symlinkPublicDir e onSymlinkDetected, cuja documentacao avisa que o bundle pode ficar nao-autossuficiente quando o diretorio publico e um link. Isso so importa quando o bundle for empacotado para outra maquina (render distribuido, Lambda), o que ainda nao existe no projeto. Em Windows sem modo desenvolvedor o link nem e criado.",
+    "decisao_provisoria": "Manter o link simbolico relativo public/fontes -> ../assets/fontes, que evita duplicar bytes e nao toca em nenhum arquivo de configuracao compartilhado. Reavaliar quando existir render fora desta maquina.",
+    "verificacao": {
+      "cmd": "npx tsx -e \"import {bundle} from '@remotion/bundler'; import {execSync} from 'node:child_process'; const dir = await bundle({entryPoint:'fixtures/fontes/index.tsx', onProgress:()=>{}, ignoreRegisterRootWarning:true}); console.log(execSync('find ' + dir + \\\" -name Inter-Regular.woff2 -type f\\\").toString())\"",
+      "espera": "o .woff2 aparece como arquivo regular dentro do diretorio do bundle; vazio significa que o bundle so repassou o link",
+      "ambiente": "Linux, Node 24, @remotion/bundler 4.0.507"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um bundle empacotado e enviado para outra maquina renderizaria sem as fontes. Como loadFont() chama cancelRender(), o render falharia alto em vez de sair errado, mas falharia.",
+      "artefatos": [
+        "public/fontes",
+        "src/design/fontes/index.ts",
+        "docs/adr/0006-fontes-locais-embutidas.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "card",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-273",
+    "titulo": "fontFamily.serif nao e embutida e nao tem sonda",
+    "pergunta": "A familia serif dos tokens (Georgia, Times New Roman) vai ser embutida, ou removida dos tokens?",
+    "por_que_aberto": "sans, display e mono resolvem para fontes embutidas e tem sonda no still. serif e uma pilha puramente de sistema: Georgia e Times New Roman nao existem no Chrome Headless Shell do render e nao ha arquivo para elas em assets/fontes/. Um no de composicao que use fontFamily.serif cai em fallback do sistema, que e exatamente C6 — e o gate deste card NAO pega, porque nao ha sonda para uma familia que ninguem prometeu embutir.",
+    "decisao_provisoria": "Nenhuma sonda para serif: prometer o que nao foi embutido deixaria o gate vermelho sem que houvesse trabalho a fazer aqui. O token fica documentado como pilha de sistema, nao embutida.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/design/font-resolve.test.ts -t \"catalogo tem ficha\"",
+      "espera": "verde enquanto serif nao tiver arquivo; se alguem adicionar um arquivo serif em assets/fontes/ sem entrar em FONTES_LOCAIS, fica vermelho",
+      "ambiente": "vitest 3.2.7, Node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um video que use serif sai com a tipografia do sistema, que varia por maquina — e quebra o determinismo alem da tipografia.",
+      "artefatos": [
+        "src/design/tokens.ts",
+        "src/design/fontes/index.ts",
+        "tests/design/font-resolve.test.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-274",
+    "titulo": "Fontes embutidas inteiras, sem subsetting",
+    "pergunta": "Vale reduzir os .woff2 ao subconjunto de glifos que o video usa?",
+    "por_que_aberto": "As tres fontes somam cerca de 318 KB e vao inteiras para dentro de todo bundle. Subsetting cortaria a maior parte, mas muda os bytes: os hashes declarados nas fichas de licenca teriam de ser recalculados, e a OFL-FAQ 1.12 permite subset explicitamente, entao nao ha impedimento juridico. Ainda nao ha medicao de quanto isso custa no tempo de bundle nem no tamanho do artefato final.",
+    "decisao_provisoria": "Embutir os arquivos completos. 318 KB nao aparece perto do custo de um render de video, e subsetting introduz um passo de build que precisaria do proprio gate.",
+    "verificacao": {
+      "cmd": "du -sh assets/fontes/*.woff2",
+      "espera": "cerca de 318 KB no total; reavaliar se passar de 1 MB",
+      "ambiente": "Linux"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Bundle maior do que precisa em todo render. Se um dia houver render distribuido, isso vira custo de transferencia por job.",
+      "artefatos": [
+        "assets/fontes/Inter-Regular.woff2",
+        "assets/fontes/Inter-Bold.woff2",
+        "assets/fontes/JetBrainsMono-Regular.woff2",
+        "assets/fontes/Inter.md",
+        "assets/fontes/JetBrainsMono.md"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "assets-licenca",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-280",
+    "titulo": "Cassete versionado no git nao tem limite de tamanho definido",
+    "pergunta": "Qual o tamanho maximo aceitavel de um diretorio de cassete versionado no repositorio, e o que acontece quando um estagio precisa gravar um asset maior que isso?",
+    "por_que_aberto": "O formato do cassete (ADR-0006, D4) grava os corpos das respostas em fixtures/cassetes/<nome>/<chave>/corpos/<sha256>. Para locucao (audio WAV) e midia (GIF/video) isso pode passar de dezenas de MB por cassete, e o git nao esquece: um blob grande commitado uma vez pesa em todo clone para sempre. F2-01 entregou o formato sem definir teto porque nenhum estagio real existe ainda — os cinco chegam na W4. Definir o teto agora seria chutar; descobrir depois de 200 MB commitados seria caro.",
+    "decisao_provisoria": "Sem teto imposto por ferramenta. Os corpos sao deduplicados por SHA-256 dentro de cada cassete. Se o problema aparecer, a saida ja desenhada e mover corpos para o store de conteudo (F0-07) e deixar no cassete apenas o hash, sem mudar o contrato de estagio.",
+    "verificacao": {
+      "cmd": "du -sh fixtures/cassetes 2>/dev/null || echo '0 (nenhum cassete gravado ainda)'",
+      "espera": "Total abaixo de 100 MB. Acima disso, migrar corpos para o store antes do merge da W4.",
+      "ambiente": "worktree local, apos os cinco cards da W4 gravarem seus cassetes"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Repositorio inflado de forma irreversivel; clone lento para todo agente das ondas seguintes; possivel estouro de limite do host de git.",
+      "artefatos": [
+        "fixtures/cassetes/**",
+        "src/resolucao/cassete/gravador.ts",
+        "docs/adr/0006-contrato-de-estagio-e-cassete.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-281",
+    "titulo": "Camada externa do bloqueio de rede depende de unshare --net, que nao existe em todo ambiente",
+    "pergunta": "Quando 'unshare --map-root-user --net' nao esta disponivel, res-offline deve ficar VERMELHO por nao conseguir provar o bloqueio, ou AMARELO com a camada interna apenas?",
+    "por_que_aberto": "O bloqueio de rede tem duas camadas (ADR-0006, D7): namespace do kernel por fora, guarda em processo por dentro. So a externa cobre subprocesso. Em macOS e em parte dos runners de CI, user namespaces nao estao disponiveis, e a prova cai para a camada interna. Hoje o script avisa em voz alta, marca a sonda de kernel como NAO-EXERCITADA e segue. Se essa e a politica certa e decisao de quem opera o CI, nao de quem escreveu o script.",
+    "decisao_provisoria": "Sem unshare, res-offline imprime aviso explicito, registra a sonda de kernel como NAO-EXERCITADA e continua com a camada em processo. Nao finge que rodou completo, e nao reprova. O card F2-07 (W5), dono de tools/offline-guard.*, revisita isto com o guarda completo.",
+    "verificacao": {
+      "cmd": "unshare --map-root-user --net -- true && echo 'namespace disponivel' || echo 'namespace AUSENTE'",
+      "espera": "'namespace disponivel' na maquina de referencia e no runner de CI escolhido",
+      "ambiente": "maquina do dono e runner de CI"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um estagio que chame a rede via subprocesso (curl, ffmpeg com URL, yt-dlp) passa despercebido no CI, e a suite offline vira verde por ausencia de teste em vez de por bloqueio.",
+      "artefatos": [
+        "tools/resolucao/offline.sh",
+        "tools/resolucao/sonda-rede.ts",
+        "src/resolucao/rede/bloqueio.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-282",
+    "titulo": "Nao existe ferramenta de regravacao em massa de cassetes apos bump de versao do contrato",
+    "pergunta": "Quem regrava os cassetes dos cinco estagios quando VERSAO_CONTRATO muda, e com que orcamento de chamadas pagas a provedores externos?",
+    "por_que_aberto": "A chave de cache inclui versaoContrato (ADR-0006, D3), de proposito: mudar a semantica do contrato invalida todos os cassetes de uma vez. O efeito colateral e que um bump obriga a regravar cinco estagios a mao, cada um com rede e credencial, e cada gravacao custa chamadas reais de TTS, busca de midia e download. F2-01 nao escreveu o comando de regravacao em lote porque nao ha estagio real para exercita-lo.",
+    "decisao_provisoria": "Regravacao manual, um estagio por vez, com 'modo: gravacao' no orquestrador. Bump de VERSAO_CONTRATO exige aviso no handoff do card que o faz, listando os cassetes invalidados.",
+    "verificacao": {
+      "cmd": "grep -rn 'VERSAO_CONTRATO' src/resolucao/contrato.ts && ls fixtures/cassetes 2>/dev/null | wc -l",
+      "espera": "A versao do contrato bate com a gravada em cassete.json de todo cassete existente",
+      "ambiente": "worktree local, apos a W4"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um bump de contrato deixa a suite offline vermelha sem caminho de conserto automatico, e a pressa de destravar leva alguem a relaxar o ∅-crit.",
+      "artefatos": [
+        "src/resolucao/contrato.ts",
+        "src/resolucao/orquestrador.ts",
+        "fixtures/cassetes/**"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "agentes-worktrees",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-283",
+    "titulo": "Corpos de resposta nao sao deduplicados entre cassetes de estagios diferentes",
+    "pergunta": "Dois estagios que baixam o mesmo byte devem compartilhar um unico corpo no store, ou cada cassete deve continuar auto-contido?",
+    "por_que_aberto": "A deduplicacao por SHA-256 hoje acontece dentro de um cassete, nao entre cassetes. O mesmo GIF baixado por midia e por musica ocupa dois lugares no repositorio. Compartilhar economiza espaco mas quebra a propriedade de cassete auto-contido: apagar um cassete passaria a poder quebrar outro, e o replay deixaria de ser local.",
+    "decisao_provisoria": "Cassete auto-contido. A duplicacao entre estagios e aceita em troca de replay local e remocao segura. Reavaliar se AB-280 mostrar que o tamanho e problema real.",
+    "verificacao": {
+      "cmd": "find fixtures/cassetes -path '*/corpos/*' -type f -exec sha256sum {} + 2>/dev/null | awk '{print $1}' | sort | uniq -d | wc -l",
+      "espera": "Numero de corpos duplicados entre cassetes; acima de 20 justifica revisitar a decisao",
+      "ambiente": "worktree local, apos a W4"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a duplicacao crescer sem controle, o repositorio infla; se o compartilhamento for adotado sem cuidado, apagar um cassete quebra o replay de outro em silencio.",
+      "artefatos": [
+        "src/resolucao/cassete/formato.ts",
+        "src/resolucao/cassete/gravador.ts",
+        "fixtures/cassetes/**"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-284",
+    "titulo": "O justfile do repositorio nao parseia: just 1.42 recusa ':' em nome de receita",
+    "pergunta": "O repositorio adota nome de receita com hifen (res-offline, det-provar) ou modulos do just (just res offline), e quem faz a migracao das receitas ja escritas?",
+    "por_que_aberto": "O PROGRAMA.html descreve as aceitacoes como 'just res:offline', 'just det:provar', 'just skills:lint'. O just 1.42.4 nao aceita ':' em nome de receita: 'res:offline:' e lido como receita 'res' com dependencia 'offline', e o ':' final e erro de sintaxe. O arquivo ja contem cinco receitas nesse formato (validar-grafo:selftest, ondas:gerar, prompt:card, skills:*, det:*), vindas de F0-01, F0-06 e F0-08, e por causa delas o justfile inteiro falha ao parsear em qualquer branch — nenhuma receita roda, nem 'just test'. F2-01 nao pode consertar receita de outro card (regra da onda) e usou hifen no proprio bloco.",
+    "decisao_provisoria": "O bloco de F2-01 usa hifen (res-offline, res-cassete, res-chave, res-sem-cassete, res-cobertura, res-sonda, res-schema, res-tudo) e esta sintaticamente valido em isolamento. Enquanto o arquivo nao parsear, as aceitacoes rodam pelos scripts diretos: bash tools/resolucao/offline.sh, npx tsx tools/resolucao/regravar-e-diffar.ts, bash tools/resolucao/sem-cassete.sh.",
+    "verificacao": {
+      "cmd": "just --list >/dev/null 2>&1 && echo 'justfile parseia' || echo 'justfile NAO parseia'",
+      "espera": "'justfile parseia' apos a migracao dos nomes de receita",
+      "ambiente": "worktree local, just 1.42.4"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Toda aceitacao escrita como 'just <algo>:<algo>' e inexecutavel; cards fecham reportando comandos que nunca rodaram, e o gate perde a etapa inteira sem ficar vermelho.",
+      "artefatos": [
+        "justfile",
+        "PROGRAMA.html",
+        "tools/gate.sh",
+        "docs/contrato-estagio-resolucao.md"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "agentes-worktrees",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-285",
+    "titulo": "Testes Python nomeados *_test.py nunca sao coletados: o pytest do projeto so casa test_*.py",
+    "pergunta": "O projeto padroniza test_*.py (o que o pyproject.toml ja configura) ou *_test.py (o que os arquivos existentes usam), e quem renomeia os que ficaram de fora?",
+    "por_que_aberto": "O pyproject.toml define python_files = [\"test_*.py\"], mas os testes Python escritos ate agora se chamam validar_manifesto_test.py, verificar_selftest.py e similares. O resultado e que 'python3 -m pytest tests/' coletava ZERO itens neste worktree, e a etapa 'test' do gate saia com exit 5 (nenhum teste coletado) sem que ninguem percebesse que os testes de contrato do F0-02 nunca rodaram. F2-01 nomeou o proprio teste como test_schema_resolvido.py para ser coletado, o que por si so ja levou a etapa a PASS — mas os arquivos antigos continuam invisiveis. Corrigir os nomes alheios ou mexer no pyproject.toml (singleton S-2) esta fora do escopo deste card.",
+    "decisao_provisoria": "Novos testes Python usam o prefixo test_ (test_<assunto>.py), que e o unico padrao que o runner enxerga. Os arquivos ja escritos com sufixo _test.py permanecem nao-coletados ate alguem decidir renomea-los ou ampliar python_files no pyproject.toml.",
+    "verificacao": {
+      "cmd": "python3 -m pytest tests/ --collect-only -q 2>&1 | tail -3 && ls tests/**/*_test.py 2>/dev/null | wc -l",
+      "espera": "Numero de testes coletados igual ao numero de arquivos de teste Python existentes; hoje ha arquivos *_test.py que nao aparecem na coleta",
+      "ambiente": "worktree local, pytest 9.0.3"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Testes escritos, revisados e citados em handoff que nunca executaram; a etapa 'test' do gate confirma um verde que nao cobre o que se pensa cobrir.",
+      "artefatos": [
+        "pyproject.toml",
+        "tests/contratos/validar_manifesto_test.py",
+        "tools/gate.sh"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "agentes-worktrees",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]

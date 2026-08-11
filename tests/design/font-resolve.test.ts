@@ -385,7 +385,19 @@ describe("F1-03 — familia efetivamente resolvida no render", () => {
 // =============================================================================
 
 describe("F1-03 — zero fonte remota em src/", () => {
-  const PROIBIDOS = [/fonts\.googleapis/i, /\bcdn\b/i];
+  // Os padroes casam HOST REAL, nao a palavra solta. `/\bcdn\b/i` — a forma
+  // original — reprovava qualquer arquivo que MENCIONASSE cdn, inclusive um
+  // comentario que PROIBE cdn: src/resolucao/manifesto-resolvido.ts documenta
+  // que URL relativa a protocolo (`//cdn...`) e proibida, e por isso ficava
+  // vermelho. Um gate que pune a documentacao da propria regra fica mais
+  // vermelho quanto mais o repositorio explica a proibicao, e o conserto que
+  // ele convida e apagar o comentario.
+  const PROIBIDOS = [
+    /fonts\.googleapis/i,
+    /fonts\.gstatic/i,
+    /\bcdn\.[a-z0-9-]+\.[a-z]{2,}/i, // cdn.jsdelivr.net, cdn.exemplo.com
+    /\b(unpkg\.com|jsdelivr\.net|cdnjs\.)/i,
+  ];
 
   function* varrer(dir: string): Generator<string> {
     for (const entrada of readdirSync(dir, { withFileTypes: true })) {
