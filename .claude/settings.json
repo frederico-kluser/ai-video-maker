@@ -3,38 +3,57 @@
     "PreToolUse": [
       {
         "matcher": "Bash",
-        "command": "python3 .agents/scripts/bash_guardrail.py \"${command}\"",
         "description": "Block dangerous bash commands (allowlist-based: rm -rf /, rm -rf ~, sudo, secrets read)",
-        "onError": "block"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "c=$(jq -r '.tool_input.command // \"\"'); python3 \"${CLAUDE_PROJECT_DIR:-.}/.agents/scripts/bash_guardrail.py\" \"$c\"",
+            "statusMessage": "Checking command against bash guardrail"
+          }
+        ]
       },
       {
-        "matcher": "Write||Edit",
-        "pathPattern": "**/skills/**/SKILL.md",
-        "command": "python3 .agents/scripts/skill_write_gate.py \"${path}\"",
-        "description": "Block unvalidated SKILL.md writes — requires a green eval record",
-        "onError": "block"
+        "matcher": "Write|Edit",
+        "description": "Block unvalidated SKILL.md writes — requires a green eval record. The path filter lives inside skill_write_gate.py, which exits 0 for anything that is not a SKILL.md under skills/.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "p=$(jq -r '.tool_input.file_path // \"\"'); python3 \"${CLAUDE_PROJECT_DIR:-.}/.agents/scripts/skill_write_gate.py\" \"$p\"",
+            "statusMessage": "Checking SKILL.md write gate"
+          }
+        ]
       },
       {
         "matcher": "Read",
-        "pathPattern": ".env||**/secrets/**||**/.env.*||**/credentials*||**/*.pem||**/id_rsa*",
-        "command": "exit 2",
         "description": "Block reading .env, secrets, credentials, and private key files",
-        "onError": "block"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "p=$(jq -r '.tool_input.file_path // \"\"'); case \"$p\" in *.env|*.env.*|*/secrets/*|*/credentials*|*.pem|*id_rsa*|*id_ed25519*) echo \"[ReadGuard] BLOCKING read of protected file: $p\" >&2; exit 2;; esac; exit 0"
+          }
+        ]
       }
     ],
     "Stop": [
       {
-        "command": "python3 .agents/scripts/stop_validation_gate.py",
         "description": "Prevent Stop until all wave tasks are complete (wave barrier)",
-        "onError": "block"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.agents/scripts/stop_validation_gate.py\""
+          }
+        ]
       }
     ],
-    "Notification": [
+    "UserPromptSubmit": [
       {
-        "matcher": "",
-        "command": "python3 .agents/scripts/calibration_nudge.py",
         "description": "Reinject calibration rules C1, C2, C9, C12 on every message",
-        "onError": "ignore"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.agents/scripts/calibration_nudge.py\""
+          }
+        ]
       }
     ]
   }
