@@ -1,0 +1,174 @@
+[
+  {
+    "id": "AB-500",
+    "titulo": "A W4 gravou os cassetes contra TRES manifestos — um run unico do orquestrador nao cobre os cinco estagios",
+    "pergunta": "O orquestrador (F2-01) resolve todos os estagios contra UM manifesto, mas os cassetes da W4 foram gravados contra tres manifestos distintos: locucao/codigo/musica contra fixtures/canonico/manifesto-valido.json (hash a0ae9cdd…), grafico contra o manifesto DELE em src/resolucao/grafico/manifesto-de-gravacao.ts (hash ee856489…), midia contra fixtures/cassetes/midia/manifesto-de-gravacao.json (hash 939661bc…). A suite integrada deve rodar os cinco de verdade — como, se a chave do cassete e funcao do hash do manifesto?",
+    "por_que_aberto": "Medido neste card (2026-08-13): hashDoManifesto dos tres manifestos divergem, e o diretorio de cada cassete confere com o manifesto do estagio DELE. A suite integrada (tests/integracao/resolucao/resolucao-integrada.test.ts) resolve a fixture canonica com locucao+codigo+musica num resolver() unico, e grafico e midia por resolverEstagio() com os manifestos deles; o merge das cinco parciais e provado por fundirParciais. O custo: 'um run unico com um manifesto so' nao exercita os cinco — a assercao de ordem/merge cobre o buraco, mas a coerencia dos cassetes contra UM manifesto canônico fica para quem unificar as gravacoes.",
+    "decisao_provisoria": "Suite integrada resolve cada estagio contra o manifesto DELE e prova o merge das cinco camadas num manifesto resolvido unico (fundirParciais, zero colisoes). Quem unificar as gravacoes da W4 num manifesto unico pode re-gravar os cassetes de grafico e midia contra a fixture canonica; ate la, a suite nomeia a tabela de manifestos no helpers.ts.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/integracao/resolucao/resolucao-integrada.test.ts",
+      "espera": "verde: tres estagios num resolver() unico + grafico/midia por resolverEstagio + merge das cinco sem colisao",
+      "ambiente": "worktree, node 24, guarda de rede global ativo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um run unico com manifesto errado vira ECasseteAusente barulhento (correto) ou, se alguem 'consertar' gravando contra manifesto proprio sem atualizar a suite, o merge deixa de exercitar os cinco.",
+      "artefatos": [
+        "tests/integracao/resolucao/helpers.ts",
+        "tests/integracao/resolucao/resolucao-integrada.test.ts",
+        "fixtures/cassetes/**/cassete.json"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "integracao",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-501",
+    "titulo": "O cassete de GRAFICO e metadata-only: os bytes do video renderizado nao foram commitados",
+    "pergunta": "O contrato de estagio (F2-01) devolve parcial + procedencia e mais nada; quem produz bytes resolve onde eles moram (AB-455). O estagio de grafico renderiza via subprocesso e devolve o SHA-256, mas os bytes ficam no diretorio de trabalho temporario, removido ao fim da gravacao. O cassete commitado tem os hashes e nenhum byte: um clone limpo tem o endereco e nao o conteudo. Como o video e montado nesse caso?",
+    "por_que_aberto": "Verificado neste card: fixtures/cassetes/grafico/4490f9f3…/ contem cassete.json, chamadas.json ([]), procedencia.json, resultado.json (assets 39d3dec8… e 8e25e9c7…), volatil.json — sem corpos/ e sem artefatos/. O executor (src/resolucao/grafico/executor.ts) apaga o diretorio do job no finally. A ponte cassete->store da suite integrada (AB-455) caracteriza o buraco: `bytesDoAsset('grafico', …)` devolve null para os dois hashes.",
+    "decisao_provisoria": "Caracterizacao, nao conserto (estagio e de outro card). A suite integrada assere a ausencia per-item e o ADR-0026 D4 documenta. A saida desenhada: o estagio (ou o gravador) passa a persistir os bytes renderizados no cassete (artefatos/<hash>.<ext>, como o codigo faz) — ou o manifesto resolvido deixa de prometer bytes que o repo nao carrega.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/integracao/resolucao/resolucao-integrada.test.ts -t 'GRAFICO e metadata-only'",
+      "espera": "verde, com a ausencia de bytes asserada por hash",
+      "ambiente": "worktree, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "O F5-01 (W7, render por faixa) vai consumir os bytes de grafico pelo hash: hoje eles nao existem em lugar nenhum do repositorio — o primeiro render integrado de verdade vai tropecar aqui se a W6 nao fechar a ponte.",
+      "artefatos": [
+        "src/resolucao/grafico/executor.ts",
+        "fixtures/cassetes/grafico/**",
+        "tests/integracao/resolucao/resolucao-integrada.test.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "integracao",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-502",
+    "titulo": "O orquestrador descarta em silencio estagio com nome fora da lista canonica",
+    "pergunta": "ordenarPelaCanonica (src/resolucao/orquestrador.ts) filtra os estagios por ORDEM_ESTAGIOS: um estagio cujo nome nao esta na lista canonica e DESCARTADO sem aviso, e o orquestrador resolve um manifesto vazio — verde por ausencia. Um chamador que monte o orquestrador a mao (sem passar pela descoberta) pode entregar um pipeline que nao roda nada. O ∅-crit deveria valer no orquestrador tambem?",
+    "por_que_aberto": "Repro mediado neste card: Orquestrador({estagios: [estagio com nome 'mentira'], modo: 'offline'}).resolver(manifesto) resolveu SEM erro, com estagios: [] — o ∅-crit de descoberta (descoberta.ts, EEstagioDesconhecido) cobre o caminho do disco, mas o caminho do chamador nao. A suite integrada usa nome canonico de proposito para o ∅-crit de orquestrador (vazio-crit.test.ts).",
+    "decisao_provisoria": "Caracterizar e registrar (ADR-0026 D6). Nao e conserto aqui: orquestrador e de F2-01. Recomendacao para o dono: em ordenarPelaCanonica, lancar EEstagioDesconhecido para nome fora da lista em vez de descartar — o erro custa uma linha e elimina a classe inteira.",
+    "verificacao": {
+      "cmd": "npx tsx -e '… Orquestrador com estagio nome \"mentira\" …' (repro no ADR-0026 D6 e neste item)",
+      "espera": "hoje: resolve vazio; depois do conserto: lanca EEstagioDesconhecido",
+      "ambiente": "node 24, tsx"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um F4-04 (W6) que monte o orquestrador por engano com um estagio renomeado passaria verde com zero estagios — o pior falso verde possivel.",
+      "artefatos": [
+        "src/resolucao/orquestrador.ts",
+        "src/resolucao/descoberta.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "integracao",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-503",
+    "titulo": "Os assets de TIMING da locucao sao computados e nao tem bytes commitados (os audios tem)",
+    "pergunta": "O cassete de locucao tem os audios WAV em corpos/ (respostas do provedor), mas os assets de timing (application/vnd.editor-video-ia.timing-locucao+json, hashes 09c8a304… e 15ea1591…) sao computados pelo estagio e nao estao em lugar nenhum do cassete. O F3-01 (W5, timing canonico) consome esse timing — ele vai ler de onde?",
+    "por_que_aberto": "Verificado neste card: fixtures/cassetes/locucao/3a5fb764…/corpos/ tem 4 bytes (2 wav + 2 transcricoes) e resultado.assets declara 4 hashes; os 2 de timing nao correspondem a nenhum corpo. A suite integrada (AB-455) assere: audios com bytes no cassete, timings sem bytes — per-item.",
+    "decisao_provisoria": "Caracterizacao, nao conserto (estagio de outro card). O F3-01 (irmao desta onda, cego) e o primeiro consumidor: se ele le o timing pelo hash do store, tropeca; se o timing canônico e o documento F3-01 produz, o byte do timing da locucao pode nao ser necessario. Decisao registrada para o join seguinte.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/integracao/resolucao/resolucao-integrada.test.ts -t 'LOCUCAO tem bytes'",
+      "espera": "verde: audios com bytes, timings sem bytes (assercoes per-item)",
+      "ambiente": "worktree, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Quem consumir o timing pelo hash nao acha o byte; quem achar que o cassete carrega tudo vai servir undefined silencioso.",
+      "artefatos": [
+        "src/resolucao/locucao/estagio.ts",
+        "fixtures/cassetes/locucao/**",
+        "tests/integracao/resolucao/resolucao-integrada.test.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "integracao",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-504",
+    "titulo": "x-ratelimit-remaining e x-ratelimit-reset sao volateis e entraram em HEADERS_VOLATEIS por medicao",
+    "pergunta": "A lista candidata do contrato-w5 §5 nao inclui x-ratelimit-remaining/reset, mas o Wikimedia os devolve em toda resposta. Eles mudam entre gravacoes? Se sim, pertencem a lista de volateis (redigidos na gravacao) para o diff nao refutar sem defeito do estagio.",
+    "por_que_aberto": "Medido no cassete de musica (440eeb9e…): x-ratelimit-limit e estavel, mas remaining/reset sao contadores de janela que descem a cada requisicao do mesmo bucket — duas gravacoes consecutivas divergem. Incluidos em HEADERS_VOLATEIS (13 itens no total) com justificativa no ADR-0026 D2.",
+    "decisao_provisoria": "Incluir na lista (fechada por medicao real). A sonda negativa da suite (header fora da lista → diff VERMELHO) permanece estrutural.",
+    "verificacao": {
+      "cmd": "npx tsx tools/offline-guard.ts --verifica-cassetes",
+      "espera": "verde: nenhum header da lista (13) nos cassetes commitados",
+      "ambiente": "worktree, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um regravacao contra a rede real refutaria o diff por um contador do bucket, nao pelo estagio — exatamente a classe AB-440/473.",
+      "artefatos": [
+        "src/resolucao/cassete/formato.ts",
+        "docs/adr/0026-suite-offline-integrada-e-guarda-de-rede.md"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "rede",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-505",
+    "titulo": "Exposicao residual: o IPv6 real de gravacao (x-client-ip) esta no historico do git da W4",
+    "pergunta": "A redacao (AB-475) removeu x-client-ip da ARVORE, mas o commit original da W4 contem o IPv6 real (2804:1b3:a940:dc57:91d3:f8eb:97:3916) no blob de chamadas.json do cassete de midia. Re-escrever historico esta fora de escopo (squash do orquestrador mantem os commits). O dado pessoal no historico e aceitavel, ou precisa de contramedida?",
+    "por_que_aberto": "Verificado neste card: o cassete migrado nao tem o header, mas git log da W4 o carrega. Endereco residencial temporario (ISP, rotativo); nenhuma credencial ou cookie junto.",
+    "decisao_provisoria": "Declarar a exposicao (ADR-0026 D3) e nao reescrever historico: o custo/beneficio de reescrita em repo compartilhado nao compensa dado que rotaciona. Regra daqui em diante: o gravador nao grava o header e o tripwire derruba a suite se reaparecer.",
+    "verificacao": {
+      "cmd": "npx tsx tools/offline-guard.ts --verifica-cassetes && rg -n 'x-client-ip' fixtures/cassetes/ || true",
+      "espera": "arvore limpa; historico contem a exposicao declarada",
+      "ambiente": "worktree, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o header voltar a ser gravado, a PII entra de novo na arvore sem ninguem notar — o tripwire existe para isso.",
+      "artefatos": [
+        "src/resolucao/cassete/formato.ts",
+        "tools/offline-guard.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "rede",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-506",
+    "titulo": "AB-394 fechado por evidencia: o guarda global nao foi enfraquecido e font-resolve passa na suite completa",
+    "pergunta": "O guarda global (tests/setup/rede-bloqueada.ts, permitirLoopback: false) derrubava tests/design/font-resolve.test.ts (WebSocket CDP do Chrome em 127.0.0.1). A base ja carrega a correcao (render em processo externo, commit 2444d44)?",
+    "por_que_aberto": "Fechado NESTE card por verificacao (decisao AB-394 no ADR-0026 D1): npx vitest run → 31 arquivos / 1755 testes verdes na base, font-resolve incluso (33 testes, evidencia produzida por tools/fontes/render-evidencias.ts em subprocesso). A suite de integracao assere o outro lado: redeBloqueada() === true em tests/integracao/resolucao/ e o loopback tambem morre com REDE BLOQUEADA.",
+    "decisao_provisoria": "Nenhuma mudanca em tests/setup/rede-bloqueada.ts: o guarda fica global e fechado; a evidencia de fontes e produzida fora do processo guardado. Nao foi preciso nenhuma das tres opcoes do AB-394 (desligar por escopo, permitirLoopback, CI com rede).",
+    "verificacao": {
+      "cmd": "npx vitest run --passWithNoTests",
+      "espera": "verde, incluindo tests/design/font-resolve.test.ts e tests/integracao/resolucao/rede-guarda.test.ts",
+      "ambiente": "worktree, node 24, vitest 3.2.7"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem enfraquecer o guarda (permitirLoopback: true) para 'acomodar' um teste, o rede-guarda.test.ts fica vermelho — a decisao tem guarda executavel.",
+      "artefatos": [
+        "tests/setup/rede-bloqueada.ts",
+        "tests/integracao/resolucao/rede-guarda.test.ts",
+        "docs/adr/0026-suite-offline-integrada-e-guarda-de-rede.md"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "rede",
+    "responde": "dono",
+    "antecedencia": "merge",
+    "status": "FECHADO"
+  }
+]

@@ -314,6 +314,67 @@ export const HEADERS_SENSIVEIS: readonly string[] = [
 /** Marcador que substitui o valor de um header sensivel. */
 export const VALOR_REDIGIDO = "[REDIGIDO]";
 
+/**
+ * Headers de RESPOSTA que nunca entram num cassete — nem redigidos:
+ * removidos na gravacao.
+ *
+ * Classe AB-440/AB-473 (decidida no ADR-0026, card F2-07): headers que o
+ * fornecedor devolve volateis a cada requisicao (`date`, `age`,
+ * `x-request-id`, ...) e que, crus em `chamadas.json`, refutam o diff de
+ * determinismo do estagio sem nenhum defeito dele. Remover NA GRAVACAO —
+ * em vez de listar em CAMPOS_VOLATEIS — tem duas consequencias de
+ * proposito:
+ *
+ *   1. o header nunca e versionado. Em particular `x-client-ip`
+ *      (AB-475) e a PII do endereco de quem gravou: um whitelist de
+ *      volateis manteria o IPv6 real no historico do git para sempre;
+ *   2. a sonda negativa do diff continua dura: um header volátil que
+ *      ESCAPA desta lista e nao esta em CAMPOS_VOLATEIS REFUTA o diff
+ *      (e o teste de integracao fabrica um para exigir o vermelho).
+ *
+ * A lista e fechada por medicao real (amostras: cassetes de midia e
+ * musica, 2026-08-13). Cada entrada: por que muda entre gravacoes.
+ */
+export const HEADERS_VOLATEIS: readonly string[] = [
+  "date", // relogio do fornecedor
+  "age", // idade de cache do CDN
+  "server", // maquina/versao do provedor — troca com deploy e com a
+  // instancia sorteada pelo balanceador
+  "x-request-id", // id de requisicao unico por chamada
+  "server-timing", // metricas do servidor (cache hit/miss, host sorteado)
+  "x-search-id", // id de busca unico por chamada (Wikimedia)
+  "x-cache", // "cp7001 miss, cp7001 pass" — estado de cache do CDN
+  "x-cache-status", // pass/miss — estado de cache do CDN
+  "x-client-ip", // AB-475: endereco de quem gravou (PII). O provedor o
+  // devolve de volta (verificado em midia e musica); ele NAO pode ser
+  // versionado nem como volátil-whitelisted
+  "content-length", // tamanho do corpo — varia com re-encode/cache;
+  // o replay o recomputa do corpo gravado
+  "transfer-encoding", // chunked — detalhe de transporte do CDN
+  "x-ratelimit-remaining", // contador de janela do rate limit (Wikimedia) —
+  // descendo com cada requisicao do mesmo bucket
+  "x-ratelimit-reset", // instante de reset da janela do rate limit
+] as const;
+
+/**
+ * Remove os headers volateis de um conjunto de headers de resposta.
+ *
+ * Aplicado na GRAVACAO, depois de `sanitizarHeaders`, apenas aos headers
+ * de resposta (os de requisicao sao nossos e estaveis). Chaves em
+ * minuscula, como o resto do cassete.
+ */
+export function removerHeadersVolateis(
+  headers: Readonly<Record<string, string>>,
+): Record<string, string> {
+  const volateis = new Set(HEADERS_VOLATEIS);
+  const saida: Record<string, string> = {};
+  for (const chave of Object.keys(headers).sort()) {
+    if (volateis.has(chave.toLowerCase())) continue;
+    saida[chave] = headers[chave] as string;
+  }
+  return saida;
+}
+
 /** Redige headers sensiveis, preservando os demais. Chaves em minuscula. */
 export function sanitizarHeaders(
   headers: Readonly<Record<string, string>>,

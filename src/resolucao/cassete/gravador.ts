@@ -29,6 +29,7 @@ import {
   caminhoDoCorpo,
   diretorioDoCassete,
   procurarCredencial,
+  removerHeadersVolateis,
   sanitizarHeaders,
   sanitizarUrl,
   serializarCanonico,
@@ -120,7 +121,13 @@ export class GravadorDeChamadas {
         ? { corpoRequisicao: dados.corpoRequisicao }
         : {}),
       status: dados.status,
-      headersResposta: sanitizarHeaders(dados.headersResposta),
+      // Volateis removidos DEPOIS da sanitizacao: headers do fornecedor
+      // que mudam a cada requisicao (date, age, x-request-id, …) nao
+      // entram em chamadas.json nem redigidos — ver HEADERS_VOLATEIS e
+      // ADR-0026 (AB-440/473/475). Nao toca no corpo nem no hash.
+      headersResposta: removerHeadersVolateis(
+        sanitizarHeaders(dados.headersResposta),
+      ),
       hashCorpo: sha256(dados.corpo),
       bytesCorpo: dados.corpo.length,
     };

@@ -1277,3 +1277,49 @@ int-composicao-gerar:
 int-composicao-studio:
     npx remotion studio fixtures/snapshots/integrado/entrada.tsx --port 4112
 # === fim F1-12 ===
+
+# === F2-07 ===
+# =============================================================================
+# Suite offline INTEGRADA e o guarda de rede — card F2-07 (W5)
+# =============================================================================
+# Generaliza a suite offline do F2-01 para a W5 e alem: prova que o pipeline
+# abaixo da autoria roda sem rede em QUATRO camadas (kernel via unshare,
+# subprocesso, processo, vitest completo) mais o ∅-crit e o denominador.
+# Decisoes e evidencias: docs/adr/0026-suite-offline-integrada-e-guarda-de-rede.md.
+#
+# NOME DAS RECEITAS: hifen, nunca dois-pontos (convencao de F2-01, AB-284).
+#
+# `just res-offline` (bloco F2-01) continua existindo e continua verde — ele
+# roda tools/resolucao/offline.sh, a suite POR ESTAGIO. A suite deste card e
+# o generalizacao dela: `res-offline-integrado` roda tools/offline-guard.sh,
+# que cobre as camadas de subprocesso e o vitest INTEIRO (incluindo
+# tests/integracao/resolucao/, os cinco estagios reais a partir dos cassetes).
+
+# A suite completa com a rede bloqueada em todas as camadas:
+#   unshare --net (kernel, vale para subprocesso) + sonda de subprocesso +
+#   sonda em processo + tripwire de headers volateis + vitest completo +
+#   schema + cobertura (∅-crit) + chave de cache + denominador.
+res-offline-integrado:
+    bash tools/offline-guard.sh
+
+# So a suite vitest de integracao da resolucao (guarda em processo via setup).
+res-integracao:
+    npx vitest run tests/integracao/resolucao/
+
+# ∅-crit no nivel de integracao: estagio novo sem cassete derruba a suite.
+res-vazio-crit-integrado:
+    npx vitest run tests/integracao/resolucao/vazio-crit.test.ts
+
+# Sondas isoladas do guarda: kernel | processo | subprocesso
+res-guarda-sonda camada="processo":
+    @if [ "{{camada}}" = "subprocesso" ]; then \
+        npx tsx tools/offline-guard.ts --sonda subprocesso; \
+    else \
+        npx tsx tools/resolucao/sonda-rede.ts --camada {{camada}}; \
+    fi
+
+# Tripwire de headers volateis nos cassetes commitados (AB-440/473/475).
+# `--redige` roda a migracao idempotente (remover da lista em formato.ts).
+res-guarda-cassetes *args:
+    npx tsx tools/offline-guard.ts --verifica-cassetes {{args}}
+# === fim F2-07 ===
