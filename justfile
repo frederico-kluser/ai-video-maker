@@ -459,3 +459,79 @@ res-locucao:
 res-locucao-determinismo:
     npx tsx src/resolucao/locucao/gravar.ts --determinismo
 # === fim F2-03 ===
+
+# === F2-05 ===
+# =============================================================================
+# Resolucao: destaque de codigo pre-computado — F2-05 (W4)
+# =============================================================================
+# O card em uma frase: o destaque de sintaxe e calculado ACIMA da fronteira
+# de determinismo e o no de composicao (F1-08) so consome tokens prontos.
+# Nada de resolver tipo em host de terceiro em tempo de render.
+#
+# NOME DAS RECEITAS: hifen, nunca ':'. `just` 1.42 le `a:b:` como "receita a
+# depende de b" — ver docs/criterios-de-aceitacao-corrigidos.md §2.
+#
+# A aceitacao do card usa tambem duas receitas do F2-01, que ja existem:
+#     just res-offline --estagio codigo    (rede bloqueada de verdade)
+#     just res-chave   --estagio codigo    (um parametro por vez, cache miss)
+#
+# ADR: docs/adr/0007-resolucao-destaque-de-codigo.md
+# Ledger: ledger/inbox/F2-05.json (AB-450..AB-456)
+
+# ∅-crit do card: todo cassete deste estagio declara licenca.
+#
+# O PROGRAMA escreve `rg -L '"licenca"' ... -> vazio`. Esta ERRADO: em
+# ripgrep, `-L` e `--follow` (seguir symlink), e `--files-without-match` nao
+# tem forma curta. O comando literal sai vazio EXATAMENTE quando nenhum
+# arquivo declara licenca — passa quando a propriedade esta ausente.
+# Aqui: a flag que exprime a intencao, MAIS o denominador (porque
+# --files-without-match tambem sai vazio quando nao ha arquivo nenhum),
+# MAIS a sonda negativa (porque um comando que nunca reprovou nao e prova).
+res-codigo-licenca:
+    @echo "=== res-codigo-licenca: ∅-crit da licenca ==="
+    @arquivos=$(ls fixtures/cassetes/codigo/*/procedencia.json 2>/dev/null || true); \
+        test -n "$arquivos" || { echo "FALHOU: denominador zero — nenhum procedencia.json em fixtures/cassetes/codigo/"; exit 1; }; \
+        echo "  denominador: $(printf '%s\n' "$arquivos" | wc -l) procedencia.json"
+    @sem=$(rg --files-without-match '"licenca"' fixtures/cassetes/codigo/*/procedencia.json || true); \
+        if [ -n "$sem" ]; then echo "FALHOU: cassete sem licenca declarada:"; printf '%s\n' "$sem"; exit 1; fi
+    @echo "  toda procedencia.json de fixtures/cassetes/codigo/ declara licenca"
+    @tmp=$(mktemp -d); mkdir -p "$tmp/sem-licenca"; printf '%s\n' '{"provedor":"x"}' > "$tmp/sem-licenca/procedencia.json"; \
+        if rg --files-without-match '"licenca"' "$tmp"/*/procedencia.json | grep -q .; then \
+            echo "  sonda negativa: um procedencia.json SEM licenca E acusado"; rm -rf "$tmp"; \
+        else \
+            echo "FALHOU: SONDA NEGATIVA — o comando nao acusa um arquivo sem licenca"; rm -rf "$tmp"; exit 1; \
+        fi
+    @echo "res-codigo-licenca: OK"
+
+# O gate do card. Frescor do cassete, determinismo com sonda negativa, zero
+# chamada de rede gravada, varredura de credencial, endereco de conteudo
+# conferido, zero URL, e a presenca do no de codigo da fixture canonica.
+res-codigo: res-codigo-licenca
+    @echo ""
+    npx tsx src/resolucao/codigo/gate.ts
+    @echo ""
+    @echo "=== res-codigo: suite do estagio (com o guarda de rede em processo) ==="
+    @# C2: um alvo de vitest que nao casa nenhum teste sai VERDE. Exigimos o
+    @# denominador na saida. FORCE_COLOR=0 + strip de ANSI porque o contador
+    @# vem embrulhado em escape de cor quando o ambiente forca cor, e o grep
+    @# passaria a reprovar por causa do terminal, nao do teste.
+    @saida=$(FORCE_COLOR=0 npx vitest run tests/resolucao/codigo.test.ts 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g'); \
+        printf '%s\n' "$saida" | tail -6; \
+        printf '%s\n' "$saida" | grep -qE "Tests +[1-9][0-9]* passed" || \
+            { echo "FALHOU: o alvo do vitest nao selecionou nenhum teste (falso verde)"; exit 1; }
+    @echo ""
+    npx tsx tools/resolucao/chave.ts --estagio codigo
+    @echo ""
+    @echo "res-codigo: VERDE"
+
+# Grava o cassete. Diferente dos outros quatro estagios da W4, este comando
+# nao precisa de rede nem de credencial: so tokeniza texto que ja esta no
+# manifesto. --limpar remove cassetes orfaos de chaves antigas.
+res-codigo-gravar *args:
+    npx tsx src/resolucao/codigo/gravar.ts {{args}}
+
+# A aceitacao inteira do card, na ordem em que o PROGRAMA a escreve.
+res-codigo-tudo: res-codigo
+    bash tools/resolucao/offline.sh --estagio codigo
+    @echo "res-codigo-tudo: VERDE"
+# === fim F2-05 ===

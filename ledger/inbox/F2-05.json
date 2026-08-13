@@ -1,0 +1,177 @@
+[
+  {
+    "id": "AB-450",
+    "titulo": "Motor de destaque e um lexer caseiro, nao um motor TextMate/Oniguruma",
+    "pergunta": "Quando package.json (S-1) deixar de ser singleton, o destaque deve migrar para um motor real (Shiki ou @code-hike/lighter) ou o lexer caseiro e suficiente?",
+    "por_que_aberto": "package.json e singleton PROIBIDO para este card, e um motor de verdade exige dependencia nova. O lexer sticky-regex em src/resolucao/codigo/destacador.ts nao entende literal de regex em JS, nao resolve tipos e nao distingue `<` de JSX de `<` de comparacao. A qualidade do destaque e o custo da troca so podem ser medidos com um motor instalado ao lado.",
+    "decisao_provisoria": "Manter o lexer caseiro. A troca, quando vier, bumpa versaoDoDestacador e versaoDasGramaticas, regrava o cassete e recaptura os snapshots do no de codigo (F1-08).",
+    "verificacao": {
+      "cmd": "test -f package.json && grep -cE '\"shiki\"|\"@code-hike/lighter\"|\"codehike\"' package.json || echo '0 (sem motor real no package.json)'",
+      "espera": "0 (sem motor real). Quando a resposta mudar para >= 1, o item fecha com o diff de tokens (AB-451) e a recaptura de snapshots.",
+      "ambiente": "worktree local, apos o S-1 abrir para a onda"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Troca de motor muda a tokenizacao inteira: artefatos novos, cassete regravado, snapshots do no de codigo recapturados. Sem o registro, a troca seria feita em silencio e o cassete velho continuaria servido (C12).",
+      "artefatos": [
+        "src/resolucao/codigo/destacador.ts",
+        "src/resolucao/codigo/gramaticas.ts",
+        "fixtures/cassetes/codigo/**",
+        "fixtures/snapshots/no-codigo/**"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-451",
+    "titulo": "Equivalencia de tokens entre o lexer caseiro e um motor real nunca medida",
+    "pergunta": "Para o mesmo snippet e o mesmo tema, os tokens do lexer caseiro diferem dos de um motor real (Shiki/lighter) em quantos trechos?",
+    "por_que_aberto": "AB-063 (tokens do Shiki vs tokens do lighter) continua aberto; este card introduz um terceiro tokenizador, e a equivalencia dele com qualquer motor real nunca foi diffada. A troca de motor (AB-450) precisa deste numero para ser decidida com orcamento.",
+    "decisao_provisoria": "Assumir que NAO sao equivalentes (mesma postura do AB-063): troca de motor exige recaptura completa, nunca diff zero.",
+    "verificacao": {
+      "cmd": "npx tsx -e 'import {destacar} from \"./src/resolucao/codigo/destacador.js\"; import {TEMA_PADRAO} from \"./src/resolucao/codigo/tema.js\"; const r = destacar(\"const x: number = 1;\", \"typescript\", {tema: TEMA_PADRAO, larguraDaTabulacao: 4, linhasDestacadas: []}); console.log(JSON.stringify(r.linhas))' 2>/dev/null | sha256sum | cut -c1-16",
+      "espera": "hash do JSON dos tokens do lexer. Com um motor real instalado ao lado (quando S-1 abrir), diffar os dois JSONs e registrar a contagem de trechos divergentes.",
+      "ambiente": "maquina com node_modules estendida (quando S-1 abrir)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a equivalencia for assumida mas nao medida, a migracao para motor real muda o pixel sem aviso; se for medida e divergir, o orcamento da troca (AB-450) e o numero de snapshots a recapturar.",
+      "artefatos": [
+        "src/resolucao/codigo/destacador.ts",
+        "fixtures/snapshots/no-codigo/**"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-452",
+    "titulo": "Paleta de destaque sem nome proprio no design system",
+    "pergunta": "Quando src/design/tokens.ts (S-5) abrir, o mapeamento classe->cor do destaque deve virar um grupo proprio (ex.: `sintaxe`) no design system, em vez de compor tokens genericos?",
+    "por_que_aberto": "S-5 e singleton PROIBIDO para este card. O tema (src/resolucao/codigo/tema.ts) compoe tokens genericos (palette.gray, palette.purple, corDeTexto, background) para produzir a paleta do destaque; a escolha de tom fica escondida na composicao e nao tem nome no design system. Um humano que queira ajustar a cor de palavra-chave nao sabe onde mexer.",
+    "decisao_provisoria": "Manter a composicao. O hashDoTema derivado do VALOR das cores invalida o cassete sozinho se alguem mexer em tokens.ts; a versao legivel (versaoDoTema) acompanha.",
+    "verificacao": {
+      "cmd": "grep -c 'sintaxe' src/design/tokens.ts || echo '0 (nenhum grupo sintaxe)'",
+      "espera": "0 hoje. Quando S-5 abrir e o grupo for criado, o tema migra e a recaptura dos snapshots de codigo fecha o item.",
+      "ambiente": "worktree local, apos o S-5 abrir para a onda"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem o grupo proprio, toda mudanca de tom de destaque mexe em tokens genericos que outros cards (F1-04..F1-11, composicao) tambem usam — o blast radius da mudanca fica maior do que deveria.",
+      "artefatos": [
+        "src/design/tokens.ts",
+        "src/resolucao/codigo/tema.ts",
+        "fixtures/snapshots/no-codigo/**"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-453",
+    "titulo": "Custo cold-start do destacador para blocos grandes sem teto em ms",
+    "pergunta": "Quanto custa (ms, primeira chamada num processo novo) destacar um bloco de ~60 linhas, e qual teto o orcamento de tempo do render pode assumir?",
+    "por_que_aberto": "O destaque roda acima da fronteira (no estagio, uma vez por gravacao) e nao multiplica por frame, entao nao ha pressao de runtime — mas o custo da primeira chamada em processo novo nunca foi medido, e um manifesto com dezenas de nos de codigo pode encarecer a gravacao do cassete sem aviso.",
+    "decisao_provisoria": "Sem teto numerico. O custo nao multiplica por frame nem por thread (o artefato e pre-computado), entao a ordem de grandeza e de gravacao, nao de render.",
+    "verificacao": {
+      "cmd": "node -e 'const {execSync} = require(\"child_process\"); const t0 = Date.now(); execSync(\"npx tsx -e '\"'\"'import {destacar} from \"./src/resolucao/codigo/destacador.js\"; import {TEMA_PADRAO} from \"./src/resolucao/codigo/tema.js\"; const linhas = Array.from({length: 60}, (_, i) => `const v${i} = ${i};`).join(\"\\n\"); destacar(linhas, \"typescript\", {tema: TEMA_PADRAO, larguraDaTabulacao: 4, linhasDestacadas: []});'\"'\"'\", {cwd: \".\"}); console.log((Date.now() - t0) + \"ms\")'",
+      "espera": "numero em ms, repetido 3x para estabilidade. Registro do numero e da origem (processo novo) — o teto em si e decisao de orcamento de quem opera o pipeline.",
+      "ambiente": "maquina de referencia do pipeline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um manifesto com muitos nos de codigo gravaria o cassete lentamente sem nenhum numero para avisar; a suite offline nao mede isso e o primeiro sintoma apareceria como gravacao lenta em CI.",
+      "artefatos": [
+        "src/resolucao/codigo/destacador.ts",
+        "tools/resolucao/offline.sh"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-454",
+    "titulo": "A pilha fontFamily.mono precisa resolver para as fontes locais embutidas",
+    "pergunta": "O artefato de destaque declara a pilha `fontFamily.mono` do design system; as familias dessa pilha estao embutidas localmente (F1-03) e resolvem no render headless com a MESMA metrica de glifo?",
+    "por_que_aberto": "O card F1-03 (fontes locais embutidas) entregou a pilha com assercao de familia resolvida; o destaque grava a mesma pilha no artefato. O elo entre os dois — o render do no de codigo (F1-08, mesmo nivel desta onda) — nao existe ainda para conferir a metrica de coluna (C6: fonte que nao carregou cai para fallback sem erro).",
+    "decisao_provisoria": "Confiar na pilha de tokens e na assercao de F1-03; a metrica de glifo do render do codigo (F1-08) e a sonda final.",
+    "verificacao": {
+      "cmd": "node -e 'const {execSync} = require(\"child_process\"); console.log(execSync(\"npx tsx -e '\"'\"'import {fontFamily} from \"./src/design/tokens.js\"; console.log(fontFamily.mono)'\"'\"' \").toString().trim())' 2>/dev/null; echo '---'; ls public/ 2>/dev/null | grep -iE 'woff2' | head -5",
+      "espera": "pilha impressa (ex.: JetBrains Mono, Fira Code, monospace) e >= 1 arquivo .woff2 em public/. A conferencia final de familia resolvida e o snapshot do no de codigo (F1-08) com validateFontIsLoaded.",
+      "ambiente": "worktree local + render do no de codigo apos F1-08"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a pilha declarada nao resolver para as fontes locais, o render cai para fallback em silencio (C6): a coluna medida muda e o bloco de codigo estoura o quadro com exit 0.",
+      "artefatos": [
+        "src/resolucao/codigo/tokens-de-destaque.ts",
+        "src/composicao/nos/codigo.tsx",
+        "fixtures/snapshots/no-codigo/**"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-455",
+    "titulo": "O contrato de estagio nao tem campo para devolver o CONTEUDO enderecado; os bytes moram no cassete",
+    "pergunta": "Quando a composicao (W5+) precisar dos bytes dos artefatos de destaque (nao so do hash), quem ponteia do cassete (fixtures/cassetes/codigo/<chave>/artefatos/) para o store de conteudo (F0-07)?",
+    "por_que_aberto": "O contrato de F2-01 devolve parcial + procedencia, e mais nada: `parcial.nos_codigo[<no>]` e um SHA-256, um ENDERECO. `persistirNoStore` pula asset que nao encontra no store, e o store e .gitignore — um clone limpo tem o cassete e nao tem os bytes. Este card resolveu o proprio problema (bytes dentro do cassete, diffados e versionados junto), mas a ponte cassete -> store para o consumo da composicao nao existe.",
+    "decisao_provisoria": "Bytes versionados dentro do proprio cassete em <cassete>/artefatos/<sha256>.json; leitura confere o hash e o formato. A ponte para o store fica para a onda que consumir o conteudo (F2-07 / composicao).",
+    "verificacao": {
+      "cmd": "ls fixtures/cassetes/codigo/*/artefatos/ 2>/dev/null | wc -l && npx tsx tools/store-list.ts --count 2>/dev/null || echo 'store-list indisponivel'",
+      "espera": ">= 1 artefato no cassete e a contagem do store registrada. Quando a ponte existir, o mesmo hash tem de aparecer no store.",
+      "ambiente": "worktree local; a ponte e verificada apos o merge da W4/W5"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem a ponte, o no de codigo da composicao nao consegue obter os bytes do destaque a partir do manifesto resolvido, e a suite offline continua verde porque a cobertura so olha os arquivos obrigatorios do cassete.",
+      "artefatos": [
+        "src/resolucao/codigo/artefatos.ts",
+        "src/resolucao/orquestrador.ts",
+        "src/store/store.ts",
+        "src/composicao/nos/codigo.tsx"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-456",
+    "titulo": "Cobertura de linguagens do lexer vs manifestos reais da autoria",
+    "pergunta": "Quando a autoria (W6+) gerar manifestos com linguagens fora de typescript/python/json (ex.: rust, go, yaml), a queda silenciosa para a gramatica `texto` e aceitavel, ou o lexer precisa de gramaticas novas?",
+    "por_que_aberto": "A fixture canonica tem um unico no de codigo em typescript; o lexer conhece typescript/javascript/tsx/jsx/json/python/texto. Linguagem desconhecida NAO e erro (o bloco sai cinza, com o motivo gravado no artefato), mas a politica de expansao do vocabulario de linguagens depende dos manifestos reais, que so a autoria produz.",
+    "decisao_provisoria": "Queda para texto com motivo no artefato (`gramaticaExata: false`). Nova gramatica = bump de versaoDasGramaticas + regravar o cassete.",
+    "verificacao": {
+      "cmd": "rg -o '\"linguagem\"[^,}]*' fixtures/canonico/manifesto-valido.json | sort | uniq -c; echo '---'; rg -o '^  [a-z]+' src/resolucao/codigo/gramaticas.ts | sort -u",
+      "espera": "linguagens da fixture (hoje: typescript) e o vocabulario do lexer impressos. Quando a autoria trouxer linguagens fora do vocabulario, decidir gramaticas novas com o diff de tokens (AB-451).",
+      "ambiente": "worktree local; a autoria e W6+"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um manifesto real com `rust` hoje produz bloco cinza com motivo; se isso for inaceitavel quando o primeiro video real sair, o custo da gramatica nova (bump + regravar + snapshots) nao estava no orcamento.",
+      "artefatos": [
+        "src/resolucao/codigo/gramaticas.ts",
+        "fixtures/cassetes/codigo/**",
+        "fixtures/snapshots/no-codigo/**"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]
