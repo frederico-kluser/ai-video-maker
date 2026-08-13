@@ -967,3 +967,46 @@ no-grafico-gerar-assets:
 no-grafico: no-grafico-conferir no-grafico-provar no-grafico-mutar no-grafico-ausencia no-grafico-snapshots
     @echo "no-grafico: VERDE"
 # === fim F1-09 ===
+
+# === F1-10 ===
+# =============================================================================
+# Transicoes e composicao de sequencia
+# =============================================================================
+# NOME DAS RECEITAS: hifen, nunca ':'. O `just` 1.42 le `a:b:` como "receita a
+# depende de b" e o arquivo INTEIRO deixa de parsear.
+# Ver docs/criterios-de-aceitacao-corrigidos.md §2.
+#
+# Porta TCP reservada para este card: 3110 (docs/contrato-w4.md §4).
+# Faixa de ledger: AB-370..AB-379 (ledger/inbox/F1-10.json).
+
+# A aceitacao inteira do card, em ordem. Este e o `just transicoes` do PROGRAMA.
+transicoes: transicoes-testar transicoes-provar transicoes-ausencia
+    @echo ""
+    @echo "transicoes: VERDE"
+
+# Tipos do escopo de composicao + a suite do card.
+transicoes-testar:
+    @echo "=== transicoes-testar: tipos + suite F1-10 ==="
+    npx tsc --noEmit -p tsconfig.composicao.json
+    npx vitest run tests/composicao/transicoes.test.ts
+
+# Determinismo: render 2x em PROCESSOS separados, cmp byte a byte, oraculo de
+# pixel (C1), regressao contra os 9 aprovados e snapshot conferido no git (C3).
+transicoes-provar:
+    bash tools/transicoes/provar.sh
+
+# ∅-crit: apagar um snapshot aprovado TEM de deixar o gate VERMELHO pelo
+# motivo certo (AUSENTE) e a restauracao TEM de devolver o VERDE.
+transicoes-ausencia:
+    bash tools/transicoes/ausencia.sh
+
+# Reaprova os 9 snapshots. So depois de revisar o diff — este comando nao
+# valida nada, ele grava o que o codigo faz hoje.
+transicoes-aprovar:
+    bash tools/transicoes/provar.sh --aprovar
+    @echo "revise antes de commitar: git diff fixtures/snapshots/transicoes/"
+
+# Preview no Studio, na porta reservada deste card.
+transicoes-studio:
+    npx remotion studio src/composicao/transicoes/entrada.tsx --port 3110
+# === fim F1-10 ===
