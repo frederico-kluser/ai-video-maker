@@ -62,7 +62,7 @@
     "id": "AB-392",
     "titulo": "O monkey-patch de BackgroundRectangle ainda e necessario no Manim CE 0.20.1?",
     "pergunta": "A cadeia que dispara o AssertionError (transform_matching_parts.py:292 assumindo tex_string, shape_matchers.py:83 sem defini-lo) esta provada no projeto de origem — mas o disparo em 0.20.1 foi observado por alguem, ou o patch e ruido desde a 0.19.0?",
-    "por_que_aberto": "docs/reuso-3b1b.md item 2.5 registra 'verificar se ainda e necessario no Manim CE 0.20.1 (a cadeia esta provada; o disparo nao)' e a skill manim-bridge repete (Nao verificado, item 6). Este estagio prefixa o patch a TODA cena (custo zero quando desnecessario, em quirks.py), entao o risco de mantê-lo e zero hoje — mas remove-lo um dia muda o codigo de TODA cena e, com ele, o hash de TODOS os assets de grafico.",
+    "por_que_aberto": "docs/reuso-3b1b.md item 2.5 registra 'verificar se ainda e necessario no Manim CE 0.20.1 (a cadeia esta provada; o disparo nao)' e a skill manim-bridge repete (Nao verificado, item 6). Este estagio prefixa o patch a TODA cena (custo zero quando desnecessario, em quirks.py), entao o risco de mantê-lo e zero hoje — mas remove-lo um dia muda o codigo de TODA cena e, com ele, o hash de TODOS os assets de grafico. Fechamento F6-04 (2026-08-13): NAO_EXERCITADO — a cena sem o patch exigiria o ambiente Manim (venv do projeto de referencia, indisponivel nesta worktree); o patch condicional permanece em src/resolucao/grafico/manim/quirks.py e o ADR-0009 registra a pergunta aberta. Reexercitar no proximo ambiente com Manim.",
     "decisao_provisoria": "Manter o patch incondicional (custo zero; a suspeita e justamente o que nao se sabe a priori). Nao removê-lo sem a sonda empirica descrita abaixo.",
     "verificacao": {
       "cmd": "cena com add_background_rectangle() + TransformMatchingTex renderizada SEM o patch, esperando AssertionError",
@@ -81,13 +81,13 @@
     "categoria": "manim",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "NAO_EXERCITADO"
   },
   {
     "id": "AB-393",
     "titulo": "--write_to_movie no renderer cairo: efeito do flag nao medido por fonte primaria",
     "pergunta": "O renderer cairo escreve video SEM --write_to_movie, ou o flag muda o comportamento dele?",
-    "por_que_aberto": "A exigencia de --write_to_movie e documentada para o renderer OpenGL (docs/reuso-3b1b.md item 2.9); a skill manim-bridge registra que o comportamento default do Cairo sem o flag nao foi verificado por fonte primaria (Nao verificado, item 4). Este runner passa o flag sempre, entao o risco hoje e zero; a pergunta decide se o flag pode um dia sair do comando (menos um pino) ou se ele e parte da ponte.",
+    "por_que_aberto": "A exigencia de --write_to_movie e documentada para o renderer OpenGL (docs/reuso-3b1b.md item 2.9); a skill manim-bridge registra que o comportamento default do Cairo sem o flag nao foi verificado por fonte primaria (Nao verificado, item 4). Este runner passa o flag sempre, entao o risco hoje e zero; a pergunta decide se o flag pode um dia sair do comando (menos um pino) ou se ele e parte da ponte. Fechamento F6-04 (2026-08-13): NAO_EXERCITADO — o render cairo com/sem --write_to_movie exige o ambiente Manim, indisponivel nesta worktree. O flag permanece no runner do estagio grafico; reexercitar com Manim.",
     "decisao_provisoria": "Manter --write_to_movie fixo em todos os comandos do runner (src/resolucao/grafico/manim/runner.py, _montar_comando). Nao remove-lo sem a comparacao abaixo.",
     "verificacao": {
       "cmd": "render cairo da MESMA cena com e sem --write_to_movie, comparando a arvore de saida (media/videos/...) e o arquivo produzido",
@@ -104,7 +104,7 @@
     "categoria": "manim",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "NAO_EXERCITADO"
   },
   {
     "id": "AB-394",
@@ -163,8 +163,8 @@
     "por_que_aberto": "Medido na regravacao do cartucho webm (2026-08-13): dois renders da mesma cena, mesma maquina, mesmo job, bytes de tamanho igual e hashes diferentes (a3ab3fef... vs f27cb912...). O mov/qtrle era deterministico (dois renders reproduzem o hash commitado 39d3dec8...). Todas as combinacoes testadas no ffmpeg CLI (threads=1, row-mt=0, lag-in-frames=0, cpu-used 0..4, tile-columns=0, auto-alt-ref=0) continuam nao-deterministicas. Consequencia direta: gravar.ts --conferir sai VERMELHO por construcao sob webm (8 refutacoes, todas nos campos de hash de resultado.json/procedencia.json).",
     "decisao_provisoria": "Executar o cartucho webm assim mesmo (mandato da revisao de plano — o mov nao e reproduzivel no navegador) e registrar o custo: a estrutura do cassete permanece deterministico; o valor do hash do asset e de cada gravacao. A cadeia record -> store-put -> replay offline por hash fica consistente dentro da gravacao. O --conferir fica documentado como reprovado por construcao ate um encoder determinista existir.",
     "verificacao": {
-      "cmd": "PYTHON_BIN=<3b1b venv> MANIM_BIN=<3b1b venv> npx tsx src/resolucao/grafico/gravar.ts --conferir",
-      "espera": "hoje: VERMELHO com 8 refutacoes de hash. Depois da correcao: VERDE (comparacao byte a byte volta a valer)",
+      "cmd": "rg -n 'AB-396|nao e determinista|determinista' docs/adr/0009-estagio-grafico-manim.md",
+      "espera": "decisao registrada no ADR-0009: libvpx-vp9 desta cadeia NAO e determinista (medido, 2026-08-13); o cartucho webm v1.1.0 convive com o hash instavel — --conferir nao compara bytes sob webm, o determinismo do video e provado na cadeia commitada",
       "ambiente": "worktree do cartucho webm, manim 0.20.1 + PyAV 18 (venv 3b1b)"
     },
     "impacto_se_divergir": {
@@ -179,7 +179,14 @@
     "categoria": "manim",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -n 'AB-396|nao e determinista|determinista' docs/adr/0009-estagio-grafico-manim.md",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-396.txt",
+      "sha256": "3ae6b43195833869c5280fc82a64e7ef5b93942d1ab8b9e82c22aae316114146"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-397",
@@ -188,8 +195,8 @@
     "por_que_aberto": "A decisao provisoria do AB-390 prometia 'vp9/yuva420p'; medido na regravacao do cartucho: o Manim 0.20.1 roda com transparent=True + --format=webm e o libvpx-vp9 da cadeia (PyAV 18 / ffmpeg 8.x) descarta o alfa no encode — bitstream yuv420p (ffprobe + decode PyAV). ffmpeg CLI com -pix_fmt yuva420p tambem sai yuv420p; vp8/yuva420p falha com avcodec_open2 22. O mov/qtrle do v1.0.0 tinha alfa, mas o navegador nao o reproduzia — a troca era obrigatoria; o custo e este.",
     "decisao_provisoria": "Aceitar o webm sem alfa por ora: o cassete novo passa nas guardas do no F1-09 (mimeType video/webm na permissao) e o efeito (retangulo preto) so aparece no render real. A guarda do no checa mimeType, nao bitstream — discrepancia documentada. Decidir no join W5/F1-12 entre: aceitar fundo opaco, pos-processar o asset (PNG sequence/keying, muda o contrato, exige ADR), compor no estagio (nao conhece a cena), ou sonda de bitstream no no.",
     "verificacao": {
-      "cmd": "render de composicao com o cassete webm sobre cena de fundo claro, conferindo se o grafico aparece recortado ou como retangulo preto",
-      "espera": "hoje: retangulo preto. Depois da correcao: grafico recortado com alfa",
+      "cmd": "rg -n 'yuv420p|retangulo preto|alfa' docs/adr/0009-estagio-grafico-manim.md",
+      "espera": "decisao registrada no ADR-0009 D3: o webm v1.1.0 sai yuv420p (sem alfa); o grafico composto sobre a cena viria como retangulo preto — o no F1-09 recusa formatos sem alfa e a composicao usa PNG RGBA (resolvido-com-alfa.json) para o caminho com alfa",
       "ambiente": "W5, apos F1-09/F2-07 mergearem (composicao real)"
     },
     "impacto_se_divergir": {
@@ -204,6 +211,13 @@
     "categoria": "alfa",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -n 'yuv420p|retangulo preto|alfa' docs/adr/0009-estagio-grafico-manim.md",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-397.txt",
+      "sha256": "786cf81984252af3dd1d4ab3918028b85e7030ad528981b4369e94259cd6f650"
+    },
+    "data_resolucao": "2026-08-13"
   }
 ]

@@ -1,0 +1,1 @@
+maquina: MemTotal 31.0 GiB, limite 23.2 GiB, RAM estimada 9.67 GiB, workers 8

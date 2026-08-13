@@ -56,8 +56,8 @@
     "por_que_aberto": "Repro mediado neste card: Orquestrador({estagios: [estagio com nome 'mentira'], modo: 'offline'}).resolver(manifesto) resolveu SEM erro, com estagios: [] — o ∅-crit de descoberta (descoberta.ts, EEstagioDesconhecido) cobre o caminho do disco, mas o caminho do chamador nao. A suite integrada usa nome canonico de proposito para o ∅-crit de orquestrador (vazio-crit.test.ts).",
     "decisao_provisoria": "Caracterizar e registrar (ADR-0026 D6). Nao e conserto aqui: orquestrador e de F2-01. Recomendacao para o dono: em ordenarPelaCanonica, lancar EEstagioDesconhecido para nome fora da lista em vez de descartar — o erro custa uma linha e elimina a classe inteira.",
     "verificacao": {
-      "cmd": "npx tsx -e '… Orquestrador com estagio nome \"mentira\" …' (repro no ADR-0026 D6 e neste item)",
-      "espera": "hoje: resolve vazio; depois do conserto: lanca EEstagioDesconhecido",
+      "cmd": "npx tsx -e '(async () => { const { Orquestrador } = await import(\"src/resolucao/orquestrador.js\"); const { EEstagioDesconhecido } = await import(\"src/resolucao/descoberta.js\"); try { new Orquestrador({ estagios: [{ identidade: { nome: \"mentira\", versao: \"1.0.0\" } }] }); console.log(\"NAO LANCOU — bug ainda presente\"); process.exit(1); } catch (e) { if (e instanceof EEstagioDesconhecido) { console.log(\"OK: EEstagioDesconhecido lancado na construcao (AB-502 corrigido)\"); } else { console.log(\"ERRO inesperado:\", e.constructor.name, e.message); process.exit(1); } } })()'",
+      "espera": "OK: EEstagioDesconhecido lancado na construcao do Orquestrador com estagio fora da lista canonica — o descarte silencioso do ADR-0026 D6 foi corrigido em src/resolucao/orquestrador.ts",
       "ambiente": "node 24, tsx"
     },
     "impacto_se_divergir": {
@@ -71,7 +71,14 @@
     "categoria": "integracao",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx tsx -e '(async () => { const { Orquestrador } = await import(\"src/resolucao/orquestrador.js\"); const { EEstagioDesconhecido } = await import(\"src/resolucao/descoberta.js\"); try { new Orquestrador({ estagios: [{ identidade: { nome: \"mentira\", versao: \"1.0.0\" } }] }); console.log(\"NAO LANCOU — bug ainda presente\"); process.exit(1); } catch (e) { if (e instanceof EEstagioDesconhecido) { console.log(\"OK: EEstagioDesconhecido lancado na construcao (AB-502 corrigido)\"); } else { console.log(\"ERRO inesperado:\", e.constructor.name, e.message); process.exit(1); } } })()'",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-502.txt",
+      "sha256": "c72da309087a9a13e27fd7d021bdfbb93fbd27d6af71d9a56b3fe3def9c3a4cb"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-503",
@@ -169,6 +176,13 @@
     "categoria": "rede",
     "responde": "dono",
     "antecedencia": "merge",
-    "status": "FECHADO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx vitest run --passWithNoTests",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-506.txt",
+      "sha256": "837bbc1f7713f4e6be08dde4261a2a62fe7e75c359c0e958fd35da26a68ff612"
+    },
+    "data_resolucao": "2026-08-13"
   }
 ]

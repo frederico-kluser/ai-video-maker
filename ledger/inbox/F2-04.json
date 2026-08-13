@@ -148,7 +148,14 @@
     "categoria": "resolucao",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "grep -rn 'writeFile(join(entrada.diretorioTrabalho' src/resolucao/midia/estagio.ts",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-435.txt",
+      "sha256": "f676f69370191cc6e5dfe37f4d05101ef9eb53e393797c6745afdc467efdcd0b"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-436",
@@ -273,6 +280,13 @@
     "categoria": "assets-licenca",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx tsx tools/midia/verificar.ts",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-440.txt",
+      "sha256": "b24875d72b651ef55d5ed3e3a6d02bdf49aaff1617ff3fd855b3abc657373c09"
+    },
+    "data_resolucao": "2026-08-13"
   }
 ]

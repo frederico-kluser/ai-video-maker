@@ -55,7 +55,14 @@
     "categoria": "audio",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "bash tools/timing/determinismo.sh && npx tsx tools/timing/gerar.ts --conferir",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-521.txt",
+      "sha256": "74e8319062f04e40b3baada7e86bad04a6dfdd3f1cc1a01fab93f6b6a47a725c"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-522",
@@ -105,6 +112,13 @@
     "categoria": "audio",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "grep -rn 'timing-canonico' src/ tests/ | wc -l",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-523.txt",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "data_resolucao": "2026-08-13"
   }
 ]

@@ -48,7 +48,14 @@
     "categoria": "render",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx vitest run tests/composicao/testar.test.ts -t \"envelope de producao\"",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-241.txt",
+      "sha256": "50a4cec4213ce8c9c3cdf0d5f2004c94c37f74774c828bf892c64d3165941630"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-242",
@@ -100,7 +107,14 @@
     "categoria": "agentes-worktrees",
     "responde": "operacao",
     "antecedencia": "commit",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just --list",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-243.txt",
+      "sha256": "b1dddaabd461d9b7d90c0487f3c64472126395ba70ef1d46f92c56e2a709134b"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-244",
@@ -151,6 +165,13 @@
     "categoria": "ambiente",
     "responde": "operacao",
     "antecedencia": "commit",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx tsc --noEmit",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-245.txt",
+      "sha256": "1409fe19aeb0c9a53def83f87aec80949a791c30777a07acce37b93d7e121f99"
+    },
+    "data_resolucao": "2026-08-13"
   }
 ]

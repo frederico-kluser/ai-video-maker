@@ -22,7 +22,14 @@
     "categoria": "agentes-worktrees",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just det-provar-midia",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-340.txt",
+      "sha256": "dafdf7a1f1d3a3308fcdb449d21fe95917a9b3151c859f8f1b3c76fed6caa2fd"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-341",
@@ -96,7 +103,14 @@
     "categoria": "agentes-worktrees",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx tsx tools/no-midia/provar.ts",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-343.txt",
+      "sha256": "928291b7e70c9e0b61517dc7102ff0ab7e11d1e062b9f363504c5ad747dab272"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-344",

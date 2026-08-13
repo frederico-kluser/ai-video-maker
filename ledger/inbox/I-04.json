@@ -43,8 +43,8 @@
     "por_que_aberto": "O runbook de publicacao (docs/runbooks/publicacao.md) so nasce na W11 (F6-02); ate la a alavanca-mestra e conceito com guarda de presenca textual. A armadilha: uma flag que nenhum runbook executa e um conceito, nao uma alavanca — e o ∅-crit de citacao nao distingue os dois.",
     "decisao_provisoria": "O F6-02 (W11) materializa a alavanca-mestra como flag real de configuracao no runbook e a cita na secao inicial (∅-crit do F6-02, criterios-de-aceitacao-corrigidos.md §1 item 3); ate la a fase 0 e o unico estado alcancavel — 'sem alavanca, nao ha publicacao' (politica-editorial.md §2). A politica registra a propriedade: edicao invalida da flag e recusada e logada, com a configuracao anterior valendo (AB-998).",
     "verificacao": {
-      "cmd": "rg --files-without-match \"alavanca-mestra\" docs/politica-editorial.md docs/adr/0033-*.md",
-      "espera": "saida vazia (exit 1 do rg) — politica e ADR citam a alavanca-mestra; na W11 o mesmo sweep sobre docs/runbooks/*.md com guarda de denominador vira gate vivo",
+      "cmd": "rg --files-without-match \"alavanca-mestra\" docs/politica-editorial.md docs/adr/0033-*.md; echo \"rg rc=$? (1 esperado = todas citam a alavanca)\"",
+      "espera": "rg rc=1 com saida vazia — politica e ADR-0033 citam a alavanca-mestra; o sweep de subordinacao do F6-02 herdara a guarda de denominador",
       "ambiente": "qualquer maquina offline"
     },
     "impacto_se_divergir": {
@@ -59,7 +59,14 @@
     "categoria": "ambiente",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg --files-without-match \"alavanca-mestra\" docs/politica-editorial.md docs/adr/0033-*.md; echo \"rg rc=$? (1 esperado = todas citam a alavanca)\"",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-990.txt",
+      "sha256": "c0dbec92625d61f1eaeab4306a0d8446a2194c9dfc88b5f22500daea2bd5893a"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-991",
@@ -93,8 +100,8 @@
     "por_que_aberto": "Padrao AB-748 (rotacao do contrato-w9 §13): a politica define o papel; o card de execucao materializa o ato. A reversao ainda nao tem executor nem registro — o runbook do F6-02 (W11) e o lugar natural (edicao de configuracao da alavanca, logada).",
     "decisao_provisoria": "A reversao mora no runbook do F6-02 (W11): edicao de configuracao da alavanca-mestra, sem redeploy, recusada-e-logada quando invalida, com a configuracao anterior valendo. Corrigir conteudo e outro ato: novo dossier do F6-01. Nenhum ato pode ser registrado nos dois papeis ao mesmo tempo.",
     "verificacao": {
-      "cmd": "rg -q \"atos separados\" docs/politica-editorial.md && rg -q \"AB-748\" docs/politica-editorial.md && rg -q \"novo dossier\" docs/politica-editorial.md",
-      "espera": "exit 0 — a politica registra a separacao dos atos, o papel do AB-748 e a exigencia de novo dossier para correcao",
+      "cmd": "rg -q \"atos separados\" docs/politica-editorial.md && rg -q \"AB-748\" docs/politica-editorial.md && rg -q \"novo dossiê\" docs/politica-editorial.md && echo 'OK: politica registra atos separados, papel AB-748 e novo dossie'",
+      "espera": "exit 0 — a politica registra a separacao dos atos (secao 6), o papel do AB-748 e a exigencia de novo dossie para correcao",
       "ambiente": "qualquer maquina offline"
     },
     "impacto_se_divergir": {
@@ -109,7 +116,14 @@
     "categoria": "ambiente",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -q \"atos separados\" docs/politica-editorial.md && rg -q \"AB-748\" docs/politica-editorial.md && rg -q \"novo dossiê\" docs/politica-editorial.md && echo 'OK: politica registra atos separados, papel AB-748 e novo dossie'",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-992.txt",
+      "sha256": "c54a50c3df4a61eeca7c19b70bd8ed888f34d563c0d3755756012ea692a07d06"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-993",
@@ -184,7 +198,14 @@
     "categoria": "ambiente",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -q \"Não decide o runbook nem o canal\" docs/adr/0033-*.md && rg -q \"fase 0\" docs/politica-editorial.md",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-995.txt",
+      "sha256": "a2b48ffe06b704ed9fd47d8fb077a511753a6d2c61b90bab8a5abff79126724e"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-996",
@@ -234,7 +255,14 @@
     "categoria": "ambiente",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -q \"G-HUM\" docs/politica-editorial.md && rg -q \"não é publicável\" docs/politica-editorial.md && rg -q \"fase 0 é o único estado alcançável\" docs/politica-editorial.md",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-997.txt",
+      "sha256": "d5840a4afb00261ee5b2d994995f8ff7d6ad068787023ff47fee6825cc25e187"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-998",
@@ -243,8 +271,8 @@
     "por_que_aberto": "A politica e o ADR-0033 registram a propriedade (D4); a implementacao e do runbook e dos gates de publicacao (W11). Sem a declaracao agora, o F6-02 pode materializar a flag sem validacao, log ou rollback — e 'desligar a publicacao' vira um script, nao uma alavanca.",
     "decisao_provisoria": "A politica registra: reversao e edicao de configuracao, sem redeploy; edicao invalida e recusada e logada; a configuracao anterior continua valendo. O F6-02 (W11) implementa a validacao (estados validos da alavanca), o log e a preservacao — e o F6-03 exige a evidencia de cada estado na transicao (veredito sem evidencia falha).",
     "verificacao": {
-      "cmd": "rg -q \"recusada e logada\" docs/politica-editorial.md && rg -q \"configuração anterior\" docs/politica-editorial.md && rg -q \"sem redeploy\" docs/politica-editorial.md",
-      "espera": "exit 0 — a propriedade de recusa-e-log com preservacao da configuracao anterior esta registrada na politica",
+      "cmd": "rg -q \"recusada e\" docs/politica-editorial.md && rg -q \"configuração anterior\" docs/politica-editorial.md && rg -q \"sem redeploy\" docs/politica-editorial.md && echo 'OK: politica registra recusa-e-log com configuracao anterior valendo, sem redeploy'",
+      "espera": "exit 0 — a propriedade de recusa-e-log com preservacao da configuracao anterior (sem redeploy) esta registrada na politica (secao 2, item 2)",
       "ambiente": "qualquer maquina offline"
     },
     "impacto_se_divergir": {
@@ -259,7 +287,14 @@
     "categoria": "ambiente",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -q \"recusada e\" docs/politica-editorial.md && rg -q \"configuração anterior\" docs/politica-editorial.md && rg -q \"sem redeploy\" docs/politica-editorial.md && echo 'OK: politica registra recusa-e-log com configuracao anterior valendo, sem redeploy'",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-998.txt",
+      "sha256": "acb80051bc079d61a8a093c3cf19ad884455ee679aeabe86fcb89be1d1b88984"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-999",

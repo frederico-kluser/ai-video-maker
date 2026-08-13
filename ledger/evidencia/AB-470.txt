@@ -1,0 +1,1 @@
+[saida vazia — exit 0] nenhum procedencia.json de musica sem "licenca" (test $? -eq 1 passou)

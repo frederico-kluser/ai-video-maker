@@ -1,0 +1,1 @@
+src/composicao/nos/cabecalho.tsx:119:    Math.log(1 / springDurationRestThreshold) /

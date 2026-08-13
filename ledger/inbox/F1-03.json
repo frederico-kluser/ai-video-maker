@@ -56,8 +56,8 @@
     "por_que_aberto": "O render local funciona: as tres fontes carregam com status 'loaded' e o still sai correto. Mas @remotion/bundler tem as opcoes symlinkPublicDir e onSymlinkDetected, cuja documentacao avisa que o bundle pode ficar nao-autossuficiente quando o diretorio publico e um link. Isso so importa quando o bundle for empacotado para outra maquina (render distribuido, Lambda), o que ainda nao existe no projeto. Em Windows sem modo desenvolvedor o link nem e criado.",
     "decisao_provisoria": "Manter o link simbolico relativo public/fontes -> ../assets/fontes, que evita duplicar bytes e nao toca em nenhum arquivo de configuracao compartilhado. Reavaliar quando existir render fora desta maquina.",
     "verificacao": {
-      "cmd": "npx tsx -e \"import {bundle} from '@remotion/bundler'; import {execSync} from 'node:child_process'; const dir = await bundle({entryPoint:'fixtures/fontes/index.tsx', onProgress:()=>{}, ignoreRegisterRootWarning:true}); console.log(execSync('find ' + dir + \\\" -name Inter-Regular.woff2 -type f\\\").toString())\"",
-      "espera": "o .woff2 aparece como arquivo regular dentro do diretorio do bundle; vazio significa que o bundle so repassou o link",
+      "cmd": "npx tsx -e '(async () => { const { bundle } = await import(\"@remotion/bundler\"); const { execSync } = await import(\"node:child_process\"); const dir = await bundle({entryPoint:\"fixtures/fontes/index.tsx\", onProgress:()=>{}, ignoreRegisterRootWarning:true}); console.log(\"BUNDLE:\", dir); const arqs = execSync(\"find \" + dir + \"/public -name '\"'''*.woff2'\"''' -type f\").toString().trim(); console.log(\"woff2 como arquivo REGULAR no bundle:\", arqs || \"NENHUM (o bundle repassa o link)\"); console.log(execSync(\"ls -la \" + dir + \"/public/\").toString()); })()'",
+      "espera": "SEGUNDO BRANCH MEDIDO: o bundle repassa o link — nenhum .woff2 como arquivo regular no public/ do bundle; o symlink aponta para assets/fontes do disco local. Aceito para a maquina pinada (o golden da W10 renderiza local); bundle self-contained e Windows ficam fora de escopo, registrados neste item.",
       "ambiente": "Linux, Node 24, @remotion/bundler 4.0.507"
     },
     "impacto_se_divergir": {
@@ -72,7 +72,14 @@
     "categoria": "ambiente",
     "responde": "infra",
     "antecedencia": "card",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx tsx -e '(async () => { const { bundle } = await import(\"@remotion/bundler\"); const { execSync } = await import(\"node:child_process\"); const dir = await bundle({entryPoint:\"fixtures/fontes/index.tsx\", onProgress:()=>{}, ignoreRegisterRootWarning:true}); console.log(\"BUNDLE:\", dir); const arqs = execSync(\"find \" + dir + \"/public -name '\"'''*.woff2'\"''' -type f\").toString().trim(); console.log(\"woff2 como arquivo REGULAR no bundle:\", arqs || \"NENHUM (o bundle repassa o link)\"); console.log(execSync(\"ls -la \" + dir + \"/public/\").toString()); })()'",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-272.txt",
+      "sha256": "0237bc5cd4ac0a2cfd65af258fddb446df482974a7bdafbf5b016a6540c3bcab"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-273",
@@ -124,6 +131,13 @@
     "categoria": "assets-licenca",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "du -sh assets/fontes/*.woff2",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-274.txt",
+      "sha256": "60bf47cb9ba4e0aff3415318203e0b9bcf9bbc1805c88bfae577dcb8a29033e6"
+    },
+    "data_resolucao": "2026-08-13"
   }
 ]

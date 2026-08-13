@@ -1,0 +1,7 @@
+=== no-grafico conferir: fixtures/snapshots/no-grafico/resolvido-formato-sem-alfa.json ===
+  nos do tipo "grafico" conferidos: 1
+
+  FALHOU  no-grafico: no "g-asset": formato "image/jpeg" NAO tem canal alfa (JFIF nao tem canal alfa — todo pixel do quadro e opaco) — o grafico entraria no video como retangulo opaco por cima da cena, sem nenhum erro no build. Peca ao estagio "grafico" um destes: image/apng, image/gif, image/png, image/svg+xml, image/webp, video/webm
+  FALHOU  no-grafico: no "g-asset": NAO-VERIFICADO — este conferidor ainda nao le os bytes de "image/jpeg". Nao verificado e VERMELHO, nunca pulado: um alfa que ninguem olhou nao e um alfa que existe (ledger AB-363)
+
+=== VERMELHO: o grafico nao pode entrar no video ===

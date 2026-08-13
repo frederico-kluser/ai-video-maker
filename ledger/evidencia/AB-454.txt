@@ -1,0 +1,5 @@
+pilha: JetBrains Mono, Fira Code, monospace
+---
+Inter-Bold.woff2
+Inter-Regular.woff2
+JetBrainsMono-Regular.woff2

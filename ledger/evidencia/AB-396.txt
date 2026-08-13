@@ -1,45 +1,9 @@
-AB-396 — libvpx-vp9 nao-determinista: hash do asset varia entre gravacoes
-==========================================================================
-
-Descoberto na regravacao do cartucho webm (2026-08-13).
-
-1) Mesmo job, mesma maquina, dois diretorios (runner.py, cena g-001):
-
-   run-0 hash: a3ab3fefab672a942c73117bd6b4878ece20327cabd8c7e95e382319f7255a81
-   run-b hash: f27cb9124bc512ba457e4d89d50fb4cf0651bcdabfd2684fad3b5fe1ddf9ca47
-   bytes: 11474 11474  ->  bytes iguais, conteudo diferente.
-
-2) O mov/qtrle era deterministico (mesmo procedimento):
-
-   mov run-a hash: 39d3dec8ca0d27dd3eb2925997cc4cd4e0e6ac18dd7147589a68d97bdd7d90e6
-   mov run-b hash: 39d3dec8ca0d27dd3eb2925997cc4cd4e0e6ac18dd7147589a68d97bdd7d90e6
-   (reproduz o hash do cassete v1.0.0 commitado)
-
-3) ffmpeg CLI libvpx-vp9, todas as combinacoes testadas saem
-   nao-deterministicas (2 encodes iguais nunca):
-
-   default | -threads 1 -row-mt 0 | -lag-in-frames 0 | -frame-parallel 0
-   | -cpu-used 4 | -cpu-used 4 -threads 1 -row-mt 0
-   | -cpu-used 0 -threads 1 -row-mt 0 -tile-columns 0 -lag-in-frames 0
-   -auto-alt-ref 0  ->  TODAS nao-deterministicas.
-
-4) Consequencia no cassete: `gravar.ts --conferir` sai VERMELHO por
-   construcao sob webm — 8 refutacoes, todas nos campos de hash:
-
-   [REFUTA] procedencia.json#/assets[0].hash
-   [REFUTA] procedencia.json#/assets[1].hash
-   [REFUTA] resultado.json#/assets.<hash> (4x)
-   [REFUTA] resultado.json#/nos_grafico.g-001
-   [REFUTA] resultado.json#/nos_grafico.g-002
-
-   (a chave do cassete e estavel; o que varia e o valor do hash do asset)
-
-5) O que permanece deterministico: estrutura do cassete (chave,
-   cassete.json, chamadas.json vazio, volatil.json como unica diferenca
-   explicada, sonda negativa VERDE — regravar-e-diffar.ts VERDE).
-
-Caminho de saida possivel (nao decidido): encoder determinista ou
-pos-processo que re-embale o video — exige ADR proprio (o runner nao
-"conserta" saida). Impacto hoje: cada gravacao grava o hash daquele
-render; record -> store-put -> replay offline por hash fica consistente
-dentro da gravacao.
+23:> determinista: dois renders da mesma cena na mesma maquina produzem bytes
+24:> diferentes (medido; ver AB-396). Sob webm, `--conferir` sai VERMELHO por
+28:> so volta com um encoder determinista, e a pergunta esta aberta em AB-396.
+103:- O libvpx-vp9 desta cadeia **nao e determinista**: dois renders da mesma
+104:  cena, mesma maquina, mesmo job, produzem bytes diferentes (AB-396). O
+197:deixou de ser reproduzivel: o libvpx-vp9 desta cadeia nao e determinista,
+199:de hash de `resultado.json` e `procedencia.json` (**AB-396**). A cadeia
+247:4. **O webm nao e determinista** (libvpx-vp9, AB-396): o hash do asset
+250:   encoder/saida determinista e e uma pergunta aberta.

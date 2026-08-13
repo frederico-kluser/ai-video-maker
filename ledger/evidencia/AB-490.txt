@@ -1,0 +1,6 @@
+125: *   video/quicktime — o `.mov` do motor de graficos e `qtrle`/`argb`: TEM
+180:  "video/quicktime": {
+098c83801e253029d2dcf1068a90435cffcbf97873cc862e53ca5dec7297a0b4
+4:**Data:** 2026-08-11 (base), 2026-08-13 (cartucho webm — D3/D10 revistos)
+21:> **Aviso do cartucho webm (2026-08-13):** `--conferir` saiu do estado "regrava e
+24:> diferentes (medido; ver AB-396). Sob webm, `--conferir` sai VERMELHO por

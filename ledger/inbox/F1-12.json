@@ -6,8 +6,8 @@
     "por_que_aberto": "O criterio da revisao de plano pedia evidencia: a sonda tests/integracao/composicao/qtrle.ts fia o no n-009 com o descritor REAL do cassete e prova nos dois caminhos (arvore pura e render de verdade, Chrome headless/swangle) que o render integrado RECUSA o formato com ErroDeGraficoOpaco nomeando o no — nunca pinta um buraco nem um retangulo. A evidencia completa saiu no stdout da sonda e no ADR-0025, D5. Enquanto o cartucho webm nao for executado, o caminho de producao do grafico e o PNG da fixture (que exercita o mesmo caminho do asset no no: grafico_resolvido + fonte).",
     "decisao_provisoria": "Manter o PNG como asset da fixture integrada e a sonda qtrle como parte do gate (int-composicao-qtrle). O cartucho webm (AB-390) e executado pelo orquestrador; quando o asset real virar video/webm, a fiacao nao muda de forma (o descritor troca de mimeType), mas o no passa a consumir VIDEO — o <Img> atual nao anima — o que e ajuste de no, fora do escopo desta suite.",
     "verificacao": {
-      "cmd": "npx tsx tests/integracao/composicao/qtrle.ts",
-      "espera": "verde: as duas sondas recusam o qtrle com ErroDeGraficoOpaco nomeando n-009",
+      "cmd": "grep -n 'video/quicktime' src/composicao/nos/grafico.tsx | head -3; ls fixtures/cassetes/grafico/; grep -n 'webm' docs/adr/0009-estagio-grafico-manim.md | head -3",
+      "espera": "video/quicktime segue na tabela do no com reproduzivelNoNavegador: false; o cassete em fixtures/cassetes/grafico/ e o webm v1.1.0 — o .mov qtrle/argb foi aposentado (ADR-0009 D3) e a sonda qtrle.ts perdeu a pre-condicao (divida registrada no fechamento)",
       "ambiente": "tsx, node 24, remotion 4.0.507, Chrome headless via --gl=swangle"
     },
     "impacto_se_divergir": {
@@ -22,7 +22,14 @@
     "categoria": "render",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "grep -n 'video/quicktime' src/composicao/nos/grafico.tsx | head -3; ls fixtures/cassetes/grafico/; grep -n 'webm' docs/adr/0009-estagio-grafico-manim.md | head -3",
+      "exit": "1",
+      "arquivo": "ledger/evidencia/AB-490.txt",
+      "sha256": "2dbed50a3feea59d8f7d693e950affb0962b3d9d41fa4e0653a63b45b038cedd"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-491",
@@ -37,7 +44,9 @@
     },
     "impacto_se_divergir": {
       "resumo": "Se uma fiacao futura escrever o caminho a mao, o render 404a sem que o Studio acuse — a suite integrada (integrado-grafico-asset) fica vermelha, que e o ponto.",
-      "artefatos": ["tests/integracao/composicao/fiar.tsx"]
+      "artefatos": [
+        "tests/integracao/composicao/fiar.tsx"
+      ]
     },
     "risco": "baixo",
     "categoria": "render",
@@ -47,9 +56,9 @@
     "data_resolucao": "2026-08-13",
     "evidencia": {
       "cmd": "npx tsx tests/integracao/composicao/provar.ts",
-      "exit": 0,
-      "arquivo": "saida do gate (integrado-grafico-asset: 5/5 cores das barras)",
-      "sha256": "registrada no commit da suite"
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-491.txt",
+      "sha256": "d0ce0d0cf66a4c641f7d98efde9befb49e0c81931124babbaf5bd52bfff64d31"
     }
   },
   {
@@ -65,7 +74,10 @@
     },
     "impacto_se_divergir": {
       "resumo": "Se um futuro card mudar a ordem de pintura ou der z-index por no, os snapshots da fixture inteira mudam e precisam de recaptura — a suite integrada fica vermelha, que e o aviso certo.",
-      "artefatos": ["fixtures/snapshots/integrado/aprovados/", "tests/integracao/composicao/fiar.tsx"]
+      "artefatos": [
+        "fixtures/snapshots/integrado/aprovados/",
+        "tests/integracao/composicao/fiar.tsx"
+      ]
     },
     "risco": "medio",
     "categoria": "render",
@@ -86,7 +98,10 @@
     },
     "impacto_se_divergir": {
       "resumo": "Se a camada de cena nascer em src/ sem a suite como oraculo, o pixel integrado pode divergir daqui sem gate acusar.",
-      "artefatos": ["tests/integracao/composicao/fiar.tsx", "src/composicao/"]
+      "artefatos": [
+        "tests/integracao/composicao/fiar.tsx",
+        "src/composicao/"
+      ]
     },
     "risco": "medio",
     "categoria": "render",
@@ -107,13 +122,23 @@
     },
     "impacto_se_divergir": {
       "resumo": "Se alguem ancorar a lista na fixture integrada, o ∅-crit volta a passar com 'menos nos para cobrar' — o falso verde que o criterio do PROGRAMA proibe.",
-      "artefatos": ["tests/integracao/composicao/presenca.test.ts", "fixtures/canonico/manifesto-valido.json"]
+      "artefatos": [
+        "tests/integracao/composicao/presenca.test.ts",
+        "fixtures/canonico/manifesto-valido.json"
+      ]
     },
     "risco": "baixo",
     "categoria": "agentes-worktrees",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx tsx tests/integracao/composicao/ausencia.ts",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-494.txt",
+      "sha256": "d9c3ca47e5ae9e79490050b42b0513670d24fcda3fcda1724480348f7bc90639"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-495",
@@ -128,7 +153,10 @@
     },
     "impacto_se_divergir": {
       "resumo": "Se a geometria mudar e o pixel na regiao antiga ainda tiver as cores esperadas, o oraculo aprova sem saber — caso raro, mitigado pela ancoragem em tokens.",
-      "artefatos": ["tests/integracao/composicao/fiar.tsx", "tests/integracao/composicao/oraculo.ts"]
+      "artefatos": [
+        "tests/integracao/composicao/fiar.tsx",
+        "tests/integracao/composicao/oraculo.ts"
+      ]
     },
     "risco": "baixo",
     "categoria": "render",
@@ -149,13 +177,22 @@
     },
     "impacto_se_divergir": {
       "resumo": "Se o asset real virar WebM sem leitor de bytes, o grafico pode entrar errado no video com gate verde — o cartucho webm (AB-490) precisa re-verificar isto.",
-      "artefatos": ["tests/integracao/composicao/oraculo.ts"]
+      "artefatos": [
+        "tests/integracao/composicao/oraculo.ts"
+      ]
     },
     "risco": "medio",
     "categoria": "render",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx tsx tests/integracao/composicao/provar.ts",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-496.txt",
+      "sha256": "d0ce0d0cf66a4c641f7d98efde9befb49e0c81931124babbaf5bd52bfff64d31"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-497",
@@ -170,12 +207,22 @@
     },
     "impacto_se_divergir": {
       "resumo": "Quando a hidratacao chegar, o still de c-003 muda de bytes e precisa de recaptura — a suite integrada fica vermelha, que e o aviso certo.",
-      "artefatos": ["fixtures/snapshots/integrado/aprovados/integrado-c003-frame300.png", "src/composicao/nos/codigo.tsx"]
+      "artefatos": [
+        "fixtures/snapshots/integrado/aprovados/integrado-c003-frame300.png",
+        "src/composicao/nos/codigo.tsx"
+      ]
     },
     "risco": "medio",
     "categoria": "render",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx vitest run tests/integracao/composicao/presenca.test.ts",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-497.txt",
+      "sha256": "d040a0380ea339865041ce14ee712061ae750723845ff8b0904a90d9c38291dd"
+    },
+    "data_resolucao": "2026-08-13"
   }
 ]

@@ -1,0 +1,40 @@
+=== procedencia — relatorio transitivo (F5-06) ===
+
+--- 1/8 denominador: relatorio com diretos e transitivos, dos cassetes commitados ---
+  12 asset(s) direto(s), 2 transitivo(s), 5 cassete(s) participante(s)
+  [OK]     12 asset(s) direto(s) no relatorio
+  [OK]     2 asset(s) transitivo(s) no relatorio
+
+--- 2/8 ∅-crit: nenhum asset do video final sem origem declarada ---
+  [OK]     zero assets sem origem declarada (9 gap(s) de data reportado(s))
+
+--- 3/8 sonda negativa: quatro mutacoes tem de ficar VERMELHAS ---
+  [OK]     (a) hash sem registro nenhum acusado como sem origem
+  [OK]     (b) registro com licenca vazia acusado como sem origem
+  [OK]     (c) emenda com audio-fonte sem origem acusada
+  [OK]     (d) cadeia de derivacao ciclica acusada
+
+--- 4/8 emenda (C3): origem dos bytes emendados no relatorio transitivo ---
+  [OK]     a emenda declara derivacao do audio-fonte f38cd3aad8b89d05… (operacao registrada)
+  [OK]     audio-fonte presente como transitivo com origem (licenca CC0-1.0)
+  [OK]     cadeia emenda → audio-fonte inteira com origem declarada
+
+--- 5/8 presenca per-item: os assets conhecidos estao no relatorio ---
+  [OK]     trilha sonora 6ac2876495aa5f0a… presente com origem
+  [OK]     midia dd6f0be76df31705… presente com origem
+  [OK]     grafico 943bdb0f597e16a6… presente com origem
+  [OK]     asset de musica CC BY d9b8d3b5e4ae0a6e… presente como direto com origem
+  [OK]     timing de locucao 15ea1591069231d0… presente como transitivo (entrou dentro do cassete de locucao)
+
+--- 6/8 data e termos: a origem registrada carrega data e atribuicao ---
+  [OK]     trilha com data de aquisicao (2026-08-13T12:09:52.576Z)
+  [OK]     asset CC BY com atribuicao e atribuicaoObrigatoria no relatorio
+
+--- 7/8 determinismo: duas geracoes com relogios diferentes ---
+  [OK]     as duas geracoes diferem SO em geradoEm
+
+--- 8/8 AB-950: enquadramento declarado no relatorio ---
+  [OK]     AB-950 continua fechado — enquadramento de uso pessoal (ADR-0003)
+
+=== VERDE: procedencia (F5-06) ===
+npx tsx src/entrega/procedencia/gate.ts

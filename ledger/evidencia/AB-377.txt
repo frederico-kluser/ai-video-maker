@@ -1,0 +1,81 @@
+=== pre-condicao: os 9 snapshots aprovados tem de existir ===
+  os 9 quadros aprovados estao no disco
+
+=== render 1: bundle unico, 9 stills (gl: swangle, rasterizacao por software) ===
+=== renderizar: 9 quadro(s) -> /tmp/tmp.mYZI5uM7ab/render-1
+bundlando...
+  fade-antes.png  (fade, frame 15)
+  fade-meio.png  (fade, frame 24)
+  fade-depois.png  (fade, frame 33)
+  wipe-meio.png  (wipe, frame 24)
+  clock-wipe-meio.png  (clockWipe, frame 24)
+  slide-meio.png  (slide, frame 24)
+  cube-meio.png  (cube, frame 24)
+  flip-quarto.png  (flip, frame 21)
+  none-meio.png  (none, frame 24)
+=== renderizar: OK (/tmp/tmp.mYZI5uM7ab/render-1)
+
+=== render 2: SEGUNDO PROCESSO, mesmos 9 stills ===
+=== renderizar: 9 quadro(s) -> /tmp/tmp.mYZI5uM7ab/render-2
+bundlando...
+  fade-antes.png  (fade, frame 15)
+  fade-meio.png  (fade, frame 24)
+  fade-depois.png  (fade, frame 33)
+  wipe-meio.png  (wipe, frame 24)
+  clock-wipe-meio.png  (clockWipe, frame 24)
+  slide-meio.png  (slide, frame 24)
+  cube-meio.png  (cube, frame 24)
+  flip-quarto.png  (flip, frame 21)
+  none-meio.png  (none, frame 24)
+=== renderizar: OK (/tmp/tmp.mYZI5uM7ab/render-2)
+
+=== determinismo: render 1 contra render 2 ===
+  fade-antes.png: bytes identicos (8525398d5a6da50e…)
+  fade-meio.png: bytes identicos (4b556d347f23cef1…)
+  fade-depois.png: bytes identicos (eb6935b5516190fc…)
+  wipe-meio.png: bytes identicos (65414fa843aa0c01…)
+  clock-wipe-meio.png: bytes identicos (aa41e849a43fa40f…)
+  slide-meio.png: bytes identicos (df3b66561e952e36…)
+  cube-meio.png: bytes identicos (e5de256252ba8127…)
+  flip-quarto.png: bytes identicos (a66c51baaf56e841…)
+  none-meio.png: bytes identicos (eb6935b5516190fc…)
+
+=== pixel (C1): o render novo desenha o prometido? ===
+ok: fade-antes.png (2 cores distintas)
+ok: fade-meio.png (3 cores distintas)
+ok: fade-depois.png (2 cores distintas)
+ok: wipe-meio.png (2 cores distintas)
+ok: clock-wipe-meio.png (4 cores distintas)
+ok: slide-meio.png (4 cores distintas)
+ok: cube-meio.png (404 cores distintas)
+ok: flip-quarto.png (233 cores distintas)
+ok: none-meio.png (2 cores distintas)
+
+=== VERDE: 9 quadros com o pixel prometido (C1) ===
+
+=== regressao: render atual contra snapshot aprovado ===
+  fade-antes.png: identico
+  fade-meio.png: identico
+  fade-depois.png: identico
+  wipe-meio.png: identico
+  clock-wipe-meio.png: identico
+  slide-meio.png: identico
+  cube-meio.png: identico
+  flip-quarto.png: identico
+  none-meio.png: identico
+=== snapshot: os 9 quadros aprovados existem? ===
+  ok: fixtures/snapshots/transicoes/fade-antes.png (3069 bytes)
+  ok: fixtures/snapshots/transicoes/fade-meio.png (3102 bytes)
+  ok: fixtures/snapshots/transicoes/fade-depois.png (3081 bytes)
+  ok: fixtures/snapshots/transicoes/wipe-meio.png (3054 bytes)
+  ok: fixtures/snapshots/transicoes/clock-wipe-meio.png (3110 bytes)
+  ok: fixtures/snapshots/transicoes/slide-meio.png (3103 bytes)
+  ok: fixtures/snapshots/transicoes/cube-meio.png (8221 bytes)
+  ok: fixtures/snapshots/transicoes/flip-quarto.png (5729 bytes)
+  ok: fixtures/snapshots/transicoes/none-meio.png (3081 bytes)
+=== snapshot: git diff --exit-code fixtures/snapshots/transicoes/ ===
+  sem diferenca em arquivo rastreado
+=== snapshot: git status --porcelain fixtures/snapshots/transicoes/ ===
+  diretorio limpo e rastreado
+
+=== VERDE: determinismo provado e snapshot conferido ===

@@ -22,7 +22,14 @@
     "categoria": "assets-licenca",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just procedencia",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-745.txt",
+      "sha256": "09d5adcad6f663a0a2edc8eafe5fc98cc548ef4ef16f56b768309b4cd157dde6"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-746",

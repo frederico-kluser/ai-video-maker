@@ -85,7 +85,14 @@
     "categoria": "audio",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx vitest run tests/sincronia/ritmo.test.ts -t \"audio\"",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-617.txt",
+      "sha256": "1f8e7dd58257229189743ac75f257586587a01af33c279e0e842eb0e40c24a89"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-618",

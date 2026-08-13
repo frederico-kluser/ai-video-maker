@@ -54,7 +54,14 @@
     "categoria": "audio",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "/home/ondokai/Projects/deep-orchestrator/scripts/search.sh \"average speaking rate Portuguese voiceover narration study wpm\" --count 8 --freshness py",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-571.txt",
+      "sha256": "b099682bbaf81cad72b9396bcb11e68d9a53d7198c4e55ceb985819b84a035e7"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-572",
@@ -79,13 +86,20 @@
     "categoria": "render",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "/home/ondokai/Projects/deep-orchestrator/scripts/search.sh \"average shot length educational explainer video seconds study pacing retention\" --count 8",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-572.txt",
+      "sha256": "7ad14c902ac28a0c44b4ab40d9188c84f98e0db80454e03a790266c5a1f7f808"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-573",
     "titulo": "Pronuncias do dicionario sao provisorias ate a audicao no provedor real de TTS",
     "pergunta": "Cada pronuncia pretendida em docs/autoria/prompts/dicionario-pronuncia.md (ex.: SQL como es-que-el, GIF como guif, Node.js como nodj) confere com a fala do provedor de TTS da locucao, ou precisa de ajuste?",
-    "por_que_aberto": "A skill tts-voiceover (R13) e explicita: 'sintetizar e ouvir e o unico teste; nenhum gate automatico deste programa pega pronuncia errada'. As pronuncias foram registradas por convencao tecnica corrente do pt-BR, sem sintese. A frase-canario do R13 exercita sigla, produto e barra.",
+    "por_que_aberto": "A skill tts-voiceover (R13) e explicita: 'sintetizar e ouvir e o unico teste; nenhum gate automatico deste programa pega pronuncia errada'. As pronuncias foram registradas por convencao tecnica corrente do pt-BR, sem sintese. A frase-canario do R13 exercita sigla, produto e barra. Fechamento F6-04 (2026-08-13): NAO_EXERCITADO — a audicao no provedor real de TTS exige credencial (sem .env nesta worktree; cassete gravado contra sosia local). O dicionario permanece provisorio ate a audicao.",
     "decisao_provisoria": "A tabela registra termo + pronuncia pretendida em ortografia pt-BR (o adaptador do provedor serializa); as entradas sao provisorias e o processo de extensao do arquivo exige a audicao. Nenhuma entrada bloqueia a autoria.",
     "verificacao": {
       "cmd": "sintetizar a frase-canario do dicionario no provedor de TTS da locucao (maquina-alvo com a conta F2-03) e ouvir, termo a termo",
@@ -104,13 +118,13 @@
     "categoria": "audio",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "NAO_EXERCITADO"
   },
   {
     "id": "AB-574",
     "titulo": "Regra de bolso do roteiro (135 wpm -> ~13 palavras por cena de 6 s) e opiniao sem medicao de fala sintetizada",
     "pergunta": "A fala sintetizada do provedor de TTS da locucao, com as pausas reais do motor, cabe na banda 125-145 wpm que os prompts orientam — ou a conversao palavras-por-segundo precisa de fator de correcao?",
-    "por_que_aberto": "A regra de bolso (135 wpm / 60 x 6 s = 13,5 palavras) e derivacao aritmetica marcada como opiniao no ADR-0024; a fala sintetizada inclui pausas e prosodia que a aritmetica nao modela. A medicao exige sintese real.",
+    "por_que_aberto": "A regra de bolso (135 wpm / 60 x 6 s = 13,5 palavras) e derivacao aritmetica marcada como opiniao no ADR-0024; a fala sintetizada inclui pausas e prosodia que a aritmetica nao modela. A medicao exige sintese real. Fechamento F6-04 (2026-08-13): NAO_EXERCITADO — sintetizar a locucao de referencia exige o provedor de TTS com credencial (sem .env nesta worktree). A regra de bolso 135 wpm permanece sem medicao de fala sintetizada.",
     "decisao_provisoria": "Os prompts usam a regra como orientacao de roteiro (marcada opiniao), nunca como gate; nenhum numero entra em criterio de aceitacao sem fonte ou medicao.",
     "verificacao": {
       "cmd": "sintetizar a locucao de referencia de docs/autoria/prompts/casos/** no provedor de TTS e medir duracao real por cena contra a contagem de palavras",
@@ -129,7 +143,7 @@
     "categoria": "audio",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "NAO_EXERCITADO"
   },
   {
     "id": "AB-575",

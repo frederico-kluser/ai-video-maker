@@ -1,0 +1,63 @@
+=== res-midia — card F2-04, com a rede bloqueada neste processo ===
+Estagio:  midia v1.0.1
+Chave:    70696a6341b0673ae1145c4a37a4034e448e80d0149a88232f42db5b8ef11002
+Cassete:  fixtures/cassetes/midia/70696a6341b0673ae1145c4a37a4034e448e80d0149a88232f42db5b8ef11002
+
+--- [1/7] denominador — sem isto, todo o resto e vacuidade (C2) ---
+  assets no resultado: 2
+  chamadas gravadas:   4 (2 busca + 2 download)
+  nos de midia:        2
+  procedencias:        2
+  [OK] o cassete tem 2 asset(s)
+  [OK] o cassete tem 4 chamada(s) gravada(s)
+  [OK] o cassete tem 2 chamada(s) de BUSCA (api.php)
+  [OK] o cassete tem 2 chamada(s) de DOWNLOAD de binario (upload.wikimedia.org)
+  [OK] procedencia cobre os 2 asset(s) (2)
+
+--- [2/7] C7 — nenhuma URL abaixo da fronteira, e a URL preservada acima ---
+  [OK] encontrarURLs(resultado.json) = 0 ocorrencia(s)
+  [OK] todas as 2 procedencias guardam a URL de origem (2) — a URL mudou de lado, nao foi apagada
+  [OK] sonda negativa: uma URL contrabandeada na atribuicao E detectada
+
+--- [3/7] os bytes dos assets rehasheiam para o SHA-256 declarado ---
+  [OK] corpos/0e186f98bb29… rehasheia para o hash declarado
+  [OK] byteSize confere para 0e186f98bb29…
+  [OK] corpos/dd6f0be76df3… rehasheia para o hash declarado
+  [OK] byteSize confere para dd6f0be76df3…
+  [OK] sonda negativa: um byte trocado no corpo NAO rehasheia para o hash declarado
+
+--- [4/7] cache quente: o estagio NAO chama a rede (nem `resolver()` roda) ---
+  [OK] o orquestrador resolveu sem invocar `resolver()` (o espiao teria lancado)
+  [OK] zero tentativas de saida durante a reproducao (antes=0, depois=0)
+  [OK] o no n-midia-01 reproduzido e o mesmo do cassete
+  [OK] o registro declara origem "cassete" (cassete)
+
+--- [5/7] o cassete e sosia: `resolver()` sobre os bytes CRUS reproduz o resultado ---
+  [OK] rodar o estagio contra os corpos gravados reproduz `resultado.json` byte a byte
+  [OK] o corpo gravado ainda traz AttributionRequired como STRING ("true")
+  [OK] o corpo gravado ainda traz HTML com href relativo a protocolo
+  [OK] logo: a limpeza e do ESTAGIO e roda tambem no replay
+
+--- [6/7] determinismo: duas regravacoes a partir do cassete, relogios diferentes ---
+  [OK] gravacao 1: 4 chamadas reais (2 busca + 2 download) — a perna de determinismo NAO e vacua
+  [OK] gravacao 2: 4 chamadas reais (2 busca + 2 download) — a perna de determinismo NAO e vacua
+  Arquivos comparados: 9 (cassete.json, chamadas.json, corpos/0e186f98bb29f2fe7758a18ff74f1b6904347384f56fd4a6e67f93f1b1c95ad6, corpos/68fb6e222b501453180f63d019805a329eb957984cb395589fab5e390dd1146e, corpos/8883742aa9538ba34e345f401bd5da39b2ff313b14a2497d5a77a5fe193b1cf6, corpos/dd6f0be76df31705998cd38604847d60ffa2833056dcc3864fb2f7047abeeb1f, procedencia.json, resultado.json, volatil.json)
+  [EXPLICADA] volatil.json#/duracaoMs — campo volatil declarado em CAMPOS_VOLATEIS
+      1: 4
+      2: 2
+  [EXPLICADA] volatil.json#/gravadoEm — campo volatil declarado em CAMPOS_VOLATEIS
+      1: 2026-01-01T00:00:00.000Z
+      2: 2026-12-31T23:59:59.000Z
+  Veredito: EXPLICADA (0 refutacao(oes), 2 explicada(s))
+  [OK] zero refutacoes (2 diferenca(s) explicada(s))
+  [OK] sonda negativa: resultado mutado deixa o diff VERMELHO (1 refutacao(oes))
+
+--- [7/7] credencial: nenhum byte do cassete carrega segredo ---
+  arquivos varridos: 9 (6 padroes)
+  [OK] o denominador da varredura nao e zero
+  [OK] nenhum arquivo do cassete casa padrao de credencial
+  [OK] nenhuma das 4 chamadas levou header de autenticacao
+  [OK] nenhuma das 4 URLs gravadas traz chave em query string
+  [OK] sonda negativa: o varredor de credencial reconhece um segredo plantado
+
+=== VERDE: res-midia ===

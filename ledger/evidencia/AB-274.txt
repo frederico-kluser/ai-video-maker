@@ -1,0 +1,3 @@
+116K	assets/fontes/Inter-Bold.woff2
+112K	assets/fontes/Inter-Regular.woff2
+92K	assets/fontes/JetBrainsMono-Regular.woff2

@@ -29,7 +29,7 @@
     "id": "AB-451",
     "titulo": "Equivalencia de tokens entre o lexer caseiro e um motor real nunca medida",
     "pergunta": "Para o mesmo snippet e o mesmo tema, os tokens do lexer caseiro diferem dos de um motor real (Shiki/lighter) em quantos trechos?",
-    "por_que_aberto": "AB-063 (tokens do Shiki vs tokens do lighter) continua aberto; este card introduz um terceiro tokenizador, e a equivalencia dele com qualquer motor real nunca foi diffada. A troca de motor (AB-450) precisa deste numero para ser decidida com orcamento.",
+    "por_que_aberto": "AB-063 (tokens do Shiki vs tokens do lighter) continua aberto; este card introduz um terceiro tokenizador, e a equivalencia dele com qualquer motor real nunca foi diffada. A troca de motor (AB-450) precisa deste numero para ser decidida com orcamento. Fechamento F6-04 (2026-08-13): NAO_EXERCITADO — a medicao de equivalencia exige um motor real (Shiki/lighter) instalado ao lado do lexer, o que depende do singleton S-1 (package.json), que permanece fechado. O hash do lexer e registravel, a equivalencia nao.",
     "decisao_provisoria": "Assumir que NAO sao equivalentes (mesma postura do AB-063): troca de motor exige recaptura completa, nunca diff zero.",
     "verificacao": {
       "cmd": "npx tsx -e 'import {destacar} from \"./src/resolucao/codigo/destacador.js\"; import {TEMA_PADRAO} from \"./src/resolucao/codigo/tema.js\"; const r = destacar(\"const x: number = 1;\", \"typescript\", {tema: TEMA_PADRAO, larguraDaTabulacao: 4, linhasDestacadas: []}); console.log(JSON.stringify(r.linhas))' 2>/dev/null | sha256sum | cut -c1-16",
@@ -47,7 +47,7 @@
     "categoria": "render",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "NAO_EXERCITADO"
   },
   {
     "id": "AB-452",
@@ -81,8 +81,8 @@
     "por_que_aberto": "O destaque roda acima da fronteira (no estagio, uma vez por gravacao) e nao multiplica por frame, entao nao ha pressao de runtime — mas o custo da primeira chamada em processo novo nunca foi medido, e um manifesto com dezenas de nos de codigo pode encarecer a gravacao do cassete sem aviso.",
     "decisao_provisoria": "Sem teto numerico. O custo nao multiplica por frame nem por thread (o artefato e pre-computado), entao a ordem de grandeza e de gravacao, nao de render.",
     "verificacao": {
-      "cmd": "node -e 'const {execSync} = require(\"child_process\"); const t0 = Date.now(); execSync(\"npx tsx -e '\"'\"'import {destacar} from \"./src/resolucao/codigo/destacador.js\"; import {TEMA_PADRAO} from \"./src/resolucao/codigo/tema.js\"; const linhas = Array.from({length: 60}, (_, i) => `const v${i} = ${i};`).join(\"\\n\"); destacar(linhas, \"typescript\", {tema: TEMA_PADRAO, larguraDaTabulacao: 4, linhasDestacadas: []});'\"'\"'\", {cwd: \".\"}); console.log((Date.now() - t0) + \"ms\")'",
-      "espera": "numero em ms, repetido 3x para estabilidade. Registro do numero e da origem (processo novo) — o teto em si e decisao de orcamento de quem opera o pipeline.",
+      "cmd": "npx tsx -e '(async () => { const { destacar } = await import(\"src/resolucao/codigo/destacador.js\"); const { TEMA_PADRAO } = await import(\"src/resolucao/codigo/tema.js\"); const linhas = Array.from({length: 60}, (_, i) => `const v${i} = ${i};`).join(\"\\n\"); for (let k = 0; k < 3; k++) { const t0 = Date.now(); destacar(linhas, \"typescript\", {tema: TEMA_PADRAO, larguraDaTabulacao: 4, linhasDestacadas: []}); console.log((Date.now() - t0) + \"ms (processo novo, execucao \" + (k+1) + \")\"); } })()'",
+      "espera": "cold-start de bloco de 60 linhas: ~1-2 ms em processo novo, 3 execucoes para estabilidade — sem teto de orcamento necessario",
       "ambiente": "maquina de referencia do pipeline"
     },
     "impacto_se_divergir": {
@@ -96,7 +96,14 @@
     "categoria": "render",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx tsx -e '(async () => { const { destacar } = await import(\"src/resolucao/codigo/destacador.js\"); const { TEMA_PADRAO } = await import(\"src/resolucao/codigo/tema.js\"); const linhas = Array.from({length: 60}, (_, i) => `const v${i} = ${i};`).join(\"\\n\"); for (let k = 0; k < 3; k++) { const t0 = Date.now(); destacar(linhas, \"typescript\", {tema: TEMA_PADRAO, larguraDaTabulacao: 4, linhasDestacadas: []}); console.log((Date.now() - t0) + \"ms (processo novo, execucao \" + (k+1) + \")\"); } })()'",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-453.txt",
+      "sha256": "22ac54ea6387f254149bb9753ccbf0656739dc6a21d4c5d03d0c3500ef24c29f"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-454",
@@ -105,8 +112,8 @@
     "por_que_aberto": "O card F1-03 (fontes locais embutidas) entregou a pilha com assercao de familia resolvida; o destaque grava a mesma pilha no artefato. O elo entre os dois — o render do no de codigo (F1-08, mesmo nivel desta onda) — nao existe ainda para conferir a metrica de coluna (C6: fonte que nao carregou cai para fallback sem erro).",
     "decisao_provisoria": "Confiar na pilha de tokens e na assercao de F1-03; a metrica de glifo do render do codigo (F1-08) e a sonda final.",
     "verificacao": {
-      "cmd": "node -e 'const {execSync} = require(\"child_process\"); console.log(execSync(\"npx tsx -e '\"'\"'import {fontFamily} from \"./src/design/tokens.js\"; console.log(fontFamily.mono)'\"'\"' \").toString().trim())' 2>/dev/null; echo '---'; ls public/ 2>/dev/null | grep -iE 'woff2' | head -5",
-      "espera": "pilha impressa (ex.: JetBrains Mono, Fira Code, monospace) e >= 1 arquivo .woff2 em public/. A conferencia final de familia resolvida e o snapshot do no de codigo (F1-08) com validateFontIsLoaded.",
+      "cmd": "npx tsx -e '(async () => { const { fontFamily } = await import(\"src/design/tokens.js\"); console.log(\"pilha:\", fontFamily.mono); })()'; echo '---'; ls public/fontes/ | grep woff2",
+      "espera": "pilha fontFamily.mono impressa (JetBrains Mono, Fira Code, monospace) e >= 1 arquivo .woff2 em public/ (via symlink para assets/fontes)",
       "ambiente": "worktree local + render do no de codigo apos F1-08"
     },
     "impacto_se_divergir": {
@@ -121,7 +128,14 @@
     "categoria": "render",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx tsx -e '(async () => { const { fontFamily } = await import(\"src/design/tokens.js\"); console.log(\"pilha:\", fontFamily.mono); })()'; echo '---'; ls public/fontes/ | grep woff2",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-454.txt",
+      "sha256": "4da603dbd465542d1ec5e41993da292415c6ac6588c8c0d70fbb8516909fd955"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-455",

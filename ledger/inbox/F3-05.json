@@ -22,7 +22,14 @@
     "categoria": "audio",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just audio-mix && sha256sum .cache/audio-mix/det-a/master.wav",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-660.txt",
+      "sha256": "2b9282f8a07b96e9831afed8a96a9b1690f3a60fc90c71089a7ea01148efc0ed"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-661",

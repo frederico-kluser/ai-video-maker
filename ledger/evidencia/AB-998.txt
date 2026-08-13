@@ -1,0 +1,1 @@
+OK: politica registra recusa-e-log com configuracao anterior valendo, sem redeploy

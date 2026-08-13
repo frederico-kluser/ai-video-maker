@@ -146,7 +146,14 @@
     "categoria": "render",
     "responde": "plataforma → dono",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx vitest run tests/composicao/no-lista.test.ts -t \"canonico\"",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-335.txt",
+      "sha256": "b4c5d0597138332a3561389dc1c59160898278703f2fdff0e31d8c3dd9eca492"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-336",

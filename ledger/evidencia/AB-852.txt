@@ -1,0 +1,41 @@
+=== revisar-bloqueia — gate G-HUM para a entrega canonico ===
+--- [1/9] presenca do dossie (∅-crit: pre-condicao, nunca pos-condicao) ---
+  [OK]     dossiê encontrado: /home/ondokai/Projects/ai-video-maker-worktrees/20260811-094208-3052605/onda11-f6-04-ledger/docs/revisao/dossie-canonico.md
+--- [2/9] secoes reconheciveis (zero itens parseados = falha) ---
+  [OK]     24 seções reconhecíveis
+--- [3/9] identidade da entrega ---
+  [OK]     dossiê cobre a entrega canonico
+  [OK]     hash relatorio-final.json declarado: b06fcbf1655b4d65…
+--- [4/9] relatorio de procedencia embutido (F5-06) ---
+  [OK]     relatório embutido declarado: 01f37b0d6b93f199…
+--- [5/9] regeneracao (AB-748: relatorio regeneravel dos mesmos commitados) ---
+  [OK]     regeneração CONSISTENTE
+--- [6/9] enquadramento (AB-993) e disclosure de voz (AB-999) ---
+  [OK]     enquadramento declarado: AB-950 continua fechado
+  [OK]     disclosure de voz sintética declarado (AB-999)
+  [OK]     gaps de data visíveis (AB-746 — visíveis, não omitidos)
+--- [7/9] vereditos do checklist (item por item) ---
+  [FALHOU] item E1 sem veredito — PENDENTE: o humano não respondeu
+  [FALHOU] item E2 sem veredito — PENDENTE: o humano não respondeu
+  [FALHOU] item E3 sem veredito — PENDENTE: o humano não respondeu
+  [FALHOU] item E4 sem veredito — PENDENTE: o humano não respondeu
+  [FALHOU] item E5 sem veredito — PENDENTE: o humano não respondeu
+  [FALHOU] item J1 sem veredito — PENDENTE: o humano não respondeu
+  [FALHOU] item J2 sem veredito — PENDENTE: o humano não respondeu
+  [FALHOU] item J3 sem veredito — PENDENTE: o humano não respondeu
+  [FALHOU] item J4 sem veredito — PENDENTE: o humano não respondeu
+  [FALHOU] item R1 sem veredito — PENDENTE: o humano não respondeu
+  [FALHOU] item R2 sem veredito — PENDENTE: o humano não respondeu
+  [FALHOU] item P1 sem veredito — PENDENTE: o humano não respondeu
+  [FALHOU] item P2 sem veredito — PENDENTE: o humano não respondeu
+--- [8/9] assinaturas por papel nomeado (nunca 'o time') ---
+  [FALHOU] papel Revisor editorial sem nome de quem assina
+  [FALHOU] papel Revisor jurídico sem nome de quem assina
+  [FALHOU] papel Operador de reversão sem nome de quem assina
+  [FALHOU] papel Operador de publicação sem nome de quem assina
+--- [9/9] a entrega existe e o relatório embutido fecha com ela ---
+  [FALHOU] entrega canonico ausente em /home/ondokai/Projects/ai-video-maker-worktrees/20260811-094208-3052605/onda11-f6-04-ledger/output (sem relatorio-final.json) — nada a publicar; bloqueado (ausência nunca aprova)
+
+revisar-bloqueia: VERMELHO (18 falha(s)) — publicação bloqueada (G-HUM, alavanca-mestra)
+npx tsx tools/revisao/verificar-dossie.ts --entrega canonico
+error: Recipe `revisar-bloqueia` failed on line 2219 with exit code 1

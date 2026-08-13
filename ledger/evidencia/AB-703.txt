@@ -1,0 +1,2 @@
+ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers
+medido em ffmpeg 6.1.1-3ubuntu5: 2x execucoes do mesmo comando (com -fflags +bitexact -flags +bitexact -map_metadata -1 apos as entradas) produzem bytes de arquivo identicos (md5 igual); x264 nao tem modo nao-deterministico ligado por default (R11-12); vale para a cadeia pinada — bump de ffmpeg invalida (AB-703)

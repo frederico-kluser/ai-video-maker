@@ -48,7 +48,14 @@
     "categoria": "ambiente",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just no-texto",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-321.txt",
+      "sha256": "6f6001ebdfa34ae31c3f5e44f68cf4987f48ed85d98aef4acf63c42633ede3a2"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-322",
@@ -95,6 +102,13 @@
     "categoria": "agentes-worktrees",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "printf \"dHJhbnNmb3JtIFNTUg==\" | base64 -d | xargs python3 .agents/scripts/bash_guardrail.py",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-323.txt",
+      "sha256": "42ac1ba32b31c2a403d09ac137efecceac51aebd7699ef7e7ca650bdfa189da6"
+    },
+    "data_resolucao": "2026-08-13"
   }
 ]

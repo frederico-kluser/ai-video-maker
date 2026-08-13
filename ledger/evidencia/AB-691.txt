@@ -1,0 +1,157 @@
+OK    delimitacao: comparacao byte a byte no codec deterministico (PNG/QTRLE); vp9/mp4 excluidos por declaracao (AB-396/397)
+/home/ondokai/Projects/ai-video-maker-worktrees/20260811-094208-3052605/onda11-f6-04-ledger/src/render/pipeline/executar.ts:224
+    throw new ErroDeRender(
+          ^
+
+ErroDeRender: o render da faixa [182, 364) falhou na porta 4501 — worker morto derruba o pipeline (nunca deixa verde): A delayRender() "Loading font Inter (url: /public/fontes/Inter-Regular.woff2, format: woff2, weight: 400, style: normal, variant: undefined, ascentOverride: undefined, descentOverride: undefined, display: undefined, featureSettings: undefined, lineGapOverride: undefined, stretch: undefined, unicodeRange: undefined)" was called but not cleared after 28000ms. See https://remotion.dev/docs/timeout for help. 
+    at executarFrames (/home/ondokai/Projects/ai-video-maker-worktrees/20260811-094208-3052605/onda11-f6-04-ledger/src/render/pipeline/executar.ts:224:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Promise.all (index 1)
+    at async renderizarPorFaixas (/home/ondokai/Projects/ai-video-maker-worktrees/20260811-094208-3052605/onda11-f6-04-ledger/src/render/pipeline/executar.ts:173:31)
+    at async conferirRenderPorFaixas (/home/ondokai/Projects/ai-video-maker-worktrees/20260811-094208-3052605/onda11-f6-04-ledger/tests/render/pipeline/render-fixture.ts:410:23)
+    at async principal (/home/ondokai/Projects/ai-video-maker-worktrees/20260811-094208-3052605/onda11-f6-04-ledger/tests/render/pipeline/render-fixture.ts:627:3)
+    at async <anonymous> (/home/ondokai/Projects/ai-video-maker-worktrees/20260811-094208-3052605/onda11-f6-04-ledger/tests/render/pipeline/render-fixture.ts:646:14) {
+  causa: SymbolicateableError: A delayRender() "Loading font Inter (url: /public/fontes/Inter-Regular.woff2, format: woff2, weight: 400, style: normal, variant: undefined, ascentOverride: undefined, descentOverride: undefined, display: undefined, featureSettings: undefined, lineGapOverride: undefined, stretch: undefined, unicodeRange: undefined)" was called but not cleared after 28000ms. See https://remotion.dev/docs/timeout for help. The delayRender was called: 
+      at delayRenderInternal (http://localhost:3001/bundle.js:23685:18)
+      at delayRender (http://localhost:3001/bundle.js:23717:10)
+      at loadFont (http://localhost:3001/bundle.js:59:50)
+      at http://localhost:3001/bundle.js:624:18
+      at Array.map (<anonymous>)
+      at registrarFontesLocais (http://localhost:3001/bundle.js:623:19)
+      at 271 (http://localhost:3001/bundle.js:4513:6)
+      at __webpack_require__ (http://localhost:3001/bundle.js:38206:42)
+      at http://localhost:3001/bundle.js:38472:11
+      at http://localhost:3001/bundle.js:38476:12
+      ... collapsed 10 duplicate lines matching above lines ...
+      at http://localhost:3001/bundle.js:23705:39 {
+    stackFrame: [
+      {
+        columnNumber: 38,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: '',
+        lineNumber: 23704
+      }
+    ],
+    delayRenderCall: [
+      {
+        columnNumber: 18,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: 'delayRenderInternal',
+        lineNumber: 23685
+      },
+      {
+        columnNumber: 10,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: 'delayRender',
+        lineNumber: 23717
+      },
+      {
+        columnNumber: 50,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: 'loadFont',
+        lineNumber: 59
+      },
+      {
+        columnNumber: 18,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: null,
+        lineNumber: 624
+      },
+      {
+        columnNumber: 19,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: 'registrarFontesLocais',
+        lineNumber: 623
+      },
+      {
+        columnNumber: 6,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: '271',
+        lineNumber: 4513
+      },
+      {
+        columnNumber: 42,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: '__webpack_require__',
+        lineNumber: 38206
+      },
+      {
+        columnNumber: 11,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: null,
+        lineNumber: 38472
+      },
+      {
+        columnNumber: 12,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: null,
+        lineNumber: 38476
+      },
+      {
+        columnNumber: 18,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: 'delayRenderInternal',
+        lineNumber: 23685
+      },
+      {
+        columnNumber: 10,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: 'delayRender',
+        lineNumber: 23717
+      },
+      {
+        columnNumber: 50,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: 'loadFont',
+        lineNumber: 59
+      },
+      {
+        columnNumber: 18,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: null,
+        lineNumber: 624
+      },
+      {
+        columnNumber: 19,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: 'registrarFontesLocais',
+        lineNumber: 623
+      },
+      {
+        columnNumber: 6,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: '271',
+        lineNumber: 4513
+      },
+      {
+        columnNumber: 42,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: '__webpack_require__',
+        lineNumber: 38206
+      },
+      {
+        columnNumber: 11,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: null,
+        lineNumber: 38472
+      },
+      {
+        columnNumber: 12,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: null,
+        lineNumber: 38476
+      },
+      {
+        columnNumber: 39,
+        fileName: 'http://localhost:3001/bundle.js',
+        functionName: null,
+        lineNumber: 23705
+      }
+    ],
+    frame: 360,
+    chunk: null
+  },
+  code: 'RENDER_FALHOU'
+}
+
+Node.js v24.15.0

@@ -1,0 +1,6 @@
+confere   still-gif-f000.png  2x identico · opacos=23454 transparentes=2045045 cores=508
+  confere   still-gif-f006.png  2x identico · opacos=23454 transparentes=2045045 cores=508
+  confere   still-imagem-f045.png  2x identico · opacos=16361 transparentes=2051926 cores=503
+  confere   still-video-f000.png  2x identico · opacos=14917 transparentes=2053794 cores=495
+  avanca    still-gif-f000.png != still-gif-f006.png (frames 0 e 6)
+still: 4 caso(s) renderizados 2x, identicos ao aprovado

@@ -1,0 +1,9 @@
+src/resolucao/musica/estagio.ts:103:   * Pausa entre downloads, em ms. Default: `PAUSA_PADRAO_MS`.
+src/resolucao/musica/estagio.ts:112:  readonly pausaEntreDownloadsMs?: number;
+src/resolucao/musica/estagio.ts:116:export const PAUSA_PADRAO_MS = 1200;
+src/resolucao/musica/estagio.ts:218:  const pausaMs = opcoes.pausaEntreDownloadsMs ?? PAUSA_PADRAO_MS;
+tools/musica/gravar.ts:19: *                                  [--pausa <ms>]
+tools/musica/gravar.ts:21: * `--pausa` controla a cortesia entre downloads (default: PAUSA_PADRAO_MS).
+tools/musica/gravar.ts:34:import { PAUSA_PADRAO_MS, criarEstagioMusica } from "../../src/resolucao/musica/estagio.js";
+tools/musica/gravar.ts:54:  const pausaMs = argumentoNumero("--pausa", PAUSA_PADRAO_MS);
+tools/musica/gravar.ts:65:    const estagio = criarEstagioMusica({ pausaEntreDownloadsMs: pausaMs });

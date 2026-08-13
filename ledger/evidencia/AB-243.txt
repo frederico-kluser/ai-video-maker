@@ -1,0 +1,163 @@
+Available recipes:
+    audio-mix                          # determinismo 2x (medido, nao escutado).
+    autoria-cache                      # QUALQUER componente da chave gera MISS (C12, um parametro por vez).
+    autoria-cassete                    # exceto os volateis declarados (inclui sonda negativa).
+    autoria-contrato                   # por fornecedor + vocabulario de transicao.
+    autoria-gravar *args               # Cerimonia de gravacao (a mao, com rede e credencial — nunca em suite).
+    autoria-medir *args                # Medicao com credencial (AB-551/552/554) — EVIDENCIA, nunca gate.
+    autoria-offline                    # A suite completa de autoria com a rede bloqueada em todas as camadas.
+    autoria-rejeicao                   # rejeitados — um invalido que passa derruba a suite.
+    autoria-reparo                     # Gate de validacao e reparo: classificacao + tres tentativas + ∅-crit.
+    autoria-suite                      # So a suite vitest de autoria (sem o guarda de kernel).
+    build                              # Compila TypeScript e verifica sintaxe Python
+    camadas-ausencia                   # ∅-crit: apagar um snapshot aprovado TEM de ficar VERMELHO.
+    camadas-capturar                   # registra o que mudou.
+    camadas-det-provar                 # `det:provar --no camadas` do PROGRAMA: render 2x e exige bytes identicos.
+    camadas-invasao                    # mensagem, nao so de exit code.
+    camadas-testar                     # Testes unitarios das camadas (geometria, contrato, medicao, registro).
+    clean                              # Remove artefatos de build
+    comp-bundle                        # "src/design/tokens" passa no tsc e no vitest e quebra so aqui.
+    comp-gate                          # Os gates de composicao de uma vez (sem o bundle, que e lento)
+    comp-pureza                        # as quatro violacoes plantadas em tests/composicao/impuro/.
+    comp-testar                        # A raiz renderiza a fixture canonica com nos de mentira e o timing bate
+    comp-unicidade                     # Varre o disco e exige id unico por no descoberto
+    contrato_gerar                     # Falha se git diff nao for vazio (ausencia e divergencia).
+    contrato_subset                    # (b) e relaxamento do schema completo
+    contrato_testar                    # Exige jsonschema instalado (pip install jsonschema).
+    default                            # Alias
+    design-gerar                       # Gera tokens.py (espelho Python) a partir de src/design/tokens.ts
+    design-testar                      # Roda testes de design (contraste + varredura de literais)
+    design-varrer                      # Varredura de literais — falha se achar literal fora de src/design/
+    det-ausencia                       # Teste de ausência: apaga snapshot aprovado e exige que o gate fique VERMELHO
+    det-mutar                          # Teste de mutação: injeta valor volátil e exige que o gate fique VERMELHO
+    det-provar                         # Prova de determinismo: renderiza o canário 2x e exige bytes idênticos
+    det-provar-integrado               # de conteudo e igualdade com o snapshot aprovado.
+    det-provar-midia                   # `just det:provar --no midia` do PROGRAMA — determinismo e regressao do still
+    det-testar                         # Roda todos os testes de determinismo (vitest)
+    dev                                # Inicia o Remotion Studio
+    ducking                            # Gate do envelope de ducking calculado (oraculo + ∅-crit + golden + 2x).
+    ducking-gravar                     # faz hoje (e recusa gravar com locucao descoberta).
+    e2e                                # O gate completo de ponta a ponta (suite + R1/R2/R3 + sondas ∅-crit).
+    encode-perfis                      # completa de perfis — o merge dos irmaos pode trazer mais.
+    fmt                                # formatador ou ferramenta ausente propaga e deixa a receita VERMELHA.
+    fontes-licenca                     # redistribuir: mora na OFL 1.1 E no bit OS/2.fsType dentro do proprio binario.
+    fontes-offline                     # Zero fonte remota: o render e offline por construcao.
+    fontes-testar                      # Inclui a sonda negativa: um arquivo de fonte ausente TEM de derrubar o render.
+    gm-capturar *args                  # (ADR nominal), nunca para "parar de piscar".
+    gm-e2e                             # handoff do F5-08.
+    install                            # Instala dependencias
+    int-composicao                     # `just int:composicao` do PROGRAMA — a aceitacao inteira do card.
+    int-composicao-aprovar             # (Re)aprova os snapshots. Ato explicito — o gate NUNCA grava sozinho.
+    int-composicao-ausencia            # ∅-crit: remover um no da fixture TEM de ficar VERMELHO por AUSENCIA.
+    int-composicao-gerar               # Regenera o asset e a fixture integrada; confere que nada mudou (C7).
+    int-composicao-provar              # A etapa de determinismo dentro do gate (a mesma receita acima).
+    int-composicao-qtrle               # Sonda do cassete REAL de F2-02 (.mov qtrle/argb) — evidencia no handoff.
+    int-composicao-snapshots           # C3: diff --exit-code nao enxerga arquivo nao rastreado — os dois juntos.
+    int-composicao-studio              # NAO aprova snapshot: o Chrome do Studio nao e o Chrome do render (C5).
+    int-composicao-testar              # Tipos do repositorio + as duas suites de oraculo (fiacao e presenca).
+    legendas                           # O gate completo das legendas canonicas.
+    legendas-gravar                    # que o codigo faz hoje.
+    legendas-testar                    # So a suite (para iterar rapido).
+    lint                               # ruff tem de aparecer, e ferramenta ausente e VERMELHO, nao "pulado".
+    medir-maquina *args                # Todo numero tem o comando que o reproduz (∅-crit: rg -L "comando:" -> vazio).
+    no-cabecalho                       # a prova de determinismo + snapshot (render de verdade, nunca Studio — C5).
+    no-cabecalho-aprovar               # O gate NUNCA faz isso sozinho: aprovado ausente e vermelho, nao "primeira vez".
+    no-cabecalho-ausencia              # restaura e exige VERDE. Um gate que regera o proprio oraculo nao reprova nada.
+    no-camadas                         # + os dois oraculos de git sobre fixtures/snapshots/camadas/.
+    no-codigo                          # Tudo do card, na ordem em que um vermelho nomeia a causa certa.
+    no-codigo-aprovar                  # Grava o snapshot aprovado. Ato explicito — o gate nunca grava sozinho.
+    no-codigo-ausencia                 # mutacao, com o gate voltando ao verde depois de cada uma.
+    no-codigo-render                   # identicos, analise de pixel e comparacao com o snapshot aprovado.
+    no-codigo-studio                   # daqui vira snapshot aprovado.
+    no-codigo-testar                   # seletor que nao casa nada faz o vitest sair verde sem olhar nada.
+    no-grafico                         # A aceitacao inteira do card, em ordem. O `just no-grafico` do PROGRAMA.
+    no-grafico-aprovar                 # Grava (ou regrava) os snapshots aprovados, explicitamente.
+    no-grafico-ausencia                # volta o gate tem de voltar VERDE.
+    no-grafico-conferir                # sondas ∅-4, ∅-5 e ∅-6 de `no-grafico-mutar`.
+    no-grafico-gerar-assets            # os bytes nao mudarem — rodar e conferir que nada mudou e o proprio teste.
+    no-grafico-mutar                   # gate tem de ficar VERMELHO pelo motivo certo.
+    no-grafico-provar                  # O correspondente, no PROGRAMA, e `det:provar --no grafico` (ver AB-360).
+    no-grafico-snapshots               # COMBINACAO dos dois, e os dois tem de sair vazios.
+    no-lista                           # A aceitacao inteira do card, em ordem. Este e o `just no-lista` do PROGRAMA.
+    no-lista-aprovar                   # nada, ele grava o que o codigo faz hoje.
+    no-lista-ausencia                  # ∅-crit: apagar, corromper ou nao rastrear um snapshot aprovado fica VERMELHO.
+    no-lista-determinismo              # Render 2x em processos separados, `cmp` byte a byte, com assercao de entropia.
+    no-lista-mutar                     # fonte de 1px TEM de deixar a suite vermelha.
+    no-lista-snapshot                  # NASCEU e nunca foi rastreado — sozinho, o diff nao ve arquivo novo (C3).
+    no-lista-studio                    # Preview no Studio, na porta reservada deste card.
+    no-lista-testar                    # Tipos do escopo de composicao + a suite do no.
+    no-midia                           # separada, como em F0-06 (`det-provar` / `det-ausencia`).
+    no-midia-ausencia                  # devolve o verde
+    no-texto                           # O gate do card. `just no-texto` -> exit 0.
+    no-texto-aprovar                   # sozinho — "primeira execucao, vou gerar" e o falso verde que o ∅-crit derruba.
+    no-texto-ausencia                  # exige que volte a passar (controle positivo nas duas pontas).
+    no-texto-snapshot                  # snapshots limpo. C5: o aprovado sai do RENDER, nunca do Studio.
+    no-texto-studio                    # NAO aprova snapshot: o Chrome do Studio nao e o Chrome do render (C5).
+    no-texto-testar                    # Os dois caminhos do card, em node, sem navegador: com timing e sem timing.
+    ondas-gerar                        # Gera a tabela de ondas
+    politica-editorial                 # (criterios-de-aceitacao-corrigidos.md §1, item 2 — ver handoff do I-04).
+    pos                                # Gate do pos: fixture canonica + producao + conferencia + sondas ∅-crit.
+    procedencia                        # per-item, data e termos, determinismo e AB-950.
+    produzir *args                     # `just produzir --fixture canonico --estrito` — a entrega completa.
+    prompt-card card_id                # Gera prompt de um card (ex: just prompt:card F0-01)
+    prompts-testar                     # Aceitacao do card F4-02, em ordem.
+    render-cache                       # render-cache-testar  so a suite vitest (rapida, sem navegador).
+    render-cache-testar                # So a suite vitest do cache (rapida, sem navegador) — para iterar.
+    render-fixture                     # `just render:fixture` do PROGRAMA — a aceitacao inteira do card.
+    render-testar                      # e a receita acima).
+    res-cassete *args                  # resultado e exige que o diff fique VERMELHO.
+    res-chave *args                    # cache miss em cada (C12).
+    res-cobertura *args                # proprio verificador (C2).
+    res-codigo                         # conferido, zero URL, e a presenca do no de codigo da fixture canonica.
+    res-codigo-gravar *args            # manifesto. --limpar remove cassetes orfaos de chaves antigas.
+    res-codigo-licenca                 # MAIS a sonda negativa (porque um comando que nunca reprovou nao e prova).
+    res-codigo-tudo                    # A aceitacao inteira do card, na ordem em que o PROGRAMA a escreve.
+    res-grafico                        # isso, NAO foi exercitado aqui.
+    res-grafico-conferir               # COMMITADO e roda a sonda negativa. Exige o Manim: sem ele, falha alto.
+    res-grafico-gravar                 # PYTHON_BIN=/caminho/para/python-com-manim just res-grafico-gravar
+    res-grafico-licenca                # --files-without-match tambem sai vazio quando nao existe arquivo nenhum.
+    res-guarda-cassetes *args          # `--redige` roda a migracao idempotente (remover da lista em formato.ts).
+    res-guarda-sonda camada="processo" # Sondas isoladas do guarda: kernel | processo | subprocesso
+    res-integracao                     # So a suite vitest de integracao da resolucao (guarda em processo via setup).
+    res-locucao                        # O gate completo do estagio de locucao (audio + timing).
+    res-locucao-determinismo           # So a prova de determinismo do cassete de locucao (sem vitest nem offline).
+    res-midia                          # cassete; ver ledger AB-440 e o bloco res-midia-determinismo abaixo).
+    res-midia-determinismo             # cada gravacao, e exige 0 refutacoes + sonda negativa vermelha.
+    res-midia-licenca                  # procedencia declara licenca (armadilha registrada em AB-270).
+    res-musica                         # regravacao a partir do cassete, e zero credencial. Exit 0 = VERDE.
+    res-musica-determinismo            # correta regrava a partir do cassete e roda com a rede bloqueada.
+    res-musica-gravar *args            # batem no mesmo provedor). A pausa nao entra na chave de cache.
+    res-offline *args                  # --estagio <nome> restringe a um estagio (usado por F2-02..F2-06).
+    res-offline-integrado              # schema + cobertura (∅-crit) + chave de cache + denominador.
+    res-schema                         # Schema do manifesto resolvido: prova que uma URL e impossivel pelo schema.
+    res-sem-cassete                    # exige VERDE.
+    res-sonda camada="processo"        # Sonda de rede isolada. camada = kernel | processo
+    res-tudo                           # Tudo do card F2-01, em ordem.
+    res-vazio-crit-integrado           # ∅-crit no nivel de integracao: estagio novo sem cassete derruba a suite.
+    revisar *args                      # `just revisar [--entrega <id>] [--saida <dir>] [--dossie <caminho>]` — gera o rascunho do dossie.
+    revisar-bloqueia *args             # `just revisar-bloqueia [--entrega <id>] [--saida <dir>] [--dossie <caminho>]` — ∅-crit: falha sem dossie valido.
+    revisar-gate                       # O gate do card F6-01: presenca, geracao e sondas do ∅-crit.
+    ritmo                              # - vitest da suite inteira (∅-crit + adversariais 1/2/3/4 + presenca).
+    skills-catalogo
+    skills-lint
+    skills-test
+    test                               # tambem e vermelho (o pytest nao esta configurado para aceitar coletas vazias).
+    thumb                              # conteudo + contraste + ∅-crit.
+    timing-determinismo                # negativa de mutacao e regressao contra o golden (tools/timing/determinismo.sh).
+    timing-gravar                      # este comando nao valida nada, ele grava o que o codigo faz hoje.
+    timing-testar                      # O gate completo do timing canonico (schema + casarTimings + oraculo).
+    transicoes                         # A aceitacao inteira do card, em ordem. Este e o `just transicoes` do PROGRAMA.
+    transicoes-aprovar                 # valida nada, ele grava o que o codigo faz hoje.
+    transicoes-ausencia                # motivo certo (AUSENTE) e a restauracao TEM de devolver o VERDE.
+    transicoes-provar                  # pixel (C1), regressao contra os 9 aprovados e snapshot conferido no git (C3).
+    transicoes-studio                  # Preview no Studio, na porta reservada deste card.
+    transicoes-testar                  # Tipos do escopo de composicao + a suite do card.
+    typecheck                          # Type-check TypeScript (sem emitir JS)
+    validar-grafo                      # Roda o validador de grafo
+    validar-grafo-selftest             # Roda o autoteste do validador
+    variantes                          # O gate completo das variantes de proporcao.
+    variantes-aprovar                  # sozinho — "primeira execucao, vou gerar" e o falso verde que o ∅-crit derruba.
+    variantes-snapshots                # sai do RENDER, nunca do Studio.
+    variantes-studio                   # render (C5).
+    variantes-testar                   # So a suite (para iterar rapido).
+    versoes                            # Imprime versoes da toolchain

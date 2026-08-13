@@ -1,0 +1,20 @@
+fixtures/snapshots/no-codigo/entrada.tsx:24:import { registrarFontesLocais } from "../../../src/design/fontes/index";
+fixtures/snapshots/no-codigo/entrada.tsx:33:void registrarFontesLocais();
+src/design/fontes/index.ts:137:export function registrarFontesLocais(): Promise<void> {
+src/design/fontes/index.ts:160:/** Ja houve chamada a registrarFontesLocais()? */
+src/pipeline/produzir.ts:585:import { registrarFontesLocais } from "../../../src/design/fontes/index";
+src/pipeline/produzir.ts:590:void registrarFontesLocais();
+fixtures/fontes/index.tsx:37:  registrarFontesLocais,
+fixtures/fontes/index.tsx:47:void registrarFontesLocais();
+fixtures/snapshots/variantes/entrada.tsx:35:import { registrarFontesLocais } from "../../../src/design/fontes/index";
+fixtures/snapshots/variantes/entrada.tsx:43:void registrarFontesLocais();
+fixtures/snapshots/no-texto/Root.tsx:22:import { registrarFontesLocais } from "../../../src/design/fontes";
+fixtures/snapshots/no-texto/Root.tsx:28:void registrarFontesLocais();
+fixtures/snapshots/no-midia/entrada.tsx:23:import { registrarFontesLocais } from "../../../src/design/fontes/index";
+fixtures/snapshots/no-midia/entrada.tsx:39:void registrarFontesLocais();
+fixtures/snapshots/no-cabecalho/entrada.tsx:29:// FONTES: registrarFontesLocais() no escopo de modulo. Sem isso o Chrome do
+fixtures/snapshots/no-cabecalho/entrada.tsx:45:import { registrarFontesLocais } from "../../../src/design/fontes/index";
+fixtures/snapshots/no-cabecalho/entrada.tsx:48:void registrarFontesLocais();
+fixtures/snapshots/integrado/entrada.tsx:24:// FONTES: registrarFontesLocais() no escopo de modulo. Sem isso o Chrome do
+fixtures/snapshots/integrado/entrada.tsx:35:import { registrarFontesLocais } from "../../../src/design/fontes/index";
+fixtures/snapshots/integrado/entrada.tsx:47:void registrarFontesLocais();

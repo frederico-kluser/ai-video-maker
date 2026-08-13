@@ -9,6 +9,7 @@ Uso:
     python3 tools/validate-ledger_selftest.py
 """
 
+import hashlib
 import json
 import os
 import subprocess
@@ -83,17 +84,27 @@ ITEM_FECHADO_VALIDO = {
 }
 
 
-def run_validator(inbox_dir: str, *extra_args: str) -> subprocess.CompletedProcess:
+def run_validator(
+    inbox_dir: str,
+    *extra_args: str,
+    fechamento_path: str | None = None,
+    evidencia_dir: str | None = None,
+) -> subprocess.CompletedProcess:
     """Executa o validador com um diretorio de inbox especifico."""
     env = os.environ.copy()
     # Sobrescreve o caminho do inbox sem modificar o validador
     # Usamos monkey-patch via env var
+    env["LEDGER_INBOX_OVERRIDE"] = inbox_dir
+    if fechamento_path is not None:
+        env["LEDGER_FECHAMENTO_OVERRIDE"] = fechamento_path
+    if evidencia_dir is not None:
+        env["LEDGER_EVIDENCIA_OVERRIDE"] = evidencia_dir
     return subprocess.run(
         [sys.executable, str(VALIDATOR), *extra_args],
         capture_output=True,
         text=True,
         cwd=str(REPO_ROOT),
-        env={**env, "LEDGER_INBOX_OVERRIDE": inbox_dir},
+        env=env,
     )
 
 
@@ -301,6 +312,254 @@ def main() -> int:
         "M9: FECHADO sem data_resolucao",
         [sem_data],
         ["data_resolucao"],
+    )
+
+    # -----------------------------------------------------------------------
+    # Modo fechamento (--exigir-fechados) — card F6-04, gate G-LED.
+    # O selftest isola fechamento.md e o diretorio de evidencia em tmpdir.
+    # -----------------------------------------------------------------------
+
+    # Item ABERTO em categoria bloqueante (responde=plataforma)
+    aberto_bloqueante = dict(ITEM_ABERTO_VALIDO)
+    aberto_bloqueante["id"] = "AB-100"
+    aberto_bloqueante["responde"] = "plataforma"
+
+    # Item ABERTO FORA das categorias bloqueantes (responde=dono)
+    aberto_fora = dict(ITEM_ABERTO_VALIDO)
+    aberto_fora["id"] = "AB-101"
+    aberto_fora["responde"] = "dono"
+
+    def sha256_of(s: str) -> str:
+        return hashlib.sha256(s.encode("utf-8")).hexdigest()
+
+    # Item FECHADO com evidencia estruturada cujo arquivo e um termo proibido
+    fechado_arquivo_proibido = dict(ITEM_FECHADO_VALIDO)
+    fechado_arquivo_proibido["id"] = "AB-102"
+    fechado_arquivo_proibido["evidencia"] = {
+        "cmd": "echo 'hello world'",
+        "exit": "0",
+        "arquivo": "ledger/evidencia/AB-102.txt",
+        "sha256": sha256_of("ok"),
+    }
+
+    # Item FECHADO sem evidencia (close falso)
+    fechado_sem_evidencia = dict(ITEM_ABERTO_VALIDO)
+    fechado_sem_evidencia["id"] = "AB-103"
+    fechado_sem_evidencia["status"] = "FECHADO"
+    fechado_sem_evidencia["data_resolucao"] = "2026-08-13"
+    fechado_sem_evidencia["evidencia"] = None
+
+    # Item FECHADO com evidencia apontando arquivo inexistente (close falso)
+    fechado_arquivo_faltante = dict(ITEM_FECHADO_VALIDO)
+    fechado_arquivo_faltante["id"] = "AB-104"
+    fechado_arquivo_faltante["evidencia"] = {
+        "cmd": "echo 'hello world'",
+        "exit": "0",
+        "arquivo": "ledger/evidencia/AB-104.txt",
+        "sha256": sha256_of("ok"),
+    }
+
+    # Item INVIAVEL sem adr
+    inviavel_sem_adr = dict(ITEM_ABERTO_VALIDO)
+    inviavel_sem_adr["id"] = "AB-105"
+    inviavel_sem_adr["status"] = "INVIAVEL"
+    inviavel_sem_adr["adr"] = None
+
+    JUSTIFICATIVA_950 = (
+        "Item permanente do enquadramento de uso (I-01, ADR-0003): reabre "
+        "somente se o escopo virar organizacao com fins lucrativos e mais "
+        "de 3 empregados; gate de publicacao declara 'AB-950 continua "
+        "fechado' ou 'disparou' em todo handoff."
+    )
+
+    def fechamento_test(name, items, expected_errors, expect_pass=False,
+                        extra_args=(), fechamento_txt=None, evidencia_arquivos=None):
+        global PASS, FAIL
+        with tempfile.TemporaryDirectory() as tmpdir:
+            inbox_dir = os.path.join(tmpdir, "inbox")
+            os.makedirs(inbox_dir, exist_ok=True)
+            if items:
+                write_items(inbox_dir, items)
+            fechamento_path = None
+            if fechamento_txt is not None:
+                fechamento_path = os.path.join(tmpdir, "fechamento.md")
+                with open(fechamento_path, "w", encoding="utf-8") as f:
+                    f.write(fechamento_txt)
+            evidencia_dir = None
+            if evidencia_arquivos:
+                evidencia_dir = os.path.join(tmpdir, "evidencia")
+                os.makedirs(evidencia_dir, exist_ok=True)
+                for nome, conteudo in evidencia_arquivos.items():
+                    with open(os.path.join(evidencia_dir, nome), "w", encoding="utf-8") as f:
+                        f.write(conteudo)
+            result = run_validator(
+                inbox_dir, *extra_args,
+                fechamento_path=fechamento_path,
+                evidencia_dir=evidencia_dir,
+            )
+            if expect_pass:
+                if result.returncode == 0:
+                    print(f"  PASS: {name}")
+                    PASS += 1
+                else:
+                    print(f"  FAIL: {name}")
+                    print(f"        Esperado exit 0, obteve {result.returncode}")
+                    print(f"        stdout: {result.stdout.strip()}")
+                    FAIL += 1
+            else:
+                if result.returncode != 0:
+                    combined = result.stdout + result.stderr
+                    missing = [
+                        e for e in expected_errors
+                        if e.lower() not in combined.lower()
+                    ]
+                    if not missing:
+                        print(f"  PASS: {name}")
+                        PASS += 1
+                    else:
+                        print(f"  FAIL: {name}")
+                        print(f"        Substrings nao encontradas: {missing}")
+                        print(f"        stdout: {result.stdout.strip()}")
+                        FAIL += 1
+                else:
+                    print(f"  FAIL: {name}")
+                    print(f"        Esperado exit != 0, obteve 0")
+                    print(f"        stdout: {result.stdout.strip()}")
+                    FAIL += 1
+
+    FECHA_BASE = ("--exigir-fechados", "--categoria", "plataforma,infra,operacao")
+
+    # F10: ledger vazio no modo fechamento sai 0
+    fechamento_test(
+        "F10: fechamento com ledger vazio sai 0",
+        [], [],
+        expect_pass=True, extra_args=FECHA_BASE,
+    )
+
+    # F11: item ABERTO em categoria bloqueante falha
+    fechamento_test(
+        "F11: ABERTO em categoria bloqueante falha",
+        [aberto_bloqueante],
+        ["AB-100", "categoria bloqueante"],
+        extra_args=FECHA_BASE,
+    )
+
+    # F12: item ABERTO fora das categorias bloqueantes passa
+    fechamento_test(
+        "F12: ABERTO fora das categorias bloqueantes passa",
+        [aberto_fora],
+        [], expect_pass=True,
+        extra_args=FECHA_BASE,
+    )
+
+    # F13: --permitir-aberto exige justificativa em fechamento.md
+    fechamento_test(
+        "F13: allowlist sem justificativa falha (nunca silenciosa)",
+        [aberto_bloqueante],
+        ["sem justificativa", "AB-100"],
+        extra_args=FECHA_BASE + ("--permitir-aberto", "AB-100"),
+        fechamento_txt="# Fechamento\n\nSem secao de allowlist.\n",
+    )
+
+    # F14: --permitir-aberto com justificativa valida passa
+    fechamento_test(
+        "F14: allowlist com justificativa valida passa",
+        [aberto_bloqueante],
+        [], expect_pass=True,
+        extra_args=FECHA_BASE + ("--permitir-aberto", "AB-100"),
+        fechamento_txt=(
+            "# Fechamento\n\n## Allowlist — itens abertos permitidos\n\n"
+            "| Id | Justificativa |\n|---|---|\n"
+            f"| AB-100 | {JUSTIFICATIVA_950} |\n"
+        ),
+    )
+
+    # F15: --permitir-aberto com justificativa curta falha
+    fechamento_test(
+        "F15: allowlist com justificativa curta falha",
+        [aberto_bloqueante],
+        ["justificativa", "AB-100"],
+        extra_args=FECHA_BASE + ("--permitir-aberto", "AB-100"),
+        fechamento_txt=(
+            "# Fechamento\n\n## Allowlist\n\n| Id | Justificativa |\n"
+            "|---|---|\n| AB-100 | muito curta |\n"
+        ),
+    )
+
+    # F16: --permitir-aberto apontando item inexistente falha (silenciosa = ruim)
+    fechamento_test(
+        "F16: allowlist de item inexistente falha",
+        [aberto_fora],
+        ["AB-999", "nao existe"],
+        extra_args=FECHA_BASE + ("--permitir-aberto", "AB-999"),
+        fechamento_txt=(
+            "# Fechamento\n\n## Allowlist\n\n| Id | Justificativa |\n"
+            "|---|---|\n| AB-999 | justificativa generica o suficiente para "
+            "passar do minimo |\n"
+        ),
+    )
+
+    # F17 (∅-crit do card): FECHADO com evidencia 'ok' falha no modo fechamento
+    fechamento_test(
+        "F17: FECHADO com evidencia 'ok' falha (∅-crit)",
+        [ev_blacklist],
+        ["termo proibido"],
+        extra_args=FECHA_BASE,
+    )
+
+    # F18: FECHADO com arquivo de evidencia cujo conteudo e 'ok' falha
+    fechamento_test(
+        "F18: arquivo de evidencia com conteudo proibido falha",
+        [fechado_arquivo_proibido],
+        ["termo proibido"],
+        extra_args=FECHA_BASE,
+        evidencia_arquivos={"AB-102.txt": "ok"},
+    )
+
+    # F19: FECHADO sem evidencia falha (close falso)
+    fechamento_test(
+        "F19: FECHADO sem evidencia falha",
+        [fechado_sem_evidencia],
+        ["FECHADO sem evidencia"],
+        extra_args=FECHA_BASE,
+    )
+
+    # F20: FECHADO com arquivo de evidencia inexistente falha (close falso)
+    fechamento_test(
+        "F20: evidencia.arquivo inexistente falha",
+        [fechado_arquivo_faltante],
+        ["inexistente"],
+        extra_args=FECHA_BASE,
+        evidencia_arquivos={},
+    )
+
+    # F21: INVIAVEL sem adr falha
+    fechamento_test(
+        "F21: INVIAVEL sem adr falha",
+        [inviavel_sem_adr],
+        ["INVIAVEL requer adr"],
+        extra_args=FECHA_BASE,
+    )
+
+    # F22: caso feliz — itens fora de escopo + fechado valido passam
+    fechado_valido_f22 = dict(ITEM_FECHADO_VALIDO)
+    fechado_valido_f22["id"] = "AB-106"
+    conteudo_evidencia_f22 = (
+        "evidencia completa e verificavel produzida pelo selftest do "
+        "fechamento do ledger\n"
+    )
+    fechado_valido_f22["evidencia"] = {
+        "cmd": "echo 'hello world'",
+        "exit": "0",
+        "arquivo": "ledger/evidencia/AB-106.txt",
+        "sha256": sha256_of(conteudo_evidencia_f22),
+    }
+    fechamento_test(
+        "F22: fechamento com tudo conforme passa",
+        [aberto_fora, fechado_valido_f22],
+        [], expect_pass=True,
+        extra_args=FECHA_BASE,
+        evidencia_arquivos={"AB-106.txt": conteudo_evidencia_f22},
     )
 
     # --- Resumo ---

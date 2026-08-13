@@ -6,8 +6,8 @@
     "por_que_aberto": "src/design/tokens.ts guarda o par (zeta, settlingTimeSeconds) e documenta a formula de conversao em COMENTARIO, nao em codigo. Ninguem consegue importar um comentario. F1-04 implementou a conversao dentro de src/composicao/nos/cabecalho.tsx porque tokens.ts e singleton (S-5) e o contrato da W4 proibe tocar nele. Os outros sete cards de composicao desta mesma onda precisam da MESMA conversao e sao cegos entre si: o resultado esperado e oito copias da mesma formula, que e exatamente o custo de reversao que a Regra 2 existe para evitar. Como cada copia mora num arquivo diferente, o merge nao conflita e a divergencia so aparece quando duas molas com o mesmo nome de token animarem diferente.",
     "decisao_provisoria": "Manter a conversao em src/composicao/nos/cabecalho.tsx nesta onda, exportada (`configDaMola`, `duracaoDaMola`, `molaEm`) para que a extracao futura seja um move, nao uma reescrita. Registrado em docs/adr/0014-no-de-cabecalho-mola-nomeada.md, D1.",
     "verificacao": {
-      "cmd": "rg -n 'ln\\\\(1/threshold\\\\)|Math.log\\\\(1 / springDurationRestThreshold\\\\)' src/",
-      "espera": "hoje: 2 ocorrencias (o comentario em src/design/tokens.ts e a implementacao em src/composicao/nos/cabecalho.tsx). Depois do merge da W4, uma ocorrencia por no que tiver copiado a formula — o numero e a medida do problema.",
+      "cmd": "rg -n 'Math.log\\(1 / springDurationRestThreshold\\)' src/",
+      "espera": "1 ocorrencia — a conversao (zeta, T) -> config de mola vive numa unica funcao exportada (configDaMola em src/composicao/nos/cabecalho.tsx); nenhum outro no redeclara a formula (a W4 nao precisou de modulo compartilhado)",
       "ambiente": "worktree do repo, node 24, ripgrep 14"
     },
     "impacto_se_divergir": {
@@ -27,7 +27,14 @@
     "categoria": "render",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -n 'Math.log\\(1 / springDurationRestThreshold\\)' src/",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-310.txt",
+      "sha256": "18b2ef1cddd26e1e19da2a97a38a21a861b0c299b3fff45a0eba2f309d4c628a"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-311",
@@ -53,7 +60,14 @@
     "categoria": "render",
     "responde": "plataforma → dono",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx vitest run tests/composicao/no-cabecalho.test.ts -t \"acomoda no frame que settlingTimeSeconds manda\"",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-311.txt",
+      "sha256": "8ac1956f88c58330f04f152b85383abfea31febe45fc25d5e2f26872b1896a11"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-312",
@@ -77,7 +91,14 @@
     "categoria": "render",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx vitest run tests/composicao/no-cabecalho.test.ts -t \"a saida acontece DENTRO da janela\"",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-312.txt",
+      "sha256": "4286588f25155b43d98f64ea1b4b0d17407fd86fe5c76dd1ae9d1d7d91f134ec"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-313",
@@ -102,6 +123,13 @@
     "categoria": "render",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -n 'registrarFontesLocais' src/ fixtures/",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-313.txt",
+      "sha256": "242abc8d3abf252069198dc6250f13f2118d8fd01e9381f78ad709f0068a21bb"
+    },
+    "data_resolucao": "2026-08-13"
   }
 ]

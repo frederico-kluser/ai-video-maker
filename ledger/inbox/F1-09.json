@@ -22,7 +22,14 @@
     "categoria": "agentes-worktrees",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just no-grafico && just det-provar --no grafico; echo \"exit=$?\"",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-360.txt",
+      "sha256": "bd87721c8100ed7039c401880f0c0b39cbeb345657e05d76f39b13b871ddca5d"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-361",
@@ -47,7 +54,14 @@
     "categoria": "manim-bridge",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx tsx tools/no-grafico/conferir.ts fixtures/snapshots/no-grafico/resolvido-com-alfa.json --loja fixtures/snapshots/no-grafico/assets",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-361.txt",
+      "sha256": "7cdb258c31339d90363ec1292e228d2f268ecb20baa6d74291b9cc8d104924e0"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-363",
@@ -71,7 +85,14 @@
     "categoria": "render",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx tsx tools/no-grafico/conferir.ts fixtures/snapshots/no-grafico/resolvido-formato-sem-alfa.json --loja fixtures/snapshots/no-grafico/assets",
+      "exit": "1",
+      "arquivo": "ledger/evidencia/AB-363.txt",
+      "sha256": "038bbf03e539987e52a25d3f62e7490916773416f1892497c3fb27df93ba69d0"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-364",

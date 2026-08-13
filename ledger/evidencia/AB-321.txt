@@ -1,0 +1,50 @@
+=== no-texto-testar: tipos de src/composicao/ e tests/composicao/ ===
+=== no-texto-testar: com timing, sem timing, e a fronteira entre eles ===
+ RUN  v3.2.7 /home/ondokai/Projects/ai-video-maker-worktrees/20260811-094208-3052605/onda11-f6-04-ledger
+
+ ✓ tests/composicao/no-texto.test.ts (65 tests) 45ms
+
+ Test Files  1 passed (1)
+      Tests  65 passed (65)
+   Start at  18:57:09
+   Duration  406ms (transform 107ms, setup 28ms, collect 138ms, tests 45ms, environment 0ms, prepare 57ms)
+no-texto-testar: OK
+=== no-texto-snapshot: render 2x, invariantes e comparacao ===
+=== no-texto: prova de snapshot e determinismo ===
+
+Empacotando (webpack do Remotion)...
+  com-timing-frame45       frame  45  f95b432e8bf3  49769 bytes  (destaque palavra a palavra, palavra 3 ativa)
+  sem-timing-frame45       frame  45  65efda3223e8  46475 bytes  (degradacao para destaque por frase, mesmo frame)
+  com-timing-frame15       frame  15  cb4e991c4953  47877 bytes  (mesmo caminho, outra palavra ativa (palavra 1))
+  controle-vazio-frame45   frame  45  fea93830cb07  34428 bytes  (controle negativo: o quadro que sairia com o componente devolvendo null)
+
+Invariantes entre stills:
+  com-timing-frame45 != sem-timing-frame45  (f95b432e8bf3 != 65efda3223e8)
+  com-timing-frame45 != com-timing-frame15  (f95b432e8bf3 != cb4e991c4953)
+  com-timing-frame45 != controle-vazio-frame45  (f95b432e8bf3 != fea93830cb07)
+  sem-timing-frame45 != controle-vazio-frame45  (65efda3223e8 != fea93830cb07)
+  com-timing-frame15 != controle-vazio-frame45  (cb4e991c4953 != fea93830cb07)
+  entropia OK (controle vazio: 34428 bytes)
+
+Comparacao com os snapshots aprovados:
+  com-timing-frame45: identico (f95b432e8bf3)
+  sem-timing-frame45: identico (65efda3223e8)
+  com-timing-frame15: identico (cb4e991c4953)
+
+=== VERDE: determinismo provado, snapshots conferem ===
+
+=== no-texto-snapshot: fixtures/snapshots/no-texto/ sem mudanca ===
+no-texto-snapshot: OK
+=== no-texto-ausencia (∅-crit) ===
+∅-crit: apagar um snapshot aprovado tem de ficar VERMELHO
+
+  controle positivo: com tudo no lugar, a pre-condicao passa
+  sem com-timing-frame45.png -> VERMELHO (snapshot aprovado ausente ou vazio — o gate NAO gera snapshot sozinho:)
+  sem sem-timing-frame45.png -> VERMELHO (snapshot aprovado ausente ou vazio — o gate NAO gera snapshot sozinho:)
+  sem com-timing-frame15.png -> VERMELHO (snapshot aprovado ausente ou vazio — o gate NAO gera snapshot sozinho:)
+  restauracao conferida: a pre-condicao volta a passar
+
+=== VERDE: a ausencia de snapshot derruba o gate ===
+
+no-texto: VERDE
+bash tools/no-texto/ausencia.sh

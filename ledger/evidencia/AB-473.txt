@@ -1,0 +1,68 @@
+=== res-musica — card F2-06, com a rede bloqueada neste processo ===
+Estagio:  musica v1.0.1
+Chave:    440eeb9e409454a9eaf833bf9560d5ce72b1a16338fba51549acce513b5b8506
+Cassete:  fixtures/cassetes/musica/440eeb9e409454a9eaf833bf9560d5ce72b1a16338fba51549acce513b5b8506
+
+--- [1/7] denominador — sem isto, todo o resto e vacuidade (C2) ---
+  assets no resultado: 5
+  chamadas gravadas:   6
+  nos com efeito:      15
+  procedencias:        5
+  [OK] o cassete tem 5 asset(s)
+  [OK] o cassete tem 6 chamada(s) gravada(s)
+  [OK] procedencia cobre os 5 asset(s) (5)
+  [OK] ha trilha sonora resolvida
+
+--- [2/7] C7 — nenhuma URL abaixo da fronteira, e a URL preservada acima ---
+  [OK] encontrarURLs(resultado.json) = 0 ocorrencia(s)
+  [OK] todas as 5 procedencias guardam a URL de origem (5) — a URL mudou de lado, nao foi apagada
+  [OK] sonda negativa: uma URL contrabandeada na atribuicao E detectada
+
+--- [3/7] o efeito remoto virou hash no store — verificado byte a byte ---
+  Assets citados em resultado.json: 5
+    [OK] 126e3d99f83e7aee…    31035 B  Public domain
+    [OK] 3a00855408e16a82…    98867 B  CC0
+    [OK] 6ac2876495aa5f0a…   827184 B  CC BY 3.0
+    [OK] cce5b73c814b7f8c…    16225 B  CC0
+    [OK] d9b8d3b5e4ae0a6e…   202702 B  CC BY 3.0
+  Store reidratado: 5/5 assets verificados byte a byte
+  [OK] todo asset citado no resultado existe como conteudo e rehasheia igual
+  [OK] sonda negativa: um byte trocado no store reprova em store.verify()
+
+--- [4/7] cache quente: o estagio NAO chama a rede (nem `resolver()` roda) ---
+  [OK] o orquestrador resolveu sem invocar `resolver()` (o espiao teria lancado)
+  [OK] zero tentativas de saida durante a reproducao (antes=0, depois=0)
+  [OK] a trilha reproduzida e a mesma do cassete
+  [OK] o registro declara origem "cassete" (cassete)
+
+--- [5/7] o cassete e sosia: `resolver()` sobre os bytes CRUS reproduz o resultado ---
+  [OK] rodar o estagio contra os corpos gravados reproduz `resultado.json` byte a byte
+  [OK] o corpo gravado do catalogo AINDA tem HTML cru (nao foi higienizado na gravacao)
+  [OK] o corpo gravado ainda traz AttributionRequired como STRING ("true"/"false")
+  [OK] o corpo gravado ainda traz URL dentro do texto de credito
+  [OK] logo: a limpeza e do ESTAGIO e roda tambem no replay
+
+--- [6/7] determinismo: duas regravacoes a partir do cassete, relogios diferentes ---
+  Arquivos comparados: 11 (cassete.json, chamadas.json, corpos/126e3d99f83e7aee719fe13806d837b68752c8878e9c4c48f198903773430255, corpos/3a00855408e16a823176c25052bc801b2f70023c382e75fa11d7d913609daa80, corpos/6ac2876495aa5f0a8d4558bc35aa3e05f6e88b667a097cd3b7f41f15874276bb, corpos/82964bcb08cf83d8a8f1a75303d301347bfda8bd042ce303529db200495a4bb6, corpos/cce5b73c814b7f8c501d0370ce27995c28fe2e6c2bed06547208cba00f285c2b, corpos/d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988, procedencia.json, resultado.json, volatil.json)
+  [EXPLICADA] procedencia.json#/adquiridoEm — campo volatil declarado em CAMPOS_VOLATEIS
+      1: 2026-08-13T22:04:27.374Z
+      2: 2026-08-13T22:04:27.408Z
+  [EXPLICADA] volatil.json#/duracaoMs — campo volatil declarado em CAMPOS_VOLATEIS
+      1: 19
+      2: 16
+  [EXPLICADA] volatil.json#/gravadoEm — campo volatil declarado em CAMPOS_VOLATEIS
+      1: 2026-01-01T00:00:00.000Z
+      2: 2026-12-31T23:59:59.000Z
+  Veredito: EXPLICADA (0 refutacao(oes), 3 explicada(s))
+  [OK] zero refutacoes (3 diferenca(s) explicada(s))
+  [OK] sonda negativa: resultado mutado deixa o diff VERMELHO (1 refutacao(oes))
+
+--- [7/7] credencial: nenhum byte do cassete carrega segredo ---
+  arquivos varridos: 11 (6 padroes)
+  [OK] o denominador da varredura nao e zero
+  [OK] nenhum arquivo do cassete casa padrao de credencial
+  [OK] nenhuma das 6 chamadas levou header de autenticacao
+  [OK] nenhuma das 6 URLs gravadas traz chave em query string
+  [OK] sonda negativa: o varredor de credencial reconhece um segredo plantado
+
+=== VERDE: res-musica ===

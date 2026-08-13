@@ -1,0 +1,3 @@
+43:export const VERSAO_CONTRATO = "1.0.0";
+241:    versaoContrato: VERSAO_CONTRATO,
+6

@@ -1,0 +1,52 @@
+=== audio-mix: trilha de audio composta (F3-05, W7) ===
+
+ RUN  v3.2.7 /home/ondokai/Projects/ai-video-maker-worktrees/20260811-094208-3052605/onda11-f6-04-ledger
+
+ ✓ tests/audio/mix.test.ts (20 tests) 2018ms
+
+ Test Files  1 passed (1)
+      Tests  20 passed (20)
+   Start at  19:04:19
+   Duration  2.42s (transform 125ms, setup 32ms, collect 119ms, tests 2.02s, environment 0ms, prepare 76ms)
+
+=== audio-mix: trilha de audio composta (F3-05, W7) ===
+  fixture canonica: VERDE
+  master: 48 kHz estéreo f32, 9305644 bytes
+  hash do master: 64d172e6efec8be2cc2b1e2d8ab20280fdf1baea957dee91a6d36ede74dc7f29
+  pico absoluto: 0.2597 (clip > 1.0)
+  sobreposicao residual maxima: 0.0000 s (teto 0.1 s)
+  pergunta da onda (§12): a fala de c-004 esta em [14.233..22.738] com a cauda cortada no inicio de c-005 (18.233 s)
+  cena c-004: [14.233..18.233]s rmsFala=0.1401 atenuacao=-12.0dB (declarada -12.0dB) margemFalaMusica=27.9dB
+  cena c-005: [18.233..23.588]s rmsFala=0.1318 atenuacao=-12.0dB (declarada -12.0dB) margemFalaMusica=28.0dB
+
+=== caso de estresse: cadencia cortante (gapAlvo 0,05) ===
+  mix de estresse: VERDE (reconciliacao + emenda + cobertura)
+  emenda c-004: 036a38e6a13d… — hash NOVO, distinto da fonte
+  emenda c-005: d653068c1a2a… — hash NOVO, distinto da fonte
+
+=== sondas ∅-crit (cada uma TEM de ficar VERMELHA) ===
+  VERMELHO como esperado: P1 mix sem locucao
+    - V5: o mix nao tem NENHUMA faixa de locucao — um mix sem locucao e VERMELHO (∅-crit do card)
+  VERMELHO como esperado: P2 duas locucoes simultaneas > 0,1 s
+    - V3: sobreposicao de fala de 4.505s entre "c-004" e "c-005" (18.233..22.738s) — acima de 0.1s (C1 item 4)
+  VERMELHO como esperado: P3 emenda enderecada pelo hash do audio-fonte
+    - V4: cena "c-004": a emenda e enderecada pelo hash do audio-FONTE — a emenda tratada como se fosse a fonte e o falso-verde que o ∅-crit persegue (C3)
+    - V4: cena "c-004": os bytes da emenda enderecada nao sao a fonte menos os cortes da cadencia — emenda mentirosa (C3)
+  VERMELHO como esperado: P4 envelope nao aplicado onde a fala existe
+    - V7: cena "c-004": o envelope NAO tem efeito onde a fala existe (14.233..18.233s) — a musica cobre a locucao
+    - V7: cena "c-005": o envelope NAO tem efeito onde a fala existe (18.233..23.588s) — a musica cobre a locucao
+  VERMELHO como esperado: P5 mix que clipa
+    - V6: o mix clipa — pico 1.500 > 1.0 (0 dBFS). A soma das faixas estoura o teto (adversarial 1)
+
+=== determinismo 2x em dois PROCESSOS, ambientes diferentes (C9) ===
+  master.wav: identico nos dois processos (9305644 bytes)
+  documento.json: identico nos dois processos (1146 bytes)
+  medicoes.json: identico nos dois processos (718 bytes)
+  master.wav sha256: 64d172e6efec8be2cc2b1e2d8ab20280fdf1baea957dee91a6d36ede74dc7f29
+
+=== VERDE: trilha de audio composta sustentada (medida, nao escutada) ===
+audio-mix: VERDE
+64d172e6efec8be2cc2b1e2d8ab20280fdf1baea957dee91a6d36ede74dc7f29  .cache/audio-mix/det-a/master.wav
+npx tsc --noEmit
+npx vitest run tests/audio/mix.test.ts
+npx tsx tests/audio/mix.ferramenta.ts --conferir

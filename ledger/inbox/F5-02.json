@@ -70,7 +70,14 @@
     "categoria": "ambiente",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "ffmpeg -version | head -1 && npx vitest run tests/render/encode/comando.test.ts tests/render/encode/reais.test.ts",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-702.txt",
+      "sha256": "cec8e44a9004523e6a2749254423280309439fd0794722c469a9fdd3f4099967"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-703",
@@ -94,7 +101,14 @@
     "categoria": "ambiente",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "ffmpeg -version | head -1 && npx tsx -e \"(async () => { const { listarPerfis } = await import('src/render/encode/descobrir.js'); const p = (await listarPerfis()).find(d => d.perfil.nome === 'entrega-software'); console.log(p?.perfil.justificativaDeterminismo); })()\"",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-703.txt",
+      "sha256": "852f61ef55075a0bb16b56bfbca1b2a563c59a8c81c0b27cd5313d59da0267dd"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-704",

@@ -1,0 +1,3 @@
+1ms (processo novo, execucao 1)
+1ms (processo novo, execucao 2)
+0ms (processo novo, execucao 3)

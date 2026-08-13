@@ -47,7 +47,14 @@
     "categoria": "render",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just revisar-gate",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-851.txt",
+      "sha256": "0db873e986cc9f6d2e21027ded8f63163e6919cbec8d02f47a1ee774a612d5ee"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-852",
@@ -72,7 +79,14 @@
     "categoria": "ambiente",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just revisar-bloqueia --entrega canonico",
+      "exit": "1",
+      "arquivo": "ledger/evidencia/AB-852.txt",
+      "sha256": "8f479461ef7b9958991c2f2dec7df9663e591995259e11559bff806ee492bc65"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-853",
@@ -218,6 +232,13 @@
     "categoria": "ambiente",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just revisar-gate",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-858.txt",
+      "sha256": "0db873e986cc9f6d2e21027ded8f63163e6919cbec8d02f47a1ee774a612d5ee"
+    },
+    "data_resolucao": "2026-08-13"
   }
 ]

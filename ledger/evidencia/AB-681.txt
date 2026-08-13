@@ -1,0 +1,2 @@
+=== render-fixture: sonda qtrle — concat de video real ===
+  OK    qtrle: 727/727 frames decodificados — a concatenacao dos .mov reproduz o render inteiro (framemd5 identico)

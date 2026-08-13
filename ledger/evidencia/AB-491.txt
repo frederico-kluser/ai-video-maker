@@ -1,0 +1,29 @@
+=== integrado provar: determinismo + oraculo + snapshot ===
+  entrada: /home/ondokai/Projects/ai-video-maker-worktrees/20260811-094208-3052605/onda11-f6-04-ledger/fixtures/snapshots/integrado/entrada.tsx
+  bundle: OK
+  still: integrado frame 30 -> integrado-c001-frame30.png
+    determinismo: 2 renders, bytes identicos
+    identico ao snapshot aprovado
+  still: integrado frame 82 -> integrado-fronteira-frame82.png
+    determinismo: 2 renders, bytes identicos
+    identico ao snapshot aprovado
+  still: integrado frame 300 -> integrado-c003-frame300.png
+    determinismo: 2 renders, bytes identicos
+    identico ao snapshot aprovado
+  still: integrado frame 460 -> integrado-c004-frame460.png
+    determinismo: 2 renders, bytes identicos
+    identico ao snapshot aprovado
+  still: integrado frame 580 -> integrado-c005-frame580.png
+    determinismo: 2 renders, bytes identicos
+    identico ao snapshot aprovado
+  still: integrado frame 726 -> integrado-fim-frame726.png
+    determinismo: 2 renders, bytes identicos
+    identico ao snapshot aprovado
+  still: integrado-grafico-asset frame 20 -> integrado-grafico-asset-frame20.png
+    determinismo: 2 renders, bytes identicos
+    identico ao snapshot aprovado
+  still: integrado-midia frame 20 -> integrado-midia-frame20.png
+    determinismo: 2 renders, bytes identicos
+    identico ao snapshot aprovado
+
+=== VERDE: 8 stills, determinismo + oraculo + snapshot ===

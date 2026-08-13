@@ -1,0 +1,1 @@
+[saida vazia — exit 0] npx tsc --noEmit nao imprimiu nada: nenhum erro de tipo no repositorio

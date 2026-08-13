@@ -2386,3 +2386,41 @@ gates-validar:
 gates-bloqueia:
     npx tsx tools/gates/verificar-gates.ts
 # === fim F6-03 ===
+
+# === F6-04 ===
+# =============================================================================
+# Fechamento do ledger — gate G-LED (W11, critico). ledger/fechamento.md.
+# Dono: card F6-04. Nao edite fora destes marcadores.
+#
+# Assere (ferramenta: tools/validate-ledger.py --exigir-fechados):
+#   1. zero itens ABERTO nas categorias bloqueantes (--categoria filtra por
+#      slug de `responde`: plataforma, infra, operacao);
+#   2. um item FECHADO com evidencia da lista negra FALHA (∅-crit do card):
+#      evidencia textual proibida, arquivo inexistente, sha256 divergente,
+#      conteudo do arquivo proibido, FECHADO sem evidencia, INVIAVEL sem ADR;
+#   3. --permitir-aberto AB-950 exige justificativa em ledger/fechamento.md
+#      (secao "Allowlist") — allowlist explicita, nunca silenciosa.
+#
+# A divida historica de schema (103 erros em itens de ondas antigas) NAO
+# derruba este gate: esta registrada em ledger/fechamento.md (secao
+# "Divida historica") e a correcao e exigida no F6-05. O modo schema
+# (python3 tools/validate-ledger.py, sem flags) continua falhando nela.
+# =============================================================================
+
+# `just ledger-fechar` — o gate G-LED: fechamento + allowlist explicita.
+ledger-fechar:
+    @echo "=== ledger-fechar: gate G-LED (F6-04, W11) ==="
+    python3 tools/validate-ledger.py --exigir-fechados --categoria plataforma,infra,operacao --permitir-aberto AB-950
+
+# `just ledger-fechar-allowlist` — prova que a allowlist e exigida: sem a
+# justificativa em ledger/fechamento.md, o mesmo comando FALHA.
+ledger-fechar-allowlist:
+    @echo "=== ledger-fechar-allowlist: allowlist sem justificativa TEM de falhar (F6-04) ==="
+    @if python3 tools/validate-ledger.py --exigir-fechados --categoria plataforma,infra,operacao --permitir-aberto AB-999 2>&1 | grep -q "sem justificativa"; then echo "OK: --permitir-aberto sem justificativa falha"; else echo "FALHOU: allowlist sem justificativa passou (bug)"; exit 1; fi
+
+# `just ledger-schema` — a superficie da divida: o modo schema (sem flags)
+# reporta os erros historicos; deve continuar falhando ate a correcao (F6-05).
+ledger-schema:
+    @echo "=== ledger-schema: modo schema (divida visivel, nao escondida) ==="
+    @python3 tools/validate-ledger.py >/dev/null 2>&1 && echo "OK: schema valido — divida corrigida" || echo "VERMELHO (esperado ate F6-05): divida historica ainda presente"
+# === fim F6-04 ===

@@ -1,0 +1,16 @@
+=== timing-determinismo: o documento canonico e 2x identico ===
+
+Fase 1 — dois PROCESSOS separados, ambientes diferentes (C9)
+  a.json == b.json (6269 bytes)
+
+Fase 2 — sonda negativa: mutar 1 byte TEM de ficar VERMELHO
+  mutacao detectada: a.json != mutado.json
+
+Fase 3 — os dois batem com o golden commitado
+  a.json == fixtures/canonico/timing-canono.json
+
+=== VERDE: determinismo do timing canonico sustentado ===
+=== timing-testar: conferir o golden do timing canonico ===
+  fixtures/canonico/timing-canono.json: bytes identicos (6269 bytes)
+
+=== VERDE: golden do timing canonico sustentado ===

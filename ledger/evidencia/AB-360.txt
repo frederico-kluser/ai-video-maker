@@ -1,0 +1,45 @@
+=== no-grafico-conferir: guarda de build no caso bom ===
+=== no-grafico conferir: fixtures/snapshots/no-grafico/resolvido-com-alfa.json ===
+  nos do tipo "grafico" conferidos: 1
+=== VERDE: todo grafico deste manifesto compoe com alfa ===
+no-grafico-conferir: OK
+=== no-grafico-provar ===
+=== no-grafico provar: determinismo + snapshot + pixel ===
+  entrada: /home/ondokai/Projects/ai-video-maker-worktrees/20260811-094208-3052605/onda11-f6-04-ledger/fixtures/snapshots/no-grafico/index.tsx
+  bundle: OK
+  no-grafico-dados: render 2x -> bytes identicos
+  no-grafico-dados: tinta=0.3130 transparente=0.6870 cores=514 cantos=[0,0,0,0]
+  no-grafico-dados: identico ao snapshot aprovado
+  no-grafico-asset: render 2x -> bytes identicos
+  no-grafico-asset: tinta=0.2343 transparente=0.7657 cores=404 cantos=[0,0,0,0]
+  no-grafico-asset: identico ao snapshot aprovado
+
+=== VERDE: no-grafico provar ===
+no-grafico-provar: OK
+=== no-grafico-mutar ===
+=== no-grafico mutar: sondas negativas ===
+  OK      +1  controle positivo: o caso bom sai VERDE
+  OK      ∅-4 formato sem alfa no manifesto resolvido
+  OK      ∅-5 bytes sem alfa com mimeType honesto (image/png tipo de cor 2)
+  OK      ∅-6 no de grafico sem asset resolvido
+  OK      ∅-1 snapshot aprovado apagado
+  OK      ∅-2 snapshot aprovado trocado
+  OK      ∅-3 render com formato sem alfa TEM de falhar
+
+=== VERDE: toda garantia deste card sabe ficar vermelha ===
+no-grafico-mutar: OK
+=== no-grafico-ausencia (∅-crit) ===
+=== ausencia: no-grafico-dados-frame20.png ===
+  VERMELHO no motivo certo (AUSENTE: no-grafico-dados-frame20.png)
+  VERDE com o snapshot de volta
+=== ausencia: no-grafico-asset-frame20.png ===
+  VERMELHO no motivo certo (AUSENTE: no-grafico-asset-frame20.png)
+  VERDE com o snapshot de volta
+
+=== VERDE: apagar snapshot aprovado fica VERMELHO, e o gate volta VERDE ===
+no-grafico-ausencia: OK
+=== no-grafico-snapshots: diff + status de fixtures/snapshots/no-grafico/ (C3) ===
+no-grafico-snapshots: OK (diff limpo + status limpo)
+no-grafico: VERDE
+exit=1
+error: Justfile does not contain recipe `--no`

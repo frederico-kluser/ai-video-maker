@@ -1,0 +1,7 @@
+BUNDLE: /tmp/remotion-webpack-bundle-ftMsPW
+woff2 como arquivo REGULAR no bundle: NENHUM (o bundle repassa o link)
+total 12
+drwxrwxr-x 2 ondokai ondokai 4096 Aug 13 19:11 .
+drwx------ 3 ondokai ondokai 4096 Aug 13 19:11 ..
+lrwxrwxrwx 1 ondokai ondokai  105 Aug 13 19:11 fontes -> /home/ondokai/Projects/ai-video-maker-worktrees/20260811-094208-3052605/onda11-f6-04-ledger/assets/fontes
+

@@ -1,0 +1,3 @@
+=== no-grafico conferir: fixtures/snapshots/no-grafico/resolvido-com-alfa.json ===
+  nos do tipo "grafico" conferidos: 1
+=== VERDE: todo grafico deste manifesto compoe com alfa ===

@@ -1,0 +1,4 @@
+        <Function test_05_entrada_sem_unidade_declarada_e_rejeitada>
+
+========================= 91 tests collected in 0.05s ==========================
+1

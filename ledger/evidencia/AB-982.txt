@@ -1,0 +1,90 @@
+Bundling 6%
+Bundling 14%
+Bundling 60%
+Bundling 65%
+Bundling 71%
+Bundling 76%
+Bundling 81%
+Bundling 86%
+Bundling 91%
+Bundling 98%
+Bundling 100%
+Getting composition
+Composition          integrado
+Codec                h264
+Output               /tmp/medir-maquina/gpu-test.mp4
+Concurrency          8x
+Rendered 0/60
+Rendered 1/60, time remaining: 14s
+Rendered 2/60, time remaining: 8s
+Rendered 3/60, time remaining: 5s
+Rendered 4/60, time remaining: 4s
+Rendered 5/60, time remaining: 3s
+Rendered 6/60, time remaining: 3s
+Rendered 7/60, time remaining: 2s
+Rendered 8/60, time remaining: 2s
+Rendered 9/60, time remaining: 2s
+Rendered 10/60, time remaining: 2s
+Rendered 11/60, time remaining: 1s
+Rendered 12/60, time remaining: 1s
+Rendered 13/60, time remaining: 1s
+Rendered 14/60, time remaining: 1s
+Rendered 15/60, time remaining: 1s
+Rendered 16/60, time remaining: 1s
+Rendered 17/60, time remaining: 1s
+Rendered 18/60, time remaining: 1s
+Rendered 19/60, time remaining: 1s
+Rendered 20/60, time remaining: 1s
+Rendered 21/60, time remaining: 1s
+Rendered 22/60, time remaining: 1s
+Rendered 23/60, time remaining: 1s
+Rendered 24/60, time remaining: 1s
+Rendered 25/60, time remaining: 0s
+Rendered 26/60, time remaining: 0s
+Rendered 27/60, time remaining: 0s
+Rendered 28/60, time remaining: 0s
+Rendered 29/60, time remaining: 0s
+Rendered 30/60, time remaining: 0s
+Rendered 31/60, time remaining: 0s
+Rendered 32/60, time remaining: 0s
+Rendered 33/60, time remaining: 0s
+Rendered 34/60, time remaining: 0s
+Rendered 35/60, time remaining: 0s
+Rendered 36/60, time remaining: 0s
+Rendered 37/60, time remaining: 0s
+Rendered 38/60, time remaining: 0s
+Rendered 39/60, time remaining: 0s
+Rendered 40/60, time remaining: 0s
+Rendered 41/60, time remaining: 0s
+Rendered 42/60, time remaining: 0s
+Rendered 43/60, time remaining: 0s
+Rendered 44/60, time remaining: 0s
+Rendered 45/60, time remaining: 0s
+Rendered 46/60, time remaining: 0s
+Rendered 47/60, time remaining: 0s
+Rendered 48/60, time remaining: 0s
+Rendered 49/60, time remaining: 0s
+Rendered 50/60, time remaining: 0s
+Rendered 51/60, time remaining: 0s
+Rendered 52/60, time remaining: 0s
+Rendered 53/60, time remaining: 0s
+Rendered 54/60, time remaining: 0s
+Rendered 55/60, time remaining: 0s
+Rendered 56/60, time remaining: 0s
+Rendered 57/60, time remaining: 0s
+Rendered 58/60, time remaining: 0s
+Rendered 59/60, time remaining: 0s
+Rendered 60/60
+Rendered 60/60
+Rendered 60/60
+Encoded 30/60
+Encoded 48/60
+Encoded 60/60
++                    /tmp/medir-maquina/gpu-test.mp4 187.1 kB
+--- utilizacao da GPU durante o render (SwiftShader esperado: 0%):
+10 %
+0 %
+0 %
+0 %
+0 %
+0 %

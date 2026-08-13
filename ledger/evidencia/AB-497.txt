@@ -1,0 +1,8 @@
+RUN  v3.2.7 /home/ondokai/Projects/ai-video-maker-worktrees/20260811-094208-3052605/onda11-f6-04-ledger
+
+ ✓ tests/integracao/composicao/presenca.test.ts (18 tests) 76ms
+
+ Test Files  1 passed (1)
+      Tests  18 passed (18)
+   Start at  18:56:40
+   Duration  593ms (transform 204ms, setup 29ms, collect 274ms, tests 76ms, environment 0ms, prepare 71ms)

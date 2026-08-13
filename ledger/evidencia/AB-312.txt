@@ -1,0 +1,8 @@
+RUN  v3.2.7 /home/ondokai/Projects/ai-video-maker-worktrees/20260811-094208-3052605/onda11-f6-04-ledger
+
+ ✓ tests/composicao/no-cabecalho.test.ts (42 tests | 41 skipped) 9ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 41 skipped (42)
+   Start at  18:56:39
+   Duration  490ms (transform 152ms, setup 36ms, collect 192ms, tests 9ms, environment 0ms, prepare 81ms)

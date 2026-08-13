@@ -22,7 +22,14 @@
     "categoria": "ambiente",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "du -sh fixtures/cassetes 2>/dev/null || echo '0 (nenhum cassete gravado ainda)'",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-280.txt",
+      "sha256": "77fd11291faff8eb2263366b5b5ed930a81b301d7da304562277e09676b85f7b"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-281",
@@ -47,7 +54,14 @@
     "categoria": "ambiente",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "unshare --map-root-user --net -- true && echo 'namespace disponivel' || echo 'namespace AUSENTE'",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-281.txt",
+      "sha256": "74730f00a38ac40e325cc87a685e55c6e5435d3e5d0be943062dbef6442bdfd8"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-282",
@@ -72,7 +86,14 @@
     "categoria": "agentes-worktrees",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "grep -rn 'VERSAO_CONTRATO' src/resolucao/contrato.ts && ls fixtures/cassetes 2>/dev/null | wc -l",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-282.txt",
+      "sha256": "bad65300d9c04d76dc7f75b87b5aa4a4c832f13974bc196874e3789fe5ca2bf9"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-283",
@@ -97,7 +118,14 @@
     "categoria": "ambiente",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "find fixtures/cassetes -path '*/corpos/*' -type f -exec sha256sum {} + 2>/dev/null | awk '{print $1}' | sort | uniq -d | wc -l",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-283.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-284",
@@ -123,7 +151,14 @@
     "categoria": "agentes-worktrees",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just --list >/dev/null 2>&1 && echo 'justfile parseia' || echo 'justfile NAO parseia'",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-284.txt",
+      "sha256": "3093dd47a0600de93ea3b3465c31caf1bd27d819bba8eec538b7492ce6d26e85"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-285",
@@ -148,6 +183,13 @@
     "categoria": "agentes-worktrees",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "python3 -m pytest tests/ --collect-only -q 2>&1 | tail -3 && ls tests/**/*_test.py 2>/dev/null | wc -l",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-285.txt",
+      "sha256": "b068d50a0500d2ee143f93845c2c3d55c518e67c86a631387a7779e891dbab44"
+    },
+    "data_resolucao": "2026-08-13"
   }
 ]

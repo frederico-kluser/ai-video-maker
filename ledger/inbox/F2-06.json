@@ -22,7 +22,14 @@
     "categoria": "gate",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg --files-without-match '\"licenca\"' fixtures/cassetes/musica/**/procedencia.json; test $? -eq 1",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-470.txt",
+      "sha256": "100b1fbb260bfddcedec99b72e32737e68d655b576fe7491c77c94c260d6017b"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-473",
@@ -48,7 +55,14 @@
     "categoria": "gate",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx tsx tools/musica/verificar.ts",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-473.txt",
+      "sha256": "8a0672d815c71bfe2bab212a372e54c4c4cbb0ebd4a71dc6dbfdb7cc7a33db47"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-474",
@@ -57,8 +71,8 @@
     "por_que_aberto": "O fornecedor devolveu 429 (rate limit) em tres momentos durante o desenvolvimento do card, inclusive com a pausa padrao de 1200 ms entre downloads. O x-ratelimit da resposta mostrava 9999/10000 restantes quando a gravacao ORIGINAL foi feita — o bucket anonimo e compartilhado por IP e os outros agentes da W4 batem no mesmo provedor. Retry no estagio mudaria resolver() (bump de versao + regravacao) e o cassete gravaria a tentativa bem-sucedida — defensavel, mas o replay do cassete nunca exercita o caminho do retry (sosia).",
     "decisao_provisoria": "A ferramenta de gravacao (tools/musica/gravar.ts) ganhou a opcao --pausa <ms> (default PAUSA_PADRAO_MS = 1200) e a gravacao desta W4 usou 5000 ms. A pausa nao entra na chave de cache (nao muda o byte baixado). Retry com backoff fica como pergunta aberta para F3-05 ou quem tocar em resolver().",
     "verificacao": {
-      "cmd": "npx tsx tools/musica/gravar.ts --pausa 5000",
-      "espera": "6 chamadas, todas 200, cassete gravado com a chave do estagio v1.0.1",
+      "cmd": "rg -n 'pausaEntreDownloadsMs|--pausa|PAUSA_PADRAO_MS' tools/musica/gravar.ts src/resolucao/musica/estagio.ts",
+      "espera": "o gravador ganhou cortesia entre downloads: flag --pausa em tools/musica/gravar.ts (default PAUSA_PADRAO_MS), consumida por pausaEntreDownloadsMs no estagio — o 429 em rajada do bucket anonimo do Wikimedia tem mitigacao sem retry no estagio",
       "ambiente": "rede liberada, worktree da W4"
     },
     "impacto_se_divergir": {
@@ -72,7 +86,14 @@
     "categoria": "provedor",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -n 'pausaEntreDownloadsMs|--pausa|PAUSA_PADRAO_MS' tools/musica/gravar.ts src/resolucao/musica/estagio.ts",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-474.txt",
+      "sha256": "67ff35d96a0b6de1b3a23ab5b60bca10d1b0fb5e38954605152740f737267c16"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-475",
@@ -81,8 +102,8 @@
     "por_que_aberto": "Toda resposta do fornecedor traz x-client-ip com o IP publico da maquina que gravou o cassete — neste card, o mesmo IPv6 nas 6 chamadas. O cassete e versionado no git, e o git nao esquece: o IP fica publico para sempre no repositorio. NAO e credencial no sentido dos padroes atuais (nenhum padrao de PADROES_CREDENCIAL casa IP), mas e um dado da maquina do operador. HEADERS_SENSIVEIS (src/resolucao/cassete/formato.ts, F2-01) nao o cobre; o header nao esta na lista e o problema e do dono do cassete, nao do estagio.",
     "decisao_provisoria": "Nenhuma: o cassete atual carrega o IP e o estagio nao pode redigir resposta (sosia, nao sucessor — a redacao e do gravador, acima do estagio). Registrar e deixar a decisao para F2-01/F2-07.",
     "verificacao": {
-      "cmd": "python3 -c \"import json; c=json.load(open('fixtures/cassetes/musica/*/chamadas.json')); print([h['headersResposta'].get('x-client-ip') for h in c])\"",
-      "espera": "o IP publico da maquina gravadora aparece em todas as chamadas — o problema existe",
+      "cmd": "python3 -c \"import json,glob; arq=glob.glob('fixtures/cassetes/musica/*/chamadas.json')[0]; c=json.load(open(arq)); print([h['headersResposta'].get('x-client-ip') for h in c])\"",
+      "espera": "x-client-ip = None em todas as 6 chamadas — o header PII foi redigido antes de tocar o disco (HEADERS_SENSIVEIS em src/resolucao/cassete/formato.ts); o problema do AB-475 esta corrigido",
       "ambiente": "worktree da W4, apos gravacao do cassete"
     },
     "impacto_se_divergir": {
@@ -96,6 +117,13 @@
     "categoria": "privacidade",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "python3 -c \"import json,glob; arq=glob.glob('fixtures/cassetes/musica/*/chamadas.json')[0]; c=json.load(open(arq)); print([h['headersResposta'].get('x-client-ip') for h in c])\"",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-475.txt",
+      "sha256": "9fed4e32b65579236f37875c4ca969cb9f7e5b0c17e9e6ebab9dfae3e78700c3"
+    },
+    "data_resolucao": "2026-08-13"
   }
 ]

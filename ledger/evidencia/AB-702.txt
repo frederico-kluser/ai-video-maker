@@ -1,0 +1,15 @@
+ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers
+
+ RUN  v3.2.7 /home/ondokai/Projects/ai-video-maker-worktrees/20260811-094208-3052605/onda11-f6-04-ledger
+
+ ✓ tests/render/encode/comando.test.ts (8 tests) 4ms
+ ✓ tests/render/encode/reais.test.ts (3 tests) 2885ms
+   ✓ encodes reais (ffmpeg 6.1.1) > round-trip: executarEncode + verificarSaida com o perfil entrega-software  416ms
+   ✓ encodes reais (ffmpeg 6.1.1) > determinismo TESTADO (pergunta adversarial 4): 2x encodes do perfil deterministico = bytes identicos  408ms
+   ✓ encodes reais (ffmpeg 6.1.1) > NVENC: deteccao real (C8) e round-trip estrutural quando disponivel  2060ms
+
+ Test Files  2 passed (2)
+      Tests  11 passed (11)
+   Start at  18:53:24
+   Duration  3.18s (transform 90ms, setup 56ms, collect 81ms, tests 2.89s, environment 0ms, prepare 143ms)
+

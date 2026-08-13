@@ -199,7 +199,14 @@
     "categoria": "render",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "bash tools/transicoes/provar.sh",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-377.txt",
+      "sha256": "e89e3efe722ad26e2292a9964a0bde93a6158d9cd3bf5835093938baf3c8be71"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-378",

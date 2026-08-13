@@ -1,0 +1,2 @@
+580.159.03
+{"data": "2026-08-13T22:06:33+00:00", "entrada": "/tmp/medir-maquina/entrada-encode.mp4", "nvenc": [{"n": 8, "sessoes_ok": 8, "sessoes_falharam": 0, "wall_s": 5.4, "fps_por_sessao": 444.6, "fps_agregado": 444.6, "pico_rss_sessoes_kib": 2762952, "pico_rss_por_sessao_mib": 337.3}], "x264": []}

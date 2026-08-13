@@ -1,0 +1,3 @@
+91:const PORTA = 4501;
+372:  process.stdout.write(`  composicao: ${COMPOSICAO_ID} (porta ${String(PORTA)})\n`);
+381:  if (PORTA !== 4501) {

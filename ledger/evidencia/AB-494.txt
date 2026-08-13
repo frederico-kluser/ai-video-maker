@@ -1,0 +1,24 @@
+=== integrado ausencia (∅-crit) ===
+  gate: npx vitest run tests/integracao/composicao/presenca.test.ts
+  mutando a fixture integrada no por no (15 nos)
+  controle positivo inicial: gate com a fixture intacta
+    verde
+  no "n-001": removido -> VERMELHO por ausencia (nomeado)
+  no "n-002": removido -> VERMELHO por ausencia (nomeado)
+  no "n-003": removido -> VERMELHO por ausencia (nomeado)
+  no "n-004": removido -> VERMELHO por ausencia (nomeado)
+  no "n-005": removido -> VERMELHO por ausencia (nomeado)
+  no "n-006": removido -> VERMELHO por ausencia (nomeado)
+  no "n-007": removido -> VERMELHO por ausencia (nomeado)
+  no "n-008": removido -> VERMELHO por ausencia (nomeado)
+  no "n-009": removido -> VERMELHO por ausencia (nomeado)
+  no "n-010": removido -> VERMELHO por ausencia (nomeado)
+  no "n-011": removido -> VERMELHO por ausencia (nomeado)
+  no "n-012": removido -> VERMELHO por ausencia (nomeado)
+  no "n-013": removido -> VERMELHO por ausencia (nomeado)
+  no "n-014": removido -> VERMELHO por ausencia (nomeado)
+  no "n-015": removido -> VERMELHO por ausencia (nomeado)
+  controle positivo final: gate com a fixture restaurada
+    verde
+
+=== VERDE: 15 nos removidos um a um, todos acusados por ausencia, fixture restaurada ===

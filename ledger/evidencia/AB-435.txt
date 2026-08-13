@@ -1,0 +1,1 @@
+240:      await writeFile(join(entrada.diretorioTrabalho, hash), bytes);

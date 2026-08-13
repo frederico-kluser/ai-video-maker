@@ -1,0 +1,8 @@
+RUN  v3.2.7 /home/ondokai/Projects/ai-video-maker-worktrees/20260811-094208-3052605/onda11-f6-04-ledger
+
+ ✓ tests/composicao/no-lista.test.ts (59 tests | 55 skipped) 10ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed | 55 skipped (59)
+   Start at  18:56:39
+   Duration  424ms (transform 140ms, setup 26ms, collect 177ms, tests 10ms, environment 0ms, prepare 67ms)

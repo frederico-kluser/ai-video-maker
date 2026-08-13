@@ -46,7 +46,14 @@
     "categoria": "render",
     "responde": "plataforma",
     "antecedencia": "card",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx tsx tests/render/pipeline/render-fixture.ts | grep qtrle",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-681.txt",
+      "sha256": "922e0ce41f88456c3d05b51c4c14775d2005d5f42110cb44fd73593792c0d46e"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-682",
@@ -93,7 +100,14 @@
     "categoria": "render",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "python3 tools/medir-maquina.py rss --concurrency 8 --frames 0-239 && npx tsx tests/render/pipeline/render-fixture.ts | grep maquina",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-683.txt",
+      "sha256": "6c083c08b6848bc6a6f293c3f58894c3e39676a8b789b09cf0baeef711c9f7e4"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-684",
@@ -116,7 +130,14 @@
     "categoria": "ambiente",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx tsx tests/render/pipeline/render-fixture.ts | grep maquina",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-684.txt",
+      "sha256": "1ffe30c972453ae6caf216c021b8e74e0df5c02ee148089a543456db9a26ae02"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-685",
@@ -163,7 +184,14 @@
     "categoria": "render",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "grep -n 'PORTA' tests/render/pipeline/render-fixture.ts | head -3",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-686.txt",
+      "sha256": "9eee805bb72a7067c4fb32cd52b0fa23027bdc99fc3e39974985bcd0f314c99f"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-687",
@@ -280,6 +308,13 @@
     "categoria": "render",
     "responde": "plataforma",
     "antecedencia": "card",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx tsx tests/render/pipeline/render-fixture.ts | grep 'byte a byte'",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-691.txt",
+      "sha256": "f93857ef9010464473b96d27823b38eaec7cbfa48951bbf781c5e833f5848ca8"
+    },
+    "data_resolucao": "2026-08-13"
   }
 ]

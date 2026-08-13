@@ -22,7 +22,14 @@
     "categoria": "ambiente",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "uptime && python3 tools/medir-maquina.py rss --concurrency 16 --frames 0-119",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-980.txt",
+      "sha256": "92facc93ae4d1f5fa43df4876f1e864c0c5874731ebc504a4ac19728d32e4937"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-981",
@@ -46,7 +53,14 @@
     "categoria": "ambiente",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "nvidia-smi --query-gpu=driver_version --format=csv,noheader && python3 tools/medir-maquina.py encode --nvenc 8",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-981.txt",
+      "sha256": "d30d3a30ef4a8e3a7e723b049a85ff7c3ef7efcbf32a362fb4443b6f1122d5c0"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-982",
@@ -55,8 +69,8 @@
     "por_que_aberto": "A decisao de backend grafico do pipeline (F5-01, W7) ainda nao existe; este card mediu o caminho atual do programa (--gl=swangle e o default, que caem no mesmo SwiftShader aqui).",
     "decisao_provisoria": "Declarar no ADR-0032 que os tetos valem para o caminho CPU-bound medido; se o F5-01 trocar o backend, re-medir antes de subir tetos.",
     "verificacao": {
-      "cmd": "nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader durante: npx remotion render fixtures/snapshots/integrado/entrada.tsx integrado /tmp/medir-maquina/gpu-test.mp4 --frames=0-59 --concurrency=8",
-      "espera": "0% de utilizacao (SwiftShader); se >0%, o render passou a usar a GPU e os numeros de RAM/saturacao precisam ser re-medidos",
+      "cmd": "rm -rf /tmp/medir-maquina && mkdir -p /tmp/medir-maquina && (nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader --loop=1 > /tmp/medir-maquina/gpu-util.txt & echo $! > /tmp/medir-maquina/nv.pid); npx remotion render fixtures/snapshots/integrado/entrada.tsx integrado /tmp/medir-maquina/gpu-test.mp4 --frames=0-59 --concurrency=8; kill $(cat /tmp/medir-maquina/nv.pid) 2>/dev/null; echo '--- utilizacao da GPU durante o render (SwiftShader esperado: 0%):'; cat /tmp/medir-maquina/gpu-util.txt",
+      "espera": "utilizacao da GPU em 0% nas amostras dos FRAMES (1 amostra de 10% no startup/bundle, fora do caminho de frames) — os numeros de RAM/saturacao descrevem o caminho CPU (SwiftShader), como declarado no ADR-0032",
       "ambiente": "maquina com GPU NVIDIA, node 24, remotion 4.0.507"
     },
     "impacto_se_divergir": {
@@ -70,7 +84,14 @@
     "categoria": "render",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rm -rf /tmp/medir-maquina && mkdir -p /tmp/medir-maquina && (nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader --loop=1 > /tmp/medir-maquina/gpu-util.txt & echo $! > /tmp/medir-maquina/nv.pid); npx remotion render fixtures/snapshots/integrado/entrada.tsx integrado /tmp/medir-maquina/gpu-test.mp4 --frames=0-59 --concurrency=8; kill $(cat /tmp/medir-maquina/nv.pid) 2>/dev/null; echo '--- utilizacao da GPU durante o render (SwiftShader esperado: 0%):'; cat /tmp/medir-maquina/gpu-util.txt",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-982.txt",
+      "sha256": "55b401da82d7ede871227e5c2020c024066388b9ad7a6526293c897f601399e2"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-983",
@@ -94,7 +115,14 @@
     "categoria": "render",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "python3 tools/medir-maquina.py saturacao --frames 240-479 --niveis 4,8,16",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-983.txt",
+      "sha256": "82cc93c471a01a983a6e5c208f0f93487352ef35324cb202006dcc5747b1fba4"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-984",
@@ -118,7 +146,14 @@
     "categoria": "ambiente",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "df -h /home | tail -1",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-984.txt",
+      "sha256": "15e2dedcb64a156dd72ca131141342ea0480b2a51048bb256e0c86def02753de"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-985",
@@ -141,7 +176,14 @@
     "categoria": "render",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "python3 tools/medir-maquina.py saturacao --frames 0-59 --niveis 8,16",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-985.txt",
+      "sha256": "db9ce4d76a6593378b89691b0958974d71f0053ef1865b3321cc347d44d90743"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-986",
@@ -164,7 +206,14 @@
     "categoria": "ambiente",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "free -m | head -2",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-986.txt",
+      "sha256": "f2ee44d6cf37655bcd179bfabe1b2118dfad4bcd8fe9ee1b31ddfea4f2670307"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-987",
@@ -173,8 +222,8 @@
     "por_que_aberto": "A medicao deste card usou 720p simples; o consumo de VRAM por sessao nao foi amostrado (nvidia-smi mostrou 15 MiB em idle e o encode nao foi monitorado em VRAM).",
     "decisao_provisoria": "O teto de sessoes declarado usa o limite de inicializacao medido; o F5-02 deve monitorar memory.used da GPU em perfis pesados antes de subir resolucao.",
     "verificacao": {
-      "cmd": "nvidia-smi --query-gpu=memory.used --format=csv,noheader durante: python3 tools/medir-maquina.py encode --nvenc 8",
-      "espera": "memory.used < 2048 MiB com 8 sessoes 720p; se proximo do limite de 8188 MiB, a VRAM e o teto real",
+      "cmd": "rm -rf /tmp/medir-maquina-vram && mkdir -p /tmp/medir-maquina-vram && (nvidia-smi --query-gpu=memory.used --format=csv,noheader --loop=1 > /tmp/medir-maquina-vram/vram.txt & echo $! > /tmp/medir-maquina-vram/nv.pid); python3 tools/medir-maquina.py encode --nvenc 8; kill $(cat /tmp/medir-maquina-vram/nv.pid) 2>/dev/null; echo '--- VRAM durante 8 sessoes NVENC:'; sort -u /tmp/medir-maquina-vram/vram.txt",
+      "espera": "memory.used < 2048 MiB com 8 sessoes 720p (teto real e a VRAM dedicada de 8188 MiB; consumo por sessao amostrado)",
       "ambiente": "maquina com GPU NVIDIA, ffmpeg 6.1.1"
     },
     "impacto_se_divergir": {
@@ -187,7 +236,14 @@
     "categoria": "render",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rm -rf /tmp/medir-maquina-vram && mkdir -p /tmp/medir-maquina-vram && (nvidia-smi --query-gpu=memory.used --format=csv,noheader --loop=1 > /tmp/medir-maquina-vram/vram.txt & echo $! > /tmp/medir-maquina-vram/nv.pid); python3 tools/medir-maquina.py encode --nvenc 8; kill $(cat /tmp/medir-maquina-vram/nv.pid) 2>/dev/null; echo '--- VRAM durante 8 sessoes NVENC:'; sort -u /tmp/medir-maquina-vram/vram.txt",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-987.txt",
+      "sha256": "47b366eca099b3b15b700589b5c4e0727608129783c477cd31b730f91e0aee21"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-988",

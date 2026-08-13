@@ -1,0 +1,225 @@
+[surf 21:58:08] ⓘ surf-ai: no harness bash timeout detected — budgeting 110s. If your harness kills commands sooner (GH Copilot CLI defaults to 30s), run 'surf-research-skill project-config' or pass --budget-ms <ms>.
+[surf 21:58:08] ⓘ surf-ai: using 1 OpenRouter key(s) from the environment (not persisted)
+[surf 21:58:08] ▸ surf-ai [normal] planning · harness=unknown (assuming 30s — likely GH Copilot CLI without hook) · budget 110s
+[surf 21:58:08] ▸ plan → deepseek/deepseek-v4-pro (key #0)
+[surf 21:58:34] ✓ plan deepseek/deepseek-v4-pro 26135ms (1507 tok, $0.00126)
+[surf 21:58:34] ⓘ surf-ai plan: 2 sub-question(s), 6 queries
+[surf 21:58:34] ▸ surf-ai round 1/1: 6 searches · concurrency 6
+[surf 21:58:34] ▸ search → parallel (key #0)
+[surf 21:58:34] ▸ search → parallel (key #0)
+[surf 21:58:34] ▸ search → parallel (key #0)
+[surf 21:58:34] ▸ search → parallel (key #0)
+[surf 21:58:34] ▸ search → parallel (key #0)
+[surf 21:58:34] ▸ search → parallel (key #0)
+[surf 21:58:34] ↻ parallel network error — backoff 714ms
+[surf 21:58:34] ↻ parallel network error — backoff 434ms
+[surf 21:58:34] ↻ parallel network error — backoff 535ms
+[surf 21:58:34] ↻ parallel network error — backoff 535ms
+[surf 21:58:34] ↻ parallel network error — backoff 406ms
+[surf 21:58:34] ↻ parallel network error — backoff 532ms
+[surf 21:58:34] ↻ parallel network error — backoff 2883ms
+[surf 21:58:34] ↻ parallel network error — backoff 1659ms
+[surf 21:58:34] ↻ parallel network error — backoff 1500ms
+[surf 21:58:34] ↻ parallel network error — backoff 2162ms
+[surf 21:58:34] ↻ parallel network error — backoff 1566ms
+[surf 21:58:34] ↻ parallel network error — backoff 2611ms
+[surf 21:58:36] ▸ search → tavily (key #0)
+[surf 21:58:36] ↻ tavily network error — backoff 563ms
+[surf 21:58:36] ▸ search → tavily (key #0)
+[surf 21:58:36] ↻ tavily network error — backoff 547ms
+[surf 21:58:37] ▸ search → tavily (key #0)
+[surf 21:58:37] ↻ tavily network error — backoff 430ms
+[surf 21:58:37] ↻ tavily network error — backoff 1940ms
+[surf 21:58:37] ▸ search → tavily (key #0)
+[surf 21:58:37] ↻ tavily network error — backoff 440ms
+[surf 21:58:37] ↻ tavily network error — backoff 1641ms
+[surf 21:58:37] ▸ search → tavily (key #0)
+[surf 21:58:37] ↻ tavily network error — backoff 506ms
+[surf 21:58:37] ▸ search → tavily (key #0)
+[surf 21:58:37] ↻ tavily network error — backoff 628ms
+[surf 21:58:37] ↻ tavily network error — backoff 2678ms
+[surf 21:58:37] ↻ tavily network error — backoff 2954ms
+[surf 21:58:37] ↻ tavily network error — backoff 1590ms
+[surf 21:58:38] ↻ tavily network error — backoff 2855ms
+[surf 21:58:40] ▸ search → brave (key #1)
+[surf 21:58:40] ▸ search → brave (key #1)
+[surf 21:58:40] ↻ brave network error — backoff 665ms
+[surf 21:58:40] ↻ brave network error — backoff 534ms
+[surf 21:58:40] ▸ search → brave (key #1)
+[surf 21:58:40] ↻ brave network error — backoff 550ms
+[surf 21:58:40] ▸ search → brave (key #1)
+[surf 21:58:40] ↻ brave network error — backoff 576ms
+[surf 21:58:40] ▸ search → brave (key #1)
+[surf 21:58:40] ↻ brave network error — backoff 568ms
+[surf 21:58:40] ↻ brave network error — backoff 1648ms
+[surf 21:58:40] ↻ brave network error — backoff 2055ms
+[surf 21:58:40] ↻ brave network error — backoff 2684ms
+[surf 21:58:40] ▸ search → brave (key #1)
+[surf 21:58:40] ↻ brave network error — backoff 2003ms
+[surf 21:58:40] ↻ brave network error — backoff 704ms
+[surf 21:58:41] ↻ brave network error — backoff 2383ms
+[surf 21:58:41] ↻ brave network error — backoff 2912ms
+[surf 21:58:42] ▸ search → brave (key #0)
+[surf 21:58:42] ↻ brave network error — backoff 674ms
+[surf 21:58:42] ▸ search → brave (key #0)
+[surf 21:58:42] ↻ brave network error — backoff 708ms
+[surf 21:58:43] ▸ search → brave (key #0)
+[surf 21:58:43] ↻ brave network error — backoff 2643ms
+[surf 21:58:43] ↻ brave network error — backoff 632ms
+[surf 21:58:43] ▸ search → brave (key #0)
+[surf 21:58:43] ↻ brave network error — backoff 478ms
+[surf 21:58:43] ↻ brave network error — backoff 2971ms
+[surf 21:58:43] ▸ search → brave (key #0)
+[surf 21:58:43] ↻ brave network error — backoff 658ms
+[surf 21:58:43] ↻ brave network error — backoff 2055ms
+[surf 21:58:43] ↻ brave network error — backoff 2645ms
+[surf 21:58:43] ↻ brave network error — backoff 1928ms
+[surf 21:58:44] ▸ search → brave (key #0)
+[surf 21:58:44] ↻ brave network error — backoff 574ms
+[surf 21:58:45] ↻ brave network error — backoff 2278ms
+[surf 21:58:45] ⚠ surf-ai: "speech rate Portuguese dubbing narration wpm research" → keyed providers unavailable (AllProvidersExhausted); falling back to keyless search
+[surf 21:58:45] ▸ search → wikipedia (keyless)
+[surf 21:58:45] ↻ wikipedia network error — backoff 730ms
+[surf 21:58:45] ⚠ surf-ai: "Portuguese voiceover narration speaking rate words per minute study" → keyed providers unavailable (AllProvidersExhausted); falling back to keyless search
+[surf 21:58:45] ▸ search → wikipedia (keyless)
+[surf 21:58:45] ↻ wikipedia network error — backoff 397ms
+[surf 21:58:45] ⚠ surf-ai: "Portuguese voice over speed wpm industry standard" → keyed providers unavailable (AllProvidersExhausted); falling back to keyless search
+[surf 21:58:45] ▸ search → wikipedia (keyless)
+[surf 21:58:45] ↻ wikipedia network error — backoff 653ms
+[surf 21:58:45] ↻ wikipedia network error — backoff 2443ms
+[surf 21:58:46] ⚠ surf-ai: "Brazilian Portuguese voiceover average words per minute" → keyed providers unavailable (AllProvidersExhausted); falling back to keyless search
+[surf 21:58:46] ▸ search → wikipedia (keyless)
+[surf 21:58:46] ↻ wikipedia network error — backoff 632ms
+[surf 21:58:46] ⚠ surf-ai: "taxa de fala narração português palavras por minuto estudo" → keyed providers unavailable (AllProvidersExhausted); falling back to keyless search
+[surf 21:58:46] ▸ search → wikipedia (keyless)
+[surf 21:58:46] ↻ wikipedia network error — backoff 538ms
+[surf 21:58:46] ↻ wikipedia network error — backoff 1952ms
+[surf 21:58:46] ↻ wikipedia network error — backoff 2198ms
+[surf 21:58:46] ↻ wikipedia network error — backoff 2531ms
+[surf 21:58:46] ↻ wikipedia network error — backoff 2747ms
+[surf 21:58:47] ▸ search → ddg (keyless)
+[surf 21:58:47] ↻ ddg network error — backoff 474ms
+[surf 21:58:48] ⚠ surf-ai: "European Portuguese narration speech rate wpm" → keyed providers unavailable (AllProvidersExhausted); falling back to keyless search
+[surf 21:58:48] ▸ search → wikipedia (keyless)
+[surf 21:58:48] ↻ wikipedia network error — backoff 555ms
+[surf 21:58:48] ↻ wikipedia network error — backoff 1585ms
+[surf 21:58:48] ✓ search ddg 27ms (0 credits)
+[surf 21:58:48] ▸ search → ddg (keyless)
+[surf 21:58:48] ▸ search → ddg (keyless)
+[surf 21:58:48] ↻ ddg network error — backoff 435ms
+[surf 21:58:48] ↻ ddg network error — backoff 485ms
+[surf 21:58:49] ▸ search → ddg (keyless)
+[surf 21:58:49] ↻ ddg network error — backoff 598ms
+[surf 21:58:49] ↻ ddg network error — backoff 2026ms
+[surf 21:58:49] ↻ ddg network error — backoff 2516ms
+[surf 21:58:49] ▸ search → ddg (keyless)
+[surf 21:58:49] ↻ ddg network error — backoff 676ms
+[surf 21:58:49] ↻ ddg network error — backoff 2433ms
+[surf 21:58:50] ↻ ddg network error — backoff 2174ms
+[surf 21:58:50] ▸ search → ddg (keyless)
+[surf 21:58:50] ↻ ddg network error — backoff 469ms
+[surf 21:58:50] ↻ ddg network error — backoff 1627ms
+[surf 21:58:51] ✓ search ddg 31ms (0 credits)
+[surf 21:58:53] ⏱ surf-ai round 1: 2/6 ok, 4 failed · 0 unique source(s)
+[surf 21:58:53] ⚠ surf-ai: no sources retrieved — emitting the failure report instead of a synthesis
+[surf 21:58:53] ⏱ surf-ai done: 1 round(s), 6 queries, 0 source(s), 45714ms · 1 degraded stage(s)
+> ❌ **No sources retrieved.** Every search failed, so there is nothing to synthesize.
+
+# average speaking rate Portuguese voiceover narration study wpm
+
+## What was attempted
+- `Portuguese voiceover narration speaking rate words per minute study` — AllProvidersExhausted: operation 'search' failed on every provider/key: wikipedia: network; ddg: network
+- `taxa de fala narração português palavras por minuto estudo` — returned 0 results
+- `speech rate Portuguese dubbing narration wpm research` — returned 0 results
+- `Brazilian Portuguese voiceover average words per minute` — AllProvidersExhausted: operation 'search' failed on every provider/key: wikipedia: network; ddg: network
+- `European Portuguese narration speech rate wpm` — AllProvidersExhausted: operation 'search' failed on every provider/key: wikipedia: network; ddg: network
+- `Portuguese voice over speed wpm industry standard` — AllProvidersExhausted: operation 'search' failed on every provider/key: wikipedia: network; ddg: network
+
+## Fix
+- `surf-research-skill keys list` — check whether every search key is burned.
+- `surf-research-skill keys add --provider tavily <key>` — add a working search key.
+- `surf-research-skill project-config` — if the failures are timeouts, raise this project's bash timeout.
+- Rerun with `surf-search-unlimit` if the harness deadline was the limiting factor.
+
+---
+_surf-ai `normal` · 1 round · 6 queries (4 failed) · 0 sources · 45.7s · model `deepseek/deepseek-v4-pro` · llm $0.00126_
+
+> ⚠ Degraded stage: **synthesize** (no sources retrieved)
+
+_Stopped because: normal mode: single round by design._
+[search.sh] Tier 1 (surf-skill) retornou exit code 1
+[search.sh] Tier 1 (surf-skill) falhou, caindo para Tier 2...
+# Search: average speaking rate Portuguese voiceover narration study wpm
+
+**Task:** —
+**Goal:** —
+**Insights:** —
+**Deliverable:** —
+
+## [1] ~150 WPM: Average Speaking Rate Data by Context (2026) — Weesper Neon Flow Blog
+https://weesperneonflow.ai/en/blog/2026-05-30-average-speaking-rate-words-per-minute-data-2026/
+*published: 2026-06-27T12:09:14*
+
+The average conversational speech rate of 150 wpm drops to around <strong>100–125 wpm</strong> during presentations. This is deliberate, not accidental. Skilled presenters consciously slow their delivery, insert pauses and emphasise key points so listeners ...
+
+## [2] Average Speaking Rate and Words per Minute
+https://virtualspeech.com/blog/average-speaking-rate-words-per-minute
+*published: 2025-11-18T07:09:30*
+
+Our guide tells you how to calculate your speaking rate and words per minute, explains the average wpm for TED Talk presentations, podcasts, conversations…
+
+## [3] Words to Time: Useful Calculator for Voiceover Recordings
+https://www.provoiceactor.co.uk/blog/words-to-time/
+*published: 2026-02-19T16:37:21*
+
+Most people read at a pace ranging from <strong>125 to 150 WPM</strong>. However this rate can vary based on the complexity of the content, the need for emphasis on specific words and intentional pauses.
+
+## [4] Words Per Minute Speaking: Average Speed for Every Context (2026)
+https://flowshorts.app/blog/words-per-minute-speaking
+*published: 2026-04-11T17:34:39*
+
+Average speaking speed is <strong>130-150 words per minute</strong>, but it varies by context. This guide covers WPM for presentations, podcasts, audiobooks, AI voiceover, YouTube Shorts, TikTok, and more.
+
+## [5] How Many Words Per Minute Is Ideal for a Speech? - Autoppt
+https://autoppt.com/blog/ideal-speaking-rate-wpm/
+*published: 2025-10-16T05:55:38*
+
+But what exactly is the ideal speaking rate? Is there a magic number that guarantees audience engagement and comprehension? The truth is, there isn’t a single, universal answer. The perfect pace is a dynamic element, shifting based on the context, content, and audience. In this comprehensive guide, we’ll delve into the science behind speech rate, explore ideal WPM ranges for various speaking scenarios, and provide practical tips to help you measure, improve, and practice your own delivery.
+
+## [6] The Ultimate WPM Chart: Reading and Speaking Speeds Explained (with Visual Data)
+https://wordtotime.org/blog/the-ultimate-wpm-chart
+*published: 2025-11-14T13:00:00*
+
+This article gives you the most complete WPM chart, combining global averages, visual data, and real examples from professionals.
+
+## [7] Speaking & Dictation Speed Test (Free): Your WPM in 60s
+https://weesperneonflow.ai/en/tools/dictation-speed-test/
+*published: 2026-07-07T00:00:00*
+
+Most people type at 38–40 WPM but speak at <strong>120–150 WPM</strong>. Stanford research confirms that speech input is approximately 3x faster than keyboard typing. ... The test is available in English, French, Spanish, German, Italian, and Portuguese.
+
+## [8] 10 Fastest Spoken Languages In The World
+https://lingopie.com/blog/fastest-spoken-languages-in-the-world/
+*published: 2026-02-02T14:04:07*
+
+Words per Minute (WPM): Approximately <strong>210 WPM</strong>. Syllables per Minute (SPM): Around 6.99 SPM. The rapid and expressive nature of spoken Italian mirrors the lively and passionate Italian culture.
+
+---
+
+_provider: brave · 46427ms_
+
+## Sources
+https://weesperneonflow.ai/en/blog/2026-05-30-average-speaking-rate-words-per-minute-data-2026/
+https://virtualspeech.com/blog/average-speaking-rate-words-per-minute
+https://www.provoiceactor.co.uk/blog/words-to-time/
+https://flowshorts.app/blog/words-per-minute-speaking
+https://autoppt.com/blog/ideal-speaking-rate-wpm/
+https://wordtotime.org/blog/the-ultimate-wpm-chart
+https://weesperneonflow.ai/en/tools/dictation-speed-test/
+https://lingopie.com/blog/fastest-spoken-languages-in-the-world/
+
+== Conferencia manual (2026-08-13) ==
+Fontes mais promissoras dos 8 resultados verificadas uma a uma:
+- weesperneonflow.ai (datado 2026-05-30, 'average speaking rate WPM data 2026'): NAO contem faixa de wpm para portugues nem para locucao (recusou publicar numeros de narracao nao verificados).
+- virtualspeech.com (2022-11-08): somente ingles (conversacao ~150, TED ~173).
+Conclusao: nenhuma fonte datada com faixa de wpm para locucao portuguesa; placar (1-0) preservado (voiceovers.com segue sendo a unica fonte).

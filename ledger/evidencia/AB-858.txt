@@ -1,0 +1,69 @@
+=== revisar-gate — card F6-01 (W10), checklist de revisao humana ===
+
+--- [1/4] presenca dos artefatos do card (por nome, nunca por ausencia) ---
+  [OK]     docs/revisao/checklist.md presente (o checklist assinavel por papel nomeado)
+  [OK]     docs/revisao/dossie.md presente (a especificacao do dossie e do ∅-crit)
+  [OK]     docs/revisao/dossie-canonico.md presente (o rascunho do dossie da entrega canonica (gerado por just revisar))
+  [OK]     tools/revisao/gerar-dossie.ts presente (o gerador do dossie)
+  [OK]     tools/revisao/verificar-dossie.ts presente (o ∅-crit executavel (gate G-HUM))
+  [OK]     tools/revisao/gate.ts presente (este gate)
+  [OK]     ledger/inbox/F6-01.json presente (os itens do ledger do card (faixa AB-850..AB-869))
+  [OK]     docs/adr/0045-*.md presente (0045-dossie-de-revisao-humana.md)
+  [OK]     bloco # === F6-01 === do justfile presente com marcador de fim
+  [OK]     receita `just revisar` presente
+  [OK]     receita `just revisar-bloqueia` presente
+  [OK]     receita `just revisar-gate` presente
+  [OK]     checklist nomeia o papel Revisor editorial
+  [OK]     checklist nomeia o papel Revisor jurídico
+  [OK]     checklist nomeia o papel Operador de reversão
+  [OK]     checklist nomeia o papel Operador de publicação
+  [OK]     checklist cobre conformidade visual: marcador
+  [OK]     checklist cobre conformidade visual: vinheta
+  [OK]     checklist cobre conformidade visual: safe area
+  [OK]     checklist cobre qualidade narrativa
+  [OK]     checklist cobre adequacao editorial
+  [OK]     docs/revisao/dossie.md cita a alavanca-mestra
+  [OK]     bloco F6-01 do justfile cita a alavanca-mestra
+  [OK]     ledger item AB-850 presente
+  [OK]     ledger item AB-851 presente
+  [OK]     ledger item AB-852 presente
+  [OK]     ledger item AB-853 presente
+  [OK]     ledger item AB-854 presente
+  [OK]     ledger item AB-855 presente
+  [OK]     ledger item AB-856 presente
+  [OK]     ledger item AB-857 presente
+  [OK]     ledger item AB-858 presente
+
+--- [2/4] just revisar gera o dossie — e o dossie gerado NAO aprova nada ---
+  [OK]     just revisar gerou o rascunho (exit 0)
+  [OK]     rascunho com as 7 secoes e os 4 blocos de assinatura
+  [OK]     sonda negativa rascunho rejeitado (gerar != aprovar): VERMELHO nomeando "veredito"
+  [OK]     gerador recusa sobrescrever dossie assinado
+
+--- [3/4] ∅-crit — sondas negativas por alvo (cada mutacao tem de ficar VERMELHA) ---
+  [OK]     sonda positiva dossie preenchido e assinado pelos 4 papeis: VERDE
+  [OK]     sonda negativa entrega sem dossie (arquivo removido): VERMELHO nomeando "sem dossiê"
+  [OK]     sonda negativa assinatura do Revisor editorial removida: VERMELHO nomeando "Revisor editorial"
+  [OK]     sonda negativa assinatura do Revisor juridico removida: VERMELHO nomeando "Revisor jurídico"
+  [OK]     sonda negativa assinatura do Operador de reversao removida: VERMELHO nomeando "Operador de reversão"
+  [OK]     sonda negativa assinatura do Operador de publicacao removida: VERMELHO nomeando "Operador de publicação"
+  [OK]     sonda negativa assinatura sem nome: VERMELHO nomeando "sem nome"
+  [OK]     sonda negativa assinatura como 'o time' (coletivo, nunca papel nomeado): VERMELHO nomeando "nunca o coletivo"
+  [OK]     sonda negativa declaracao de enquadramento removida: VERMELHO nomeando "enquadramento"
+  [OK]     sonda negativa gatilho AB-950 nao declarado: VERMELHO nomeando "AB-993"
+  [OK]     sonda negativa disclosure de voz removido: VERMELHO nomeando "AB-999"
+  [OK]     sonda negativa veredito do item E1 de volta a PENDENTE: VERMELHO nomeando "E1"
+  [OK]     sonda negativa item J3 marcado NAO_APLICAVEL (so o J2 admite): VERMELHO nomeando "J3"
+  [OK]     sonda negativa veredito REPROVADO no item E2: VERMELHO nomeando "REPROVADO"
+  [OK]     sonda negativa hash do relatorio embutido adulterado: VERMELHO nomeando "não fecha com o relatorio-procedencia"
+  [OK]     sonda negativa regeneracao DIVERGENTE: VERMELHO nomeando "DIVERGENTE"
+  [OK]     sonda negativa identidade da entrega divergente: VERMELHO nomeando "pedida"
+  [OK]     sonda negativa dossie sem nenhuma secao reconhecivel: VERMELHO nomeando "zero itens parseados"
+  [OK]     sonda negativa entrega ausente no disco (saida vazia): VERMELHO nomeando "ausente"
+
+--- [4/4] o dossie-rascunho canonico commitado e rejeitado (publicacao bloqueada) ---
+  [OK]     sonda negativa dossie-canonico.md (rascunho sem assinaturas) nao libera publicacao: VERMELHO nomeando "veredito"
+
+revisar-gate: VERDE — o dossie e pre-condicao da publicacao, e o ∅-crit morde
+(entrega sem dossie assinado = publicacao bloqueada; G-HUM, alavanca-mestra)
+npx tsx tools/revisao/gate.ts
