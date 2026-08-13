@@ -3,8 +3,8 @@
     "id": "AB-370",
     "titulo": "A coreografia dos dois lados e fixa na composicao — o manifesto nao tem como discordar",
     "pergunta": "Quem decide a coreografia da fronteira (ordem de pintura saindo por baixo, progresso por lado, envoltorio por lado) deve continuar sendo a camada de composicao, ou o manifesto ganha campos para isso?",
-    "por_que_aberto": "F1-10 declarou a coreografia como decisao interna de `sequencia.tsx` (D5 do ADR-0006): o manifesto so declara `Transicao.tipo` e `direcao`. Isso mantem o schema enxuto, mas tira do autor do manifesto todo controle sobre COMO a transicao se comporta: uma direcao que ele queira por cena, ou uma ordem de pintura diferente (a que entra por baixo, revelada pela que sai), nao e expressavel. Quem responde e o dono do contrato do manifesto, nao o card de composicao.",
-    "decisao_provisoria": "Coreografia fixa na camada de composicao: ordem de pintura sempre saindo por baixo, progresso por prop derivado do frame absoluto. Direcao declaravel por `direcao` na transicao. Registrado em docs/adr/0006-transicoes-composicao-de-sequencia.md, D5 e D2.",
+    "por_que_aberto": "F1-10 declarou a coreografia como decisao interna de `sequencia.tsx` (D5 do ADR-0020): o manifesto so declara `Transicao.tipo` e `direcao`. Isso mantem o schema enxuto, mas tira do autor do manifesto todo controle sobre COMO a transicao se comporta: uma direcao que ele queira por cena, ou uma ordem de pintura diferente (a que entra por baixo, revelada pela que sai), nao e expressavel. Quem responde e o dono do contrato do manifesto, nao o card de composicao.",
+    "decisao_provisoria": "Coreografia fixa na camada de composicao: ordem de pintura sempre saindo por baixo, progresso por prop derivado do frame absoluto. Direcao declaravel por `direcao` na transicao. Registrado em docs/adr/0020-transicoes-composicao-de-sequencia.md, D5 e D2.",
     "verificacao": {
       "cmd": "npx vitest run tests/composicao/transicoes.test.ts -t \"saindo por baixo, entrando por cima\"",
       "espera": "1 teste passa: no render da fronteira, quem sai aparece ANTES de quem entra no DOM",
@@ -30,7 +30,7 @@
     "titulo": "Fronteira declarada dos DOIS lados: a precedencia 'saida manda' mora em F1-01, fora deste card",
     "pergunta": "Quando a mesma fronteira e declarada como `transicao_saida` da cena anterior E `transicao_entrada` da seguinte, quem concilia a divergencia de tipo, duracao e direcao — e o campo `origem` deve virar parte do contrato publico?",
     "por_que_aberto": "F1-10 registrou em `fronteiras.ts` a precedencia `origem: \"saida\"` — mas a REGRA em si e de F1-01 (`../tempo.ts`), e a janela so consome o campo. Se o dono de F1-01 mudar a precedencia (entrada manda, ou conflito e erro), a janela acompanha sem tocar neste card — e nenhum teste aqui protege essa promessa de consumidor.",
-    "decisao_provisoria": "A saida manda; a janela registra `origem` e o teste cobra que a divergencia seja cobrada UMA vez e que o lado vencedor declare tipo, duracao e direcao. Registrado em ADR-0006, D3.",
+    "decisao_provisoria": "A saida manda; a janela registra `origem` e o teste cobra que a divergencia seja cobrada UMA vez e que o lado vencedor declare tipo, duracao e direcao. Registrado em ADR-0020, D3.",
     "verificacao": {
       "cmd": "npx vitest run tests/composicao/transicoes.test.ts -t \"a mesma fronteira declarada dos DOIS lados\"",
       "espera": "1 teste passa: com entrada discordante de 999, a janela tem origem 'saida', tipo fade e duracao 30",
@@ -41,7 +41,7 @@
       "artefatos": [
         "src/composicao/tempo.ts",
         "src/composicao/transicoes/fronteiras.ts",
-        "docs/adr/0006-transicoes-composicao-de-sequencia.md"
+        "docs/adr/0020-transicoes-composicao-de-sequencia.md"
       ]
     },
     "risco": "baixo",
@@ -54,8 +54,8 @@
     "id": "AB-372",
     "titulo": "Progresso por prop contra animacao por hook: o tempo e do frame, nunca do navegador",
     "pergunta": "O progresso da transicao deve continuar sendo derivado do frame absoluto e entregue por prop, ou alguma apresentacao pode animar por tempo proprio (CSS animation, rAF)?",
-    "por_que_aberto": "A regra D2 do ADR-0006 foi adotada para o gate reprovar com react-dom/server sem navegador. Mas ela proibe tambem efeitos que seriam legitimos em produto (easing por tempo real, ondulacoes que nao mapeiam 1:1 para progresso). O custo de abrir a excecao e o determinismo: qualquer tempo de navegador torna o snapshot nao reproduzivel byte a byte.",
-    "decisao_provisoria": "Progresso por prop, tempo do frame. Nenhum hook, nenhum relogio, nenhuma animacao CSS com tempo proprio; a unica camada com runtime do Remotion e `entrada.tsx`. Registrado em ADR-0006, D2.",
+    "por_que_aberto": "A regra D2 do ADR-0020 foi adotada para o gate reprovar com react-dom/server sem navegador. Mas ela proibe tambem efeitos que seriam legitimos em produto (easing por tempo real, ondulacoes que nao mapeiam 1:1 para progresso). O custo de abrir a excecao e o determinismo: qualquer tempo de navegador torna o snapshot nao reproduzivel byte a byte.",
+    "decisao_provisoria": "Progresso por prop, tempo do frame. Nenhum hook, nenhum relogio, nenhuma animacao CSS com tempo proprio; a unica camada com runtime do Remotion e `entrada.tsx`. Registrado em ADR-0020, D2.",
     "verificacao": {
       "cmd": "rg -n \"useCurrentFrame\" src/composicao/transicoes/",
       "espera": "uma unica ocorrencia, em src/composicao/transicoes/entrada.tsx",
@@ -80,7 +80,7 @@
     "titulo": "Registro de apresentacoes e espelho SEM DISCO — um tipo novo no schema derruba o build",
     "pergunta": "O espelho manual em `registro.ts` deve continuar (com o teste varrendo o disco para cobrir a divergencia), ou a camada de descoberta de F1-01 ganha suporte a apresentacoes e o espelho vira redundancia?",
     "por_que_aberto": "O bundle de render nao tem `node:fs` e o gate de pureza so autoriza a descoberta a falar com o disco — entao o registro e um espelho manual do diretorio `apresentacoes/`, mantido a mao. A divergencia e reprovada por teste, nao por construcao: o espelho pode ficar defasado por um commit inteiro antes do CI pegar.",
-    "decisao_provisoria": "Espelho sem disco, com teste varrendo o diretorio e a cobertura cobrada contra o SCHEMA por presenca, nunca lista fechada (contrato-w4 §5). Registrado em ADR-0006, D4.",
+    "decisao_provisoria": "Espelho sem disco, com teste varrendo o diretorio e a cobertura cobrada contra o SCHEMA por presenca, nunca lista fechada (contrato-w4 §5). Registrado em ADR-0020, D4.",
     "verificacao": {
       "cmd": "npx vitest run tests/composicao/transicoes.test.ts -t \"cada tipo do schema tem apresentacao registrada\"",
       "espera": "1 teste passa: para todo tipo de TIPOS_DE_TRANSICAO o registro tem componente e meta valida",
@@ -104,8 +104,8 @@
     "id": "AB-374",
     "titulo": "O pintor de cena da demonstracao e proprio — quem injeta o pintor REAL do registro de nos?",
     "pergunta": "Quando o registro de nos real (os seis nos de W4) estiver composto, quem injeta o pintor de cena no `SequenciaComTransicoes` e como a demonstracao de transicao continua funcionando sem depender de nenhum no?",
-    "por_que_aberto": "D5 do ADR-0006: `Cena` e injetado para manter a camada sem dependencia lateral dos nos. A demonstracao usa um pintor CHAPADO proprio. Isso e o que tornou o card independente — mas deixa em aberto o ponto de injecao em producao: a composicao de uma cena real recebe a lista de nos e o frame local, e alguem tem de traduzir isso em arvore.",
-    "decisao_provisoria": "Pintor injetado por prop; a demonstracao usa pintor chapado proprio; o ponto de injecao real fica para a camada de composicao de cena da onda seguinte. Registrado em ADR-0006, D5.",
+    "por_que_aberto": "D5 do ADR-0020: `Cena` e injetado para manter a camada sem dependencia lateral dos nos. A demonstracao usa um pintor CHAPADO proprio. Isso e o que tornou o card independente — mas deixa em aberto o ponto de injecao em producao: a composicao de uma cena real recebe a lista de nos e o frame local, e alguem tem de traduzir isso em arvore.",
+    "decisao_provisoria": "Pintor injetado por prop; a demonstracao usa pintor chapado proprio; o ponto de injecao real fica para a camada de composicao de cena da onda seguinte. Registrado em ADR-0020, D5.",
     "verificacao": {
       "cmd": "npx vitest run tests/composicao/transicoes.test.ts -t \"o pintor injetado recebe a cena certa\"",
       "espera": "1 teste passa: com pintor de teste injetado, o html contem a cena certa, o frame local e o lado pintado",
@@ -129,8 +129,8 @@
     "id": "AB-375",
     "titulo": "O oraculo e cor chapada de token + marca posicional — mudou token, recaptura snapshot",
     "pergunta": "A cor chapada de token e a marca posicional devem continuar sendo o oraculo de pixel (com snapshots que quebram a cada mudanca de paleta), ou o oraculo precisa de um discriminante que nao dependa de valores de token?",
-    "por_que_aberto": "D7 do ADR-0006: sem a marca, `wipe` e `slide` produzem o MESMO quadro (medido: mesmo md5) — a marca e o que os distingue. O custo da escolha e que qualquer ajuste de `palette.red[500]`, `palette.blue[500]` ou `background.primary` recaptura os 9 snapshots, mesmo sem nenhuma mudanca de geometria de transicao — ruido de diff que um gate de geometria (markup) nao teria.",
-    "decisao_provisoria": "Cor chapada de token + marca posicional, com o pixel previsto por aritmetica (mistura 50/50, metade esquerda/direita). Registrado em ADR-0006, D7.",
+    "por_que_aberto": "D7 do ADR-0020: sem a marca, `wipe` e `slide` produzem o MESMO quadro (medido: mesmo md5) — a marca e o que os distingue. O custo da escolha e que qualquer ajuste de `palette.red[500]`, `palette.blue[500]` ou `background.primary` recaptura os 9 snapshots, mesmo sem nenhuma mudanca de geometria de transicao — ruido de diff que um gate de geometria (markup) nao teria.",
+    "decisao_provisoria": "Cor chapada de token + marca posicional, com o pixel previsto por aritmetica (mistura 50/50, metade esquerda/direita). Registrado em ADR-0020, D7.",
     "verificacao": {
       "cmd": "npx vitest run tests/composicao/transicoes.test.ts -t \"fade-meio: o pixel central e a mistura 50/50\"",
       "espera": "1 teste passa: o pixel central esta a 2 ou menos da mistura das duas cores de cena",
@@ -155,7 +155,7 @@
     "titulo": "Corte seco e UMA apresentacao registrada — `none` tem que existir para a ausencia ser explicita",
     "pergunta": "O corte seco deve continuar sendo um tipo de transicao REGISTRADO (`none`), ou a ausencia de `transicao_saida`/`transicao_entrada` ja expressa o corte e `none` e redundancia no schema?",
     "por_que_aberto": "O schema declara `none` e o registro exige apresentacao para todo tipo declarado (D4). Isso faz o corte seco ser uma escolha declarada no manifesto, com apresentacao propria — mas do ponto de vista do pixel, `none` na fronteira e indistinguivel de um corte fora da fronteira: o snapshot `none-meio` exige a cena B inteira, como o `fade-depois`. A pergunta e se o schema precisa do tipo ou se a ausencia de declaracao deveria bastar.",
-    "decisao_provisoria": "`none` e tipo do schema e apresentacao registrada; a composicao NUNCA cai em corte seco por falta de apresentacao. Registrado em ADR-0006, D4.",
+    "decisao_provisoria": "`none` e tipo do schema e apresentacao registrada; a composicao NUNCA cai em corte seco por falta de apresentacao. Registrado em ADR-0020, D4.",
     "verificacao": {
       "cmd": "npx vitest run tests/composicao/transicoes.test.ts -t \"tipo sem apresentacao e recusado\"",
       "espera": "1 teste passa: registrar parcial sem fade lanca /Sem apresentacao/",
@@ -179,8 +179,8 @@
     "id": "AB-377",
     "titulo": "Determinismo por rasterizacao de SOFTWARE (swangle) — a primeira GPU do CI recaptura tudo",
     "pergunta": "O render de snapshot deve continuar preso a `gl: swangle` (software, deterministico), ou o CI pode rasterizar em GPU com o determinismo garantido por outra via?",
-    "por_que_aberto": "D8 do ADR-0006 e a forma do snapshot: o mesmo bundle e renderizado 2x em processos separados e os bytes tem de ser identicos. `gl: swangle` garante isso a custo de velocidade (e de nao exercitar o caminho de GPU que producao vai usar). Um bump de Remotion pina a versao do Chrome e recaptura os 9 snapshots de qualquer forma; uma GPU no CI recaptura e ainda perde a garantia se o driver variar.",
-    "decisao_provisoria": "Rasterizacao por software em `renderizar.ts` (`chromiumOptions: { gl: \"swangle\" }`), determinismo provado em dois processos pelo provar.sh. Registrado em ADR-0006, D7 e D8.",
+    "por_que_aberto": "D8 do ADR-0020 e a forma do snapshot: o mesmo bundle e renderizado 2x em processos separados e os bytes tem de ser identicos. `gl: swangle` garante isso a custo de velocidade (e de nao exercitar o caminho de GPU que producao vai usar). Um bump de Remotion pina a versao do Chrome e recaptura os 9 snapshots de qualquer forma; uma GPU no CI recaptura e ainda perde a garantia se o driver variar.",
+    "decisao_provisoria": "Rasterizacao por software em `renderizar.ts` (`chromiumOptions: { gl: \"swangle\" }`), determinismo provado em dois processos pelo provar.sh. Registrado em ADR-0020, D7 e D8.",
     "verificacao": {
       "cmd": "bash tools/transicoes/provar.sh",
       "espera": "exit 0: dois renders byte a byte identicos, oraculo de pixel verde, regressao identica aos aprovados, snapshot limpo no git",
@@ -206,7 +206,7 @@
     "titulo": "A direcao padrao 'from-left' e escolha deste card — a autoria de manifesto ainda nao a conhece",
     "pergunta": "Quando o manifesto nao declara `direcao`, quem deve definir o padrao (hoje `from-left` em contrato.ts) e como a autoria por LLM fica sabendo dele?",
     "por_que_aberto": "F1-10 precisava de um padrao para `slide` e `wipe` renderizarem, e declarou `DIRECAO_PADRAO = \"from-left\"`. O schema aceita `direcao` na transicao, mas nada hoje documenta o padrao para quem GERA o manifesto — o subset de LLM nao existe ainda. Um gerador que omita a direcao achando que 'tanto faz' nao tem como saber que a escolha ja foi feita por este card.",
-    "decisao_provisoria": "`from-left` como padrao, declarado em `contrato.ts` (DIRECAO_PADRAO) e exercitado pelos testes de fronteira. Registrado em ADR-0006, D5.",
+    "decisao_provisoria": "`from-left` como padrao, declarado em `contrato.ts` (DIRECAO_PADRAO) e exercitado pelos testes de fronteira. Registrado em ADR-0020, D5.",
     "verificacao": {
       "cmd": "npx vitest run tests/composicao/transicoes.test.ts -t \"a direcao declarada pelo lado vencedor chega a janela\"",
       "espera": "1 teste passa: sem declaracao, a janela recebe from-left; com declaracao, a declarada",
@@ -230,8 +230,8 @@
     "id": "AB-379",
     "titulo": "O oraculo renderiza 480x270 — a resolucao real do produto pode mudar o pixel das transicoes 3D",
     "pergunta": "A demonstracao de transicao deve continuar em 480x270 (barata, coordenadas relativas), ou as transicoes 3D (`cube`, `flip`) precisam de um snapshot em resolucao real de produto para valer como oraculo?",
-    "por_que_aberto": "D7 do ADR-0006: 480x270 de proposito, com assercao em coordenadas RELATIVAS que nao dependem da resolucao. Mas `perspective` em CSS escala mal: angulo de quina e tamanho de borda de palco mudam com a resolucao mesmo com a mesma `perspective` em pixels absolutos, e o snapshot aprovado nao reprovaria uma composicao 3D que quebra so em 1080p. O canario de F0-06 cobre o pixel em resolucao real de OUTRAS cenas, nao desta.",
-    "decisao_provisoria": "Demonstracao 480x270 com assercao relativa; quando houver composicao de produto em resolucao real, um snapshot de transicao 3D em 1080p e PREP da onda seguinte. Registrado em ADR-0006, D7.",
+    "por_que_aberto": "D7 do ADR-0020: 480x270 de proposito, com assercao em coordenadas RELATIVAS que nao dependem da resolucao. Mas `perspective` em CSS escala mal: angulo de quina e tamanho de borda de palco mudam com a resolucao mesmo com a mesma `perspective` em pixels absolutos, e o snapshot aprovado nao reprovaria uma composicao 3D que quebra so em 1080p. O canario de F0-06 cobre o pixel em resolucao real de OUTRAS cenas, nao desta.",
+    "decisao_provisoria": "Demonstracao 480x270 com assercao relativa; quando houver composicao de produto em resolucao real, um snapshot de transicao 3D em 1080p e PREP da onda seguinte. Registrado em ADR-0020, D7.",
     "verificacao": {
       "cmd": "npx vitest run tests/composicao/transicoes.test.ts -t \"todo snapshot decodifica\"",
       "espera": "1 teste passa: os 9 snapshots decodificam com 480x270 e mais de uma cor",

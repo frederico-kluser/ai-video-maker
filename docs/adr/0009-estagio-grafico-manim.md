@@ -1,9 +1,9 @@
-# ADR-0007: Estagio de resolucao `grafico` — Manim headless, quirks do 3b1b e formato de alfa
+# ADR-0009: Estagio de resolucao `grafico` — Manim headless, quirks do 3b1b e formato de alfa
 
 **Status:** ACEITO
 **Data:** 2026-08-11
 **Card:** `F2-02` (W4) — Resolucao: grafico (Manim headless)
-**Depende de:** ADR-0004 (reuso 3b1b), ADR-0006-contrato-de-estagio-e-cassete (F2-01),
+**Depende de:** ADR-0004 (reuso 3b1b), ADR-0007-contrato-de-estagio-e-cassete (F2-01),
 `docs/contrato-estagio-resolucao.md`
 **Consumida por:** `F2-07` (suite offline, W5), `F1-09` (no grafico da composicao, W4),
 `F2-05`/`F2-06` (irmaos da mesma onda, cegos), e todo card que render o video final
@@ -82,7 +82,7 @@ container muda, a chave nao.
   formato de alfa escolhido toca no navegador — nao toca").
 - O PROGRAMA projeta esta decisao como "ADR-0008 — Formato de alfa entre
   graficos e composicao". A numeracao real segue a ordem de criacao dos
-  arquivos (precedente: F2-01 gravou 0006-contrato-de-estagio-e-cassete
+  arquivos (precedente: F2-01 gravou 0007-contrato-de-estagio-e-cassete
   onde o PROGRAMA projetava 0011). O consumo pelo `<OffthreadVideo>` nao
   esta confirmado — rastreado em **AB-390**, verificado no join da W5.
 

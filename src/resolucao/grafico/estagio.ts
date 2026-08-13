@@ -7,7 +7,7 @@
  * Quirks absorvidos do 3blue1brown: `docs/reuso-3b1b.md` + ADR-0004, com a
  * implementacao e as citacoes `arquivo:linha` em
  * `src/resolucao/grafico/manim/quirks.py`.
- * Decisoes deste card: `docs/adr/0007-estagio-grafico-manim.md`.
+ * Decisoes deste card: `docs/adr/0009-estagio-grafico-manim.md`.
  *
  * O que o estagio faz, em ordem:
  *

@@ -169,7 +169,7 @@
       "artefatos": [
         "justfile",
         "tests/design/font-resolve.test.ts",
-        "docs/adr/0006-fontes-locais-embutidas.md"
+        "docs/adr/0008-fontes-locais-embutidas.md"
       ]
     },
     "risco": "alto",
@@ -219,7 +219,7 @@
       "artefatos": [
         "public/fontes",
         "src/design/fontes/index.ts",
-        "docs/adr/0006-fontes-locais-embutidas.md"
+        "docs/adr/0008-fontes-locais-embutidas.md"
       ]
     },
     "risco": "medio",
@@ -284,7 +284,7 @@
     "id": "AB-280",
     "titulo": "Cassete versionado no git nao tem limite de tamanho definido",
     "pergunta": "Qual o tamanho maximo aceitavel de um diretorio de cassete versionado no repositorio, e o que acontece quando um estagio precisa gravar um asset maior que isso?",
-    "por_que_aberto": "O formato do cassete (ADR-0006, D4) grava os corpos das respostas em fixtures/cassetes/<nome>/<chave>/corpos/<sha256>. Para locucao (audio WAV) e midia (GIF/video) isso pode passar de dezenas de MB por cassete, e o git nao esquece: um blob grande commitado uma vez pesa em todo clone para sempre. F2-01 entregou o formato sem definir teto porque nenhum estagio real existe ainda — os cinco chegam na W4. Definir o teto agora seria chutar; descobrir depois de 200 MB commitados seria caro.",
+    "por_que_aberto": "O formato do cassete (ADR-0007, D4) grava os corpos das respostas em fixtures/cassetes/<nome>/<chave>/corpos/<sha256>. Para locucao (audio WAV) e midia (GIF/video) isso pode passar de dezenas de MB por cassete, e o git nao esquece: um blob grande commitado uma vez pesa em todo clone para sempre. F2-01 entregou o formato sem definir teto porque nenhum estagio real existe ainda — os cinco chegam na W4. Definir o teto agora seria chutar; descobrir depois de 200 MB commitados seria caro.",
     "decisao_provisoria": "Sem teto imposto por ferramenta. Os corpos sao deduplicados por SHA-256 dentro de cada cassete. Se o problema aparecer, a saida ja desenhada e mover corpos para o store de conteudo (F0-07) e deixar no cassete apenas o hash, sem mudar o contrato de estagio.",
     "verificacao": {
       "cmd": "du -sh fixtures/cassetes 2>/dev/null || echo '0 (nenhum cassete gravado ainda)'",
@@ -296,7 +296,7 @@
       "artefatos": [
         "fixtures/cassetes/**",
         "src/resolucao/cassete/gravador.ts",
-        "docs/adr/0006-contrato-de-estagio-e-cassete.md"
+        "docs/adr/0007-contrato-de-estagio-e-cassete.md"
       ]
     },
     "risco": "medio",
@@ -309,7 +309,7 @@
     "id": "AB-281",
     "titulo": "Camada externa do bloqueio de rede depende de unshare --net, que nao existe em todo ambiente",
     "pergunta": "Quando 'unshare --map-root-user --net' nao esta disponivel, res-offline deve ficar VERMELHO por nao conseguir provar o bloqueio, ou AMARELO com a camada interna apenas?",
-    "por_que_aberto": "O bloqueio de rede tem duas camadas (ADR-0006, D7): namespace do kernel por fora, guarda em processo por dentro. So a externa cobre subprocesso. Em macOS e em parte dos runners de CI, user namespaces nao estao disponiveis, e a prova cai para a camada interna. Hoje o script avisa em voz alta, marca a sonda de kernel como NAO-EXERCITADA e segue. Se essa e a politica certa e decisao de quem opera o CI, nao de quem escreveu o script.",
+    "por_que_aberto": "O bloqueio de rede tem duas camadas (ADR-0007, D7): namespace do kernel por fora, guarda em processo por dentro. So a externa cobre subprocesso. Em macOS e em parte dos runners de CI, user namespaces nao estao disponiveis, e a prova cai para a camada interna. Hoje o script avisa em voz alta, marca a sonda de kernel como NAO-EXERCITADA e segue. Se essa e a politica certa e decisao de quem opera o CI, nao de quem escreveu o script.",
     "decisao_provisoria": "Sem unshare, res-offline imprime aviso explicito, registra a sonda de kernel como NAO-EXERCITADA e continua com a camada em processo. Nao finge que rodou completo, e nao reprova. O card F2-07 (W5), dono de tools/offline-guard.*, revisita isto com o guarda completo.",
     "verificacao": {
       "cmd": "unshare --map-root-user --net -- true && echo 'namespace disponivel' || echo 'namespace AUSENTE'",
@@ -334,7 +334,7 @@
     "id": "AB-282",
     "titulo": "Nao existe ferramenta de regravacao em massa de cassetes apos bump de versao do contrato",
     "pergunta": "Quem regrava os cassetes dos cinco estagios quando VERSAO_CONTRATO muda, e com que orcamento de chamadas pagas a provedores externos?",
-    "por_que_aberto": "A chave de cache inclui versaoContrato (ADR-0006, D3), de proposito: mudar a semantica do contrato invalida todos os cassetes de uma vez. O efeito colateral e que um bump obriga a regravar cinco estagios a mao, cada um com rede e credencial, e cada gravacao custa chamadas reais de TTS, busca de midia e download. F2-01 nao escreveu o comando de regravacao em lote porque nao ha estagio real para exercita-lo.",
+    "por_que_aberto": "A chave de cache inclui versaoContrato (ADR-0007, D3), de proposito: mudar a semantica do contrato invalida todos os cassetes de uma vez. O efeito colateral e que um bump obriga a regravar cinco estagios a mao, cada um com rede e credencial, e cada gravacao custa chamadas reais de TTS, busca de midia e download. F2-01 nao escreveu o comando de regravacao em lote porque nao ha estagio real para exercita-lo.",
     "decisao_provisoria": "Regravacao manual, um estagio por vez, com 'modo: gravacao' no orquestrador. Bump de VERSAO_CONTRATO exige aviso no handoff do card que o faz, listando os cassetes invalidados.",
     "verificacao": {
       "cmd": "grep -rn 'VERSAO_CONTRATO' src/resolucao/contrato.ts && ls fixtures/cassetes 2>/dev/null | wc -l",

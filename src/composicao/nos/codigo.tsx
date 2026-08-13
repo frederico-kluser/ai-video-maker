@@ -34,7 +34,7 @@
 // (docs/contrato-estagio-resolucao.md) so fixa que a saida do estagio `codigo`
 // e `nos_codigo: Record<NodeId, Sha256>` — um hash de asset por no. Ele NAO
 // fixa o conteudo desse asset. A suposicao deste card, declarada no handoff e
-// em docs/adr/0007-no-codigo-destaque-pre-computado.md:
+// em docs/adr/0018-no-codigo-destaque-pre-computado.md:
 //
 //   o asset apontado por `nos_codigo[<id do no>]` e um JSON com o formato
 //   `DestaqueDeCodigo` definido abaixo, e a camada de hidratacao o anexa ao no

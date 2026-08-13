@@ -36,7 +36,7 @@
 // O asset em si nao e desenhado: quem resolve hash -> bytes e o estagio de
 // resolucao de midia (F2-04), que roda em paralelo a este card. Este
 // componente desenha o MARCADOR do asset e ja carrega a aritmetica de quadro
-// que o asset vai usar quando chegar. Ver docs/adr/0007-no-de-midia.md.
+// que o asset vai usar quando chegar. Ver docs/adr/0017-no-de-midia.md.
 // =============================================================================
 
 import { interpolate } from "remotion";

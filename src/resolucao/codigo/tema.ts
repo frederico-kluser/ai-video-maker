@@ -12,7 +12,7 @@
  * `src/design/tokens.ts` e singleton (S-5) e esta PROIBIDO para este
  * card. Foi por isso que o tema saiu por composicao de tokens que ja
  * existem, e nao por um grupo `sintaxe` novo la dentro. O que isso custa
- * esta escrito no handoff e em `docs/adr/0007-*`: a paleta de destaque
+ * esta escrito no handoff e em `docs/adr/0011-resolucao-destaque-de-codigo.md`: a paleta de destaque
  * nao tem nome proprio no design system ainda.
  *
  * O tema inteiro e hasheado (`hashDoTema`) e o hash entra na chave de

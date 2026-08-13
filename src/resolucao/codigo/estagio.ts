@@ -42,7 +42,7 @@
  *   larguraDaTabulacao — muda a coluna de tudo que vem depois do tab.
  *
  * Contrato completo: docs/contrato-estagio-resolucao.md.
- * Decisoes e alternativas descartadas: docs/adr/0007-resolucao-destaque-de-codigo.md.
+ * Decisoes e alternativas descartadas: docs/adr/0011-resolucao-destaque-de-codigo.md.
  */
 
 import type { EntradaEstagio, EstagioResolucao, SaidaEstagio } from "../contrato.js";

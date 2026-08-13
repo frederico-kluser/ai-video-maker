@@ -1,4 +1,4 @@
-# ADR-0006: Contrato de estagio de resolucao, formato de cassete e composicao da chave de cache
+# ADR-0007: Contrato de estagio de resolucao, formato de cassete e composicao da chave de cache
 
 **Status:** ACEITO
 **Data:** 2026-08-11

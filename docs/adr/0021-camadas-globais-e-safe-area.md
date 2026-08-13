@@ -1,4 +1,4 @@
-# ADR-0006 — Camadas globais e a safe area que nenhuma sobreposicao cobre
+# ADR-0021 — Camadas globais e a safe area que nenhuma sobreposicao cobre
 
 - **Status:** aceito
 - **Data:** 2026-08-13

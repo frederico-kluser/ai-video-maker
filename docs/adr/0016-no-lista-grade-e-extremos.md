@@ -1,4 +1,4 @@
-# ADR-0007: No `lista` -- grade derivada, bloco justo ao conteudo e overflow como erro de build
+# ADR-0016: No `lista` -- grade derivada, bloco justo ao conteudo e overflow como erro de build
 
 **Status:** ACEITO
 **Data:** 2026-08-11

@@ -30,7 +30,7 @@
  *       -> procedencia.assets[].origem = URL                  ← a URL fica ACIMA
  *
  * O fornecedor escolhido e o Wikimedia Commons, pela Action API. A
- * escolha e deliberada e esta registrada em `docs/adr/0007-musica-e-efeitos.md`;
+ * escolha e deliberada e esta registrada em `docs/adr/0012-musica-e-efeitos.md`;
  * o que importa aqui e uma propriedade que nenhum outro candidato tinha:
  * **a API nao usa credencial**. A pergunta adversarial "o cassete contem
  * alguma credencial?" passa a ter resposta estrutural (nao ha o que

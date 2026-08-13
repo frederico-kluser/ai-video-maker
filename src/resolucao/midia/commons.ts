@@ -5,7 +5,7 @@
  *
  * Por que este e nao outro, na ordem em que as razoes pesam:
  *
- *   1. ELEGIVEL pela decisao de hotlink (ADR-0008). A politica do site
+ *   1. ELEGIVEL pela decisao de hotlink (ADR-0013). A politica do site
  *      diz que hotlink "is not recommended" — nao proibe, nao exige.
  *      Baixar e re-hospedar e o caminho recomendado, que e exatamente o
  *      unico que este pipeline consegue percorrer.

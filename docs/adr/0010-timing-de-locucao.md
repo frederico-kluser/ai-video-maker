@@ -1,9 +1,9 @@
-# ADR-0007 — Timing de locucao por palavra: formato, origem e a juncao obrigatoria
+# ADR-0010 — Timing de locucao por palavra: formato, origem e a juncao obrigatoria
 
 - **Status:** aceito
 - **Data:** 2026-08-13
 - **Card:** F2-03 (W4, caminho critico)
-- **Depende de:** ADR-0006 (contrato de estagio e cassete), ADR-0003 (uso pessoal)
+- **Depende de:** ADR-0007 (contrato de estagio e cassete), ADR-0003 (uso pessoal)
 - **Consumido por:** F3-01 (W5, timing canonico), F2-07 (W5, suite offline)
 
 ## Contexto

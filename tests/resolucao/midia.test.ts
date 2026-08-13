@@ -142,7 +142,7 @@ describe("descoberta e cobertura de cassete", () => {
 
 // ─── A decisao de hotlink ───────────────────────────────────────────────────────
 
-describe("decisao de hotlink (ADR-0008)", () => {
+describe("decisao de hotlink (ADR-0013)", () => {
   it("todo provedor que EXIGE hotlink nao tem adaptador — a barreira e a ausencia de codigo", () => {
     // Invariante UNIVERSAL, nao assercao sobre lista fechada: continua
     // verdadeira quando a tabela ganhar entradas.

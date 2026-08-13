@@ -3,7 +3,7 @@
     "id": "AB-350",
     "titulo": "Formato do asset de destaque assumido pelo no nao foi conferido com o estagio",
     "pergunta": "O asset apontado por `nos_codigo[<id>]` produzido por F2-05 e mesmo o JSON `DestaqueCodigo.1` (linguagem, destacador, linhas[].numero/tokens[]) que o no de codigo consome, ou o estagio entrega outro formato?",
-    "por_que_aberto": "O contrato de estagio so fixa `nos_codigo: Record<NodeId, Sha256>` — um hash de asset por no. O conteudo do asset nao esta contratado, e F2-05 e irmao cego desta onda. O no (F1-08) assumiu o formato DestaqueCodigo.1 por decisao propria, declarada em docs/adr/0007-no-codigo-destaque-pre-computado.md. Se o estagio entregar outro formato, a recusa do no e ruidosa (ErroDeDestaque), mas o pipeline fica preso ate a hidratacao ser corrigida.",
+    "por_que_aberto": "O contrato de estagio so fixa `nos_codigo: Record<NodeId, Sha256>` — um hash de asset por no. O conteudo do asset nao esta contratado, e F2-05 e irmao cego desta onda. O no (F1-08) assumiu o formato DestaqueCodigo.1 por decisao propria, declarada em docs/adr/0018-no-codigo-destaque-pre-computado.md. Se o estagio entregar outro formato, a recusa do no e ruidosa (ErroDeDestaque), mas o pipeline fica preso ate a hidratacao ser corrigida.",
     "decisao_provisoria": "O no le o campo estruturalmente e confere cada linha por reconstrucao caractere a caractere; formato de outra versao e RECUSA dura com erro que nomeia o no e todos os problemas. A hidratacao (anexar destaque_sintaxe ao no) ainda nao existe e pertence ao join F1-12. Conferencia do par estagio x formato: no join da W5, com o cassete real de F2-05.",
     "verificacao": {
       "cmd": "npx vitest run tests/composicao/no-codigo.test.ts -t \"controle positivo\" && bash tools/no-codigo/provar.sh --somente-snapshot",
@@ -15,7 +15,7 @@
       "artefatos": [
         "src/composicao/nos/codigo.tsx",
         "src/resolucao/codigo/estagio.ts",
-        "docs/adr/0007-no-codigo-destaque-pre-computado.md"
+        "docs/adr/0018-no-codigo-destaque-pre-computado.md"
       ]
     },
     "risco": "alto",

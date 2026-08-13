@@ -11,7 +11,7 @@
  * ─────────────────────────────────────────────────────────────────────
  * Um provedor (Unsplash, GIPHY) EXIGE hotlink; outro (Pixabay) o PROIBE
  * e manda baixar. Os dois nao podem valer juntos. A decisao esta em
- * `docs/adr/0008-hotlink-e-midia-externa.md` e em `politicas.ts`, e ela
+ * `docs/adr/0013-hotlink-e-midia-externa.md` e em `politicas.ts`, e ela
  * e anterior a este downloader por construcao: provedor que exige
  * hotlink nao tem adaptador, entao nao ha caminho de codigo daqui ate
  * ele. Ver `adaptadores.ts`.
@@ -154,7 +154,7 @@ const estagio: EstagioResolucao = {
     // servido como se fosse do Pixabay (C12).
     provedor: "wikimedia-commons",
 
-    // A DECISAO DO ADR-0008, na chave de cache.
+    // A DECISAO DO ADR-0013, na chave de cache.
     // Hoje ha um unico valor. Ele existe aqui para que a introducao de
     // qualquer outro modo de aquisicao (hotlink, proxy, embed) seja cache
     // miss por construcao, em vez de reaproveitar em silencio cassetes
@@ -285,7 +285,7 @@ const estagio: EstagioResolucao = {
     const licencas = [...new Set(procedenciaAssets.map((a) => a.licenca))].sort();
     const notas = [
       `hotlink nao utilizado: bytes baixados e re-hospedados por hash ` +
-        `(docs/adr/0008-hotlink-e-midia-externa.md)`,
+        `(docs/adr/0013-hotlink-e-midia-externa.md)`,
       `AB-950 continua fechado (enquadramento de uso pessoal, ADR-0003)`,
       ...divergencias,
     ];

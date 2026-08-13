@@ -455,13 +455,14 @@ inf  I-03 980..989 · I-04 990..999
 
 ## 11. Divida conhecida
 
-1. **Tres ADRs numerados `0006`.** `0006-composicao-raiz.md`,
-   `0006-contrato-de-estagio-e-cassete.md` e `0006-fontes-locais-embutidas.md`
-   foram criados em paralelo por F1-01, F2-01 e F1-03. O git mergeou limpo
-   porque sao **arquivos diferentes** — e exatamente a classe de colisao que a
-   secao 8 descreve. **Renumere para 0006/0007/0008 num PREP** e pre-aloque
-   faixas de numero de ADR por card nos PREPs seguintes, como ja e feito com o
-   ledger.
+1. **Colisao de numeros de ADR — RESOLVIDA no PREP-w5.** Os 16 ADRs colididos
+   (6x `0006`, 9x `0007`, 1x `0008`) foram renumerados para `0006`..`0021`
+   unicos, por ordem cronologica de merge, com todas as referencias
+   cruzadas atualizadas (src, tools, justfile, docs, ledger, tests, AGENTS).
+   Composicao-raiz permaneceu `0006`. A pre-alocacao por card agora vive em
+   `docs/contrato-w5.md` §8 (F3-01 -> 0022, F4-01 -> 0023, F4-02 -> 0024,
+   F1-12 -> 0025, F2-07 -> 0026) e deve continuar por card nos PREPs
+   seguintes, como ja e feito com o ledger.
 2. **`ruff` foi instalado no ambiente com `pip install --break-system-packages`.**
    Ja estava declarado em `pyproject.toml`. Num ambiente novo, instale antes de
    rodar o gate — "ferramenta ausente = vermelho" e a regra.

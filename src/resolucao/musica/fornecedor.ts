@@ -26,7 +26,7 @@
  * de novo identica quando a resposta vem do cassete.
  *
  * A escolha deste fornecedor tem uma razao que outros candidatos nao
- * atendiam — ver `docs/adr/0007-musica-e-efeitos.md`:
+ * atendiam — ver `docs/adr/0012-musica-e-efeitos.md`:
  *   - a Action API **nao usa credencial**: nao ha chave para vazar no
  *     cassete, nem em header nem em query string;
  *   - `LicenseShortName` e um NOME ("CC BY 3.0"), e a URL do deed vem

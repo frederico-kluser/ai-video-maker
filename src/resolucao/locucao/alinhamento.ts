@@ -191,7 +191,7 @@ export class EAlinhamentoObrigatorio extends Error {
         `  motivo:  ${motivo}\n` +
         `  detalhe: ${detalhe}\n` +
         "  Em pt-BR o estagio de alinhamento NAO e opcional. Ver\n" +
-        "  src/resolucao/locucao/alinhamento.ts e docs/adr/0007-timing-de-locucao.md.",
+        "  src/resolucao/locucao/alinhamento.ts e docs/adr/0010-timing-de-locucao.md.",
     );
     this.name = "EAlinhamentoObrigatorio";
   }

@@ -1,4 +1,4 @@
-# ADR-0007 — No de midia: hash nunca URL, alfa preservado, GIF por frame
+# ADR-0017 — No de midia: hash nunca URL, alfa preservado, GIF por frame
 
 - **Status:** aceito
 - **Data:** 2026-08-13

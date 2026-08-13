@@ -46,7 +46,7 @@ export function violacoesDaDecisaoDeHotlink(): readonly string[] {
   ).map(
     (p) =>
       `${p.provedor}: politicaHotlink="${p.politicaHotlink}" mas ha adaptador ` +
-      `implementado — ver docs/adr/0008-hotlink-e-midia-externa.md`,
+      `implementado — ver docs/adr/0013-hotlink-e-midia-externa.md`,
   );
 }
 

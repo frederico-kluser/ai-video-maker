@@ -1,4 +1,4 @@
-# ADR-0006: Transicoes e composicao de sequencia -- a transicao e um par de apresentacoes
+# ADR-0020: Transicoes e composicao de sequencia -- a transicao e um par de apresentacoes
 
 **Status:** ACEITO
 **Data:** 2026-08-13

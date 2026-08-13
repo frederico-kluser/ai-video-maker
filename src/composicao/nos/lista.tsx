@@ -30,7 +30,7 @@
 // cuja ordem e a do manifesto. Nenhum Object.keys/for-in em lugar nenhum:
 // uma lista renderizada em ordem de chave de objeto muda entre versoes.
 //
-// Ver docs/adr/0007-no-lista-grade-e-extremos.md.
+// Ver docs/adr/0016-no-lista-grade-e-extremos.md.
 // =============================================================================
 
 import { interpolate } from "remotion";

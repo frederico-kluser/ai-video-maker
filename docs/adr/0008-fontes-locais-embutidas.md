@@ -1,4 +1,4 @@
-# ADR-0006 — Fontes locais embutidas e assercao da familia resolvida
+# ADR-0008 — Fontes locais embutidas e assercao da familia resolvida
 
 - **Status:** aceito
 - **Data:** 2026-08-11

@@ -20,17 +20,22 @@ build:
     python3 -c "print('Python syntax OK')"
     @echo "=== build: OK ==="
 
-# Roda todos os testes
+# Roda todos os testes. Falha de QUALQUER runner propaga o exit code real
+# (falso-verde C2 corrigido): `--passWithNoTests` para o vitest (runner que
+# nao casa teste nenhum sai 0 sem olhar nada) e o pytest roda sem `|| echo` —
+# teste que falha deixa a receita VERMELHA, e exit 5 (nenhum teste coletado)
+# tambem e vermelho (o pytest nao esta configurado para aceitar coletas vazias).
 test:
-    npx vitest run 2>/dev/null || echo "vitest: no tests found (OK for skeleton)"
-    python3 -m pytest tests/ 2>/dev/null || echo "Python tests: none found (OK for skeleton)"
+    npx vitest run --passWithNoTests
+    python3 -m pytest tests/
 
-# Roda linters (TypeScript + Python ruff)
+# Roda linters (TypeScript + Python ruff). Sem `2>/dev/null`: violacao de
+# ruff tem de aparecer, e ferramenta ausente e VERMELHO, nao "pulado".
 lint:
     @echo "=== lint: TypeScript ==="
     npx tsc --noEmit
     @echo "=== lint: Python (ruff) ==="
-    python3 -m ruff check src/ tests/ 2>/dev/null || echo "ruff not installed (OK for skeleton)"
+    python3 -m ruff check src/ tests/
 
 # Type-check TypeScript (sem emitir JS)
 typecheck:
@@ -53,12 +58,13 @@ versoes:
     @echo -n "TypeScript: " && npx tsc --version
     @echo "=== Versoes reportadas acima ==="
 
-# Formata TypeScript e Python
+# Formata TypeScript e Python. Sem `2>/dev/null` e sem `|| echo`: erro de
+# formatador ou ferramenta ausente propaga e deixa a receita VERMELHA.
 fmt:
     @echo "=== fmt: TypeScript ==="
-    npx prettier --write "src/**/*.{ts,tsx}" 2>/dev/null || echo "prettier not installed (OK for skeleton)"
+    npx prettier --write "src/**/*.{ts,tsx}"
     @echo "=== fmt: Python (ruff) ==="
-    python3 -m ruff format src/ tests/ 2>/dev/null || echo "ruff not installed (OK for skeleton)"
+    python3 -m ruff format src/ tests/
 
 # Inicia o Remotion Studio
 dev:
@@ -297,7 +303,7 @@ res-tudo: res-offline res-cassete res-sem-cassete
 # tornam o arquivo inteiro impossivel de parsear, desde antes deste card. Por
 # isso o bloco abaixo segue a convencao que FUNCIONA neste mesmo arquivo
 # (design-gerar, design-testar, design-varrer): hifen, nao dois-pontos.
-# Ver docs/adr/0006-fontes-locais-embutidas.md e ledger/inbox/F1-03.json (AB-271).
+# Ver docs/adr/0008-fontes-locais-embutidas.md e ledger/inbox/F1-03.json (AB-271).
 
 # Renderiza um still e asserta a FAMILIA RESOLVIDA — nao "renderizou sem erro".
 # Inclui a sonda negativa: um arquivo de fonte ausente TEM de derrubar o render.
@@ -338,7 +344,7 @@ fontes-offline:
 # =============================================================================
 # Contrato: docs/contrato-estagio-resolucao.md. Quirks absorvidos do 3b1b com
 # citacao de origem: src/resolucao/grafico/manim/quirks.py. Decisoes:
-# docs/adr/0007-estagio-grafico-manim.md. Ledger: ledger/inbox/F2-02.json.
+# docs/adr/0009-estagio-grafico-manim.md. Ledger: ledger/inbox/F2-02.json.
 #
 # NOME DAS RECEITAS: hifen, nunca ':'. `just` 1.42 le `a:b:` como "receita a
 # depende de b" e o erro de parse derruba o arquivo INTEIRO — nenhuma receita
@@ -474,7 +480,7 @@ res-locucao-determinismo:
 #     just res-offline --estagio codigo    (rede bloqueada de verdade)
 #     just res-chave   --estagio codigo    (um parametro por vez, cache miss)
 #
-# ADR: docs/adr/0007-resolucao-destaque-de-codigo.md
+# ADR: docs/adr/0011-resolucao-destaque-de-codigo.md
 # Ledger: ledger/inbox/F2-05.json (AB-450..AB-456)
 
 # ∅-crit do card: todo cassete deste estagio declara licenca.
@@ -584,7 +590,7 @@ res-musica-determinismo:
 # === F2-04 ===
 # Midia externa — decisao de hotlink e estagio de resolucao de midia.
 # Dono: card F2-04. Nao edite fora destes marcadores.
-# Decisao de hotlink: docs/adr/0008-hotlink-e-midia-externa.md
+# Decisao de hotlink: docs/adr/0013-hotlink-e-midia-externa.md
 #
 # NOME DAS RECEITAS: hifen, nunca dois-pontos (ver bloco de F2-01, AB-284).
 # `just res:midia` do PROGRAMA = `just res-midia`.
@@ -629,7 +635,7 @@ res-midia-licenca:
 # (docs/criterios-de-aceitacao-corrigidos.md §2).
 #
 # O que cada uma prova esta no cabecalho de tools/no-cabecalho/provar.sh.
-# ADR: docs/adr/0007-no-de-cabecalho-mola-nomeada.md
+# ADR: docs/adr/0014-no-de-cabecalho-mola-nomeada.md
 
 # O gate do card: tipos, oraculo do componente, varredura de literais e
 # a prova de determinismo + snapshot (render de verdade, nunca Studio — C5).
@@ -805,7 +811,7 @@ no-lista-studio:
 # O provador de determinismo do no de midia e `det-provar-midia`, que faz
 # exatamente o que o PROGRAMA pede: render 2x identico + identico ao
 # snapshot aprovado + o GIF avanca entre frames. Ver ledger/inbox/F1-07.json
-# (AB-343) e docs/adr/0007-no-de-midia.md.
+# (AB-343) e docs/adr/0017-no-de-midia.md.
 
 # `just no:midia` do PROGRAMA — o smoke do no: marcacao byte a byte identica
 # ao aprovado + o oraculo inteiro. O provador de pixel (2x render) e receita

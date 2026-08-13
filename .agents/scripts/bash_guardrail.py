@@ -39,6 +39,14 @@ DANGEROUS_PRIMITIVES = [
 ]
 
 # ---------------------------------------------------------------------------
+# `dd` e perigoso como COMANDO/TOKEN standalone (escrita crua em dispositivo),
+# nunca como substring: `"dd "` dentro de `git add ` nao e `dd`. O casamento
+# por token exige um `dd` delimitado por inicio de comando ou separador de
+# shell antes, e separador depois — `git add .` passa, `dd if=/dev/zero` nao.
+# ---------------------------------------------------------------------------
+DD_TOKEN_RE = re.compile(r"(^|[\s;&|])dd([\s;&|]|$)")
+
+# ---------------------------------------------------------------------------
 # Allowlist patterns for 'rm' commands
 # Only these patterns are safe. Everything else with 'rm' is blocked.
 # ---------------------------------------------------------------------------
@@ -149,7 +157,14 @@ def main() -> None:
     matched_primitive = ""
 
     for primitive in DANGEROUS_PRIMITIVES:
-        if primitive in cmd_stripped:
+        if primitive == "dd ":
+            # `dd` por TOKEN, nunca por substring: "git add " contem "dd " e
+            # nao e `dd`. (Falso positivo corrigido no PREP-W5.)
+            if DD_TOKEN_RE.search(cmd_stripped):
+                has_dangerous_primitive = True
+                matched_primitive = "dd"
+                break
+        elif primitive in cmd_stripped:
             has_dangerous_primitive = True
             matched_primitive = primitive.strip()
             break

@@ -1,9 +1,9 @@
-# ADR-0007: Musica e efeitos — licenca por som, URL remota vira hash no store
+# ADR-0012: Musica e efeitos — licenca por som, URL remota vira hash no store
 
 **Status:** ACEITO
 **Data:** 2026-08-13
 **Card:** `F2-06` (W4)
-**Depende de:** `F2-01` (contrato de estagio e cassete), `F0-07` (store por SHA-256), ADR-0003 (enquadramento de uso pessoal, D1), ADR-0006
+**Depende de:** `F2-01` (contrato de estagio e cassete), `F0-07` (store por SHA-256), ADR-0003 (enquadramento de uso pessoal, D1), ADR-0007
 **Consumida por:** `F2-07` (suite offline, W5), `F3-05` (mix de audio, W5+), `F5-06` (relatorio de procedencia/publicacao), a composicao
 
 **Guardas executaveis:**

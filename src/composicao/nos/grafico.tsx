@@ -1,7 +1,7 @@
 // =============================================================================
 // NO: grafico — desenha o grafico e RECUSA formato sem canal alfa
 // =============================================================================
-// Card: F1-09 (onda W4). Ver docs/adr/0007-no-grafico-alfa-e-erro-de-build.md.
+// Card: F1-09 (onda W4). Ver docs/adr/0019-no-grafico-alfa-e-erro-de-build.md.
 //
 // O QUE ESTE ARQUIVO EXISTE PARA IMPEDIR
 //

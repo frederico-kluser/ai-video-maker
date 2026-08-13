@@ -1,9 +1,9 @@
-# ADR-0007: Resolucao de destaque de codigo — pre-computacao acima da fronteira, zero rede
+# ADR-0011: Resolucao de destaque de codigo — pre-computacao acima da fronteira, zero rede
 
 **Status:** ACEITO
 **Data:** 2026-08-13
 **Card:** `F2-05` (W4)
-**Depende de:** `F2-01` (contrato de estagio e cassete), `F0-07` (store por SHA-256), ADR-0001 (oraculo), ADR-0006 (contrato de estagio e cassete)
+**Depende de:** `F2-01` (contrato de estagio e cassete), `F0-07` (store por SHA-256), ADR-0001 (oraculo), ADR-0007 (contrato de estagio e cassete)
 **Consumida por:** `F2-07` (W5, suite offline), `F1-08` (no de codigo da composicao, W4)
 
 **Guardas executaveis:**
@@ -196,7 +196,7 @@ acusado). O defeito de ferramenta e documentado na skill
   arquivos, denominador de nos.
 - **ADR-0005** (segredos): o gravador varre credencial e recusa gravar; o
   cassete e revarrido byte a byte pelo gate.
-- **ADR-0006** (contrato de estagio): contrato cumprido — `entrada.fetch`
+- **ADR-0007** (contrato de estagio): contrato cumprido — `entrada.fetch`
   (nunca usado; e o ponto do card), `identidade.versao` bumpada se
   `resolver()` mudar, `procedencia.licenca` obrigatoria, zero URL na
   parcial (C7), `paraProcedenciaDoStore()` via cassete.

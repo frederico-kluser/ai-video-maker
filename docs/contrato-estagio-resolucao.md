@@ -3,7 +3,7 @@
 **Entregue por:** card `F2-01` (W3)
 **Implementado por:** `F2-02` (grafico), `F2-03` (locucao), `F2-04` (midia), `F2-05` (codigo), `F2-06` (musica) — W4
 **Consumido tambem por:** `F2-07` (suite offline, W5) e a composicao (W5+)
-**ADR:** `docs/adr/0006-contrato-de-estagio-e-cassete.md`
+**ADR:** `docs/adr/0007-contrato-de-estagio-e-cassete.md`
 
 Os cinco cards da W4 implementam este contrato **em paralelo e cegos entre si**.
 Tudo que voce precisa saber para implementar um estagio esta aqui. Se

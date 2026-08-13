@@ -84,7 +84,7 @@ midia, codigo, musica), leia:
 - `docs/contrato-estagio-resolucao.md` -- assinatura, formato de cassete,
   campos obrigatorios de `procedencia.json` (inclusive `licenca`),
   comandos de aceitacao e checklist de fechamento
-- `docs/adr/0006-contrato-de-estagio-e-cassete.md` -- por que cada decisao
+- `docs/adr/0007-contrato-de-estagio-e-cassete.md` -- por que cada decisao
 - `fixtures/resolucao/estagio-referencia/estagio.ts` -- template copiavel
 
 O que nao se negocia: `licenca` nao-vazia na procedencia, nenhuma URL no

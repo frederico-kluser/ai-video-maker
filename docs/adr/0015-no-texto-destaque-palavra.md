@@ -1,4 +1,4 @@
-# ADR-0006: No de texto — destaque palavra a palavra com degradacao declarada para frase
+# ADR-0015: No de texto — destaque palavra a palavra com degradacao declarada para frase
 
 **Status:** ACEITO
 **Data:** 2026-08-13

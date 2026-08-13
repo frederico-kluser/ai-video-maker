@@ -1,4 +1,4 @@
-# ADR-0007 — No `grafico`: "o alfa nao e suportado" e erro de build
+# ADR-0019 — No `grafico`: "o alfa nao e suportado" e erro de build
 
 - **Status:** aceito
 - **Data:** 2026-08-13

@@ -22,7 +22,7 @@
  * Os estagios sao descobertos por convencao, nunca por registro central
  * (AGENTS.md Regra 6): `src/resolucao/<nome>/estagio.ts`.
  *
- * Leia tambem: docs/contrato-estagio-resolucao.md e docs/adr/0006-*.
+ * Leia tambem: docs/contrato-estagio-resolucao.md e docs/adr/0007-*.
  */
 
 import { createHash } from "node:crypto";

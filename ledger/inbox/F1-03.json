@@ -15,7 +15,7 @@
       "artefatos": [
         "justfile",
         "tests/design/font-resolve.test.ts",
-        "docs/adr/0006-fontes-locais-embutidas.md"
+        "docs/adr/0008-fontes-locais-embutidas.md"
       ]
     },
     "risco": "alto",
@@ -65,7 +65,7 @@
       "artefatos": [
         "public/fontes",
         "src/design/fontes/index.ts",
-        "docs/adr/0006-fontes-locais-embutidas.md"
+        "docs/adr/0008-fontes-locais-embutidas.md"
       ]
     },
     "risco": "medio",

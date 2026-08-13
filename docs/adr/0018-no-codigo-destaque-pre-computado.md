@@ -1,4 +1,4 @@
-# ADR-0007 — No de codigo: tokens pre-computados, nunca destaque em render
+# ADR-0018 — No de codigo: tokens pre-computados, nunca destaque em render
 
 - **Status:** aceito
 - **Data:** 2026-08-13

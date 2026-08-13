@@ -4,7 +4,7 @@
     "titulo": "O criterio `just det:provar --no midia` nao roda: a receita F0-06 nao tem argumentos",
     "pergunta": "O PROGRAMA escreve a aceitacao dos oito nos de W4 como `just det:provar --no <nome>`; a receita `det-provar` de F0-06 nao declara argumentos e o contrato da W4 proibe editar receita alheia — como o gate de determinismo por no e invocado?",
     "por_que_aberto": "`just det-provar --no midia` sai com erro de just ('Justfile does not contain recipe `--no`') e nao existe harness generico `--no <nome>` em lugar nenhum. Cada card de no precisou de um provador proprio; o caminho executavel deste card e `just det-provar-midia` (hifen, convencao do arquivo). Generalizar `det-provar --no <nome>` e trabalho de PREP, com um dono so.",
-    "decisao_provisoria": "Receita propria no bloco F1-07: `det-provar-midia` roda `npx tsx tools/no-midia/provar.ts`, que faz o que o PROGRAMA pede (render 2x identico + identico ao aprovado + o GIF avanca entre frames). Registrado tambem no justfile e em docs/adr/0007-no-de-midia.md.",
+    "decisao_provisoria": "Receita propria no bloco F1-07: `det-provar-midia` roda `npx tsx tools/no-midia/provar.ts`, que faz o que o PROGRAMA pede (render 2x identico + identico ao aprovado + o GIF avanca entre frames). Registrado tambem no justfile e em docs/adr/0017-no-de-midia.md.",
     "verificacao": {
       "cmd": "just det-provar-midia",
       "espera": "exit 0: 4 stills renderizados 2x, bytes identicos entre si e ao aprovado; stills do GIF em frames diferentes divergem",

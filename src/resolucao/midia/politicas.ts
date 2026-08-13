@@ -8,7 +8,7 @@
  * PROIBE (baixar e re-hospedar). Os dois nao podem valer ao mesmo tempo,
  * e a escolha nao e do downloader: ela decide se o downloader existe.
  *
- * A decisao esta em `docs/adr/0008-hotlink-e-midia-externa.md`:
+ * A decisao esta em `docs/adr/0013-hotlink-e-midia-externa.md`:
  *
  *   BAIXAR E RE-HOSPEDAR. Hotlink nunca. Provedor que EXIGE hotlink e
  *   inelegivel — nao por licenca, mas por arquitetura.
@@ -39,7 +39,7 @@
  * decidiu uso PESSOAL, e isso muda o que a LICENCA DE CONTEUDO permite.
  * A obrigacao de hotlink do Unsplash e da GIPHY nao esta na licenca de
  * conteudo: esta no CONTRATO DE API, que vale para qualquer uso, pessoal
- * ou nao. Uso pessoal nao isenta. Ver ADR-0008, secao "Revisao adversarial".
+ * ou nao. Uso pessoal nao isenta. Ver ADR-0013, secao "Revisao adversarial".
  */
 
 import type { TipoMidia } from "../../contratos/manifesto.js";
@@ -233,7 +233,7 @@ export class EProvedorExigeHotlink extends Error {
         `  todo asset e endereçado por SHA-256, e o render roda com a rede fechada.\n` +
         `  Baixar deste provedor violaria os termos dele; hotlinkar violaria o\n` +
         `  contrato do pipeline. A saida e trocar de provedor, nao afrouxar nenhum\n` +
-        `  dos dois. Ver docs/adr/0008-hotlink-e-midia-externa.md.`,
+        `  dos dois. Ver docs/adr/0013-hotlink-e-midia-externa.md.`,
     );
     this.name = "EProvedorExigeHotlink";
     this.provedor = politica.provedor;

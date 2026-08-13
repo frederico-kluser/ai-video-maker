@@ -4,7 +4,7 @@
     "titulo": "A grade da lista e derivada da contagem, e o manifesto nao tem como discordar",
     "pergunta": "O numero de colunas de um no `lista` deve continuar sendo derivado da contagem de itens, ou o manifesto ganha um campo `colunas` (e `NoLista` muda no schema)?",
     "por_que_aberto": "`NoLista` tem `itens`, `ordenada` e `alinhamento` — nada sobre grade. F1-06 derivou `colunas = min(3, ceil(itens/7))` porque precisava de um numero hoje, e porque schema/manifesto.schema.json e singleton S-4 que esta onda nao pode editar. Mas isso torna a diagramacao inacessivel a quem escreve o manifesto: uma lista de 8 itens vira duas colunas mesmo quando o autor queria uma coluna alta, e nao ha como dizer isso. Quem responde e o dono do contrato do manifesto, nao o card de composicao.",
-    "decisao_provisoria": "Derivar da contagem, com 7 itens por coluna e teto de 3 colunas, preenchendo coluna a coluna. Registrado em docs/adr/0007-no-lista-grade-e-extremos.md, D1.",
+    "decisao_provisoria": "Derivar da contagem, com 7 itens por coluna e teto de 3 colunas, preenchendo coluna a coluna. Registrado em docs/adr/0016-no-lista-grade-e-extremos.md, D1.",
     "verificacao": {
       "cmd": "npx vitest run tests/composicao/no-lista.test.ts -t \"a grade e 3x7\"",
       "espera": "2 testes passam: 20 itens produzem 3 colunas de 7 linhas, com e sem numeracao",
@@ -30,7 +30,7 @@
     "titulo": "Item de lista que nao cabe DERRUBA O BUILD — e uma escolha, nao um fato",
     "pergunta": "Um item de lista que nao cabe na safe area nem no piso de fonte deve parar o render (hoje), truncar com reticencias, ou quebrar em duas linhas?",
     "por_que_aberto": "O card manda tratar overflow como erro de build, e F1-06 obedeceu: `TextOverflowError` com o id do no. O custo aparece em producao — um manifesto gerado por LLM com um item verboso derruba o pipeline inteiro em vez de entregar video com uma linha feia. As tres saidas sao defensaveis e nenhuma e obviamente certa; a diferenca e quem paga: build vermelho (operacao) contra video ilegivel (audiencia).",
-    "decisao_provisoria": "Parar o build. A mensagem nomeia o no, mostra o texto truncado, a fonte e quantos pixels excederam, e sugere as tres acoes possiveis. Registrado em ADR-0007, D3.",
+    "decisao_provisoria": "Parar o build. A mensagem nomeia o no, mostra o texto truncado, a fonte e quantos pixels excederam, e sugere as tres acoes possiveis. Registrado em ADR-0016, D3.",
     "verificacao": {
       "cmd": "npx vitest run tests/composicao/no-lista.test.ts -t \"abaixo do piso\"",
       "espera": "1 teste passa: 20 itens enormes lancam TextOverflowError nomeando o no",
@@ -41,7 +41,7 @@
       "artefatos": [
         "src/composicao/layout/overflow.ts",
         "src/composicao/nos/lista.tsx",
-        "docs/adr/0007-no-lista-grade-e-extremos.md"
+        "docs/adr/0016-no-lista-grade-e-extremos.md"
       ]
     },
     "risco": "alto",
@@ -55,7 +55,7 @@
     "titulo": "O piso legivel de 16px e absoluto em F1-02 e nao sobe com a resolucao",
     "pergunta": "O piso de legibilidade deve ser 16px absolutos (F1-02, MIN_FONT_SIZE_PX, derivado do minimo de 11pt do Apple HIG) ou uma fracao da altura do frame?",
     "por_que_aberto": "16px absolutos em 4K sao metade do tamanho angular que sao em 1080p — o mesmo numero descreve duas legibilidades diferentes. F1-06 elevou o piso para `max(MIN_FONT_SIZE_PX, altura * typeScale.small)`, o que da 16px em 1080p e 32px em 4K, mas isso e uma decisao tomada dentro de um no: os outros sete nos de W4 podem ter decidido diferente, e nenhum deles sabe do outro. Quem responde e o dono do design system.",
-    "decisao_provisoria": "Piso = max(MIN_FONT_SIZE_PX, round(altura * typeScale.small)). Registrado em ADR-0007, D3.",
+    "decisao_provisoria": "Piso = max(MIN_FONT_SIZE_PX, round(altura * typeScale.small)). Registrado em ADR-0016, D3.",
     "verificacao": {
       "cmd": "npx vitest run tests/composicao/no-lista.test.ts -t \"4K o piso sobe\"",
       "espera": "1 teste passa: em 3840x2160 o piso e maior que MIN_FONT_SIZE_PX e a fonte fica acima dele",
@@ -104,7 +104,7 @@
     "titulo": "Um item de lista e sempre UMA linha — nao existe quebra de linha dentro do item",
     "pergunta": "Um item de lista longo deve quebrar em duas linhas dentro da propria celula, ou continuar sendo uma linha unica que ou cabe ou derruba o build?",
     "por_que_aberto": "O motor de medicao de F1-02 mede largura de linha e altura por numero de '\\n' — ele nao quebra texto. F1-06 renderiza com `white-space: nowrap` justamente para que o que foi MEDIDO seja o que e DESENHADO; se o navegador quebrasse a linha por conta propria, a altura real passaria da medida e o bloco sairia da safe area sem ninguem ver. A consequencia e que quebra de linha em item de lista simplesmente nao existe hoje.",
-    "decisao_provisoria": "Uma linha por item, `white-space: nowrap`, e overflow como erro de build. Registrado em ADR-0007, secao 'O que este documento NAO cobre'.",
+    "decisao_provisoria": "Uma linha por item, `white-space: nowrap`, e overflow como erro de build. Registrado em ADR-0016, secao 'O que este documento NAO cobre'.",
     "verificacao": {
       "cmd": "npx vitest run tests/composicao/no-lista.test.ts -t \"o texto medido cabe na celula\"",
       "espera": "2 testes passam: a largura medida de cada item e menor ou igual a largura da celula",
@@ -128,7 +128,7 @@
     "titulo": "A medida que aprova o layout e aproximacao por classe de caractere, nao o pixel do render",
     "pergunta": "A tabela de largura por classe de caractere de F1-02 (calibrada 'para Inter, aproximacao de engenharia') e conservadora o bastante para que 'coube na medida' implique 'coube no pixel' com a Inter embutida de F1-03?",
     "por_que_aberto": "F1-06 aprova geometria contra a medida, nao contra o pixel: os snapshots sao markup e plano, e nao imagem. Se a tabela SUBESTIMAR a largura de alguma classe de caractere em pt-BR (acentuacao, cedilha, aspas tipograficas), o gate fica verde e o texto passa da safe area no video. Ninguem mediu ainda a diferenca entre a tabela e a metrica real da Inter embutida — e o card de fontes (F1-03) assere familia resolvida, nao largura de glifo.",
-    "decisao_provisoria": "Confiar na tabela e manter os snapshots em markup + plano, com o pixel coberto pelo canario de F0-06. Ver ADR-0007, D5.",
+    "decisao_provisoria": "Confiar na tabela e manter os snapshots em markup + plano, com o pixel coberto pelo canario de F0-06. Ver ADR-0016, D5.",
     "verificacao": {
       "cmd": "npx vitest run tests/composicao/no-lista.test.ts -t \"canonico\"",
       "espera": "2 testes passam com o texto pt-BR acentuado do no n-003 do manifesto canonico",

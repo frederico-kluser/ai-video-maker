@@ -31,7 +31,7 @@
  *
  * Ler antes de mexer:
  *   docs/contrato-estagio-resolucao.md
- *   docs/adr/0007-musica-e-efeitos.md
+ *   docs/adr/0012-musica-e-efeitos.md
  *   docs/adr/0003-enquadramento-de-uso.md  (uso pessoal — o que a licenca precisa cobrir)
  */
 

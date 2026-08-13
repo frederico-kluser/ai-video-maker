@@ -28,7 +28,7 @@
     "id": "AB-361",
     "titulo": "F2-02 precisa declarar `mimeType` no asset para a guarda do no nao recusar tudo",
     "pergunta": "O estagio `grafico` (F2-02, W4) declara `mimeType` em todo asset que produz, e qual formato entrega por padrao?",
-    "por_que_aberto": "O no `grafico` recusa asset sem `mimeType` (desconhecido nao e aprovado por omissao) e a conferencia de bytes so sabe ler PNG e WebP. Se F2-02 entregar JPEG/MOV ou omitir o `mimeType`, o proprio asset legitimo do vizinho derruba este gate. A suposicao declarada no ADR-0007 e que o PNG RGBA e o formato default do estagio.",
+    "por_que_aberto": "O no `grafico` recusa asset sem `mimeType` (desconhecido nao e aprovado por omissao) e a conferencia de bytes so sabe ler PNG e WebP. Se F2-02 entregar JPEG/MOV ou omitir o `mimeType`, o proprio asset legitimo do vizinho derruba este gate. A suposicao declarada no ADR-0009 e que o PNG RGBA e o formato default do estagio.",
     "decisao_provisoria": "Assumir PNG RGBA como formato default de F2-02 e `mimeType` obrigatorio no descritor; as fixtures locais deste card usam PNG RGBA e PNG de tipo de cor 2 (a mentira controlada). Nada impede F2-02 de entregar WebM, que tambem passa na permissao.",
     "verificacao": {
       "cmd": "npx tsx tools/no-grafico/conferir.ts fixtures/snapshots/no-grafico/resolvido-com-alfa.json --loja fixtures/snapshots/no-grafico/assets",
@@ -102,7 +102,7 @@
     "titulo": "O no `grafico` desenhava fora da janela declarada — clampeava em vez de retornar null",
     "pergunta": "A pergunta adversarial 4 da W4 (contrato de no) vale para o grafico: fora de [0, duracao_frames) o no retorna null, como os sete irmaos — ou congelar no ultimo estado valido e aceitavel quando a raiz (EnvelopeJanela) nunca chama o no fora da janela?",
     "por_que_aberto": "Achado do revisor adversarial, verificado: o no `grafico` clampeava o frame (`Math.min(Math.max(frame, 0), duracao_frames - 1)`) e continuava emitindo a arvore inteira (SVG do grafico, opacidade 1) em frame >= duracao_frames e em frame < 0 — o proprio teste do card afirmava o congelamento. A mitigacao da raiz e insuficiente como contrato: um pintor futuro (ex.: pintor de cenas das transicoes) pintaria o grafico congelado sobre o conteudo seguinte sem nenhum gate acusar. O grafico era o UNICO dos oito nos a desenhar fora da janela.",
-    "decisao_provisoria": "Adotar o padrao dos irmaos: guarda no inicio do componente — `if (frame < 0 || frame >= grafico.duracao_frames) return null` — antes de qualquer desenho e antes da guarda de formato (fora da janela nenhum pixel e emitido, logo nao existe retangulo opaco a bloquear). O clamp `frameNaJanela` foi removido: dentro da janela `frame` ja esta em [0, duracao_frames), e as interpolacoes continuam com os dois extrapolate explicitos. Decisao registrada no ADR-0007, secao 6. Teste atualizado: markup vazio em -1, duracao, duracao+60 e duracao+5000.",
+    "decisao_provisoria": "Adotar o padrao dos irmaos: guarda no inicio do componente — `if (frame < 0 || frame >= grafico.duracao_frames) return null` — antes de qualquer desenho e antes da guarda de formato (fora da janela nenhum pixel e emitido, logo nao existe retangulo opaco a bloquear). O clamp `frameNaJanela` foi removido: dentro da janela `frame` ja esta em [0, duracao_frames), e as interpolacoes continuam com os dois extrapolate explicitos. Decisao registrada no ADR-0019, secao 6. Teste atualizado: markup vazio em -1, duracao, duracao+60 e duracao+5000.",
     "verificacao": {
       "cmd": "npx vitest run tests/composicao/no-grafico.test.ts",
       "espera": "33 testes passam, incluindo os novos it.each de markup vazio fora da janela (-1, duracao, duracao+60, duracao+5000); o caso 'dentro da janela desenha' permanece",
@@ -113,7 +113,7 @@
       "artefatos": [
         "src/composicao/nos/grafico.tsx",
         "tests/composicao/no-grafico.test.ts",
-        "docs/adr/0007-no-grafico-alfa-e-erro-de-build.md"
+        "docs/adr/0019-no-grafico-alfa-e-erro-de-build.md"
       ]
     },
     "risco": "medio",

@@ -1,9 +1,9 @@
-# ADR-0008: Midia externa — politica de hotlink e a decisao que precede o downloader
+# ADR-0013: Midia externa — politica de hotlink e a decisao que precede o downloader
 
 **Status:** ACEITO
 **Data:** 2026-08-13 (termos consultados em 2026-08-11 e re-verificados em 2026-08-13)
 **Card:** `F2-04` (W4) — estagio de resolucao `midia`
-**Depende de:** ADR-0006 (contrato de estagio e cassete), ADR-0003 (enquadramento de uso pessoal)
+**Depende de:** ADR-0007 (contrato de estagio e cassete), ADR-0003 (enquadramento de uso pessoal)
 **Consumida por:** `F2-07` (W5, suite offline), composicao (W5+), `F5-06` (relatorio de procedencia)
 
 **Guardas executaveis:**
@@ -134,7 +134,7 @@ regras nao coexistem, e a escolha e uma so, antes do codigo.
 na procedencia: ela existiria no render se a composicao a consumisse, e
 mesmo parada ela e um compromisso que o pipeline nao tem como honrar
 offline. Alem disso o cassete nao poderia conter o asset (nao ha bytes),
-o que quebraria o contrato de cassete do ADR-0006 (D4: cassete
+o que quebraria o contrato de cassete do ADR-0007 (D4: cassete
 auto-contido).
 
 ### Alternativa C: "Nenhum provedor externo; so assets proprios"

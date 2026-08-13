@@ -11,7 +11,7 @@
  *
  * O formato publicado para quem consome — em especial F3-05 (mix de
  * audio) e F5-06 (relatorio de procedencia) — esta em
- * `docs/adr/0007-musica-e-efeitos.md`, secao "O que este card entrega
+ * `docs/adr/0012-musica-e-efeitos.md`, secao "O que este card entrega
  * para F3-05".
  */
 

@@ -21,7 +21,7 @@ import {
 import { POLITICAS_DE_PROVEDOR, ehElegivel } from "./politicas.js";
 
 function main(): number {
-  console.log("=== F2-04: decisao de hotlink (docs/adr/0008-hotlink-e-midia-externa.md) ===");
+  console.log("=== F2-04: decisao de hotlink (docs/adr/0013-hotlink-e-midia-externa.md) ===");
   console.log("");
   console.log("DECISAO: baixar e re-hospedar por hash. Hotlink nunca.");
   console.log("         Provedor que EXIGE hotlink e inelegivel — por arquitetura,");
