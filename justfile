@@ -1651,3 +1651,57 @@ autoria-medir *args:
 medir-maquina *args:
     @python3 tools/medir-maquina.py {{args}}
 # === fim I-03 ===
+
+# === F3-05 ===
+# =============================================================================
+# Trilha de audio composta — card F3-05 (W7, caminho critico do audio).
+# Dono: card F3-05. Nao edite fora destes marcadores.
+#
+# Contrato congelado em docs/contrato-w7.md: §1 (mapa: src/audio/mix/** e do
+# F3-05), §2 (C1 — reconciliacao janela x fala), §4 (C3 — emenda com bytes e
+# hash NOVOS), §6 (emendas do card: tres ∅-crits) e §12 (a pergunta da onda:
+# assercao de PRESENCA, nunca lista completa — "a fala de c-004 esta em
+# [14,233..22,738] com a cauda cortada no inicio de c-005", os MESMOS
+# numeros que o F5-01 deriva dos MESMOS inputs). Decisoes: ADR-0034.
+#
+# Os tres ∅-crits do card, todos MEDIDOS (nunca por escuta):
+#   1. um mix SEM LOCUCAO fica VERMELHO (sonda P1 + presenca medida);
+#   2. DUAS LOCUCOES SIMULTANEAS por mais de 0,1 s no mix ficam VERMELHO
+#      (sonda P2; a fixture canonica sobrepoe c-004/c-005 em 4,505 s no
+#      timing — caso de ESTRESSE deliberado que a reconciliacao do C1
+#      resolve no mix: cena posterior manda, cauda cortada);
+#   3. emenda enderecada pelo HASH DO AUDIO-FONTE fica VERMELHO (sonda P3;
+#      o caso de estresse com a cadencia cortante publica bytes + hash
+#      NOVOS, enderecaveis por conteudo no store — AB-617).
+# Adversariais: (1) clip medido nos bytes; (2) determinismo 2x em DOIS
+# processos com TZ/LANG diferentes; (3) cobertura medida (integracao do
+# envelope: ganho aplicado onde a fala existe — sonda P4); (4) reconciliacao
+# C1 aplicada (fala carrega alem da janela, cena posterior manda, sobre-
+# posicao residual = 0 — pergunta da onda).
+#
+# Consumo (contratos FECHADOS): timing canonico (F3-01), envelope de ducking
+# (F3-03), cadencia/ritmo (F3-04), trilha do cassete (F2-06), aritmetica da
+# composicao (F1-01), store (F0-07).
+#
+# Porta TCP reservada: 4305 (docs/contrato-w7.md §11). Faixa de ledger:
+# AB-660..AB-679 (ledger/inbox/F3-05.json). ADR: docs/adr/0034-*.md.
+#
+# NOME DA RECEITA: hifen, nunca ':' — o PROGRAMA.html escreve `just audio:mix`,
+# mas o just 1.42 le 'a:b:' como dependencia (armadilha 9.1). Vale
+# `audio-mix` (contrato-w7 §7).
+# =============================================================================
+
+# Gate da trilha de audio composta: fixture canonica + estresse + sondas +
+# determinismo 2x (medido, nao escutado).
+audio-mix:
+    @echo "=== audio-mix: trilha de audio composta (F3-05, W7) ==="
+    npx tsc --noEmit
+    @test -f src/audio/mix/formato.ts || { echo "FALHOU: src/audio/mix/formato.ts ausente"; exit 1; }
+    @test -f src/audio/mix/mixar.ts || { echo "FALHOU: src/audio/mix/mixar.ts ausente"; exit 1; }
+    @test -f src/audio/mix/verificar.ts || { echo "FALHOU: src/audio/mix/verificar.ts ausente"; exit 1; }
+    @test -f tests/audio/mix.test.ts || { echo "FALHOU: suite de mix ausente"; exit 1; }
+    @test -f tests/audio/mix.ferramenta.ts || { echo "FALHOU: ferramenta do gate ausente"; exit 1; }
+    npx vitest run tests/audio/mix.test.ts
+    npx tsx tests/audio/mix.ferramenta.ts --conferir
+    @echo "audio-mix: VERDE"
+# === fim F3-05 ===

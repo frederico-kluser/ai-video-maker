@@ -1,0 +1,101 @@
+[
+  {
+    "id": "AB-660",
+    "titulo": "Determinismo do decode do ffmpeg entre builds/maquinas: o gate prova 2x na maquina local, a igualdade entre maquinas com o mesmo pin e assumida",
+    "pergunta": "O gate do mix (ADR-0034, D1) prova o determinismo 2x em DOIS processos na maquina local, com o ffmpeg 6.1.1 pinado no documento do mix. A reamostragem do OGG da trilha (44,1 kHz) e do WAV da locucao (16 kHz) para o master (48 kHz) e do ffmpeg: entre builds da MESMA versao (Ubuntu vs. outro empacotamento, ou um bump de patch), os bytes decodificados continuam identicos? A igualdade entre maquinas com o mesmo pin e uma premissa do gate — quem a confirma no CI?",
+    "por_que_aberto": "A maquina local tem um unico build (6.1.1-3ubuntu5); o CI roda outro ambiente. O ffmpeg-media-ops registra que x264 e bit-reproduzivel entre execucoes locais, mas o decode/resample do swresample entre builds nao foi medido por ninguem do programa.",
+    "decisao_provisoria": "Manter o pin de versao (ffmpeg + node) gravado no MixDocument.ferramentas e o gate falhar se a versao corrente divergir do piso declarado; o determinismo inter-maquinas com o mesmo pin e assumido ate o CI exercitar o gate.",
+    "verificacao": {
+      "cmd": "just audio-mix && sha256sum .cache/audio-mix/det-a/master.wav",
+      "espera": "VERDE no CI com o mesmo sha256 do master da maquina local (64d172e6efec8be2cc2b1e2d8ab20280fdf1baea957dee91a6d36ede74dc7f29 na versao atual); divergencia = o decode do ffmpeg do CI difere do local",
+      "ambiente": "CI (ubuntu-24.04, ffmpeg do actions/setup)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Os bytes do master do mix nao sao reproduziveis fora da maquina que os gerou: o determinismo entre versoes da ferramenta (adversarial 2 do card) fica limitado ao pin declarado, e um golden futuro do mix teria de regenerar no ambiente-alvo.",
+      "artefatos": [
+        "src/audio/mix/mixar.ts",
+        "tests/audio/mix.ferramenta.ts",
+        "justfile"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-661",
+    "titulo": "Limiares de cobertura do mix (margem fala/musica 6 dB, tolerancia do envelope 1 dB, piso de RMS 1e-3) nao calibrados por escuta",
+    "pergunta": "O oraculo do mix (ADR-0034, D5) declara: margem fala/musica >= 6 dB, atenuacao medida vs. declarada dentro de ±1 dB e atenuacao <= -6 dB onde a fala existe, piso de RMS 1e-3. Sao numeros de engenharia escolhidos para distinguir 'envelope aplicado' de 'envelope ausente' na fixture — nenhum deles foi validado por escuta com musica e voz reais. A margem de 6 dB e suficiente para inteligibilidade em qualquer trecho? A tolerancia de 1 dB nao deixa escapar um ducking parcialmente errado?",
+    "por_que_aberto": "O mix nao existia antes deste card; calibrar por escuta exigiria audicao humana, que e da W10/F6-01 (contrato-w7 §13 roteia AB-602/603 para la). A medicao por bytes existe; a calibracao do NUMERO nao.",
+    "decisao_provisoria": "Manter os limiares declarados em src/audio/mix/verificar.ts com referencia ao ADR-0034 D5. A calibracao por escuta acontece na W10/F6-01 (revisao humana), por ato explicito que muda os limiares com diff revisado — nunca por ajuste silencioso do gate.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/audio/mix.test.ts -t 'cobertura' && npx tsx tests/audio/mix.ferramenta.ts --conferir",
+      "espera": "VERDE com os limiares atuais; a calibracao por escuta (W10/F6-01) revisa os numeros com registro em ADR",
+      "ambiente": "W10/F6-01, com audicao humana"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Limiares nao calibrados podem aprovar um mix em que a musica ainda atrapalha a fala em algum trecho (a medida por bytes e honesta, o numero e arbitrado); o risco e estetico, nao de determinismo.",
+      "artefatos": [
+        "src/audio/mix/verificar.ts",
+        "docs/adr/0034-mix-de-audio-composicao.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-662",
+    "titulo": "Corte seco da reconciliacao (C1 item 3) pode clicar na cauda cortada; a fixture c-004 corta no meio de uma palavra de proposito",
+    "pergunta": "A reconciliacao do C1 corta a cauda da fala anterior EXATAMENTE no inicio da posterior (ADR-0034, D4) — corte seco, sem fade. Na fixture canonica, a fala de c-004 (8,505 s) e cortada em 18,233 s, no meio da palavra 'caracteristicas' (estresse deliberado do contrato-w7 §2 item 6). Um corte no meio de uma palavra produz clique audivel; a alternativa (fade de ~10 ms na borda) e mais suave mas muda os bytes do mix. Quem decide a forma da borda com escuta — e a decisao muda o formato MixDocument.1?",
+    "por_que_aberto": "A escolha entre corte seco e fade na borda da reconciliacao e de AUDICAO (W10/F6-01); medir clique por bytes exigiria um detector de transitorios calibrado, que nao existe. O corte seco e o minimo deterministico que o C1 pede ('cortada OU fadeada').",
+    "decisao_provisoria": "Manter o corte seco (deterministico, sem parametro novo). Se a audicao do F5-01 (primeiro render integrado) ou da W10 pedir fade, o fade vira opcao do mix com bump de MixDocument.1 e regeneracao do gate.",
+    "verificacao": {
+      "cmd": "npx tsx tests/audio/mix.ferramenta.ts --conferir",
+      "espera": "VERDE com corte seco; a audicao do primeiro render integrado (F5-01, W7) ou da W10 decide se a borda ganha fade",
+      "ambiente": "F5-01 (W7) ou W10/F6-01, com audicao humana"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o corte seco for auditivamente inaceitavel, a borda ganha fade: mudam os bytes do mix, o documento (campo de borda) e as medicoes — ato explicito com bump de formato.",
+      "artefatos": [
+        "src/audio/mix/mixar.ts",
+        "src/audio/mix/formato.ts",
+        "tests/audio/mix.ferramenta.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-663",
+    "titulo": "Mapeamento do envelope pela compactacao da cadencia (ADR-0034, D3): a atenuacao segue a fala EMENDADA; a audicao real valida no primeiro render integrado",
+    "pergunta": "O mix aplica o ganho do envelope no instante da fonte correspondente ao instante EMENDADO da cena (inversa da compactacao, posicaoOriginal). Com a cadencia default da fixture (sem cortes) a inversa e a identidade; com cadencia cortante (caso de estresse) o ganho segue as palavras emendadas. Se o F5-01 (primeiro render com audio posicionado de verdade) divergir desta interpretacao — por exemplo, aplicar o envelope na timeline da FONTE, sem mapear — a musica fica desalinhada da fala emendada em algum trecho? A medida por bytes confirma a intencao; a audicao confirma o efeito?",
+    "por_que_aberto": "A interpretacao 'a atenuacao acompanha a fala emendada' (C1 item 2) e a leitura mais forte do contrato, mas so o primeiro render integrado (F5-01, W7) poe o envelope e a fala juntos num artefato audivel. A escolha de nao mapear (envelope plano) passaria nos testes da fixture (a cadencia default nao corta) e divergiria so no caso de estresse.",
+    "decisao_provisoria": "Manter o mapeamento (D3): a atenuacao acompanha a fala emendada. O F5-01 (W7) consome o MESMO mapeamento pelos MESMOS inputs; divergencia vira PREP com diff dos bytes do mix.",
+    "verificacao": {
+      "cmd": "npx tsx tests/audio/mix.ferramenta.ts --conferir",
+      "espera": "VERDE; apos o F5-01 renderizar o primeiro video com locucao emendada e musica, conferir por audicao que a musica cede onde a fala emendada existe",
+      "ambiente": "W7, quando F5-01 renderizar o primeiro video com locucao e musica"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Envelope certo sobre a timeline errada: com cadencia cortante, trechos de fala emendada ficariam com a musica plena (ou vice-versa) sem nenhum sinal de erro — o documento continuaria valido.",
+      "artefatos": [
+        "src/audio/mix/mixar.ts",
+        "src/audio/mix/verificar.ts",
+        "docs/adr/0034-mix-de-audio-composicao.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]
