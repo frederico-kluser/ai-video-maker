@@ -1,0 +1,123 @@
+[
+  {
+    "id": "AB-745",
+    "titulo": "A convencao do marcador de derivacao da emenda depende do F3-05 gravar o marcador na procedencia",
+    "pergunta": "O relatorio de procedencia (F5-06) reconhece a emenda do F3-05 pelo marcador textual `emenda: audio-fonte=<sha256>; operacao=<nome> <versao>` gravado no texto livre da procedencia do store (C3/AB-617). O F3-05 mergeia ANTES do F5-06 e foi cego ao formato exato. Se o F3-05 gravar a origem dos bytes emendados em campo nenhum — ou em formato que o regex nao case — a cadeia da emenda nao aparece no relatorio e a origem dela fica invisivel. Como provar que a convencao sobrevive ao merge dos dois cards, ja que nenhum dos dois enxerga o outro?",
+    "por_que_aberto": "Os dois cards nasceram da mesma base e nao se enxergam (irmandade por construcao, contrato-w7 §1). A mitigacao embutida no relatorio e o tripwire por texto normalizado (C11): o relatorio varre o TEXTO inteiro de cada registro (notes/sourceId/attribution do store; notas/atribuicao/origem do cassete), entao o campo exato escolhido pelo F3-05 nao muda o resultado — mas a GRAVACAO do marcador em campo algum nao tem como ser detectada pelo F5-06 sozinho.",
+    "decisao_provisoria": "O F5-06 sonda a convencao sinteticamente no gate (emenda com marcador em `notes`, audio-fonte com origem, cadeia com 2 saltos, ciclo, fonte sumida) e documenta a convencao no ADR-0039, que e commitado ANTES do merge do F3-05 (o ADR e a superfice de contrato entre os dois). Se o F3-05 gravar em formato diverso, o handoff do F5-06 nomeia o regex exato para o F5-01 (consumidor do hash novo da emenda) conferir no render ponta a ponta.",
+    "verificacao": {
+      "cmd": "just procedencia",
+      "espera": "VERDE: a secao 3/8 (sonda negativa) e 4/8 (emenda C3) do gate passam — a convencao e exercitada com marcador em campo de texto livre, cadeia com 2 saltos, ciclo e fonte sumida, cada um com o veredito certo",
+      "ambiente": "qualquer maquina offline; cassetes commitados"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Uma emenda sem marcador na procedencia entra no video final como um hash 'filho de ninguem': o relatorio reporta a origem do registro dela (licenca/provedor) mas nao a cadeia ate o audio-fonte — a reavaliacao sob AB-950 enxergaria menos do que o video contem.",
+      "artefatos": [
+        "src/entrega/procedencia/formato.ts",
+        "src/entrega/procedencia/relatorio.ts",
+        "docs/adr/0039-relatorio-de-procedencia-transitivo.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "assets-licenca",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-746",
+    "titulo": "Data de aquisicao ausente em cassetes locais: gap reportado, nao bloqueio — quando isso vira bloqueio?",
+    "pergunta": "O relatorio trata `adquiridoEm` ausente (ou epoch, o que `paraProcedenciaDoStore` grava sem data no cassete) como `gapsDeData`: visivel na primeira pagina, nao bloqueante. Os cassetes locais (locucao, grafico, codigo, autoria) sao legitimamente gravados sem data (campo VOLATIL da W4). Sob um AB-950 disparado, a reavaliacao precisa da data de aquisicao para avaliar vigencia de termos — um asset sem data e reavaliavel? Quem decide se a ausencia de data vira bloqueio quando o dossie de revisao existir?",
+    "por_que_aberto": "O ∅-crit do card e sobre ORIGEM declarada (licenca + provedor + cadeia), nao sobre data. Mas a pergunta 2 do card exige que o relatorio registre a ORIGEM 'com data e termos' — e a ausencia de data degrada a reavaliacao sem disparar nenhum sinal. A politica 'gap visivel vs bloqueio' e decisao do dono, nao do modulo.",
+    "decisao_provisoria": "Gap visivel, nao bloqueio, ate o dossie de revisao (F6-01, W10) existir; o ADR-0039 registra que quem reavaliar sob AB-950 ve os gaps na primeira pagina. A alternativa de bloquear por data foi descartada porque tornaria o gate vermelho com cassetes legitimamente gravados sem `adquiridoEm`.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/entrega/procedencia/relatorio.test.ts -t \"data\"",
+      "espera": "VERDE: 2 testes — data epoch vira gap sem bloquear, e data ausente no cassete vira gap sem bloquear",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um dia a ausencia de data virar bloqueio sem registro, o gate derruba entregas de videos cujos assets locais nunca tiveram data — ou, pior, alguem 'conserta' gravando datas fabricadas para o gate passar.",
+      "artefatos": [
+        "src/entrega/procedencia/relatorio.ts",
+        "tests/entrega/procedencia/relatorio.test.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "assets-licenca",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-747",
+    "titulo": "Grafico com asset de terceiro DENTRO da cena Manim: hoje declarado zero, o relatorio precisara do registro",
+    "pergunta": "O cassete de grafico declara 'nenhum asset de terceiro' (render local a partir dos dados do manifesto). Se um dia a cena Manim embutir uma imagem/asset EXTERNO dentro do proprio grafico, esse asset entra no video final sem aparecer em `nos_grafico` (que so referencia o render da cena) — o relatorio transitivo so enxerga o que os cassetes declararem em `assets[]`. Quem garante que um grafico com asset embutido declara o asset na procedencia do cassete?",
+    "por_que_aberto": "A transitividade do relatorio e limitada ao que a procedencia declara: `assets[]` do cassete + marcador de derivacao. Um asset embutido na cena sem declaracao na procedencia e invisivel para o relatorio — e nao ha gate hoje que prove o contrario (o grafico atual declara zero por nota, nao por assercao).",
+    "decisao_provisoria": "O relatorio ja cobre o caso quando a declaracao existir (assets[] do cassete de grafico entram como transitivos). A assercao de que um grafico 'nao embute nada' nao existe; quando o estagio de grafico ganhar a capacidade de embutir, a procedencia dele passa a ser o contrato — registrado aqui para o dono do estagio.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/entrega/procedencia/relatorio.test.ts -t \"transitivo\"",
+      "espera": "VERDE: o teste 'o que entrou DENTRO do cassete aparece como transitivo com origem' passa — o mecanismo que cobrira um grafico com asset embutido",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Asset embutido sem declaracao = byte no video final sem origem, e ninguem fica vermelho — a mesma classe de falso verde que o ∅-crit existe para matar, agora no nivel da cena.",
+      "artefatos": [
+        "src/entrega/procedencia/relatorio.ts",
+        "src/resolucao/grafico/estagio.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "assets-licenca",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-748",
+    "titulo": "Reavaliacao sob AB-950: o relatorio e suficiente? — a suficiencia e do dono, a regeneracao e do gate",
+    "pergunta": "O relatorio e funcao pura de (manifesto resolvido, store, cassetes, relogio) — regeneravel sem render. Mas 'suficiente para reavaliar' (pergunta 3 do card) envolve o que NAO esta no relatorio: politica de publicacao, canais, o enquadramento juridico de cada licenca sob o novo uso. O relatorio prova a parte tecnica (o que esta embutido, com licenca, termos, data e origem); quem valida a suficiencia JURIDICA da reavaliacao?",
+    "por_que_aberto": "O ADR-0003 define AB-950 como declaracao do dono (nao ha sinal tecnico da mudanca de escopo, R01-05). O F5-06 entrega a ferramenta; o juizo da reavaliacao e do dono e do dossie de revisao (F6-01, W10).",
+    "decisao_provisoria": "O gate prova a regenerabilidade byte a byte (determinismo com relogios diferentes, secao 7/8) e o ADR-0039 declara o escopo: o relatorio e a base da reavaliacao, nao o detector. A suficiencia juridica e avaliada no F6-01 contra o dossie.",
+    "verificacao": {
+      "cmd": "just procedencia",
+      "espera": "VERDE: secao 7/8 (determinismo) e 8/8 (AB-950 declarado) passam — o relatorio regenerado dos MESMOS commitados difere so em geradoEm",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem tratar 'o relatorio passou' como 'a reavaliacao esta feita', a mudanca de enquadramento vira invisivel de novo — o proprio risco que o AB-950 existe para manter visivel.",
+      "artefatos": [
+        "src/entrega/procedencia/gate.ts",
+        "docs/adr/0039-relatorio-de-procedencia-transitivo.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "assets-licenca",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-749",
+    "titulo": "Origem do manifesto (texto do LLM) sem cassete de autoria casado: gap do manifesto, nao bloqueio de asset",
+    "pergunta": "O relatorio casa a origem do texto do manifesto pelos cassetes de autoria cujo `hashManifesto` iguala o `hash_manifesto_original` do resolvido. Sem cassete casado, a origem do manifesto fica 'ausente' com motivo — reportada, nao bloqueante (o ∅-crit e sobre assets). O texto gerado por modelo e parte do video final (narracao, legendas); quando a ausencia de origem do manifesto vira bloqueio?",
+    "por_que_aberto": "O ADR-0003 D4 exige que o gate de publicacao saiba 'o que esta embutido no video' — e o texto do LLM esta embutido. Hoje os cassetes de autoria existem e casam; a politica de bloqueio por ausencia e decisao do dono quando o dossie de revisao existir.",
+    "decisao_provisoria": "Ausencia reportada com motivo nomeado, nao bloqueante — mesma disciplina do gap de data. O F6-01 (dossie) decide o uso do campo `manifesto.origem.motivo`.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/entrega/procedencia/relatorio.test.ts -t \"autoria\"",
+      "espera": "VERDE: 2 testes — origem casada pelo hash (licenca com ADR-0003) e ausencia reportada sem bloquear",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um video produzido de um manifesto cuja origem de autoria nao esteja nos cassetes nao tem como dizer sob que termos o texto foi gerado — a reavaliacao sob AB-950 ficaria cega na camada mais cara do conteudo.",
+      "artefatos": [
+        "src/entrega/procedencia/relatorio.ts",
+        "src/entrega/procedencia/formato.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "assets-licenca",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]

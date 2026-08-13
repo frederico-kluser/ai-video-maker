@@ -1806,3 +1806,13 @@ encode-perfis:
     @echo ""
     @echo "=== encode-perfis: VERDE (∅-crit + eixos + fallback declarado + determinismo testado) ==="
 # === fim F5-02 ===
+
+# === F5-06 ===
+# Relatorio de procedencia transitivo (card F5-06, W7). ∅-crit: um asset
+# no video final sem origem declarada tem de bloquear a entrega. O gate
+# cobre: denominador (diretos + transitivos dos cassetes commitados),
+# ∅-crit, sonda negativa (4 mutacoes), emenda do F3-05 (C3), presenca
+# per-item, data e termos, determinismo e AB-950.
+procedencia:
+    npx tsx src/entrega/procedencia/gate.ts
+# === fim F5-06 ===
