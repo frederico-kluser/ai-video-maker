@@ -66,7 +66,23 @@ _define_stage "build" \
 
 _define_stage "test" \
     "Roda todos os testes (vitest + pytest)" \
-    "npx vitest run 2>/dev/null; python3 -m pytest tests/ 2>/dev/null" \
+    '{
+        # FALSO-VERDE corrigido: o `;` entre os dois runners fazia o exit code
+        # do comando composto ser apenas o do pytest, engolindo falha do vitest
+        # (classe C2 — runner que nao reprova). Agora cada rc e capturado e a
+        # falha de QUALQUER um dos dois deixa o gate vermelho, com os dois
+        # rodando (nao usar `&&` puro, que abortaria o pytest quando o vitest
+        # falhasse). A saida de falha mostra qual runner caiu, na ordem certa.
+        rc1=0; rc2=0
+        saida1=$(npx vitest run 2>/dev/null); rc1=$?
+        saida2=$(python3 -m pytest tests/ 2>/dev/null); rc2=$?
+        [ "$rc1" -ne 0 ] && echo "VITEST falhou (rc=$rc1)"
+        [ "$rc2" -ne 0 ] && echo "PYTEST falhou (rc=$rc2)"
+        if [ "$rc1" -ne 0 ] || [ "$rc2" -ne 0 ]; then
+            printf "%s\n" "$saida1" "$saida2" | grep -v "^$" | head -30
+        fi
+        [ "$rc1" -eq 0 ] && [ "$rc2" -eq 0 ]
+    }' \
     "node,python3"
 
 _define_stage "lint" \

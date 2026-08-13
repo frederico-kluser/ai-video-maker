@@ -15,6 +15,11 @@
 //      para cada sonda. O canal e um <Artifact> emitido pelo MESMO renderStill
 //      que produziu o still. Nao ha comparacao de pixels em lugar nenhum: o que
 //      se compara e o NOME da familia, o peso, o estilo e o estado da FontFace.
+//      O render roda em PROCESSO EXTERNO (tools/fontes/render-evidencias.ts,
+//      disparado via execFileSync), como os provar.sh dos nos: o guarda de rede
+//      do vitest bloqueia o WebSocket de loopback que o renderStill abre para o
+//      Chrome local, e a prescricao e produzir a evidencia fora do processo
+//      guardado — o guarda fica intocado. O teste so LER os arquivos.
 //
 //  (3) SONDAS NEGATIVAS — duas, porque um oraculo que so sabe dizer "sim" nao e
 //      oraculo (AGENTS.md, C2):
@@ -26,13 +31,11 @@
 // =============================================================================
 
 import { describe, it, expect, beforeAll } from "vitest";
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { bundle } from "@remotion/bundler";
-import { getCompositions, renderStill } from "@remotion/renderer";
-import type { EmittedArtifact } from "@remotion/renderer";
 import {
   ARQUIVO_DE_EVIDENCIA,
   FONTES_LOCAIS,
@@ -48,7 +51,6 @@ import { inspecionarWoff2, FSTYPE_EMBUTIR_LIVRE } from "../../tools/woff2-inspec
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const raiz = resolve(__dirname, "..", "..");
 const dirFontes = resolve(raiz, "assets", "fontes");
-const pontoDeEntrada = resolve(raiz, "fixtures", "fontes", "index.tsx");
 const dirSaida = resolve(raiz, "output", "fontes");
 
 const COMPOSICAO_BOA = "fontes-locais";
@@ -56,6 +58,12 @@ const COMPOSICAO_QUEBRADA = "fontes-arquivo-ausente";
 
 const TEMPO_DE_BUNDLE = 240_000;
 const TEMPO_DE_RENDER = 120_000;
+// O beforeAll roda o script externo inteiro (bundle + still + sonda negativa)
+// numa unica chamada: o orcamento e a soma das duas fases.
+const TEMPO_DE_EVIDENCIA = TEMPO_DE_BUNDLE + TEMPO_DE_RENDER;
+// Contrato com tools/fontes/render-evidencias.ts: relatorio da sonda negativa
+// (arquivo de fonte ausente tem de derrubar o render).
+const ARQUIVO_RELATORIO_DA_SONDA = "sonda-negativa-erro.json";
 
 function sha256(caminho: string): string {
   return createHash("sha256").update(readFileSync(caminho)).digest("hex");
@@ -217,54 +225,37 @@ describe("F1-03 — o que o binario da fonte declara sobre si mesmo", () => {
 // =============================================================================
 
 describe("F1-03 — familia efetivamente resolvida no render", () => {
-  let serveUrl = "";
   let evidencia: EvidenciaDeFontes;
   let bytesDoStill = 0;
 
-  beforeAll(async () => {
-    serveUrl = await bundle({
-      entryPoint: pontoDeEntrada,
-      onProgress: () => undefined,
-      ignoreRegisterRootWarning: true,
-    });
-
-    const composicoes = await getCompositions(serveUrl);
-    const alvo = composicoes.find((c) => c.id === COMPOSICAO_BOA);
-    if (alvo === undefined) {
-      throw new Error(`Composicao ${COMPOSICAO_BOA} nao registrada no bundle`);
+  beforeAll(() => {
+    // A evidencia e produzida em PROCESSO EXTERNO, nao neste processo vitest:
+    // o guarda de rede da resolucao (tests/setup/rede-bloqueada.ts) bloqueia o
+    // WebSocket de loopback que o renderStill abre para o Chrome local
+    // (ERedeBloqueada), e a prescricao e renderizar fora do processo guardado
+    // — o guarda fica intocado. O subprocesso NAO passa pelo guarda em
+    // processo; a prova real de rede bloqueada e o guarda externo
+    // `unshare --net` de tools/resolucao/offline.sh.
+    try {
+      execFileSync("npx", ["tsx", "tools/fontes/render-evidencias.ts"], {
+        cwd: raiz,
+        stdio: "pipe",
+      });
+    } catch (e) {
+      const saida =
+        (e as { stderr?: Buffer }).stderr?.toString("utf-8") ??
+        (e as { stdout?: Buffer }).stdout?.toString("utf-8") ??
+        String(e);
+      throw new Error(`render-evidencias.ts falhou:\n${saida}`);
     }
 
-    mkdirSync(dirSaida, { recursive: true });
-    const artefatos: EmittedArtifact[] = [];
-    const resultado = await renderStill({
-      composition: alvo,
-      serveUrl,
-      frame: 0,
-      imageFormat: "png",
-      output: resolve(dirSaida, `${COMPOSICAO_BOA}.png`),
-      overwrite: true,
-      chromiumOptions: { gl: "swangle" },
-      onArtifact: (a) => artefatos.push(a),
-    });
-    void resultado;
-
-    bytesDoStill = readFileSync(resolve(dirSaida, `${COMPOSICAO_BOA}.png`)).length;
-
-    const bruto = artefatos.find((a) => a.filename === ARQUIVO_DE_EVIDENCIA);
-    if (bruto === undefined) {
-      throw new Error(
-        `O still saiu mas o render nao emitiu ${ARQUIVO_DE_EVIDENCIA}. ` +
-          `Sem esse artefato o still nao prova nada sobre a familia resolvida. ` +
-          `Artefatos vistos: ${JSON.stringify(artefatos.map((a) => a.filename))}`,
-      );
-    }
-    const texto =
-      typeof bruto.content === "string"
-        ? bruto.content
-        : Buffer.from(bruto.content).toString("utf-8");
-    writeFileSync(resolve(dirSaida, ARQUIVO_DE_EVIDENCIA), texto);
-    evidencia = JSON.parse(texto) as EvidenciaDeFontes;
-  }, TEMPO_DE_BUNDLE);
+    bytesDoStill = readFileSync(
+      resolve(dirSaida, `${COMPOSICAO_BOA}.png`),
+    ).length;
+    evidencia = JSON.parse(
+      readFileSync(resolve(dirSaida, ARQUIVO_DE_EVIDENCIA), "utf-8"),
+    ) as EvidenciaDeFontes;
+  }, TEMPO_DE_EVIDENCIA);
 
   it("o still saiu do render", () => {
     expect(bytesDoStill).toBeGreaterThan(0);
@@ -342,42 +333,24 @@ describe("F1-03 — familia efetivamente resolvida no render", () => {
     expect(evidencia.origem).toMatch(/^http:\/\/localhost:/);
   });
 
-  it(
-    "SONDA NEGATIVA: um arquivo de fonte ausente DERRUBA o render",
-    async () => {
-      const composicoes = await getCompositions(serveUrl);
-      const quebrada = composicoes.find((c) => c.id === COMPOSICAO_QUEBRADA);
-      expect(quebrada, `Composicao ${COMPOSICAO_QUEBRADA} nao registrada`).toBeDefined();
+  it("SONDA NEGATIVA: um arquivo de fonte ausente DERRUBA o render", () => {
+    // O render da composicao quebrada rodou no processo externo; o relatorio
+    // diz se ele morreu e com qual erro. A composicao nao registrada ja faria
+    // o script externo sair nao-zero e o beforeAll deste describe falharia.
+    const relatorio = JSON.parse(
+      readFileSync(resolve(dirSaida, ARQUIVO_RELATORIO_DA_SONDA), "utf-8"),
+    ) as { composicao: string; morreu: boolean; erro: string | null };
 
-      let saiuStill = false;
-      let erro: unknown = null;
-      try {
-        await renderStill({
-          composition: quebrada!,
-          serveUrl,
-          frame: 0,
-          imageFormat: "png",
-          output: null,
-          overwrite: true,
-          chromiumOptions: { gl: "swangle" },
-          timeoutInMilliseconds: 20_000,
-        });
-        saiuStill = true;
-      } catch (e) {
-        erro = e;
-      }
-
-      expect(
-        saiuStill,
-        "O render sobreviveu a uma fonte ausente. Isso e exatamente C6: a fonte " +
-          "cai em fallback e o video sai com a tipografia errada sem nada ficar " +
-          "vermelho. Se este teste passar verde com o render bem-sucedido, todas " +
-          "as outras asserçoes deste arquivo sao decorativas.",
-      ).toBe(false);
-      expect(String(erro)).toMatch(/NetworkError|network|font/i);
-    },
-    TEMPO_DE_RENDER,
-  );
+    expect(relatorio.composicao).toBe(COMPOSICAO_QUEBRADA);
+    expect(
+      relatorio.morreu,
+      "O render sobreviveu a uma fonte ausente. Isso e exatamente C6: a fonte " +
+        "cai em fallback e o video sai com a tipografia errada sem nada ficar " +
+        "vermelho. Se este teste passar verde com o render bem-sucedido, todas " +
+        "as outras asserçoes deste arquivo sao decorativas.",
+    ).toBe(true);
+    expect(relatorio.erro).toMatch(/NetworkError|network|font/i);
+  });
 });
 
 // =============================================================================
