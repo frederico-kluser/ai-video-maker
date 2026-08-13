@@ -98,7 +98,9 @@ preservaria o ruido no arquivo versionado sem ganho de auditoria.
 
 **Problema (AB-475):** o Wikimedia devolve `x-client-ip` com o endereco
 de quem fez a requisicao. O cassete de midia carregava o IPv6 REAL da
-maquina de gravacao: `2804:1b3:a940:dc57:91d3:f8eb:97:3916`.
+maquina de gravacao — redigido aqui como `2001:db8::1` (endereco de
+documentacao, RFC 3849; o endereco real nao e mais registrado na
+arvore).
 
 **Decisao:** `x-client-ip` entra em `HEADERS_VOLATEIS` (removido na
 gravacao como os demais). Um whitelist de volateis em `CAMPOS_VOLATEIS`

@@ -30,19 +30,18 @@ prompts/prompts.test.ts`).
 
 ## Contrato de autoria v1 (contrato-w5 §3)
 
-- Estrutura da saida: `schema/manifesto.llm.schema.json` (subset para
-  LLM, draft 2020-12).
+- Estrutura da saida: `src/autoria/contrato/schema/autoria.schema.json`
+  (schema COMPLETO, draft 2020-12; validador real:
+  `src/autoria/contrato/validar.ts` — F4-01 mergeado, AB-570 resolvido).
 - **AB-432** — `hash` de no de midia e ADVISORY: a autoria pode omitir
   (a resolucao preenche); omissao nao e erro.
 - **AB-433** — `texto_alternativo` OBRIGATORIO em no de midia:
   ausencia e erro.
-- Fronteira de decisao: o LLM decide narrativa, ritmo, nos e texto; o
-  sistema decide frame exato, layout, cor e duracao resolvida.
-
-O schema completo de autoria (F4-01, `src/autoria/contrato/**`) nao
-estava na base desta worktree; os casos de referencia validam contra o
-contrato v1 descrito acima e migram para o schema real no merge do
-F4-01 (item AB-570 do ledger).
+- Fronteira de decisao: o LLM decide narrativa, ritmo (em segundos,
+  materializado na extensao do texto) e texto; o sistema decide frame
+  exato, layout, cor e duracao resolvida — e converte o ritmo em
+  segundos para frames no estagio de timing. Campos de decisao do
+  sistema nao existem no schema.
 
 ## Criterios editoriais
 

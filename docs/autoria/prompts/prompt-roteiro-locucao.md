@@ -11,15 +11,19 @@ reescreve **apenas** o texto falado — `cenas[].audio_cena.texto_locucao`
 numeros por extenso, siglas conforme o dicionario, homografos
 desambiguados, sem abreviacao e sem simbolo que o TTS leia errado.
 
-A estrutura do manifesto (cenas, nos, duracoes, transicoes) **nao muda**.
-Se algo na estrutura estiver errado, este prompt **nao conserta** — a
-correcao de manifesto invalido e do card F4-03 (validação e reparo, W6).
-Este prompt so reescreve o texto falado de um manifesto que ja valida.
+A estrutura do manifesto (cenas, nos, texto) **nao muda** — e o
+manifesto de autoria nao carrega frames nem duracoes: o ritmo em
+segundos e decisao do autor narrativo e a conversao para frames e do
+sistema (estagio de timing). Se algo na estrutura estiver errado, este
+prompt **nao conserta** — a correcao de manifesto invalido e do card
+F4-03 (validação e reparo, W6). Este prompt so reescreve o texto falado
+de um manifesto que ja valida.
 
 ## Contrato de autoria v1 (referencia)
 
 - A saida valida contra o mesmo contrato de autoria v1 da entrada:
-  `schema/manifesto.llm.schema.json` (subset para LLM, draft 2020-12)
+  `src/autoria/contrato/schema/autoria.schema.json` (schema COMPLETO,
+  draft 2020-12; validador real: `src/autoria/contrato/validar.ts`)
   com **AB-432** (`hash` de midia advisory, pode ficar ausente) e
   **AB-433** (`texto_alternativo` obrigatorio em no de midia).
 - Front-matter: todo prompt em `docs/autoria/prompts/*.md` comeca com
@@ -37,7 +41,8 @@ O mesmo manifesto JSON, com:
 
 - `cenas[].audio_cena.texto_locucao` reescrito quando houver melhoria
   de fala (ver regras abaixo); cena sem mudanca mantem o texto;
-- nada mais muda: ids, ordem, duracoes, nos, transicoes, audio global.
+- nada mais muda: ids, ordem, nos, transicoes, texto dos nos, audio
+  global.
 
 ## Fronteira de decisao
 
@@ -51,8 +56,10 @@ decidir e erro:
 
 - **layout e cor**: voce nao toca em nada visual; o manifesto nem tem
   campos para isso;
-- **frame exato e duracao resolvida**: voce nao altera `duracao_frames`,
-  `entrada_frames` nem `duracao_total_frames`;
+- **frame exato e duracao resolvida**: voce nao altera duracao nem
+  estrutura temporal — o manifesto de autoria nao carrega frames nem
+  duracoes (sem `duracao_frames`, `entrada_frames`,
+  `duracao_total_frames`, `fps`), e voce nao adiciona campo nenhum;
 - **narrativa**: voce nao adiciona, remove ou reordena cenas, nos ou
   ideias — o arco ja foi decidido pelo autor narrativo;
 - **conteudo novo**: nao escreva locucao para cena sem `audio_cena`
@@ -85,13 +92,17 @@ leitura ja foram aplicadas na decomposicao; este prompt **nao reescreve
 o ritmo**. Ele so garante que o texto, quando falado no ritmo alvo,
 saia com a pronuncia pretendida. Se a reescrita alongar o texto a ponto
 de estourar o ritmo (uma frase que passa de ~13 palavras em cena de
-6 s), **reduza o texto mantendo a ideia** — nunca mude a duracao.
+6 s), **reduza o texto mantendo a ideia** — nunca mude a duracao (e o
+manifesto nao tem campo de duracao: a extensao do texto em segundos de
+fala e o unico relogio, e quem converte e o sistema).
 
 ## Regras de forma
 
 1. Saida unica: um objeto JSON valido, sem markdown, sem comentarios.
 2. Estrutura identica a da entrada, campo a campo — confira que os ids
-   de nos e cenas sao os mesmos, na mesma ordem.
+   de nos e cenas sao os mesmos, na mesma ordem. Nenhum campo de
+   decisao do sistema entra ou sai (sem `fps`, `duracao_frames`,
+   `entrada_frames`, `duracao_total_frames`, `alinhamento`, `animacao`).
 3. `texto_locucao` nunca vazio em cena com `audio_cena`; `hash_locucao`
    permanece ausente (a resolucao preenche — AB-432).
 4. Nao altere `texto_alternativo` de nos de midia — ele descreve o
@@ -111,8 +122,8 @@ perdeu fala.
 
 - caso_de_referencia: casos/roteiro-locucao/
 - versao_contrato_autoria: v1 (contrato-w5 §3)
-- schema_alvo: contrato de autoria v1 descrito (AB-432/AB-433 aplicados
-  sobre schema/manifesto.llm.schema.json); quando F4-01 mergear, o
-  teste aponta para src/autoria/contrato/**
+- schema_alvo: src/autoria/contrato/schema/autoria.schema.json
+  (validador real: src/autoria/contrato/validar.ts — AB-432/AB-433
+  aplicados; F4-01 mergeado, AB-570 resolvido)
 - dicionario_fonte: dicionario-pronuncia.md
 - nao_cobre: reparo de manifesto invalido (F4-03, W6)

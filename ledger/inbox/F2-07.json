@@ -125,7 +125,7 @@
   {
     "id": "AB-505",
     "titulo": "Exposicao residual: o IPv6 real de gravacao (x-client-ip) esta no historico do git da W4",
-    "pergunta": "A redacao (AB-475) removeu x-client-ip da ARVORE, mas o commit original da W4 contem o IPv6 real (2804:1b3:a940:dc57:91d3:f8eb:97:3916) no blob de chamadas.json do cassete de midia. Re-escrever historico esta fora de escopo (squash do orquestrador mantem os commits). O dado pessoal no historico e aceitavel, ou precisa de contramedida?",
+    "pergunta": "A redacao (AB-475) removeu x-client-ip da ARVORE, mas o commit original da W4 contem o IPv6 real (<ip-redigido>) no blob de chamadas.json do cassete de midia. Re-escrever historico esta fora de escopo (squash do orquestrador mantem os commits). O dado pessoal no historico e aceitavel, ou precisa de contramedida?",
     "por_que_aberto": "Verificado neste card: o cassete migrado nao tem o header, mas git log da W4 o carrega. Endereco residencial temporario (ISP, rotativo); nenhuma credencial ou cookie junto.",
     "decisao_provisoria": "Declarar a exposicao (ADR-0026 D3) e nao reescrever historico: o custo/beneficio de reescrita em repo compartilhado nao compensa dado que rotaciona. Regra daqui em diante: o gravador nao grava o header e o tripwire derruba a suite se reaparecer.",
     "verificacao": {

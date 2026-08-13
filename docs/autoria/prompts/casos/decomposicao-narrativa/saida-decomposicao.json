@@ -1,70 +1,48 @@
 {
-  "schema_version": "Manifesto.1",
-  "fps": 30,
-  "width": 1920,
-  "height": 1080,
-  "duracao_total_frames": 930,
+  "schema_version": "Autoria.1",
   "nos": [
     {
       "id": "n-001",
       "schema": "Cabecalho.1",
       "type": "cabecalho",
-      "duracao_frames": 120,
-      "entrada_frames": 0,
       "texto": "Motor eletrico",
-      "subtitulo": "Energia que vira movimento, sem queima",
-      "alinhamento": "centro",
-      "animacao": { "tipo": "fade", "duracao_frames": 15 }
+      "subtitulo": "Energia que vira movimento, sem queima"
     },
     {
       "id": "n-002",
       "schema": "Texto.1",
       "type": "texto",
-      "duracao_frames": 180,
-      "entrada_frames": 0,
       "texto": "Um motor eletrico transforma energia em movimento. Sem combustivel, sem escapamento, sem engrenagens complexas.",
-      "destaque": false,
-      "alinhamento": "esquerda",
-      "animacao": { "tipo": "slide", "direcao": "from-left", "duracao_frames": 20 }
+      "destaque": false
     },
     {
       "id": "n-003",
       "schema": "Lista.1",
       "type": "lista",
-      "duracao_frames": 240,
-      "entrada_frames": 0,
       "itens": [
         "Campo magnetico gira o rotor",
         "Corrente alterna o campo, o rotor acompanha",
         "Eixo gira e move o que estiver acoplado"
       ],
-      "ordenada": true,
-      "alinhamento": "esquerda",
-      "animacao": { "tipo": "scale", "duracao_frames": 12 }
+      "ordenada": true
     },
     {
       "id": "n-004",
       "schema": "Midia.1",
       "type": "midia",
-      "duracao_frames": 180,
-      "entrada_frames": 0,
       "tipo_midia": "imagem",
-      "ajuste": "cover",
       "texto_alternativo": "Foto de um motor eletrico aberto, com o rotor e os enrolamentos de cobre visiveis"
     },
     {
       "id": "n-005",
       "schema": "Grafico.1",
       "type": "grafico",
-      "duracao_frames": 210,
-      "entrada_frames": 0,
       "tipo_grafico": "barras",
       "titulo": "Eficiencia: motor eletrico x motor a combustao",
       "dados": [
         { "rotulo": "Motor eletrico", "valor": 90 },
         { "rotulo": "Motor a combustao", "valor": 35 }
-      ],
-      "animacao": { "tipo": "fade", "duracao_frames": 15 }
+      ]
     }
   ],
   "cenas": [

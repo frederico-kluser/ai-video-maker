@@ -105,7 +105,7 @@ describe("AB-440/473/475 — o gravador remove na gravacao", () => {
       headersResposta: {
         date: "Thu, 13 Aug 2026 12:07:47 GMT",
         age: "0",
-        "x-client-ip": "2804:1b3:a940:dc57:91d3:f8eb:97:3916",
+        "x-client-ip": "2001:db8::1",
         "content-length": "123",
         "set-cookie": "sessao=abc123",
         "content-type": "application/json",

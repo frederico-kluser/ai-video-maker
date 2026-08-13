@@ -15,8 +15,15 @@ autoria v1 — o modelo nao emite um rascunho, emite o documento.
 
 ## Contrato de autoria v1 (referencia)
 
-- Estrutura da saida: `schema/manifesto.llm.schema.json` (subset para
-  LLM, draft 2020-12), com as duas decisoes congeladas do contrato-w5 §3:
+- Estrutura da saida: `src/autoria/contrato/schema/autoria.schema.json`
+  (schema COMPLETO, draft 2020-12; validador real:
+  `src/autoria/contrato/validar.ts`). O LLM decide NARRATIVA (quais nos,
+  em que ordem, o texto, o vocabulario fechado de transicao); o sistema
+  decide frames, layout, cor e duracao resolvida — campos de decisao do
+  sistema NAO EXISTEM no schema (additionalProperties false em todo
+  objeto), entao emitir frame/cor/coordenada e IMPOSSIVEL, nao apenas
+  desencorajado.
+- Duas decisoes congeladas do contrato-w5 §3:
   - **AB-432** — `hash` de no de midia e **ADVISORY**: a autoria PODE
     omitir; quem resolve o asset (estagio de midia) preenche o hash.
     Omitir nao e erro.
@@ -40,16 +47,20 @@ O prompt recebe:
 Um unico documento: o **manifesto JSON** (sem comentarios, sem texto
 fora do JSON), conforme o contrato de autoria v1. A estrutura exigida:
 
-- Topo: `schema_version: "Manifesto.1"`, `fps` (30), `width` (1920),
-  `height` (1080), `duracao_total_frames`, `nos`, `cenas`, `audio`
-  (opcional).
+- Topo: `schema_version: "Autoria.1"`, `nos`, `cenas`, `audio`
+  (opcional). NENHUM campo de decisao do sistema no topo: sem `fps`,
+  sem `width`/`height`, sem `duracao_total_frames`.
 - `nos[]`: 3 a 12 nos, tipos do enum (`cabecalho`, `texto`, `lista`,
   `midia`, `codigo`, `grafico`), ids unicos `n-001`...; cada no com
   `schema` do tipo (`Cabecalho.1`, `Texto.1`, `Lista.1`, `Midia.1`,
-  `Codigo.1`, `Grafico.1`).
+  `Codigo.1`, `Grafico.1`). Nenhum no carrega `duracao_frames`,
+  `entrada_frames`, `alinhamento` ou `animacao` — o schema nao tem
+  esses campos.
 - `cenas[]`: 3 a 7 cenas, cada uma com `id` (`c-001`...), `nos`
   (referencias a ids existentes, 1 a 4 nos por cena), `transicao_*`
-  (opcional) e `audio_cena.texto_locucao` com a fala da cena.
+  (opcional, apenas `tipo` do vocabulario fechado: fade, slide, wipe,
+  flip, none — sem duracao, sem direcao) e `audio_cena.texto_locucao`
+  com a fala da cena.
 - Todo id citado em `cenas[].nos` existe em `nos`; sem no citado e sem
   no orfao.
 
@@ -59,7 +70,10 @@ fora do JSON), conforme o contrato de autoria v1. A estrutura exigida:
 
 - a narrativa: o arco (3-7 cenas), a ordem e o que cada cena diz;
 - o ritmo narrativo: quanto tempo cada ideia precisa na tela, em
-  segundos (convertido por voce para frames no `fps` declarado);
+  **segundos** — voce planeja em segundos e materializa o ritmo na
+  EXTENSAO do texto (125-145 wpm: uma cena de 6 s pede ~13 palavras de
+  locucao). NUNCA emita frames: o sistema converte o ritmo planejado
+  para frames no estagio de timing;
 - quais nos visuais entram e em que ordem;
 - o texto: titulos, lista, legenda de grafico e a locucao de cada cena.
 
@@ -72,14 +86,13 @@ decidir e erro:
 - **frame exato**: nenhum frame absoluto, nenhuma posicao na timeline
   alem do ritmo relativo entre cenas;
 - **duracao resolvida**: a duracao final de cada cena e do video e do
-  sistema (estagio de timing); seus `duracao_frames` e
-  `duracao_total_frames` sao **pedidos de ritmo**, nao ordens — o
-  sistema pode resolve-los para manter a sincronia com a locucao.
+  sistema (estagio de timing), derivada do texto e das regras
+  editoriais — o manifesto nao carrega frames nem duracoes.
 
 Se o schema nao tiver campo para uma decisao (coordenada, cor,
-familia de fonte), ela **nao existe** — nao invente campo, nao deslize
-a decisao para dentro de um texto (nao escreva "cor azul" em
-`texto_alternativo` nem em `titulo`).
+familia de fonte, duracao, frame), ela **nao existe** — nao invente
+campo, nao deslize a decisao para dentro de um texto (nao escreva "cor
+azul" em `texto_alternativo` nem em `titulo`).
 
 ## Criterios editoriais (numeros com fonte: ADR-0024)
 
@@ -110,6 +123,10 @@ abaixo:
   perfeitamente legivel em menos tempo — a regra acima governa texto
   corrido, nao title card (nota de transferibilidade de R14-02).
 
+Todos os numeros acima sao TEMPO EM SEGUNDOS (ou palavras, que o
+sistema converte em tempo pela wpm). Voce nunca os converte para
+frames — o estagio de timing do sistema faz essa conversao.
+
 ## Dicionario de pronuncia
 
 Fonte unica: `dicionario-pronuncia.md`. A locucao que voce escreve
@@ -121,9 +138,11 @@ pronuncia tecnica corrente do pt-BR, sem soletrar.
 ## Regras de forma
 
 1. Saida unica: um objeto JSON valido, sem markdown, sem comentarios.
-2. `duracao_frames` e `entrada_frames` sao inteiros >= 1 (o piso de
-   1 frame); derive-os do ritmo em segundos: `frames = round(segundos
-   x fps)`, com fps do topo do manifesto.
+2. Nenhum campo de tempo sai no manifesto: sem `fps`, sem
+   `duracao_frames`, `entrada_frames`, `duracao_total_frames`, sem
+   `width`/`height` — o schema nao tem esses campos (additionalProperties
+   false). O ritmo planejado em segundos vira frames no estagio de
+   timing do sistema.
 3. `texto_alternativo` obrigatorio em todo no de midia; `hash` de
    midia **omitido** (a resolucao preenche). `licenca` do no de midia:
    omita — a resolucao decide a licenca do asset encontrado.
@@ -133,18 +152,19 @@ pronuncia tecnica corrente do pt-BR, sem soletrar.
 5. Nao use listas fechadas do tipo "todas as cenas possiveis": o enum
    de tipos de no e do schema e a referencia — so use os 6 tipos
    existentes.
-6. Um no de grafico exige `dados` com `rotulo`/`valor` para cada serie;
-   `cor` dentro de `dados` e opcional e e sugestao do autor, nao
-   decisao de layout.
+6. Um no de grafico exige `dados` com `rotulo`/`valor` para cada serie
+   e nada mais: os itens de `dados` fecham com additionalProperties
+   false — nem `cor` nem outro campo entram em `dados`.
 
 ## Instrucao final
 
 [PROMPT] Emita o manifesto JSON completo. Antes de emitir, confira, em
 ordem: (1) 3-7 cenas cobrindo o arco inteiro do tema; (2) toda locucao
-dentro do ritmo de 125-145 wpm; (3) todo no citado por uma cena existe
-e todo no tem `duracao_frames` >= 1; (4) nenhum campo de layout, cor
-ou frame absoluto; (5) todo no de midia tem `texto_alternativo` e
-nenhum tem `hash`.
+dentro do ritmo de 125-145 wpm; (3) todo no citado por uma cena existe;
+(4) nenhum campo de layout, cor, duracao ou frame absoluto (sem `fps`,
+sem `duracao_*`, sem `entrada_frames`, sem `alinhamento`, sem
+`animacao`); (5) todo no de midia tem `texto_alternativo` e nenhum tem
+`hash`.
 
 ---
 
@@ -152,8 +172,8 @@ nenhum tem `hash`.
 
 - caso_de_referencia: casos/decomposicao-narrativa/
 - versao_contrato_autoria: v1 (contrato-w5 §3)
-- schema_alvo: contrato de autoria v1 descrito (AB-432/AB-433 aplicados
-  sobre schema/manifesto.llm.schema.json); quando F4-01 mergear, o
-  teste aponta para src/autoria/contrato/**
+- schema_alvo: src/autoria/contrato/schema/autoria.schema.json
+  (validador real: src/autoria/contrato/validar.ts — AB-432/AB-433
+  aplicados; F4-01 mergeado, AB-570 resolvido)
 - criterios_editoriais_fonte: docs/adr/0024 (card F4-02)
 - dicionario_fonte: dicionario-pronuncia.md
