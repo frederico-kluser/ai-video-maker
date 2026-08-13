@@ -1,0 +1,14 @@
+{
+  "intervalos": [
+    {
+      "cena": "c-004",
+      "fim_s": 23.788333333333334,
+      "ganho_db": -12,
+      "inicio_s": 14.133333333333333,
+      "rampa_entrada_s": 0.1,
+      "rampa_saida_s": 0.2
+    }
+  ],
+  "schema_version": "DuckingEnvelope.1",
+  "unidade": "segundos"
+}

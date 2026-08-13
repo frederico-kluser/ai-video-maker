@@ -1377,3 +1377,48 @@ legendas-gravar:
     npx tsx tools/legendas/gerar.ts --gravar
     @echo "revise antes de commitar: git diff fixtures/canonico/legendas-canono.json"
 # === fim F3-02 ===
+
+# === F3-03 ===
+# =============================================================================
+# Envelope de ducking — CALCULADO (DuckingEnvelope.1), nunca compressor.
+# Dono: card F3-03 (W6). Nao edite fora destes marcadores.
+#
+# Contrato congelado em docs/contrato-w6.md §4: envelope como DADO, chave
+# por intervalo ABSOLUTO na timeline, unidade segundos, campos minimos por
+# intervalo (inicio_s, fim_s, ganho_db, rampas), atenuacao comeca ANTES da
+# fala, trechos colados sem degrau. A APLICACAO no mix e do F3-05 (W7) —
+# docs/adr/0012 ("O mix de audio (ducking, loudness, cobertura da trilha)
+# — F3-03 produz o envelope; nao mixa nada").
+#
+# Porta TCP reservada: 4303 (docs/contrato-w6.md §9). Faixa de ledger:
+# AB-600..AB-614 (ledger/inbox/F3-03.json). ADR: docs/adr/0028-envelope-de-ducking.md.
+#
+# ∅-crit do card: um trecho com locucao SEM atenuacao fica VERMELHO — a
+# suite (tests/sincronia/ducking.test.ts) prova por mutacao e o --conferir
+# da ferramenta (tests/sincronia/ducking.ferramenta.ts) sai 1 se qualquer
+# palavra do timing canonico ficar sem intervalo. A conferencia tambem
+# compara byte a byte com o golden commitado (tests/fixtures/ducking-
+# canono.json): ausencia ou divergencia e VERMELHO — o golden nao se
+# auto-grava, regeneracao e ato explicito (`just ducking-gravar`).
+#
+# NOME DAS RECEITAS: hifen, nunca ':' (just 1.42 — armadilha 9.1).
+# =============================================================================
+
+# Gate do envelope de ducking calculado (oraculo + ∅-crit + golden + 2x).
+ducking:
+    @echo "=== ducking: envelope de ducking calculado ==="
+    npx tsc --noEmit
+    @test -f src/sincronia/ducking/formato.ts || { echo "FALHOU: src/sincronia/ducking/formato.ts ausente"; exit 1; }
+    @test -f tests/sincronia/ducking.test.ts || { echo "FALHOU: suite de ducking ausente"; exit 1; }
+    @test -f tests/sincronia/ducking.ferramenta.ts || { echo "FALHOU: ferramenta de conferencia ausente"; exit 1; }
+    npx vitest run tests/sincronia/ducking.test.ts
+    npx tsx tests/sincronia/ducking.ferramenta.ts --conferir
+    @echo "ducking: VERDE"
+
+# Regenera o golden do envelope a partir do timing canonico COMMITADO.
+# Ato explicito — este comando nao valida nada, ele grava o que o codigo
+# faz hoje (e recusa gravar com locucao descoberta).
+ducking-gravar:
+    npx tsx tests/sincronia/ducking.ferramenta.ts --gravar
+    @echo "revise antes de commitar: git diff tests/fixtures/ducking-canono.json"
+# === fim F3-03 ===

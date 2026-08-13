@@ -1,0 +1,126 @@
+[
+  {
+    "id": "AB-600",
+    "titulo": "Posicao absoluta do audio dentro da cena: o envelope assume que a locucao comeca no frameInicial da cena",
+    "pergunta": "O envelope de ducking posiciona as palavras em posicaoAbsolutaDaCena + palavra.inicio_s — o audio da cena comeca no inicio absoluto da cena (frameInicial/fps da aritmetica de composicao, F1-01) e toca pela duracao declarada no timing. A fixture canonica tem c-004 com audio de 8.505s numa cena visual de 4s: se a composicao cortar o audio na fronteira da cena, ou desloca-lo (delay dentro da cena), o envelope marca atenuacao onde nao ha fala audivel (over-ducking inofensivo) ou erra o trecho da fala (pior). Quem garante o contrato 'audio comeca no frameInicial da cena' — a composicao (F1-12) ou o render de ponta a ponta (F5-01, W7)?",
+    "por_que_aberto": "A camada de pintura de producao da composicao nao existe ainda (AB-493, PREP-w7) — ninguem posicionou audio de verdade contra a timeline. O F3-03 fechou o envelope sobre a unica aritmetica commitada (veredito do AB-520), e o F5-01 (W7) e o primeiro tropeco real. Se o audio for cortado/deslocado, o golden do envelope regenera por ato explicito.",
+    "decisao_provisoria": "Manter o contrato 'audio comeca no inicio absoluto da cena e toca pela duracao declarada'. O F5-01 (W7) confirma no primeiro render integrado; divergencia vira PREP com regeneracao do golden do envelope (just ducking-gravar).",
+    "verificacao": {
+      "cmd": "npx tsx tests/sincronia/ducking.ferramenta.ts --conferir",
+      "espera": "VERDE com a fixture canonica (posicoes de calcularDuracao); apos o F5-01 posicionar audio real, conferir que a audicao bate com o envelope",
+      "ambiente": "W7, quando F5-01 renderizar o primeiro video com locucao e musica"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Envelope certo sobre posicao errada: a musica fica atenuada fora da fala (over-ducking) ou nao atenuada na fala (inteligibilidade) — sem nenhum sinal de erro, porque o documento continua valido.",
+      "artefatos": [
+        "src/sincronia/ducking/calcular.ts",
+        "src/composicao/tempo.ts",
+        "tests/fixtures/ducking-canono.json"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-601",
+    "titulo": "Parametros de ducking fora de tokens.ts (S-5): o dono de tokens decide a migracao",
+    "pergunta": "Os numeros do envelope (ganho -12 dB, folga/ataque 0.1s, folga/release 0.2s) vivem em src/sincronia/ducking/parametros.ts porque tokens.ts e o S-5 (dono unico por onda; alteracao recaptura snapshots). O gate design-varrer nao os acusa (nao sao literais de design reconhecidos). Quando e por quem os numeros migram para o sistema de tokens — e a migracao tem de exigir regeneracao do golden do envelope?",
+    "por_que_aberto": "O F3-03 nao tem autorizacao de tocar no S-5, e os numeros sao de AUDIO, nao de pixel — o tokens.ts atual e a fonte dos tokens de design visual. A migracao so faz sentido quando o dono de tokens decidir o vocabulario de audio (ou um tokens de audio separado).",
+    "decisao_provisoria": "Manter em src/sincronia/ducking/parametros.ts, pinados pelo golden byte a byte. A migracao futura exige bump de versao do envelope e regeneracao explicita do golden (just ducking-gravar) — o diff dos bytes e a revisao.",
+    "verificacao": {
+      "cmd": "grep -n 'DUCKING_GANHO_DB' src/sincronia/ducking/parametros.ts && npx tsx tests/sincronia/ducking.ferramenta.ts --conferir",
+      "espera": "0 — a constante existe e o golden confere; quando o S-5 tiver vocabulario de audio, migrar e regenerar",
+      "ambiente": "onda em que o dono de tokens abrir o vocabulario de audio"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Dois numeros para o mesmo parametro (tokens e ducking) divergem em merge limpo; ou a migracao muda os bytes do envelope sem bump e o golden fica vermelho apontando o diff.",
+      "artefatos": [
+        "src/sincronia/ducking/parametros.ts",
+        "src/design/tokens.ts",
+        "tests/fixtures/ducking-canono.json"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-602",
+    "titulo": "Numeros de folga/ataque/release e ganho do ducking: do vocabulario, nao medidos por escuta",
+    "pergunta": "DUCKING_GANHO_DB=-12, folgas de 0.1/0.2s e rampas de 0.1/0.2s sao os numeros do exemplo de docs/vocabulario.md ('ducking'), que por sua vez sao prosa de referencia — nenhuma audicao mediu se -12 dB e inteligivel com musica de verdade, nem se as rampas de 100/200 ms soam bem. Quem calibra os numeros com escuta real (mix do F3-05 + trilha do F2-06), e o golden do envelope regenera com a calibracao?",
+    "por_que_aberto": "O mix nao existe (F3-05 e da W7) e a trilha real vem do cassete de musica (F2-06). Calibrar agora seria audicao sobre audio sintetico.",
+    "decisao_provisoria": "Manter os numeros do vocabulario, pinados pelo golden. A calibracao acontece no F3-05 (W7) ou num card de pos-producao, por ato explicito com regeneracao do golden (just ducking-gravar) e diff revisado.",
+    "verificacao": {
+      "cmd": "npx tsx tests/sincronia/ducking.ferramenta.ts --conferir",
+      "espera": "VERDE com os numeros atuais; a calibracao por escuta muda os numeros e regenera o golden com diff",
+      "ambiente": "W7+, quando o mix do F3-05 rodar com a trilha real do cassete"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Numeros nao medidos podem produzir ducking que nao cumpre a funcao (musica cobre a locucao — a pergunta do proprio F3-05) ou rampas audiveis; o risco e estetico, nao de determinismo (o golden garante estabilidade, nao correcao).",
+      "artefatos": [
+        "src/sincronia/ducking/parametros.ts",
+        "tests/fixtures/ducking-canono.json"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-603",
+    "titulo": "Fusao de intervalos colados: lacunas de ate ~0.3s mantem a musica 100% atenuada (anti-pumping nao validado)",
+    "pergunta": "A fusao anti-degrau (D5 do ADR-0028) funde intervalos cujas rampas se sobreporiam — na pratica, duas falas separadas por ate ~0.3s de silencio produzem UM patamar sem retorno a 0 dB. Isso evita degrau e pumping, mas mantem a musica atenuada em silencios curtos que poderiam respirar. A escolha foi feita por construcao (continuidade), nao por escuta: o F3-05 (W7) deve reavaliar com audicao real — e a alternativa (emenda em rampa cruzada) mudaria o formato?",
+    "por_que_aberto": "Sem mix real, 'silencio que poderia respirar' e opiniao de desenho; a alternativa (duas rampas se cruzando a meia atenuacao) violaria o invariante E4 do oraculo e exigiria outro modelo de rampa (ex.: rampa que parte de ganho parcial) — decisao de formato, nao de parametro.",
+    "decisao_provisoria": "Manter a fusao como esta (um patamar continuo). Se a audicao do F3-05 pedir respiro nas lacunas curtas, o modelo vira PREP de formato (bump de DuckingEnvelope.1) com regeneracao do golden.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/sincronia/ducking.test.ts -t 'silencio CURTO fundem'",
+      "espera": "O teste prova a fusao atual (lacuna de 0.35s -> um intervalo); reavaliacao com escuta acontece no F3-05",
+      "ambiente": "W7, quando o F3-05 mixar a trilha real com o envelope"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a fusao estiver errada para a audicao, o sintoma e musica que 'morre' em silencios curtos entre frases — estetico; se a alternativa cruzada for adotada sem bump, o oraculo E4 rejeita o documento e o F3-05 para com erro (sinal, nao silencio).",
+      "artefatos": [
+        "src/sincronia/ducking/calcular.ts",
+        "src/sincronia/ducking/validar.ts",
+        "tests/fixtures/ducking-canono.json"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-604",
+    "titulo": "O golden do envelope vive em tests/fixtures (fora do mapa de fixtures/canonico): risco de dois goldens para o mesmo dominio",
+    "pergunta": "O golden do envelope ficou em tests/fixtures/ducking-canono.json porque o mapa de arquivos do F3-03 (contrato-w6 §1) nao inclui fixtures/canonico/ — onde mora o golden do timing (F3-01). O repositorio passa a ter dois lugares para golden derivado de timing; o F3-04 (ritmo, W6) decidira o seu. Ha risco de convencao divergente: quando o numero de goldens crescer, quem consolida o lugar canonico — e o ducking migra por ato explicito?",
+    "por_que_aberto": "A decisao de lugar foi constrangida pelo mapa da onda, nao por desenho; a consolidacao e tema de ferramental (o gate do F3-03 nao pode exigir fixtures/canonico sem invadir o mapa do vizinho).",
+    "decisao_provisoria": "Manter em tests/fixtures/ enquanto o contrato da onda nao mudar; o F3-05 (W7), primeiro consumidor real, revisa o lugar junto com o consumo. Migrar o arquivo e ato explicito (git mv + conferir o golden).",
+    "verificacao": {
+      "cmd": "test -f tests/fixtures/ducking-canono.json && npx tsx tests/sincronia/ducking.ferramenta.ts --conferir",
+      "espera": "0 — o golden existe e confere; a consolidacao de convencao fica para o orquestrador quando houver mais de um golden derivado",
+      "ambiente": "pos-W6, quando o orquestrador consolidar goldens derivados de timing"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Convencao divergente entre cards (fixtures/canonico vs tests/fixtures) produz goldens em dois lugares sem conflito de merge; o impacto e de manutencao, nao de correcao — o byte a byte continua valendo.",
+      "artefatos": [
+        "tests/fixtures/ducking-canono.json",
+        "tests/sincronia/ducking.ferramenta.ts",
+        "justfile"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]
