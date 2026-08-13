@@ -64,10 +64,51 @@ rg --files-without-match "licenca:" assets/fontes/*.md | tee /dev/stderr | grep 
 | F2-06 | W4 | idem, `musica` |
 | F4-02 | W5 | `rg -L "^versao:" docs/autoria/prompts/*.md` |
 | I-03 | W6.5 | `rg -L "comando:" docs/medicao/maquina.md` |
+| I-04 | W9.5 | `rg -L "alavanca-mestra" docs/runbooks/*.md` → vazio — todo runbook subordinado cita a alavanca maior |
 | F6-02 | W11 | `rg -L "## O que este documento NAO cobre" docs/runbooks/*.md` |
 | F6-05 | W12 | `rg -L "virou manual" docs/arquivamento.md` |
 
 Descoberto por F1-03 (AB-270) e confirmado aqui.
+
+### O caso do I-04 (W9.5) — denominador zero ate a W11
+
+O I-04 (PROGRAMA.html:1098) tem um agravante que os outros casos nao
+tinham: o glob do criterio, `docs/runbooks/*.md`, **so existe a partir da
+W11 (F6-02)**. Hoje o glob nao casa arquivo nenhum — e `--files-without-match`
+sai vazio tanto quando todo arquivo casa quanto quando **nao existe
+arquivo nenhum**. O sweep literal do PROGRAMA, corrigido so na forma,
+aprovaria o I-04 **por ausencia de denominador** antes de existir um unico
+runbook. Por isso o criterio do I-04 tem DUAS metades, com papeis
+diferentes:
+
+**1. O gate do I-04 (W9.5) assere PRESENÇA sobre os arquivos que o proprio
+card escreve** — nem a politica nem o ADR podem ficar sem citar a alavanca:
+
+```
+rg --files-without-match "alavanca-mestra" docs/politica-editorial.md docs/adr/0033-*.md   # → vazio
+```
+
+Aqui `--files-without-match` com caminhos EXPLICITOS e a forma certa: com
+arquivo nomeado, ele so sai vazio se **todos** os arquivos citarem a
+alavanca (e o `rg` falha se algum caminho nao existir — presenca dos
+arquivos incluida).
+
+**2. O sweep sobre runbooks ganha guarda de denominador** e so roda vivo
+a partir da W11, quando os runbooks existirem. Denominador zero e
+**VERMELHO** (bloqueio por ausencia), nunca verde:
+
+```
+test $(ls docs/runbooks/*.md 2>/dev/null | wc -l) -gt 0 || { echo "denominador zero"; exit 1; }
+rg --files-without-match "alavanca-mestra" docs/runbooks/*.md | tee /dev/stderr | grep -q . && exit 1 || exit 0
+```
+
+**3. O ∅-crit do F6-02 (W11) ganha a exigencia de citar a alavanca.**
+Quando os runbooks nascerem (W11), o sweep acima passa a ser o gate vivo
+da subordinacao — e o F6-02, alem do seu ∅-crit no PROGRAMA
+(`rg -L "## O que este documento NAO cobre" docs/runbooks/*.md`),
+assegura que **cada runbook cita a alavanca-mestra** (o mesmo `rg
+--files-without-match` com a guarda de denominador, sobre
+`docs/runbooks/*.md`).
 
 ---
 
