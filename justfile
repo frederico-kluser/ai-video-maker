@@ -1185,3 +1185,95 @@ prompts-testar:
     @test -z "$(rg --files-without-match '^versao:' docs/autoria/prompts/*.md)" || { echo "FALHOU: .md de topo sem 'versao:' (∅-crit literal do card)"; exit 1; }
     @echo "prompts-testar: VERDE"
 # === fim F4-02 ===
+
+# === F1-12 ===
+# =============================================================================
+# Suite integrada de composicao — o join dos oito nos da W4 com a raiz
+# =============================================================================
+# Dono: card F1-12 (onda W5). Nao edite fora destes marcadores.
+#
+# O PROGRAMA escreve a aceitacao como `just int:composicao` e
+# `just det:provar --integrado`. O `just` 1.42 NAO aceita ':' em nome de
+# receita (AB-284) nem argumento em receita sem parametro — valem os hifens,
+# convencao deste arquivo: `int-composicao` e `det-provar-integrado`.
+#
+# Porta TCP deste card: 4112 (docs/contrato-w5.md §9).
+# Faixa de ledger: AB-490..AB-499 (ledger/inbox/F1-12.json).
+#
+# O que cada etapa prova:
+#   vitest    tests/integracao/composicao/ — fiacao (AB-364), duracao
+#             subtrativa calculada a mao, pintor de cena real (AB-374),
+#             AB-312/AB-313/AB-344, e o gate de PRESENCA no por no (o ∅-crit
+#             roda o arquivo presenca.test.ts).
+#   provar    render de verdade 2x com bytes identicos (determinismo),
+#             oraculo de conteudo do quadro composto (C1, AB-344/AB-390) e
+#             snapshots aprovados — so do render, nunca do Studio (C5).
+#   ausencia  ∅-crit: remove CADA no da fixture e exige VERMELHO por
+#             ausencia (nomeando o no), nunca por "menos frames".
+#   qtrle     sonda do cassete REAL de F2-02 (.mov qtrle/argb): o render
+#             integrado recusa o formato com evidencia (AB-390); o cartucho
+#             webm e o caminho de producao.
+
+# `just int:composicao` do PROGRAMA — a aceitacao inteira do card.
+int-composicao: int-composicao-testar int-composicao-provar int-composicao-ausencia int-composicao-qtrle int-composicao-snapshots
+    @echo ""
+    @echo "int-composicao: VERDE"
+
+# Tipos do repositorio + as duas suites de oraculo (fiacao e presenca).
+int-composicao-testar:
+    @echo "=== int-composicao-testar: tipos ==="
+    npx tsc --noEmit
+    @echo "=== int-composicao-testar: suites (fiacao, duracao, pintor, presenca) ==="
+    @# C2: um alvo que nao casa nenhum teste sai VERDE sem ter olhado nada.
+    @saida=$(npx vitest run tests/integracao/composicao/ 2>&1 | sed -E 's/\x1b\[[0-9;]*m//g'); \
+        printf '%s\n' "$saida" | tail -6; \
+        printf '%s\n' "$saida" | grep -qE "Tests +[1-9][0-9]* passed" || \
+            { echo "FALHOU: nenhum teste selecionado (falso verde)"; exit 1; }
+    @echo "int-composicao-testar: OK"
+
+# `just det:provar --integrado` do PROGRAMA — determinismo do artefato
+# integrado: render 2x em processos do mesmo bundle, bytes identicos, oraculo
+# de conteudo e igualdade com o snapshot aprovado.
+det-provar-integrado:
+    npx tsx tests/integracao/composicao/provar.ts
+
+# A etapa de determinismo dentro do gate (a mesma receita acima).
+int-composicao-provar:
+    npx tsx tests/integracao/composicao/provar.ts
+
+# ∅-crit: remover um no da fixture TEM de ficar VERMELHO por AUSENCIA.
+int-composicao-ausencia:
+    npx tsx tests/integracao/composicao/ausencia.ts
+
+# Sonda do cassete REAL de F2-02 (.mov qtrle/argb) — evidencia no handoff.
+int-composicao-qtrle:
+    npx tsx tests/integracao/composicao/qtrle.ts
+
+# C3: diff --exit-code nao enxerga arquivo nao rastreado — os dois juntos.
+int-composicao-snapshots:
+    @echo "=== int-composicao-snapshots: diff + status de fixtures/snapshots/integrado/ (C3) ==="
+    git diff --exit-code --quiet -- fixtures/snapshots/integrado/ || \
+        { echo "FALHOU: fixtures/snapshots/integrado/ tem mudanca"; git --no-pager diff --stat -- fixtures/snapshots/integrado/; exit 1; }
+    @sujo=$(git status --porcelain -uall -- fixtures/snapshots/integrado/); \
+        if [ -n "$sujo" ]; then \
+            echo "FALHOU: fixtures/snapshots/integrado/ tem arquivo modificado ou nao rastreado:"; \
+            printf '%s\n' "$sujo"; exit 1; \
+        fi
+    @echo "int-composicao-snapshots: OK"
+
+# (Re)aprova os snapshots. Ato explicito — o gate NUNCA grava sozinho.
+int-composicao-aprovar:
+    npx tsx tests/integracao/composicao/provar.ts --aprovar
+    @echo "revise antes de commitar: git diff fixtures/snapshots/integrado/"
+
+# Regenera o asset e a fixture integrada; confere que nada mudou (C7).
+int-composicao-gerar:
+    npx tsx tests/integracao/composicao/gerar-assets.ts
+    npx tsx tests/integracao/composicao/gerar-fixture.ts
+    @echo "confira: git diff --exit-code fixtures/snapshots/integrado/"
+
+# Preview no Studio, na porta reservada deste card (4112).
+# NAO aprova snapshot: o Chrome do Studio nao e o Chrome do render (C5).
+int-composicao-studio:
+    npx remotion studio fixtures/snapshots/integrado/entrada.tsx --port 4112
+# === fim F1-12 ===

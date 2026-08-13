@@ -1,0 +1,181 @@
+[
+  {
+    "id": "AB-490",
+    "titulo": "O cassete REAL do estagio grafico (.mov qtrle/argb) e recusado pelo proprio no — o cartucho webm e o caminho de producao",
+    "pergunta": "O no grafico (F1-09) declara `video/quicktime` como `reproduzivelNoNavegador: false`; o cassete de F2-02 entrega exatamente esse formato (mimeType video/quicktime, qtrle/argb). Quando o orquestrador executa o cartucho webm (F2-02 --format=webm, vp9/yuva420p), o que muda na fiacao e no no?",
+    "por_que_aberto": "O criterio da revisao de plano pedia evidencia: a sonda tests/integracao/composicao/qtrle.ts fia o no n-009 com o descritor REAL do cassete e prova nos dois caminhos (arvore pura e render de verdade, Chrome headless/swangle) que o render integrado RECUSA o formato com ErroDeGraficoOpaco nomeando o no — nunca pinta um buraco nem um retangulo. A evidencia completa saiu no stdout da sonda e no ADR-0025, D5. Enquanto o cartucho webm nao for executado, o caminho de producao do grafico e o PNG da fixture (que exercita o mesmo caminho do asset no no: grafico_resolvido + fonte).",
+    "decisao_provisoria": "Manter o PNG como asset da fixture integrada e a sonda qtrle como parte do gate (int-composicao-qtrle). O cartucho webm (AB-390) e executado pelo orquestrador; quando o asset real virar video/webm, a fiacao nao muda de forma (o descritor troca de mimeType), mas o no passa a consumir VIDEO — o <Img> atual nao anima — o que e ajuste de no, fora do escopo desta suite.",
+    "verificacao": {
+      "cmd": "npx tsx tests/integracao/composicao/qtrle.ts",
+      "espera": "verde: as duas sondas recusam o qtrle com ErroDeGraficoOpaco nomeando n-009",
+      "ambiente": "tsx, node 24, remotion 4.0.507, Chrome headless via --gl=swangle"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem trocar a guarda do no para aceitar video/quicktime sem trocar o consumo, o grafico some do video (o navegador nao decodifica .mov) com gate verde — o falso verde que o ADR-0019 existe para impedir.",
+      "artefatos": [
+        "tests/integracao/composicao/qtrle.ts",
+        "src/composicao/nos/grafico.tsx",
+        "src/resolucao/grafico/"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-491",
+    "titulo": "A fonte da fiacao tem de passar pelo staticFile do runtime — caminho escrito a mao quebra so no render",
+    "pergunta": "A fiacao resolve hash -> caminho local. O caminho deve ser escrito a mao ('/grafico-integrado.png') ou resolvido por staticFile()?",
+    "por_que_aberto": "ACHADO DA SUITE: o primeiro render da suite integrada 404ou — o <Img> do no grafico pedia /grafico-integrado.png e o bundle serve os arquivos de public/ sob o prefixo de runtime (/public/...), resolvido por staticFile() contra window.remotion_staticFiles. Um caminho escrito a mao funciona no Studio e quebra no render — exatamente a classe de divergencia que C5 cobre. A fiacao corrigida usa staticFile(nomeDoArquivo) como resolvedor padrao.",
+    "decisao_provisoria": "resolverFonte padrao em tests/integracao/composicao/fiar.tsx chama staticFile(). O teste de node (sem window) recebe a forma relativa, que e a mesma que o markup espera.",
+    "verificacao": {
+      "cmd": "npx tsx tests/integracao/composicao/provar.ts",
+      "espera": "verde: os 8 stills renderizam e o oraculo da regiao do grafico encontra as 5 cores das barras",
+      "ambiente": "tsx, node 24, remotion 4.0.507"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se uma fiacao futura escrever o caminho a mao, o render 404a sem que o Studio acuse — a suite integrada (integrado-grafico-asset) fica vermelha, que e o ponto.",
+      "artefatos": ["tests/integracao/composicao/fiar.tsx"]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "evidencia": {
+      "cmd": "npx tsx tests/integracao/composicao/provar.ts",
+      "exit": 0,
+      "arquivo": "saida do gate (integrado-grafico-asset: 5/5 cores das barras)",
+      "sha256": "registrada no commit da suite"
+    }
+  },
+  {
+    "id": "AB-492",
+    "titulo": "Nos multi-cena: a ordem de pintura cobre o alfa do irmao — caracterizado, nao corrigido",
+    "pergunta": "Em cenas com mais de um no, os nos cabecalho/texto/codigo pintam fundo opaco de quadro inteiro e cobrem o que foi pintado antes (o marcador de midia de c-003 e c-005 nao aparece na fixture inteira; os graficos de c-004 se empilham na mesma regiao). Semantica de camada POR NO e trabalho de quem?",
+    "por_que_aberto": "O comportamento e o da composicao atual: a ordem de pintura e a ordem declarada em cena.nos (a mesma do plano da raiz) e os nos opacos tapam os transparentes. A suite integrada caracteriza isso nos snapshots aprovados; o oraculo de regiao roda em composicoes de UMA cena e UM no (integrado-midia, integrado-grafico-asset) porque na fixture inteira a regiao do no nao e isolavel. Corrigir (z-order por no, ou pintores que nao tapem o alfa do vizinho) e decisao de produto + card futuro.",
+    "decisao_provisoria": "Manter a ordem declarada e a caracterizacao nos snapshots. O oraculo de alfa do quadro composto usa as composicoes de um no.",
+    "verificacao": {
+      "cmd": "npx tsx tests/integracao/composicao/provar.ts",
+      "espera": "verde: 8 stills com oraculo de conteudo passando",
+      "ambiente": "tsx, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um futuro card mudar a ordem de pintura ou der z-index por no, os snapshots da fixture inteira mudam e precisam de recaptura — a suite integrada fica vermelha, que e o aviso certo.",
+      "artefatos": ["fixtures/snapshots/integrado/aprovados/", "tests/integracao/composicao/fiar.tsx"]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-493",
+    "titulo": "O pintor de cena de producao mora na suite integrada — src/composicao/ ainda nao tem camada de cena",
+    "pergunta": "O pintor real (tests/integracao/composicao/fiar.tsx) resolve o AB-374 no ponto de injecao, mas vive fora de src/ — quando vira producao?",
+    "por_que_aberto": "A regra de onda proibia tocar em src/** — a suite integrada e o unico lugar onde a camada de cena podia nascer nesta onda. A raiz de producao (src/composicao/raiz.tsx) continua sem saber de cenas nem de fronteiras.",
+    "decisao_provisoria": "Pintor e fiacao vivem em tests/integracao/composicao/fiar.tsx, exercitados pela suite. Mover para src/composicao/ (camada de cena de producao) e PREP da onda seguinte, com a suite como oraculo da movimentacao.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/integracao/composicao/fiar.test.ts",
+      "espera": "verde: pintor injetado usa o registro de nos de producao",
+      "ambiente": "vitest 3, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a camada de cena nascer em src/ sem a suite como oraculo, o pixel integrado pode divergir daqui sem gate acusar.",
+      "artefatos": ["tests/integracao/composicao/fiar.tsx", "src/composicao/"]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-494",
+    "titulo": "O ∅-crit ancora a lista de presenca no MANIFESTO CANONICO — a ancora tem dono",
+    "pergunta": "presenca.test.ts deriva a lista esperada de fixtures/canonico/manifesto-valido.json (imutavel) e NAO da fixture integrada. Se o canonico mudar (no novo, no removido), quem re-ancora a suite?",
+    "por_que_aberto": "A ancora no canonico e o que faz o ∅-crit reprovar por presenca: remover um no da fixture integrada deixa a assercao daquele no orfa. Mas a ancora tem de ser mantida: o canonico e da fase 0 e a lista de presenca deste gate cresce/encolhe com ele.",
+    "decisao_provisoria": "Ancora no canonico, documentada no ADR-0025 D6. Qualquer mudanca no canonico passa pelo PREP e a suite integrada e um dos consumidores a re-verificar.",
+    "verificacao": {
+      "cmd": "npx tsx tests/integracao/composicao/ausencia.ts",
+      "espera": "verde: 15 nos removidos um a um, todos acusados por ausencia",
+      "ambiente": "tsx, vitest 3, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem ancorar a lista na fixture integrada, o ∅-crit volta a passar com 'menos nos para cobrar' — o falso verde que o criterio do PROGRAMA proibe.",
+      "artefatos": ["tests/integracao/composicao/presenca.test.ts", "fixtures/canonico/manifesto-valido.json"]
+    },
+    "risco": "baixo",
+    "categoria": "agentes-worktrees",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-495",
+    "titulo": "As regioes do oraculo de conteudo duplicam a geometria dos nos — a duplicacao tem dono",
+    "pergunta": "regiaoInternaDaMidia e regiaoDoGrafico (tests/integracao/composicao/fiar.tsx) reimplementam a aritmetica dos nos (margem da midia, respiro/titulo/rotulos do grafico) para saber onde medir o pixel. Se a geometria de um no mudar, quem atualiza o oraculo?",
+    "por_que_aberto": "A duplicacao e deliberada (o oraculo nao pode derivar da mesma premissa que o desenho — video-characterization §1), mas a suite precisa saber quando a geometria do no mudou: sem aviso, o oraculo mede a regiao errada e o falso verde volta.",
+    "decisao_provisoria": "A regiao e derivada de tokens (nunca de literal) e os comentarios nomeiam a formula do no que espelham. A suite integrada fica vermelha quando a geometria muda no PIXEL (o oraculo deixa de achar as cores), o que e o aviso certo — com a ressalva de que uma mudanca que mantem o desenho na mesma regiao passa (caso benigno).",
+    "verificacao": {
+      "cmd": "npx tsx tests/integracao/composicao/provar.ts",
+      "espera": "verde: as regioes medem o que os nos desenham",
+      "ambiente": "tsx, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a geometria mudar e o pixel na regiao antiga ainda tiver as cores esperadas, o oraculo aprova sem saber — caso raro, mitigado pela ancoragem em tokens.",
+      "artefatos": ["tests/integracao/composicao/fiar.tsx", "tests/integracao/composicao/oraculo.ts"]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-496",
+    "titulo": "O gate de bytes da suite integrada cobre PNG; WebM/SVG/GIF/APNG seguem 'consistente-mas-possivelmente-errado' (AB-363)",
+    "pergunta": "Quem escreve os leitores de bytes dos formatos que o no grafico aceita e a suite integrada nao cobre (WebM, SVG, GIF, APNG), para o AB-363 sair de NAO-VERIFICADO?",
+    "por_que_aberto": "A suite integrada serve o grafico em PNG (formato da fixture) e o oraculo de conteudo mede o PNG decodificado. Um WebM com alfa pode renderizar errado sem o gate acusar — o limite esta documentado no ADR-0025 D4 e na oraculo.ts.",
+    "decisao_provisoria": "NAO-VERIFICADO permanece VERMELHO na conferencia de bytes da W4 (AB-363). A suite integrada adiciona o seu proprio limite: o oraculo de conteudo cobre o formato da fixture e o documento emite o escopo por escrito.",
+    "verificacao": {
+      "cmd": "npx tsx tests/integracao/composicao/provar.ts",
+      "espera": "verde com PNG; o escopo dos formatos nao cobertos esta documentado",
+      "ambiente": "tsx, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o asset real virar WebM sem leitor de bytes, o grafico pode entrar errado no video com gate verde — o cartucho webm (AB-490) precisa re-verificar isto.",
+      "artefatos": ["tests/integracao/composicao/oraculo.ts"]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-497",
+    "titulo": "A hidratacao do destaque de codigo (AB-350) nao esta na fixture integrada — o no renderiza em modo 'ausente'",
+    "pergunta": "F1-08 enderecou ao join a hidratacao do campo destaque_sintaxe (anexar o artefato do estagio F2-05 ao no de codigo). A suite integrada hidrata?",
+    "por_que_aberto": "A fixture integrada nao anexa destaque_sintaxe: o no de codigo renderiza em modo 'ausente' (desenha cru, marcado) — comportamento declarado do proprio no. A hidratacao com o cassete REAL de F2-05 e verificacao do par estagio x formato pertence a suite offline do F2-07 e ao cartucho de codigo do orquestrador.",
+    "decisao_provisoria": "A suite integrada caracteriza o modo 'ausente' (o still de c-003 mostra o codigo cru marcado). A hidratacao fica registrada como pendencia do cartucho de codigo, junto de AB-350.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/integracao/composicao/presenca.test.ts",
+      "espera": "verde: o no n-008 renderiza (presenca) no modo atual",
+      "ambiente": "vitest 3, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Quando a hidratacao chegar, o still de c-003 muda de bytes e precisa de recaptura — a suite integrada fica vermelha, que e o aviso certo.",
+      "artefatos": ["fixtures/snapshots/integrado/aprovados/integrado-c003-frame300.png", "src/composicao/nos/codigo.tsx"]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]
