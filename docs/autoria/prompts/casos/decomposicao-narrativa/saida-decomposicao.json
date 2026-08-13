@@ -40,29 +40,43 @@
       "tipo_grafico": "barras",
       "titulo": "Eficiencia: motor eletrico x motor a combustao",
       "dados": [
-        { "rotulo": "Motor eletrico", "valor": 90 },
-        { "rotulo": "Motor a combustao", "valor": 35 }
+        {
+          "rotulo": "Motor eletrico",
+          "valor": 90
+        },
+        {
+          "rotulo": "Motor a combustao",
+          "valor": 35
+        }
       ]
     }
   ],
   "cenas": [
     {
       "id": "c-001",
-      "nos": ["n-001", "n-002"],
+      "nos": [
+        "n-001",
+        "n-002"
+      ],
       "audio_cena": {
         "texto_locucao": "Um motor eletrico transforma energia em movimento. Sem combustivel, sem escapamento, sem engrenagens complexas. E o coracao de carros, ventiladores e maquinas industriais."
       }
     },
     {
       "id": "c-002",
-      "nos": ["n-003", "n-004"],
+      "nos": [
+        "n-003",
+        "n-004"
+      ],
       "audio_cena": {
         "texto_locucao": "Dentro dele, um campo magnetico gira o rotor. A corrente alterna o campo, o rotor acompanha, e o eixo gira movendo o que estiver acoplado."
       }
     },
     {
       "id": "c-003",
-      "nos": ["n-005"],
+      "nos": [
+        "n-005"
+      ],
       "audio_cena": {
         "texto_locucao": "Por isso a eficiencia: noventa por cento da energia vira movimento, contra trinta e cinco de um motor a combustao."
       }

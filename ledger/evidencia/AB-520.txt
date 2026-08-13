@@ -1,0 +1,41 @@
+AB-520 — duracao da cena silenciosa x duracaoDaCena()/fps (PREP-w6, 2026-08-13)
+===============================================================================
+
+Pergunta: a entrada de cena silenciosa do timing canonico usa
+duracaoDaCena()/fps (F1-01) para duracao_s; se a composicao mudar a
+aritmetica de fronteiras, a duracao declarada diverge da timeline real.
+
+1) Comando literal do item (verificacao.cmd):
+
+   $ python3 -c "import json; d=json.load(open('fixtures/canonico/timing-canono.json')); print(d['cenas']['c-001']['duracao_s'])"
+   3
+
+   espera do item: "3.0 — bate com duracaoDaCena(c-001)/fps da fixture
+   canonica". A fixture guarda 3 (inteiro); 3 == 3.0.
+
+2) Conferencia de duracaoDaCena()/fps para TODAS as cenas silenciosas
+   da fixture canonica (mesma aritmetica de src/composicao/tempo.ts:
+   fim = (entrada_frames ?? 0) + duracao_frames, maximo por cena):
+
+   $ python3 -c "...manifesto-valido.json x timing-canono.json..."
+   c-001 duracaoDaCena/fps = 3.0 vs fixture duracao_s = 3 -> OK
+   c-002 duracaoDaCena/fps = 7.0 vs fixture duracao_s = 7 -> OK
+   c-003 duracaoDaCena/fps = 6.0 vs fixture duracao_s = 6 -> OK
+
+   (c-002 leva em conta entrada_frames=30 do n-003; c-003 o maximo do
+   n-008 com 180 frames. Cenas com locucao (c-004, c-005) declaram
+   duracao_s do AUDIO — semantica de estado "locucao", fora do escopo
+   deste item.)
+
+3) A suite integrada F1-12 (W5, ja mergeada) sustenta a MESMA aritmetica:
+   tests/integracao/composicao/fiar.test.ts ancora a duracao da
+   composicao (calcularDuracao sobre a fixture canonica) na mesma
+   src/composicao/tempo.ts que o construtor do timing usa. A fronteira
+   "e a composicao muda a aritmetica?" fica como politica do golden: se
+   a aritmetica mudar, tools/timing/gerar.ts --conferir fica VERMELHO e
+   o golden e regenerado por ato explicito (--gravar), com o diff
+   mostrando a divergencia (decisao provisoria do item, mantida).
+
+Veredito: FECHADO. duracao_s da cena silenciosa = duracaoDaCena()/fps
+da aritmetica commitada, verificado em TODAS as cenas silenciosas da
+fixture canonica, apos o merge de F1-12.

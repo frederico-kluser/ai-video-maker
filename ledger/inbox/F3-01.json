@@ -4,7 +4,6 @@
     "titulo": "Duracao da cena silenciosa: a aritmetica da composicao e o silencio declarado podem divergir",
     "pergunta": "A entrada de cena silenciosa no timing canonico usa `duracaoDaCena()/fps` (F1-01) para `duracao_s`. Se a composicao mudar a aritmetica de fronteiras (transicoes), a duracao que o timing declara para a cena silenciosa diverge da timeline real — quem reconcilia, e o timing canonico passa a carregar um campo de referencia (versao da aritmetica de tempo) ou a duracao passa a ser injetada por quem posiciona as cenas?",
     "por_que_aberto": "F3-01 (W5) precisava de um numero HOJE e usou a unica aritmetica commitada (src/composicao/tempo.ts, F1-01). O contrato-w5 §2 congela a FORMA (mapa cena -> entrada, silencio declarado), nao a origem da duracao. O primeiro consumidor real (F1-12, integracao de composicao, W5) e quem pode medir a divergencia.",
-    "decisao_provisoria": "duracao_s da cena silenciosa = duracaoDaCena(cena, nos)/fps, calculada no construtor; o documento nao carrega referencia a versao da aritmetica de tempo. Se a composicao mudar a aritmetica, o golden do timing e regenerado (tools/timing/gerar.ts --gravar) e o diff mostra a divergencia.",
     "verificacao": {
       "cmd": "python3 -c \"import json; d=json.load(open('fixtures/canonico/timing-canono.json')); print(d['cenas']['c-001']['duracao_s'])\"",
       "espera": "3.0 — bate com duracaoDaCena(c-001)/fps da fixture canonica; depois do merge de F1-12, conferir que segue batendo com a timeline da composicao",
@@ -22,7 +21,16 @@
     "categoria": "audio",
     "responde": "dono",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "duracao_s da cena silenciosa = duracaoDaCena()/fps da aritmetica commitada (src/composicao/tempo.ts): verificacao do item imprime 3 para c-001, e a conferencia estendida bate em TODAS as cenas silenciosas da fixture canonica (c-001 3.0, c-002 7.0, c-003 6.0). A suite integrada F1-12 ancora a mesma aritmetica. Se a composicao mudar as fronteiras, o golden do timing fica VERMELHO (gerar.ts --conferir) e e regenerado por ato explicito — decisao provisoria do item mantida.",
+    "evidencia": {
+      "cmd": "python3 -c \"import json; d=json.load(open('fixtures/canonico/timing-canono.json')); print(d['cenas']['c-001']['duracao_s'])\"",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-520.txt",
+      "sha256": "45d8af721ecb57931e1c39be0ab2a991675fe14f635aa41a8351115ab5457eea"
+    },
+    "decisao_provisoria": "Mantida do estado aberto: duracao_s da cena silenciosa = duracaoDaCena(cena, nos)/fps, calculada no construtor; o documento nao carrega referencia a versao da aritmetica de tempo. Se a composicao mudar a aritmetica, o golden do timing e regenerado (tools/timing/gerar.ts --gravar) e o diff mostra a divergencia. Verdito PREP-w6: conferido em todas as cenas silenciosas da fixture."
   },
   {
     "id": "AB-521",

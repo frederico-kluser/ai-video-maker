@@ -1,35 +1,37 @@
-versao: 1.0.0
+versao: 1.1.0
 
-# Prompt de autoria principal — brief completo em manifesto final
+# Prompt de autoria principal — brief completo em Documento de Autoria
 
 ## Proposito
 
 Prompt usado na **chamada real de autoria** (estagio 1 do pipeline,
 vocabulario: "autoria"). Recebe o brief completo do video e produz o
-manifesto final — a decomposicao narrativa e a escrita falada ja
-integradas num unico documento. E a composicao dos dois prompts
+Documento de Autoria final — a decomposicao narrativa e a escrita falada
+ja integradas num unico documento. E a composicao dos dois prompts
 anteriores: `prompt-decomposicao-narrativa` (arco, cenas, locucao, nos)
 e `prompt-roteiro-locucao` (texto falado com pronuncia aplicada).
 
 Em producao, esta chamada pode ser cacheada por hash do
 brief + prompt + modelo (vocabulario: autoria) — a saida deste prompt e
-o `manifesto.json` que a resolucao consome.
+o `documento de autoria` que a resolucao consome.
 
 ## Contrato de autoria v1 (referencia)
 
-- Estrutura da saida: `src/autoria/contrato/schema/autoria.schema.json`
-  (schema COMPLETO, draft 2020-12; validador real:
-  `src/autoria/contrato/validar.ts`). O LLM decide NARRATIVA (quais nos,
-  em que ordem, o texto, o vocabulario fechado de transicao); o sistema
-  decide frames, layout, cor e duracao resolvida — campos de decisao do
-  sistema NAO EXISTEM no schema (additionalProperties false em todo
-  objeto), entao emitir frame/cor/coordenada e IMPOSSIVEL, nao apenas
-  desencorajado.
-- Duas decisoes congeladas do contrato-w5 §3:
+- Estrutura da saida: o **schema REAL de F4-01**,
+  `src/autoria/contrato/schema/autoria.schema.json` (Autoria.1, draft
+  2020-12, `additionalProperties:false` em todo objeto). O LLM decide
+  NARRATIVA (quais nos, em que ordem, o texto, o vocabulario fechado de
+  transicao); o sistema decide frames, layout, cor e duracao resolvida —
+  campos de decisao do sistema NAO EXISTEM no schema, entao emitir
+  frame/cor/coordenada e IMPOSSIVEL, nao apenas desencorajado. Decisoes
+  herdadas do ledger:
   - **AB-432** — `hash` de no de midia e **ADVISORY**: a autoria PODE
     omitir; quem resolve o asset preenche o hash. Omitir nao e erro.
   - **AB-433** — `texto_alternativo` e **OBRIGATORIO** para no de
     midia: ausencia e erro.
+  - **Narrativa pura (AB-575):** o Autoria.1 NAO tem `duracao_frames`,
+    `fps`, `width` nem `height` — o documento e narrativa; frames, layout
+    e cor sao do sistema.
 - Front-matter: todo prompt em `docs/autoria/prompts/*.md` comeca com
   `versao:` (∅-crit do card F4-02).
 
@@ -49,15 +51,16 @@ padrao):
 
 ## Saida
 
-Um unico documento: o **manifesto JSON** (sem comentarios, sem texto
-fora do JSON), conforme o contrato de autoria v1. Regras de estrutura
-identicas ao `prompt-decomposicao-narrativa`: topo com
-`schema_version: "Autoria.1"`, `nos`, `cenas` (sem `fps`, sem
-`width`/`height`, sem `duracao_total_frames` — campos de decisao do
-sistema nao existem no schema); `nos` com ids unicos e schema do tipo
-(sem `duracao_frames`, `entrada_frames`, `alinhamento`, `animacao`);
-`cenas` de 3 a 7 com referencias a nos existentes e
-`audio_cena.texto_locucao` quando a cena fala; `audio` global opcional.
+Um unico documento: o **Documento de Autoria JSON** (sem comentarios,
+sem texto fora do JSON), conforme o contrato de autoria v1. Regras de
+estrutura identicas ao `prompt-decomposicao-narrativa`: topo com
+`schema_version: "Autoria.1"` (narrativa pura — sem frame, layout ou
+cor, sem `fps`, sem `width`/`height`, sem `duracao_total_frames` —
+campos de decisao do sistema nao existem no schema); `nos` com ids
+unicos e schema do tipo (sem `duracao_frames`, `entrada_frames`,
+`alinhamento`, `animacao`); `cenas` de 3 a 7 com referencias a nos
+existentes e `audio_cena.texto_locucao` quando a cena fala; `audio`
+global opcional.
 
 ## Fronteira de decisao
 
@@ -82,8 +85,8 @@ decidir e erro:
 - **frame exato**: nenhum frame absoluto alem do ritmo relativo entre
   cenas;
 - **duracao resolvida**: a duracao final de cada cena e do video e do
-  sistema (estagio de timing), derivada do texto e das regras
-  editoriais — o manifesto nao carrega frames nem duracoes.
+  sistema (estagio de timing, que resolve em segundos contra a locucao);
+  o documento de autoria nao tem campo de duracao — nao invente.
 
 Se o schema nao tiver campo para uma decisao, ela **nao existe** — nao
 invente campo nem deslize a decisao para dentro de um texto.
@@ -119,18 +122,19 @@ divergente para termo listado.
 ## Regras de forma
 
 1. Saida unica: um objeto JSON valido, sem markdown, sem comentarios.
-2. Nenhum campo de tempo sai no manifesto: sem `fps`, sem
-   `duracao_frames`, `entrada_frames`, `duracao_total_frames`, sem
-   `width`/`height` — o schema nao tem esses campos (additionalProperties
-   false). O ritmo planejado em segundos vira frames no estagio de
-   timing do sistema.
+2. Nenhum campo de frame, layout, cor ou duracao sai no documento: o
+   schema `Autoria.1` nao tem campo para nenhum deles
+   (`additionalProperties:false` — sem `fps`, `duracao_frames`,
+   `entrada_frames`, `duracao_total_frames`, `width`/`height`) — o
+   documento e narrativa pura; o ritmo declarado em segundos orienta o
+   sistema, que resolve a duracao final no estagio de timing (AB-575).
 3. `texto_alternativo` obrigatorio em todo no de midia; `hash` de
    midia **omitido**; `licenca` de midia omitida (a resolucao decide).
 4. `audio_cena.texto_locucao` presente em toda cena com fala; silencio
    declarado pela ausencia do bloco.
 5. Tipos de no: so os 6 do enum do schema (`cabecalho`, `texto`,
    `lista`, `midia`, `codigo`, `grafico`).
-6. `nos_obrigatorios` do brief aparecem no manifesto; sem no citado
+6. `nos_obrigatorios` do brief aparecem no documento; sem no citado
    pela cena e sem no orfao.
 7. O texto planejado cabe na `duracao_alvo_segundos` do brief a
    125-145 wpm (35 s ~ 75-85 palavras totais de locucao) — a duracao
@@ -138,23 +142,22 @@ divergente para termo listado.
 
 ## Instrucao final
 
-[PROMPT] Emita o manifesto JSON final. Confira, em ordem: (1) arco
-3-7 cenas cobrindo o tema inteiro; (2) `nos_obrigatorios` presentes;
-(3) locucao dentro de 125-145 wpm com pronuncia do dicionario; (4)
-todo no citado existe; (5) nenhum campo de layout, cor, duracao ou
-frame absoluto (sem `fps`, sem `duracao_*`, sem `entrada_frames`, sem
-`alinhamento`, sem `animacao`); (6) todo no de midia tem
-`texto_alternativo` e nenhum tem `hash`.
+[PROMPT] Emita o Documento de Autoria JSON final. Confira, em ordem:
+(1) arco 3-7 cenas cobrindo o tema inteiro; (2) `nos_obrigatorios`
+presentes; (3) locucao dentro de 125-145 wpm com pronuncia do
+dicionario; (4) todo no citado existe; (5) nenhum campo de layout, cor,
+duracao ou frame absoluto (sem `fps`, sem `duracao_*`, sem
+`entrada_frames`, sem `alinhamento`, sem `animacao`); (6) todo no de
+midia tem `texto_alternativo` e nenhum tem `hash`.
 
 ---
 
 ## Controle (metadados do prompt — consumido pelo teste)
 
 - caso_de_referencia: casos/autoria-principal/
-- versao_contrato_autoria: v1 (contrato-w5 §3)
-- schema_alvo: src/autoria/contrato/schema/autoria.schema.json
-  (validador real: src/autoria/contrato/validar.ts — AB-432/AB-433
-  aplicados; F4-01 mergeado, AB-570 resolvido)
+- versao_contrato_autoria: v1 (Autoria.1 — schema real de F4-01)
+- schema_alvo: src/autoria/contrato/schema/autoria.schema.json (schema
+  REAL de F4-01, migrado no PREP-w6 — AB-570; narrativa pura — AB-575)
 - criterios_editoriais_fonte: docs/adr/0024 (card F4-02)
 - dicionario_fonte: dicionario-pronuncia.md
 - compoe: prompt-decomposicao-narrativa.md + prompt-roteiro-locucao.md

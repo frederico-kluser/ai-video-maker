@@ -1,0 +1,41 @@
+AB-570 — migracao para o schema real de autoria (PREP-w6, 2026-08-13)
+======================================================================
+
+Pergunta: quando o schema de autoria do F4-01 (src/autoria/contrato/**)
+mergear, o teste tests/prompts/prompts.test.ts e os casos de referencia
+de docs/autoria/prompts/casos/** continuam validando contra o contrato
+v1 DESCRITO, ou migram para o schema real?
+
+1) Comando literal do item (verificacao.cmd) + o ∅-crit na forma
+   corrigida da armadilha 9.2 (filtros de .md fora de casos/):
+
+   $ rg --files-without-match 'versao:' docs/autoria/prompts/
+   (so .json dos casos/ — nao sao .md; denominador .md vazio com -g)
+
+   $ rg --files-without-match '^versao:' docs/autoria/prompts/ -g '*.md' -g '!**/casos/**'
+   (vazio — todo .md comeca com versao:)
+
+   $ npx vitest run tests/prompts/
+   ✓ tests/prompts/prompts.test.ts (17 tests)
+   Test Files  1 passed (1) | Tests 17 passed (17)
+
+2) Migracao executada:
+   - tests/prompts/prompts.test.ts: o validador estrutural proprio
+     (validarContratoV1 antigo, contrato DESCRITO) foi SUBSTITUIDO pela
+     funcao real de F4-01 — validarSaidaAutoria (src/autoria/contrato/
+     validar.ts), a mesma que o pipeline usa antes do reparo
+     (rejeitar.ts). O CONTRATO_ALVO agora e
+     src/autoria/contrato/schema/autoria.schema.json (Autoria.1).
+   - docs/autoria/prompts/casos/**/saida-*.json: convertidos de
+     Manifesto.1 (com fps/width/height/duracao_total_frames e
+     duracao_frames/entrada_frames/animacao/alinhamento por no) para
+     Documentos de Autoria validos (Autoria.1, narrativa pura) — todos
+     validados contra o schema real (VALIDO nos tres + entrada do
+     roteiro-locucao).
+   - Os tres prompts (prompt-decomposicao-narrativa,
+     prompt-roteiro-locucao, prompt-autoria-principal) + indice.md
+     passaram a referenciar o schema real e a instruir a saida Autoria.1
+     (versao: 1.1.0); ADR-0024 §1 e §4 atualizados.
+
+Veredito: FECHADO. O teste e os casos validam contra o schema REAL de
+F4-01; just prompts-testar VERDE.

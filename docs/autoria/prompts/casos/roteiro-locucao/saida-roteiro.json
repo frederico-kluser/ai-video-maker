@@ -26,14 +26,19 @@
   "cenas": [
     {
       "id": "c-001",
-      "nos": ["n-001", "n-002"],
+      "nos": [
+        "n-001",
+        "n-002"
+      ],
       "audio_cena": {
         "texto_locucao": "O Kubernetes orquestra containers e o pos-tres-que-el guarda os dados. A API devolve jei-son."
       }
     },
     {
       "id": "c-002",
-      "nos": ["n-003"],
+      "nos": [
+        "n-003"
+      ],
       "audio_cena": {
         "texto_locucao": "A chamada async barra await em Node.js devolve mil e vinte e quatro itens, e tres e meio por cento deles sao es-que-el puro."
       }

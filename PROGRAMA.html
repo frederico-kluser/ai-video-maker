@@ -1030,7 +1030,7 @@ I   Trilha de infra           ← exige humano, credencial, cartão ou máquina
             <tr><th scope="row">🔴 <code>I-03</code></th>
               <td class="text-nowrap"><code>W6.5</code><br><span class="small">deps: <code>T-08</code></span><br><span class="small text-body-secondary">—</span></td>
               <td>Máquina de render: RAM por worker, ponto de saturação, sessões de encode, throughput de disco — <strong>cada número com o comando que o reproduz</strong></td>
-              <td class="small"><code>docs/medicao/maquina.md</code> · ADR-0006</td>
+              <td class="small"><code>docs/medicao/maquina.md</code> · ADR-0032</td>
               <td class="small"><code><span class="badge text-bg-danger">∅-crit</span></code> <code>rg -L "comando:" docs/medicao/maquina.md</code> → vazio — <strong>todo número traz o comando que o reproduz</strong> ·<br><code>just medir:maquina --conferir</code> compara os números do documento com uma medição curta e falha se divergirem além da tolerância declarada</td>
               <td class="small text-body-secondary"><em>(1)</em> Algum número foi copiado de documentação em vez de medido aqui? <em>(2)</em> A medição de "sessões de encode" testou o <strong>limite</strong>, ou parou antes? <em>(3)</em> O teto declarado deixa margem para o gate rodar ao mesmo tempo?</td></tr>
             <tr class="table-active"><th colspan="6" scope="colgroup">🔵 W7 — entrega e variantes · 6 cards · independentes entre si</th></tr>
@@ -1094,7 +1094,7 @@ I   Trilha de infra           ← exige humano, credencial, cartão ou máquina
             <tr><th scope="row">🟡 <code>I-04</code></th>
               <td class="text-nowrap"><code>W9.5</code><br><span class="small">deps: <code>I-01</code></span><br><span class="small text-body-secondary">—</span></td>
               <td>Canal de publicação e política editorial — a pergunta que nenhum agente pode responder: <strong>o que conta como vídeo publicável, em nome de quem</strong></td>
-              <td class="small"><code>docs/politica-editorial.md</code> · ADR-0007</td>
+              <td class="small"><code>docs/politica-editorial.md</code> · ADR-0033</td>
               <td class="small"><code><span class="badge text-bg-danger">∅-crit</span></code> <code>rg -L "alavanca-mestra" docs/runbooks/*.md</code> → vazio — todo runbook subordinado cita a alavanca maior</td>
               <td class="small text-body-secondary"><em>(1)</em> Quem reverte é a mesma pessoa que decide o que é válido? Não deveria — reverter tráfego e corrigir conteúdo são papéis diferentes. <em>(2)</em> A política diz o que fazer no caso em que ninguém pensou?</td></tr>
             <tr class="table-active"><th colspan="6" scope="colgroup">🔵 W10 → W12 — o oráculo final, a revisão humana e o corte</th></tr>
@@ -1696,7 +1696,7 @@ BOM    feche AB-431: um provedor proíbe hotlink e o outro o exige. Qual regra v
               <td class="small">o timing por palavra da locução</td>
               <td class="small">Por provedor e na data de execução: qual devolve timing por <strong>palavra</strong> em pt-BR nativamente, e em que unidade? O caminho local ainda é guardado por idioma inglês? <span class="badge text-bg-danger">D-05</span> — <strong>em disputa</strong>, e está no caminho crítico.</td></tr>
             <tr><th scope="row"><code>F3-01</code></th>
-              <td class="small">a origem do timing canônico (ADR-0009)</td>
+              <td class="small">a origem do timing canônico (ADR-0022)</td>
               <td class="small">Se o provedor não fornece alinhamento, qual caminho alternativo existe e o que ele custa? <span class="badge text-bg-danger">D-05</span> mesma disputa de <code>F2-03</code>, e o custo de errar, na palavra do panorama, é <em>um subsistema inteiro</em>. Planeje pelo pior caso até fechar.</td></tr>
             <tr><th scope="row"><code>F3-02</code></th>
               <td class="small">os números de legendagem em pt-BR</td>
@@ -1721,7 +1721,7 @@ BOM    feche AB-431: um provedor proíbe hotlink e o outro o exige. Qual regra v
               <td class="small">Para cada provedor com conta e chave: qual o limite publicado hoje, a obrigação de cache ou renovação de URL, e a exigência de atribuição como <strong>condição da chave de produção</strong>? É esta resposta que dimensiona a concorrência da W4 — não o palpite.</td></tr>
             <tr><th scope="row"><code>F6-02</code></th>
               <td class="small">as obrigações de publicação do canal</td>
-              <td class="small">Para o canal decidido em ADR-0007: custo em quota de um upload e quota diária default; se o escopo exige verificação do app e qual o prazo dela; e <strong>qual campo do payload declara conteúdo sintético</strong>. Este último não é opcional — é obrigação de plataforma.</td></tr>
+              <td class="small">Para o canal decidido em ADR-0033: custo em quota de um upload e quota diária default; se o escopo exige verificação do app e qual o prazo dela; e <strong>qual campo do payload declara conteúdo sintético</strong>. Este último não é opcional — é obrigação de plataforma.</td></tr>
           </tbody>
         </table>
       </div>
@@ -2775,10 +2775,10 @@ command -v surf-search-normal surf-search-unlimit # os CLIs que a skill usa como
                     <tr class="table-active"><td><strong>0003</strong></td><td><strong>Enquadramento de uso</strong> (P-01, e com ele P-02..P-04)</td><td><code>I-01</code></td><td><strong>sim</strong></td><td>✅ <strong>ACEITO — uso pessoal</strong>, com condição de escopo e gatilho <code>AB-950</code></td></tr>
                     <tr><td>0004</td><td>Absorver × integrar o projeto de origem</td><td><code>F0-05</code></td><td>—</td><td>Aceito</td></tr>
                     <tr><td>0005</td><td>Política de segredos</td><td><code>I-02</code></td><td>—</td><td>Aceito</td></tr>
-                    <tr><td>0006</td><td>Teto de concorrência medido</td><td><code>I-03</code></td><td>—</td><td>Aceito</td></tr>
-                    <tr><td><strong>0007</strong></td><td><strong>Canal e política editorial</strong></td><td><code>I-04</code></td><td><strong>sim</strong></td><td>pendente</td></tr>
+                    <tr><td>0032</td><td>Teto de concorrência medido</td><td><code>I-03</code></td><td>—</td><td>Aceito</td></tr>
+                    <tr><td><strong>0033</strong></td><td><strong>Canal e política editorial</strong></td><td><code>I-04</code></td><td><strong>sim</strong></td><td>pendente</td></tr>
                     <tr><td>0008</td><td>Formato de alfa entre gráficos e composição</td><td><code>F2-02</code></td><td>—</td><td>Aceito</td></tr>
-                    <tr><td><strong>0009</strong></td><td><strong>Origem do timing</strong> (provedor × alinhamento)</td><td><code>F3-01</code></td><td><strong>sim</strong></td><td>pendente — o leque abriu: pesos não-comerciais agora entram</td></tr>
+                    <tr><td><strong>0022</strong></td><td><strong>Origem do timing</strong> (provedor × alinhamento)</td><td><code>F3-01</code></td><td><strong>sim</strong></td><td>pendente — o leque abriu: pesos não-comerciais agora entram</td></tr>
                     <tr><td>0010</td><td>Unidade de tempo do manifesto</td><td><code>F0-02</code></td><td>—</td><td>Aceito</td></tr>
                     <tr><td><strong>0011</strong></td><td><strong>Fronteira de rede do pipeline</strong> (P-05)</td><td><code>F2-01</code></td><td><strong>sim</strong></td><td>pendente</td></tr>
                     <tr><td><strong>0012</strong></td><td><strong>Formato e armazenamento do golden master</strong> (P-06)</td><td><code>F0-06</code></td><td><strong>sim</strong></td><td>pendente</td></tr>

@@ -35,9 +35,11 @@ import {
   ORDEM_ESTAGIOS,
   chaveDeCache,
   componentesDaChave,
+  ehNomeEstagio,
   hashDoManifesto,
 } from "./contrato.js";
 import type { EstagioResolucao, NomeEstagio } from "./contrato.js";
+import { EEstagioDesconhecido } from "./descoberta.js";
 import {
   ECasseteAusente,
   RAIZ_CASSETES_PADRAO,
@@ -263,21 +265,30 @@ export class Orquestrador {
  * o chamador passou a lista, dois callers com a mesma configuracao
  * produziriam manifestos resolvidos com `estagios[]` em ordens
  * diferentes — e o determinismo morreria num campo que ninguem olha.
+ *
+ * AB-502: um estagio com nome FORA da lista canonica e recusado com
+ * `EEstagioDesconhecido`, nunca descartado em silencio — um chamador que
+ * montasse o orquestrador a mao com um estagio renomeado resolveria um
+ * manifesto vazio, verde por ausencia (o pior falso verde possivel).
  */
 function ordenarPelaCanonica(
   estagios: readonly EstagioResolucao[],
 ): readonly EstagioResolucao[] {
   const porNome = new Map<NomeEstagio, EstagioResolucao>();
   for (const estagio of estagios) {
-    const anterior = porNome.get(estagio.identidade.nome);
+    const nome = estagio.identidade.nome;
+    if (!ehNomeEstagio(nome)) {
+      throw new EEstagioDesconhecido(nome, "Orquestrador({estagios})");
+    }
+    const anterior = porNome.get(nome);
     if (anterior !== undefined) {
       throw new Error(
-        `Dois estagios com o nome "${estagio.identidade.nome}" ` +
+        `Dois estagios com o nome "${nome}" ` +
           `(versoes ${anterior.identidade.versao} e ${estagio.identidade.versao}). ` +
           `O nome e unico: o segundo silenciaria o primeiro.`,
       );
     }
-    porNome.set(estagio.identidade.nome, estagio);
+    porNome.set(nome, estagio);
   }
   const saida: EstagioResolucao[] = [];
   for (const nome of ORDEM_ESTAGIOS) {

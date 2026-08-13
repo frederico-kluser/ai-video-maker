@@ -4,7 +4,6 @@
     "titulo": "O schema real do contrato de autoria (F4-01) nao estava na base; o teste valida contra o contrato v1 descrito",
     "pergunta": "Quando o schema de autoria do F4-01 (src/autoria/contrato/**) mergear, o teste tests/prompts/prompts.test.ts e os casos de referencia de docs/autoria/prompts/casos/** continuam validando contra o contrato v1 descrito no contrato-w5 §3 (AB-432 hash advisory, AB-433 texto_alternativo obrigatorio), ou precisam migrar para o schema real?",
     "por_que_aberto": "O F4-02 roda em paralelo com o F4-01 (dependencia lateral proibida por construcao — contrato-w5 §1). A worktree base e o PREP-w5, que nao tem src/autoria/. O teste implementa o contrato v1 descrito como validador estrutural proprio e o ADR-0024 registra a migracao; a divergencia possivel: o F4-01 pode decidir campos ou restricoes alem dos dois pontos congelados (ex.: duracao em segundos, nomes de campo), e entao as saidas de referencia podem nao validar contra o schema real.",
-    "decisao_provisoria": "O teste valida contra o contrato v1 descrito (estrutura do schema/manifesto.llm.schema.json + AB-432/AB-433) ate o merge do F4-01; o campo schema_alvo do Controle de cada prompt nomeia a migracao. No merge, rodar just prompts-testar contra o schema real e ajustar o validador (mudanca localizada em tests/prompts/prompts.test.ts).",
     "verificacao": {
       "cmd": "rg --files-without-match 'versao:' docs/autoria/prompts/; npx vitest run tests/prompts/",
       "espera": "apos o merge do F4-01: prompts-testar VERDE com o validador apontando para src/autoria/contrato/** (schema real), e os casos de referencia revalidando",
@@ -22,7 +21,16 @@
     "categoria": "agentes-worktrees",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Migracao executada: tests/prompts/prompts.test.ts passou a validar contra o schema REAL de F4-01 (validarSaidaAutoria, src/autoria/contrato/validar.ts — a mesma funcao do pipeline, rejeitar.ts); os casos de referencia de docs/autoria/prompts/casos/** foram convertidos de Manifesto.1 para Documentos de Autoria (Autoria.1) e revalidados contra o schema real (VALIDO nos 3 + entrada do roteiro-locucao); os tres prompts e o indice passaram a instruir a saida Autoria.1 (versao 1.1.0); ADR-0024 §1/§4 atualizados. just prompts-testar VERDE (17 testes).",
+    "evidencia": {
+      "cmd": "rg --files-without-match 'versao:' docs/autoria/prompts/; npx vitest run tests/prompts/",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-570.txt",
+      "sha256": "98c6868809e4f8f9953c0407f926c0c49ea803a62d17b93bfa948de88a2a6b2b"
+    },
+    "decisao_provisoria": "Executada no PREP-w6: o teste e os casos de referencia passaram a validar contra o schema REAL de F4-01 (Autoria.1); a decisao provisoria original (validador estrutural ate o merge) cumpriu o papel e foi substituida pela migracao."
   },
   {
     "id": "AB-571",
@@ -128,9 +136,8 @@
     "titulo": "duracao_frames frame-based do manifesto x contrato de timing em segundos (F3-01): o prompt converte segundos em frames",
     "pergunta": "O contrato de autoria v1 (F4-01) e o contrato de timing (F3-01, segundos) mantem duracao_frames frame-based no manifesto da autoria, ou a instrucao dos prompts 'frames = round(segundos x fps)' fica obsoleta no merge da W5?",
     "por_que_aberto": "O schema do manifesto (F0-02, W1) exige duracao_frames inteiro por no; o contrato de timing da W5 (F3-01) declara 'unidade: SEGUNDOS, nunca frames' e 'O manifesto carrega segundos; frame e derivado pelo sistema' (contrato-w5 §2). Os prompts instruem a conversao segundos->frames apenas para produzir manifesto valido contra o schema v1 — a duracao resolvida e do sistema. Se o F4-01 migrar o manifesto para segundos, a instrucao de conversao some.",
-    "decisao_provisoria": "Os prompts orientam ritmo em segundos e convertem para frames no fps declarado, declarando duracao_frames como pedido de ritmo; o ADR-0024 (decisao 1) registra a fronteira. Nenhum caso de referencia depende da conversao para validar schema.",
     "verificacao": {
-      "cmd": "apos o merge de F3-01 e F4-01: ler schema/timing.schema.json e src/autoria/contrato/** e conferir se duracao_frames continua exigido na autoria",
+      "cmd": "python3 -c \"import json; s=json.load(open('src/autoria/contrato/schema/autoria.schema.json')); print('duracao_frames' in json.dumps(s))\"",
       "espera": "resposta sobre a unidade do manifesto de autoria (frames ou segundos); os prompts se ajustam sem mudar a fronteira de decisao",
       "ambiente": "branch de integracao apos merges de F3-01 e F4-01"
     },
@@ -146,6 +153,15 @@
     "categoria": "render",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Resposta: o schema REAL de F4-01 (Autoria.1) NAO tem duracao_frames, fps, width nem height — o documento de autoria e narrativa pura; a instrucao 'frames = round(segundos x fps)' foi removida dos tres prompts (versao 1.1.0), o ritmo em segundos orienta o sistema (estagio de timing F3-01 resolve a duracao final) e os casos de referencia migraram para Autoria.1. Fronteira de decisao intacta (o modelo continua sem decidir frame/layout/cor/duracao resolvida).",
+    "evidencia": {
+      "cmd": "python3 -c \"import json; s=json.load(open('src/autoria/contrato/schema/autoria.schema.json')); print('duracao_frames' in json.dumps(s))\"",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-575.txt",
+      "sha256": "398572e3a6a93f1e1204b893169fe50fcec8e402db69a6e2382b7d7acd41271f"
+    },
+    "decisao_provisoria": "Executada no PREP-w6: o teste e os casos de referencia passaram a validar contra o schema REAL de F4-01 (Autoria.1); a decisao provisoria original (validador estrutural ate o merge) cumpriu o papel e foi substituida pela migracao."
   }
 ]

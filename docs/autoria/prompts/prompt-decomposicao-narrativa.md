@@ -1,4 +1,4 @@
-versao: 1.0.0
+versao: 1.1.0
 
 # Prompt de decomposicao narrativa — tema em arco, cenas e locucao
 
@@ -15,21 +15,24 @@ autoria v1 — o modelo nao emite um rascunho, emite o documento.
 
 ## Contrato de autoria v1 (referencia)
 
-- Estrutura da saida: `src/autoria/contrato/schema/autoria.schema.json`
-  (schema COMPLETO, draft 2020-12; validador real:
-  `src/autoria/contrato/validar.ts`). O LLM decide NARRATIVA (quais nos,
-  em que ordem, o texto, o vocabulario fechado de transicao); o sistema
-  decide frames, layout, cor e duracao resolvida — campos de decisao do
-  sistema NAO EXISTEM no schema (additionalProperties false em todo
-  objeto), entao emitir frame/cor/coordenada e IMPOSSIVEL, nao apenas
-  desencorajado.
-- Duas decisoes congeladas do contrato-w5 §3:
+- Estrutura da saida: o **schema REAL de F4-01**,
+  `src/autoria/contrato/schema/autoria.schema.json` (Autoria.1, draft
+  2020-12, `additionalProperties:false` em todo objeto). O LLM decide
+  NARRATIVA (quais nos, em que ordem, o texto, o vocabulario fechado de
+  transicao); o sistema decide frames, layout, cor e duracao resolvida —
+  campos de decisao do sistema NAO EXISTEM no schema, entao emitir
+  frame/cor/coordenada e IMPOSSIVEL, nao apenas desencorajado. Decisoes
+  herdadas do ledger:
   - **AB-432** — `hash` de no de midia e **ADVISORY**: a autoria PODE
     omitir; quem resolve o asset (estagio de midia) preenche o hash.
     Omitir nao e erro.
   - **AB-433** — `texto_alternativo` e **OBRIGATORIO** para no de
     midia: ausencia e erro. Descreva o que a imagem deve conter — e
     essa descricao que dirige a busca do asset.
+  - **Narrativa pura (AB-575):** o Autoria.1 NAO tem `duracao_frames`,
+    `fps`, `width` nem `height` — o documento e narrativa; frames, layout
+    e cor sao do sistema. Campo de decisao do sistema emitido aqui e
+    reprovado pelo schema.
 - Front-matter: todo prompt em `docs/autoria/prompts/*.md` comeca com
   `versao:` (∅-crit do card F4-02).
 
@@ -44,12 +47,13 @@ O prompt recebe:
 
 ## Saida
 
-Um unico documento: o **manifesto JSON** (sem comentarios, sem texto
-fora do JSON), conforme o contrato de autoria v1. A estrutura exigida:
+Um unico documento: o **Documento de Autoria JSON** (sem comentarios, sem
+texto fora do JSON), conforme o contrato de autoria v1. A estrutura
+exigida:
 
 - Topo: `schema_version: "Autoria.1"`, `nos`, `cenas`, `audio`
-  (opcional). NENHUM campo de decisao do sistema no topo: sem `fps`,
-  sem `width`/`height`, sem `duracao_total_frames`.
+  (opcional). Nenhum campo de frame, layout ou cor — o schema os
+  reprova (sem `fps`, sem `width`/`height`, sem `duracao_total_frames`).
 - `nos[]`: 3 a 12 nos, tipos do enum (`cabecalho`, `texto`, `lista`,
   `midia`, `codigo`, `grafico`), ids unicos `n-001`...; cada no com
   `schema` do tipo (`Cabecalho.1`, `Texto.1`, `Lista.1`, `Midia.1`,
@@ -86,8 +90,8 @@ decidir e erro:
 - **frame exato**: nenhum frame absoluto, nenhuma posicao na timeline
   alem do ritmo relativo entre cenas;
 - **duracao resolvida**: a duracao final de cada cena e do video e do
-  sistema (estagio de timing), derivada do texto e das regras
-  editoriais — o manifesto nao carrega frames nem duracoes.
+  sistema (estagio de timing, que resolve em segundos contra a locucao);
+  o documento de autoria nao tem campo de duracao — nao invente.
 
 Se o schema nao tiver campo para uma decisao (coordenada, cor,
 familia de fonte, duracao, frame), ela **nao existe** — nao invente
@@ -138,11 +142,13 @@ pronuncia tecnica corrente do pt-BR, sem soletrar.
 ## Regras de forma
 
 1. Saida unica: um objeto JSON valido, sem markdown, sem comentarios.
-2. Nenhum campo de tempo sai no manifesto: sem `fps`, sem
-   `duracao_frames`, `entrada_frames`, `duracao_total_frames`, sem
-   `width`/`height` — o schema nao tem esses campos (additionalProperties
-   false). O ritmo planejado em segundos vira frames no estagio de
-   timing do sistema.
+2. Nenhum campo de frame, layout, cor ou duracao sai no documento: o
+   schema `Autoria.1` nao tem campo para nenhum deles
+   (`additionalProperties:false` — sem `fps`, `duracao_frames`,
+   `entrada_frames`, `duracao_total_frames`, `width`/`height`) — o
+   documento e narrativa pura; o ritmo que voce declara em segundos
+   orienta o sistema, que resolve a duracao final no estagio de timing
+   (AB-575).
 3. `texto_alternativo` obrigatorio em todo no de midia; `hash` de
    midia **omitido** (a resolucao preenche). `licenca` do no de midia:
    omita — a resolucao decide a licenca do asset encontrado.
@@ -158,22 +164,21 @@ pronuncia tecnica corrente do pt-BR, sem soletrar.
 
 ## Instrucao final
 
-[PROMPT] Emita o manifesto JSON completo. Antes de emitir, confira, em
-ordem: (1) 3-7 cenas cobrindo o arco inteiro do tema; (2) toda locucao
-dentro do ritmo de 125-145 wpm; (3) todo no citado por uma cena existe;
-(4) nenhum campo de layout, cor, duracao ou frame absoluto (sem `fps`,
-sem `duracao_*`, sem `entrada_frames`, sem `alinhamento`, sem
-`animacao`); (5) todo no de midia tem `texto_alternativo` e nenhum tem
-`hash`.
+[PROMPT] Emita o Documento de Autoria JSON completo. Antes de emitir,
+confira, em ordem: (1) 3-7 cenas cobrindo o arco inteiro do tema; (2)
+toda locucao dentro do ritmo de 125-145 wpm; (3) todo no citado por
+uma cena existe; (4) nenhum campo de layout, cor, duracao ou frame
+absoluto (sem `fps`, sem `duracao_*`, sem `entrada_frames`, sem
+`alinhamento`, sem `animacao`); (5) todo no de midia tem
+`texto_alternativo` e nenhum tem `hash`.
 
 ---
 
 ## Controle (metadados do prompt — consumido pelo teste)
 
 - caso_de_referencia: casos/decomposicao-narrativa/
-- versao_contrato_autoria: v1 (contrato-w5 §3)
-- schema_alvo: src/autoria/contrato/schema/autoria.schema.json
-  (validador real: src/autoria/contrato/validar.ts — AB-432/AB-433
-  aplicados; F4-01 mergeado, AB-570 resolvido)
+- versao_contrato_autoria: v1 (Autoria.1 — schema real de F4-01)
+- schema_alvo: src/autoria/contrato/schema/autoria.schema.json (schema
+  REAL de F4-01, migrado no PREP-w6 — AB-570; narrativa pura — AB-575)
 - criterios_editoriais_fonte: docs/adr/0024 (card F4-02)
 - dicionario_fonte: dicionario-pronuncia.md

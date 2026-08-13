@@ -39,10 +39,12 @@ o teste exige a secao e os quatro termos, e o validador do contrato
 reprova qualquer campo inventado (o schema nao tem campo de layout/cor;
 uma coordenada emitida pelo modelo e erro de contrato, nao gosto).
 
-Consequencia operacional: `duracao_frames` do manifesto e **pedido de
-ritmo**, nao ordem — o estagio de timing (F3-01) resolve a duracao
-final. O prompt converte segundos em frames no fps declarado apenas
-para produzir manifesto valido contra o schema v1.
+Consequencia operacional: o documento de autoria (Autoria.1) **nao tem
+campo de duracao nenhum** — nem `duracao_frames`, nem fps, nem
+duracao total (resposta ao AB-575, registrada no PREP-w6). O ritmo em
+segundos que o prompt orienta e narrativa; o estagio de timing (F3-01)
+resolve a duracao final. Nenhum prompt converte segundos em frames — a
+conversao nao existe no contrato.
 
 ### 2. A biblioteca: quatro arquivos, casos de referencia por prompt
 
@@ -112,15 +114,16 @@ AB-571.
 
 ### 4. O contrato de autoria v1 e o teste
 
-As saidas de referencia validam contra o contrato de autoria v1
-**descrito** (contrato-w5 §3): estrutura de
-`schema/manifesto.llm.schema.json` com **AB-432** (hash de midia
-advisory — a saida de referencia demonstra no de midia sem hash) e
-**AB-433** (`texto_alternativo` obrigatorio — toda saida tem, e o
-validador reprova ausencia com a mensagem `AB-433`). O schema real de
-autoria (F4-01, `src/autoria/contrato/**`) nao estava na base desta
-worktree; o teste implementa o contrato descrito e migra para o schema
-real no merge do F4-01 (AB-570).
+As saidas de referencia validam contra o **schema real de autoria**
+(F4-01, `src/autoria/contrato/schema/autoria.schema.json`, Autoria.1)
+via `validarSaidaAutoria` — a mesma funcao que o pipeline usa antes do
+reparo (`rejeitar.ts`). A migracao foi executada no PREP-w6 (AB-570):
+os casos de referencia sao documentos Autoria.1 (narrativa pura), com
+**AB-432** (hash de midia advisory — a saida de referencia demonstra no
+de midia sem hash) e **AB-433** (`texto_alternativo` obrigatorio — toda
+saida tem, e o validador reprova ausencia nomeando o campo). O
+validador estrutural proprio da suite F4-02 foi removido; a suite
+revalida contra o schema de producao.
 
 ### 5. Dicionario de pronuncia: fonte unica, sem duplicata
 

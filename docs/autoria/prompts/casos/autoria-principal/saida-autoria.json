@@ -47,37 +47,56 @@
       "tipo_grafico": "linha",
       "titulo": "Replicas sob trafego",
       "dados": [
-        { "rotulo": "09h", "valor": 2 },
-        { "rotulo": "12h", "valor": 6 },
-        { "rotulo": "18h", "valor": 4 }
+        {
+          "rotulo": "09h",
+          "valor": 2
+        },
+        {
+          "rotulo": "12h",
+          "valor": 6
+        },
+        {
+          "rotulo": "18h",
+          "valor": 4
+        }
       ]
     }
   ],
   "cenas": [
     {
       "id": "c-001",
-      "nos": ["n-001", "n-002"],
+      "nos": [
+        "n-001",
+        "n-002"
+      ],
       "audio_cena": {
         "texto_locucao": "Um orquestrador sobe, escala e conserta containers por voce. O time descreve o estado desejado, e ele faz o resto."
       }
     },
     {
       "id": "c-002",
-      "nos": ["n-003"],
+      "nos": [
+        "n-003"
+      ],
       "audio_cena": {
         "texto_locucao": "Ele sobe containers em maquinas saudaveis, reinicia o que parou e escala replicas quando o trafego cresce."
       }
     },
     {
       "id": "c-003",
-      "nos": ["n-004", "n-005"],
+      "nos": [
+        "n-004",
+        "n-005"
+      ],
       "audio_cena": {
         "texto_locucao": "No manifesto de implantacao voce pede tres replicas da imagem. O orquestrador garante que existam."
       }
     },
     {
       "id": "c-004",
-      "nos": ["n-006"],
+      "nos": [
+        "n-006"
+      ],
       "audio_cena": {
         "texto_locucao": "Sob trafego, ele sobe mais replicas sozinho. O mesmo Kubernetes que orquestra aqui, orquestra a API e o banco pos-tres-que-el."
       }

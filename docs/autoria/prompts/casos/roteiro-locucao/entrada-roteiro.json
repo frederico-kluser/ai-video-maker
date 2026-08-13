@@ -26,14 +26,19 @@
   "cenas": [
     {
       "id": "c-001",
-      "nos": ["n-001", "n-002"],
+      "nos": [
+        "n-001",
+        "n-002"
+      ],
       "audio_cena": {
         "texto_locucao": "O Kubernetes orquestra containers e o PostgreSQL guarda os dados. A API devolve JSON."
       }
     },
     {
       "id": "c-002",
-      "nos": ["n-003"],
+      "nos": [
+        "n-003"
+      ],
       "audio_cena": {
         "texto_locucao": "A chamada async/await em Node.js devolve 1.024 itens, e 3,5% deles são SQL puro."
       }

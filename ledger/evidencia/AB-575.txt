@@ -1,0 +1,33 @@
+AB-575 — duracao_frames frame-based x contrato de autoria (PREP-w6, 2026-08-13)
+================================================================================
+
+Pergunta: o contrato de autoria v1 (F4-01) mantem duracao_frames
+frame-based no documento de autoria, ou a instrucao dos prompts
+"frames = round(segundos x fps)" fica obsoleta no merge da W5?
+
+1) Resposta no schema REAL de F4-01 (leitura direta):
+
+   $ python3 -c "import json; s=json.load(open('src/autoria/contrato/schema/autoria.schema.json')); print('duracao_frames' in json.dumps(s))"
+   False
+
+   $ python3 -c "import json; s=json.load(open('src/autoria/contrato/schema/autoria.schema.json')); print('fps' in json.dumps(s))"
+   False
+
+   $ python3 -c "import json; s=json.load(open('src/autoria/contrato/schema/autoria.schema.json')); print('width' in json.dumps(s))"
+   False
+
+   O Autoria.1 (schema completo de F4-01) NAO tem duracao_frames, fps,
+   width nem height — o documento de autoria e NARRATIVA PURA: nos,
+   cenas, audio. Nenhum campo de frame existe, nem como opcional.
+
+2) Ajuste executado: a instrucao de conversao segundos->frames foi
+   REMOVIDA dos tres prompts (versao 1.1.0): o ritmo em segundos
+   orienta o sistema, que resolve a duracao final (estagio de timing,
+   F3-01, segundos). Os casos de referencia migraram para Autoria.1
+   (sem duracao_frames) e validam contra o schema real. A fronteira de
+   decisao NAO mudou (o LLM nao decide frame/layout/cor/duracao
+   resolvida — continua exigida pelos testes).
+
+Veredito: FECHADO. O documento de autoria nao carrega duracao em
+frames; a conversao sumiu dos prompts; a fronteira de decisao
+intacta.

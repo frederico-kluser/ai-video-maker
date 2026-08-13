@@ -8,29 +8,33 @@
 //     ripgrep e `--follow`).
 //  2. Cada prompt tem caso de referencia (campo `caso_de_referencia` na
 //     secao Controle), com entrada e saida no diretorio declarado.
-//  3. A saida de cada caso valida contra o SCHEMA REAL de autoria v1
-//     (F4-01: src/autoria/contrato/schema/autoria.schema.json via
-//     src/autoria/contrato/validar.ts) — AB-570 resolvido: nao existe mais
-//     copia estrutural do contrato neste arquivo.
+//  3. A saida de cada caso valida contra o SCHEMA REAL do contrato de
+//     autoria (F4-01, src/autoria/contrato/schema/autoria.schema.json,
+//     Autoria.1): AB-432 (hash de midia ADVISORY — pode omitir), AB-433
+//     (texto_alternativo OBRIGATORIO em no de midia) e
+//     additionalProperties:false em todo objeto.
 //  4. Sonda negativa: campo de decisao do SISTEMA (fps, width, height,
 //     duracao_total_frames no topo; duracao_frames, entrada_frames,
-//     alinhamento, animacao em no) TEM de ser rejeitado pelo validador
-//     real — o LLM decide narrativa, o sistema decide frames.
+//     alinhamento, animacao em no; cor/layout em no) TEM de ser rejeitado
+//     pelo validador real — o LLM decide narrativa, o sistema decide frames.
 //  5. Fronteira de decisao: todo prompt declara que o modelo NAO decide
 //     layout, cor, frame exato nem duracao resolvida.
 //  6. Dicionario de pronuncia: fonte unica (nenhum outro arquivo define
 //     termo -> pronuncia), tabela sem duplicata, frase-canario presente,
 //     prompts referenciam o dicionario em vez de duplicar a tabela.
 //
-// AB-432 (hash de midia ADVISORY) e AB-433 (texto_alternativo OBRIGATORIO)
-// sao demonstrados sobre as saidas reais de referencia.
+// Migracao do AB-570 (PREP-w6): o validador estrutural proprio desta
+// suite foi substituido pelo schema real de F4-01 (validarSaidaAutoria,
+// src/autoria/contrato/validar.ts). Resposta ao AB-575: o Autoria.1 NAO
+// tem duracao_frames — o documento de autoria e narrativa pura; os casos
+// de referencia foram migrados para esse formato.
 // =============================================================================
 
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { resolve, dirname, basename } from "node:path";
 import { fileURLToPath } from "node:url";
-import { validarSaidaAutoria } from "src/autoria/contrato/validar";
+import { validarSaidaAutoria } from "src/autoria/contrato/validar.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = resolve(__dirname, "..", "..");
@@ -66,6 +70,33 @@ function listAllMarkdown(): string[] {
 
 function readJson(path: string): unknown {
   return JSON.parse(readFileSync(path, "utf8"));
+}
+
+// ---------------------------------------------------------------------------
+// Schema REAL do contrato de autoria (F4-01) — migracao do AB-570
+// ---------------------------------------------------------------------------
+// O CONTRATO_ALVO desta suite passou a ser o schema real de F4-01
+// (src/autoria/contrato/schema/autoria.schema.json, Autoria.1), validado
+// por `validarSaidaAutoria` (src/autoria/contrato/validar.ts) — a mesma
+// funcao que o pipeline usa antes do reparo (rejeitar.ts). Nenhum
+// validador estrutural proprio: a suite revalida as saidas de referencia
+// contra o schema de producao, com AB-432 (hash advisory), AB-433
+// (texto_alternativo obrigatorio) e additionalProperties:false em todo
+// objeto. Resposta ao AB-575: o Autoria.1 NAO tem duracao_frames — o
+// documento de autoria e narrativa pura; os casos migraram para esse
+// formato e os prompts nao convertem mais segundos em frames.
+// ---------------------------------------------------------------------------
+
+type Erro = string;
+
+/**
+ * Valida uma saida de caso contra o schema REAL do contrato de autoria.
+ * Retorna lista de erros (vazia = valido). Propriedade desconhecida e
+ * erro — additionalProperties:false em todo objeto, entao campo de
+ * layout/cor/frame inventado cai aqui.
+ */
+export function validarContratoV1(manifesto: unknown): Erro[] {
+  return validarSaidaAutoria(manifesto).erros;
 }
 
 // ---------------------------------------------------------------------------
@@ -166,16 +197,13 @@ describe("F4-02 — cada prompt tem caso de referencia", () => {
   });
 });
 
-describe("F4-02 — saida de referencia valida contra o schema REAL de autoria v1", () => {
-  it("cada saida de referencia e um manifesto valido (schema real F4-01)", () => {
+describe("F4-02 — saida de referencia valida contra o contrato de autoria v1", () => {
+  it("cada saida de referencia e um manifesto valido (contrato v1 descrito)", () => {
     expect(casos.length).toBeGreaterThanOrEqual(3);
     for (const { caso, saida } of casos) {
       const manifesto = readJson(saida);
-      const resultado = validarSaidaAutoria(manifesto);
-      expect(
-        resultado.valido,
-        `${caso}: ${saida.replace(rootDir, ".")} — ${resultado.erros.slice(0, 5).join(" | ")}`,
-      ).toBe(true);
+      const erros = validarContratoV1(manifesto);
+      expect(erros, `${caso}: ${saida.replace(rootDir, ".")}`).toEqual([]);
     }
   });
 
@@ -200,17 +228,29 @@ describe("F4-02 — saida de referencia valida contra o schema REAL de autoria v
     }
   });
 
-  it("AB-433 sonda negativa: o validador real reprova no de midia sem texto_alternativo", () => {
-    const base = readJson(casos[0]!.saida) as { nos: Record<string, unknown>[] };
-    const mutado = JSON.parse(JSON.stringify(base)) as { nos: Record<string, unknown>[] };
-    const midia = mutado.nos.find((n) => n.type === "midia");
-    expect(midia, "o caso de referencia precisa ter no de midia para a sonda").toBeDefined();
-    delete midia!.texto_alternativo;
-    const resultado = validarSaidaAutoria(mutado);
-    expect(resultado.valido).toBe(false);
-    expect(
-      resultado.erros.some((e) => e.includes("must have required property 'texto_alternativo'")),
-    ).toBe(true);
+  it("sonda negativa: o schema REAL reprova campo de layout/cor/frame inventado", () => {
+    // "cor", "layout" e "duracao_frames" nao existem no Autoria.1 — um
+    // modelo que deslize a decisao para dentro do documento tem de cair
+    // aqui (additionalProperties:false em todo objeto).
+    const base = readJson(casos[0]!.saida) as Record<string, unknown>;
+    const comCor = JSON.parse(JSON.stringify(base)) as {
+      nos: Record<string, unknown>[];
+    };
+    comCor.nos[0] = { ...comCor.nos[0], cor: "#ffffff" };
+    const comLayout = JSON.parse(JSON.stringify(base)) as {
+      nos: Record<string, unknown>[];
+    };
+    comLayout.nos[0] = { ...comLayout.nos[0], layout: { x: 10, y: 10 } };
+    const comFrame = JSON.parse(JSON.stringify(base)) as {
+      nos: Record<string, unknown>[];
+    };
+    comFrame.nos[0] = { ...comFrame.nos[0], duracao_frames: 90 };
+    const errosCor = validarContratoV1(comCor);
+    const errosLayout = validarContratoV1(comLayout);
+    const errosFrame = validarContratoV1(comFrame);
+    expect(errosCor.some((e) => e.includes("additional"))).toBe(true);
+    expect(errosLayout.some((e) => e.includes("additional"))).toBe(true);
+    expect(errosFrame.some((e) => e.includes("additional"))).toBe(true);
   });
 
   it("sonda negativa: campo de decisao do SISTEMA em no (duracao_frames, entrada_frames, alinhamento, animacao) e rejeitado", () => {
@@ -224,11 +264,10 @@ describe("F4-02 — saida de referencia valida contra o schema REAL de autoria v
     for (const campo of campoNo) {
       const mutado = JSON.parse(JSON.stringify(base)) as { nos: Record<string, unknown>[] };
       mutado.nos[0] = { ...mutado.nos[0]!, [campo]: campo === "animacao" ? { tipo: "fade" } : 30 };
-      const resultado = validarSaidaAutoria(mutado);
-      expect(resultado.valido, `no com '${campo}' deveria ser rejeitado`).toBe(false);
+      const erros = validarContratoV1(mutado);
       expect(
-        resultado.erros.some((e) => e.includes("additional propert") && e.includes(campo)),
-        `erro de '${campo}' ausente: ${resultado.erros.join(" | ")}`,
+        erros.some((e) => e.includes("additional propert") && e.includes(campo)),
+        `no com '${campo}' deveria ser rejeitado — erros: ${erros.join(" | ")}`,
       ).toBe(true);
     }
   });
@@ -239,29 +278,25 @@ describe("F4-02 — saida de referencia valida contra o schema REAL de autoria v
     for (const campo of campoTopo) {
       const mutado = JSON.parse(JSON.stringify(base)) as Record<string, unknown>;
       mutado[campo] = 30;
-      const resultado = validarSaidaAutoria(mutado);
-      expect(resultado.valido, `topo com '${campo}' deveria ser rejeitado`).toBe(false);
+      const erros = validarContratoV1(mutado);
       expect(
-        resultado.erros.some((e) => e.includes("additional propert") && e.includes(campo)),
-        `erro de '${campo}' ausente: ${resultado.erros.join(" | ")}`,
+        erros.some((e) => e.includes("additional propert") && e.includes(campo)),
+        `topo com '${campo}' deveria ser rejeitado — erros: ${erros.join(" | ")}`,
       ).toBe(true);
     }
   });
 
-  it("sonda negativa: o validador real reprova campo de layout/cor inventado (autoteste do verificador)", () => {
-    // "cor" e "layout" nao existem no schema — um modelo que deslize a
-    // decisao para dentro do manifesto tem de cair aqui.
-    const base = readJson(casos[0]!.saida) as { nos: Record<string, unknown>[] };
-    const comCor = JSON.parse(JSON.stringify(base)) as { nos: Record<string, unknown>[] };
-    comCor.nos[0] = { ...comCor.nos[0]!, cor: "#ffffff" };
-    const comLayout = JSON.parse(JSON.stringify(base)) as { nos: Record<string, unknown>[] };
-    comLayout.nos[0] = { ...comLayout.nos[0]!, layout: { x: 10, y: 10 } };
-    const errosCor = validarSaidaAutoria(comCor);
-    const errosLayout = validarSaidaAutoria(comLayout);
-    expect(errosCor.valido).toBe(false);
-    expect(errosLayout.valido).toBe(false);
-    expect(errosCor.erros.some((e) => e.includes("additional propert"))).toBe(true);
-    expect(errosLayout.erros.some((e) => e.includes("additional propert"))).toBe(true);
+  it("sonda negativa: o schema REAL reprova no de midia sem texto_alternativo (AB-433)", () => {
+    const base = readJson(casos[0]!.saida) as {
+      nos: Record<string, unknown>[];
+    };
+    const mutado = JSON.parse(JSON.stringify(base)) as { nos: Record<string, unknown>[] };
+    const midia = mutado.nos.find((n) => n.type === "midia");
+    expect(midia, "o caso de referencia precisa ter no de midia para a sonda").toBeDefined();
+    delete midia!.texto_alternativo;
+    const erros = validarContratoV1(mutado);
+    // AB-433: o schema exige texto_alternativo — o erro nomeia o campo.
+    expect(erros.some((e) => e.includes("texto_alternativo"))).toBe(true);
   });
 });
 

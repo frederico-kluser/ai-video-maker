@@ -43,6 +43,7 @@ import type {
 } from "src/resolucao/contrato.js";
 import { Orquestrador } from "src/resolucao/orquestrador.js";
 import { ECasseteAusente, ARQUIVO_RESULTADO } from "src/resolucao/cassete/formato.js";
+import { EEstagioDesconhecido } from "src/resolucao/descoberta.js";
 import { gravarCassete } from "src/resolucao/cassete/gravador.js";
 import {
   EColisaoDeMerge,
@@ -283,6 +284,22 @@ describe("Orquestrador", () => {
           raizCassetes: raiz,
         }),
     ).toThrow(/Dois estagios com o nome/);
+  });
+
+  it("AB-502: estagio com nome fora da lista canonica lanca EEstagioDesconhecido, nunca descarta", () => {
+    // Regressao: antes, ordenarPelaCanonica DESCARTABA em silencio o nome
+    // fora de ORDEM_ESTAGIOS e o orquestrador resolvia um manifesto vazio
+    // — verde por ausencia. Agora o erro elimina a classe inteira.
+    const mentira: EstagioResolucao = {
+      ...estagio("locucao"),
+      identidade: { nome: "mentira" as NomeEstagio, versao: "1.0.0" },
+    };
+    expect(() => new Orquestrador({ estagios: [mentira], raizCassetes: raiz })).toThrow(
+      EEstagioDesconhecido,
+    );
+    expect(
+      () => new Orquestrador({ estagios: [mentira], raizCassetes: raiz }),
+    ).toThrow(/mentira/);
   });
 
   it("o modo default e offline — nunca gravacao", async () => {
