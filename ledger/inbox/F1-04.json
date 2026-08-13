@@ -1,0 +1,107 @@
+[
+  {
+    "id": "AB-310",
+    "titulo": "A conversao (zeta, T) -> config de mola vive dentro de um no; os outros sete vao redeclara-la",
+    "pergunta": "A funcao que converte um `springPreset` do token na config que `spring()` consome deve virar modulo compartilhado (ex.: `src/design/mola.ts`), ou cada componente de no continua derivando por conta propria?",
+    "por_que_aberto": "src/design/tokens.ts guarda o par (zeta, settlingTimeSeconds) e documenta a formula de conversao em COMENTARIO, nao em codigo. Ninguem consegue importar um comentario. F1-04 implementou a conversao dentro de src/composicao/nos/cabecalho.tsx porque tokens.ts e singleton (S-5) e o contrato da W4 proibe tocar nele. Os outros sete cards de composicao desta mesma onda precisam da MESMA conversao e sao cegos entre si: o resultado esperado e oito copias da mesma formula, que e exatamente o custo de reversao que a Regra 2 existe para evitar. Como cada copia mora num arquivo diferente, o merge nao conflita e a divergencia so aparece quando duas molas com o mesmo nome de token animarem diferente.",
+    "decisao_provisoria": "Manter a conversao em src/composicao/nos/cabecalho.tsx nesta onda, exportada (`configDaMola`, `duracaoDaMola`, `molaEm`) para que a extracao futura seja um move, nao uma reescrita. Registrado em docs/adr/0007-no-de-cabecalho-mola-nomeada.md, D1.",
+    "verificacao": {
+      "cmd": "rg -n 'ln\\\\(1/threshold\\\\)|Math.log\\\\(1 / springDurationRestThreshold\\\\)' src/",
+      "espera": "hoje: 2 ocorrencias (o comentario em src/design/tokens.ts e a implementacao em src/composicao/nos/cabecalho.tsx). Depois do merge da W4, uma ocorrencia por no que tiver copiado a formula — o numero e a medida do problema.",
+      "ambiente": "worktree do repo, node 24, ripgrep 14"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a conversao virar modulo compartilhado, os oito nos passam a importar de um lugar so e os snapshots nao mudam (a funcao e a mesma). Se ficar duplicada, uma mudanca de preset no token precisa ser conferida em oito arquivos e nenhum gate acusa a que ficou para tras.",
+      "artefatos": [
+        "src/design/tokens.ts",
+        "src/composicao/nos/cabecalho.tsx",
+        "src/composicao/nos/texto.tsx",
+        "src/composicao/nos/lista.tsx",
+        "src/composicao/nos/midia.tsx",
+        "src/composicao/nos/codigo.tsx",
+        "src/composicao/nos/grafico.tsx",
+        "src/composicao/transicoes/"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-311",
+    "titulo": "A formula de mola documentada em tokens.ts erra 47% em zeta = 1, nao 'levemente'",
+    "pergunta": "O comentario de `springPresets` em src/design/tokens.ts diz que a conversao (zeta, T) -> omega0 'superestima levemente'. Medido, ela erra 1.47x no preset `suave`. O token deve carregar a formula corrigida, deixar de prometer T, ou fixar por contrato que a duracao e imposta por `spring({durationInFrames})`?",
+    "por_que_aberto": "A formula documentada e omega0 = ln(1/threshold)/(zeta*T), que assume envelope e^-(zeta*omega0*t). Em amortecimento critico (zeta = 1, que e o preset `suave`) o envelope real e (1 + omega0*t)*e^-(omega0*t): o termo linear que a formula ignora e o que domina, e a mola demora bem mais que T. Medido nesta base com measureSpring() e springDurationRestThreshold = 0.005:\n\n  snappy    zeta 0.70  T 0.25s  esperado  7.5 frames @30fps  medido  7  (0.93x)\n  overshoot zeta 0.45  T 0.40s  esperado 12   frames @30fps  medido 12  (1.00x)\n  suave     zeta 1.00  T 0.50s  esperado 15   frames @30fps  medido 22  (1.47x)\n\nQuem lesse so o token acreditaria que `suave` dura meio segundo. Dura 0.73 s. E o tipo de divergencia que nao produz erro nenhum: o video fica lento e ninguem sabe por que.",
+    "decisao_provisoria": "F1-04 nao usa o omega0 derivado como duracao. A config leva a FORMA (o round-trip damping/(2*sqrt(stiffness*mass)) devolve o zeta do token, exato), e o TEMPO e imposto por `spring({ durationInFrames: round(T*fps), durationRestThreshold: springDurationRestThreshold })`, que e o esticador do proprio Remotion. Assim os dois campos do token viram observaveis. Registrado em docs/adr/0007-no-de-cabecalho-mola-nomeada.md, D2.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/no-cabecalho.test.ts -t \"acomoda no frame que settlingTimeSeconds manda\"",
+      "espera": "6 testes passam (3 presets x 30/60 fps): |mola(T*fps) - 1| <= springDurationRestThreshold e mola(T*fps + 1) === 1",
+      "ambiente": "worktree do repo, node 24, remotion 4.0.507, vitest 3"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o token passar a expor a config derivada (ou uma formula exata), este no troca duas chamadas e os snapshots aprovados precisam ser recapturados — a curva muda de forma. Se o token mantiver a formula aproximada sem `durationInFrames`, o preset `suave` dura 47% mais que o declarado em todo componente que confiar no comentario.",
+      "artefatos": [
+        "src/design/tokens.ts",
+        "tokens.py",
+        "src/composicao/nos/cabecalho.tsx",
+        "fixtures/snapshots/no-cabecalho/aprovados/"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "plataforma → dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-312",
+    "titulo": "Quem desenha a fronteira: o no que sai de cena ou a transicao da cena",
+    "pergunta": "Um no deve desaparecer sozinho nos ultimos frames da propria janela, ou a fronteira entre cenas e responsabilidade exclusiva de src/composicao/transicoes/ (F1-10)?",
+    "por_que_aberto": "F1-04 fez o cabecalho sumir nos ultimos `transitionDuration.snap` frames da propria janela — e assim a duracao declarada vira observavel em pixel, nao so um `return null`. Mas F1-10, desta mesma onda, implementa transicoes de cena; se a transicao tambem aplicar fade na fronteira, os dois multiplicam e o resultado escurece mais rapido do que qualquer um dos dois pediu. Os dois cards sao cegos entre si por construcao: nao ha como negociar em tempo real, e o git nao vai conflitar porque os arquivos sao diferentes.",
+    "decisao_provisoria": "O no cuida da PROPRIA janela e nunca desenha fora dela; a transicao cuida da fronteira ENTRE cenas. A saida do no e curta (snap = 200 ms) e derivada de token, entao e revertivel numa linha se a transicao assumir a fronteira inteira.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/no-cabecalho.test.ts -t \"a saida acontece DENTRO da janela\"",
+      "espera": "1 teste passa: a opacidade no ultimo frame da janela e menor que no inicio da saida e maior que zero",
+      "ambiente": "worktree do repo, node 24, vitest 3"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a fronteira for exclusiva da transicao, some a saida deste no e os snapshots continuam validos (nenhum e capturado na janela de saida). Se o no mantiver a saida e a transicao tambem aplicar fade, a fronteira escurece duas vezes.",
+      "artefatos": [
+        "src/composicao/nos/cabecalho.tsx",
+        "src/composicao/transicoes/"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-313",
+    "titulo": "O caminho de render de producao nunca carrega as fontes embutidas",
+    "pergunta": "Quem chama `registrarFontesLocais()` no bundle de producao? Hoje, ninguem.",
+    "por_que_aberto": "F1-03 embutiu Inter e JetBrains Mono e provou, com still, que uma fonte ausente derruba o render — mas a prova roda a partir de fixtures/fontes/index.tsx, que chama `registrarFontesLocais()` no escopo de modulo. `src/composicao/raiz.tsx`, que e o ponto de entrada de producao, NAO chama. Os tokens `fontFamily.sans/display` pedem Inter; sem o registro, o Chrome do render cai para a pilha de seguranca (system-ui) sem erro nenhum — exatamente o C6 do AGENTS.md, dentro do caminho que vai virar video. F1-04 nao pode consertar: raiz.tsx e de F1-01 e a onda proibe editar arquivo alheio. O entrada.tsx dos snapshots DESTE card chama o registro, e por isso os stills aprovados mostram Inter de verdade.",
+    "decisao_provisoria": "Chamar `registrarFontesLocais()` no escopo de modulo de fixtures/snapshots/no-cabecalho/entrada.tsx, para que o snapshot deste card seja fiel. O buraco em src/composicao/raiz.tsx fica nomeado aqui, para virar PREP da onda seguinte.",
+    "verificacao": {
+      "cmd": "rg -n 'registrarFontesLocais' src/ fixtures/",
+      "espera": "ocorrencias em src/design/fontes/index.ts (definicao), fixtures/fontes/index.tsx e fixtures/snapshots/no-cabecalho/entrada.tsx. NENHUMA em src/composicao/raiz.tsx — e esse o item.",
+      "ambiente": "worktree do repo, ripgrep 14"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Enquanto raiz.tsx nao registrar as fontes, todo render de producao sai com fallback do sistema, com metricas diferentes das dos snapshots aprovados. Quando registrar, qualquer snapshot capturado a partir da raiz muda de bytes de uma vez.",
+      "artefatos": [
+        "src/composicao/raiz.tsx",
+        "src/design/fontes/index.ts",
+        "fixtures/snapshots/no-cabecalho/entrada.tsx"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "render",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]

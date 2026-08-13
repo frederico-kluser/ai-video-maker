@@ -620,3 +620,38 @@ res-midia-determinismo:
 res-midia-licenca:
     @test -z "$(rg --files-without-match '"licenca"' fixtures/cassetes/midia/**/procedencia.json)" && echo "res-midia-licenca: VERDE" || { echo "res-midia-licenca: VERMELHO — algum procedencia.json sem 'licenca'"; exit 1; }
 # === fim F2-04 ===
+
+# === F1-04 ===
+# =============================================================================
+# No de cabecalho e titulo — F1-04 (onda W4)
+# =============================================================================
+# Hifen, nunca ':': `just` 1.42 le `a:b:` como "receita a depende de b" e o
+# erro de parse derruba o ARQUIVO INTEIRO, nao so a receita
+# (docs/criterios-de-aceitacao-corrigidos.md §2).
+#
+# O que cada uma prova esta no cabecalho de tools/no-cabecalho/provar.sh.
+# ADR: docs/adr/0007-no-de-cabecalho-mola-nomeada.md
+
+# O gate do card: tipos, oraculo do componente, varredura de literais e
+# a prova de determinismo + snapshot (render de verdade, nunca Studio — C5).
+no-cabecalho:
+    @echo "=== no-cabecalho: tipos de src/composicao/ ==="
+    npx tsc --noEmit -p tsconfig.composicao.json
+    @echo "=== no-cabecalho: oraculo do componente ==="
+    npx vitest run tests/composicao/no-cabecalho.test.ts
+    @echo "=== no-cabecalho: zero literal de token fora de src/design/ ==="
+    npx vitest run tests/design/literal-scan.test.ts
+    @echo "=== no-cabecalho: determinismo (2x) + snapshot ==="
+    bash tools/no-cabecalho/provar.sh
+    @echo "no-cabecalho: VERDE"
+
+# (Re)aprova os stills. Escreve em fixtures/snapshots/no-cabecalho/aprovados/.
+# O gate NUNCA faz isso sozinho: aprovado ausente e vermelho, nao "primeira vez".
+no-cabecalho-aprovar:
+    bash tools/no-cabecalho/provar.sh --aprovar
+
+# (∅-crit) Apaga cada snapshot aprovado, exige VERMELHO pelo motivo certo,
+# restaura e exige VERDE. Um gate que regera o proprio oraculo nao reprova nada.
+no-cabecalho-ausencia:
+    bash tools/no-cabecalho/ausencia.sh
+# === fim F1-04 ===
