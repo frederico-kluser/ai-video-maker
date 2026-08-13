@@ -1,0 +1,56 @@
+{
+  "id": "n-texto-locutado",
+  "schema": "Texto.1",
+  "type": "texto",
+  "duracao_frames": 150,
+  "texto": "O manifesto resolvido carrega o timing de cada palavra.",
+  "destaque": true,
+  "alinhamento": "esquerda",
+  "timing_palavras": [
+    {
+      "texto": "O",
+      "inicio_ms": 0,
+      "fim_ms": 450
+    },
+    {
+      "texto": "manifesto",
+      "inicio_ms": 500,
+      "fim_ms": 950
+    },
+    {
+      "texto": "resolvido",
+      "inicio_ms": 1000,
+      "fim_ms": 1450
+    },
+    {
+      "texto": "carrega",
+      "inicio_ms": 1500,
+      "fim_ms": 1950
+    },
+    {
+      "texto": "o",
+      "inicio_ms": 2000,
+      "fim_ms": 2450
+    },
+    {
+      "texto": "timing",
+      "inicio_ms": 2500,
+      "fim_ms": 2950
+    },
+    {
+      "texto": "de",
+      "inicio_ms": 3000,
+      "fim_ms": 3450
+    },
+    {
+      "texto": "cada",
+      "inicio_ms": 3500,
+      "fim_ms": 3950
+    },
+    {
+      "texto": "palavra.",
+      "inicio_ms": 4000,
+      "fim_ms": 4450
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "id": "n-texto-locutado",
+  "schema": "Texto.1",
+  "type": "texto",
+  "duracao_frames": 150,
+  "texto": "O manifesto resolvido carrega o timing de cada palavra.",
+  "destaque": true,
+  "alinhamento": "esquerda"
+}

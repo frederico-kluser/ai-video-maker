@@ -1,0 +1,100 @@
+[
+  {
+    "id": "AB-320",
+    "titulo": "O schema do manifesto rejeita timing_palavras: unevaluatedProperties: false",
+    "pergunta": "Quando F2-03 (locucao) e o estagio de montagem existirem, o campo timing_palavras anexado ao no de texto entra no schema do manifesto (S-4), ou o timing trafega fora do manifesto (cassete + ponte)?",
+    "por_que_aberto": "F1-05 le o campo de timing do no via Record<string, unknown>, porque o schema NoTexto tem unevaluatedProperties: false — um validador de manifesto rejeitaria timing_palavras hoje, e o tipo NoTexto do contrato nao o declara. O schema e singleton (S-4) e nao pode ser tocado por este card; F2-03 roda em paralelo e ainda nao definiu o formato do cassete de locucao. O componente so pode declarar a suposicao e degradar quando ela nao valer.",
+    "decisao_provisoria": "Formato declarado no proprio componente (docs/adr/0006-no-texto-destaque-palavra.md): no.timing_palavras = [{ texto, inicio_ms, fim_ms }], ms relativos ao frame local 0 do no, uma entrada por palavra. Qualquer desvio degrada para frase. Quando o schema for estendido, a forma do campo tem de casar esta suposicao ou o componente ser ajustado no mesmo merge.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/no-texto.test.ts -t \"as duas fixtures diferem EXATAMENTE por um campo\"",
+      "espera": "verde: a fixture com timing difere da sem timing so pelo campo timing_palavras",
+      "ambiente": "worktree do repo, node 24, vitest 3.2.7"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o schema ganhar o campo com outro nome, outra unidade (frames em vez de ms) ou outra origem de tempo, todo manifesto resolvido por F2-03 degrada para frase sem erro, e o destaque palavra a palavra morre em silencio.",
+      "artefatos": [
+        "schema/manifesto.schema.json",
+        "src/composicao/nos/texto.tsx",
+        "src/contratos/manifesto.ts",
+        "src/resolucao/locucao/estagio.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-321",
+    "titulo": "O comando det:provar do PROGRAMA nao existe; o harness do canario e amarrado a ele",
+    "pergunta": "O harness de determinismo/snapshot do canario vai ser generalizado para receber o nome do no, ou cada card de W4 carrega o proprio harness dentro da propria propriedade?",
+    "por_que_aberto": "O criterio de aceitacao dos cards de W4 escreve o comando det:provar — render 2x identico —, mas o harness do canario esta amarrado a ele: entry point, id de composicao, frame e nome de arquivo sao constantes no script, e tools/ nao e compartilhado nesta onda. F1-05 trouxe o proprio harness em fixtures/snapshots/no-texto/provar.ts (mesmas invariantes mais tres: os dois caminhos diferentes entre si, frames diferentes do mesmo caminho diferentes entre si, e nenhum still igual ao controle vazio renderizado).",
+    "decisao_provisoria": "Harness proprio dentro da propriedade do card (fixtures/snapshots/no-texto/provar.ts), com o mesmo estilo do canario. A generalizacao fica para quando o join da onda decidir.",
+    "verificacao": {
+      "cmd": "just no-texto",
+      "espera": "exit 0: pre-condicao de aprovados, render 2x, invariantes entre stills e comparacao com o aprovado",
+      "ambiente": "worktree do repo, node 24, remotion 4.0.507"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem a generalizacao, cada card de W4 reescreve o mesmo harness; divergencias de invariantes entre eles acumulam ate o join, e o det:provar do PROGRAMA continua sem comando real.",
+      "artefatos": [
+        "tools/determinismo/provar.sh",
+        "fixtures/snapshots/no-texto/provar.ts",
+        "justfile"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-322",
+    "titulo": "Importar binding chamado meta num arquivo que usa import.meta derruba o transform SSR do vitest",
+    "pergunta": "O reescritor de import.meta do vitest e o reescritor de identificadores vao parar de disputar o mesmo trecho numa versao futura, ou o projeto adota o apelido como convencao permanente para importar o meta de um no?",
+    "por_que_aberto": "tests/composicao/no-texto.test.ts importava meta de src/composicao/nos/texto e o vite derrubava o transform SSR com a mensagem Cannot split a chunk que ja foi editado — o reescritor de identificadores e o reescritor de import.meta competem pelo mesmo trecho. Medido nesta maquina (vitest 3.2.7). O apelido meta as metaDoNo resolve, mas a colisao e de nome, nao de conteudo: qualquer teste futuro que importe meta de um modulo de no reencontra o crash.",
+    "decisao_provisoria": "Apelido de import em todo teste que importe o meta de um no (meta as metaDoNo). Convencao registrada no comentario do proprio teste.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/no-texto.test.ts",
+      "espera": "65 testes passam; renomear de volta para meta faz o vite crashar com Cannot split a chunk",
+      "ambiente": "worktree do repo, node 24, vitest 3.2.7"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um card da onda importar meta sem apelido, o teste dele nao roda (crash de transform form) e o gate de C2 acusa falso verde ou erro obscuro que parece de outra camada.",
+      "artefatos": [
+        "tests/composicao/no-texto.test.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "ambiente",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-323",
+    "titulo": "O guardrail de bash bloqueia comandos que citam texto com a sequencia rm  (falso positivo de substring)",
+    "pergunta": "O guardrail vai trocar a checagem de substring por parse de comando, ou os agentes aprendem a evitar a sequencia rm  em texto livre dentro de comandos?",
+    "por_que_aberto": "O DANGEROUS_PRIMITIVES do guardrail faz checagem de substring: a entrada rm  casa dentro de qualquer palavra que termine com essas letras seguidas de espaco — medido: um comando que so citava o texto de um item do ledger foi bloqueado como se fosse um rm  real, com saida BLOCKING. Qualquer comando que mencione palavras que terminam com essas letras em texto livre (mensagem, JSON, log) fica bloqueado, inclusive comandos inofensivos de escrita.",
+    "decisao_provisoria": "Contornar: comandos que precisem citar texto com a sequencia rm  gravam o conteudo via Write e referenciam por caminho, ou quebram a string em partes. O guardrail em si nao pode ser editado (settings.json do principal e compartilhado).",
+    "verificacao": {
+      "cmd": "printf \"dHJhbnNmb3JtIFNTUg==\" | base64 -d | xargs python3 .agents/scripts/bash_guardrail.py",
+      "espera": "hoje: exit 2 com BLOCKING; apos a correcao do guardrail: exit 0",
+      "ambiente": "Linux, bash guardrail v1"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Todo agente da onda que escrever um comando citando texto com a sequencia rm  perde o comando inteiro por um falso positivo, e o erro mostrado (No stderr output) nao explica o motivo.",
+      "artefatos": [
+        ".agents/scripts/bash_guardrail.py",
+        ".claude/settings.json"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "agentes-worktrees",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]

@@ -655,3 +655,81 @@ no-cabecalho-aprovar:
 no-cabecalho-ausencia:
     bash tools/no-cabecalho/ausencia.sh
 # === fim F1-04 ===
+
+# === F1-05 ===
+# =============================================================================
+# No: texto — destaque palavra a palavra, degradacao declarada para frase
+# =============================================================================
+# Dono: card F1-05. Nao edite fora destes marcadores.
+#
+# NOME DAS RECEITAS: o PROGRAMA escreve `just no:<nome>` e `just det:provar
+# --no <nome>`. `just` 1.42 nao aceita ':' em nome de receita (docs/
+# criterios-de-aceitacao-corrigidos.md §2), entao vale o hifen, como no resto
+# do arquivo. E `det:provar --no <nome>` nao existe: tools/determinismo/
+# provar.sh esta amarrado ao canario (entry point, id, frame e nome de arquivo
+# sao constantes no script) e tools/ nao e compartilhado nesta onda. F1-05 traz
+# o proprio harness em fixtures/snapshots/no-texto/provar.ts e registra AB-321
+# pedindo a generalizacao.
+#
+# PORTA TCP DESTE CARD: 3105.
+
+# O gate do card. `just no-texto` -> exit 0.
+no-texto: no-texto-testar no-texto-snapshot no-texto-ausencia
+    @echo ""
+    @echo "no-texto: VERDE"
+
+# Os dois caminhos do card, em node, sem navegador: com timing e sem timing.
+no-texto-testar:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "=== no-texto-testar: tipos de src/composicao/ e tests/composicao/ ==="
+    npx tsc --noEmit -p tsconfig.composicao.json
+    echo "=== no-texto-testar: com timing, sem timing, e a fronteira entre eles ==="
+    # A saida do vitest vem com escapes ANSI mesmo fora de terminal, e eles
+    # entram NO MEIO de "Tests  65 passed". Um grep ingenuo nao casa e o guarda
+    # de C2 acusa falso verde onde nao ha — foi o que aconteceu aqui.
+    saida=$(npx vitest run tests/composicao/no-texto.test.ts 2>&1 \
+        | sed -E 's/\x1b\[[0-9;]*m//g')
+    echo "$saida" | tail -8
+    # C2: um alvo que nao casa nenhum teste sai VERDE sem ter olhado nada.
+    echo "$saida" | grep -qE "Tests +[1-9][0-9]* passed" \
+        || { echo "FALHOU: nenhum teste selecionado (falso verde)"; exit 1; }
+    echo "no-texto-testar: OK"
+
+# Render 2x com bytes identicos, invariantes entre stills, e o diretorio de
+# snapshots limpo. C5: o aprovado sai do RENDER, nunca do Studio.
+no-texto-snapshot:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "=== no-texto-snapshot: render 2x, invariantes e comparacao ==="
+    npx tsx fixtures/snapshots/no-texto/provar.ts
+    echo ""
+    echo "=== no-texto-snapshot: fixtures/snapshots/no-texto/ sem mudanca ==="
+    # C3: `git diff --exit-code` NAO enxerga arquivo nao rastreado — sozinho ele
+    # da falso verde em snapshot novo. Os dois comandos andam juntos, sempre.
+    git diff --exit-code fixtures/snapshots/no-texto/
+    sujo=$(git status --porcelain -uall -- fixtures/snapshots/no-texto/)
+    if [ -n "$sujo" ]; then
+        echo "FALHOU: fixtures/snapshots/no-texto/ tem arquivo modificado ou nao rastreado:"
+        echo "$sujo"
+        exit 1
+    fi
+    echo "no-texto-snapshot: OK"
+
+# (∅-crit) Apagar um snapshot aprovado tem de ficar VERMELHO. Prova por mutacao:
+# some com cada aprovado, um por vez, e exige que o gate reprove; restaura e
+# exige que volte a passar (controle positivo nas duas pontas).
+no-texto-ausencia:
+    @echo "=== no-texto-ausencia (∅-crit) ==="
+    bash tools/no-texto/ausencia.sh
+
+# (Re)aprova os snapshots. Explicito de proposito: o gate NUNCA gera snapshot
+# sozinho — "primeira execucao, vou gerar" e o falso verde que o ∅-crit derruba.
+no-texto-aprovar:
+    npx tsx fixtures/snapshots/no-texto/provar.ts --aprovar
+
+# Studio para olhar o no com os proprios olhos. Porta 3105 (faixa deste card).
+# NAO aprova snapshot: o Chrome do Studio nao e o Chrome do render (C5).
+no-texto-studio:
+    npx remotion studio fixtures/snapshots/no-texto/index.tsx --port 3105
+# === fim F1-05 ===
