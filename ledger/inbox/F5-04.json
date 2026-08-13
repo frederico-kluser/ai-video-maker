@@ -1,0 +1,142 @@
+[
+  {
+    "id": "AB-720",
+    "titulo": "O reflow vertical 9:16 do canonico nao cabe no retangulo util provisional",
+    "pergunta": "A variante 9:16 derivada da fixture canonica (reflow proporcional do canvas, via pintor promovido) tem conteudo fora do retangulo util 9:16 provisional (AB-071/AB-584) — quanto, em que margens, e o que destrava a entrega da variante vertical?",
+    "por_que_aberto": "O ∅-crit do F5-04 (conteudo fora da safe area de QUALQUER plataforma fica VERMELHO) reprova a variante 9:16 do canonico em dado real: a imagem do retangulo de conteudo da fonte (EBU action safe [67..1853]x[38..1042] em 1920x1080) sob o canvas 1080x1920 e [38..1042]x[68..1852], e o retangulo seguro 9:16 e [0..918]x[230..1536] — margens violadas: direita 124px, topo 162px, base 316px. O oraculo de pixel confirma em cenas reais (titulo do cabecalho a 96px ultrapassa x=918; marcador de midia estoura as tres margens). A variante 9:16 NAO e entregavel com o pintor atual.",
+    "decisao_provisoria": "A variante 9:16 do canonico e REPROVADA pela verificacao (C3) e nao vira snapshot aprovado; o gate documenta a reprovacao como o ∅-crit disparando em dado real. A entrega da vertical exige: revisao de tokens (AB-071/AB-584) E/OU layout por plataforma (re-layout vertical em vez de reflow proporcional) — destino F5-07 (W9) e a revisao de tokens.",
+    "verificacao": {
+      "cmd": "npx tsx tools/variantes/provar.ts",
+      "espera": "VERDE com a saida mostrando 'variante-9x16: REPROVADA' nomeando as margens (direita 124px, topo 162px, base 316px); se a variante 9:16 voltar LIMPA, o gate FALHA (mutacao)",
+      "ambiente": "qualquer maquina offline; fixture canonica e fontes commitadas"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a variante 9:16 fosse entregue sem a verificacao, o texto e o marcador de midia nasceriam sob as zonas de UI da plataforma (caption, like/comments, handle) em silencio — exatamente o falso verde que o ∅-crit do card persegue.",
+      "artefatos": [
+        "src/entrega/variantes/verificar.ts",
+        "tools/variantes/provar.ts",
+        "src/design/tokens.ts (S-5 — revisao futura)"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-721",
+    "titulo": "O marcador de midia placeholder estoura a safe area EBU R 95 em 16:9 e o retangulo 9:16 provisional",
+    "pergunta": "O no de midia desenha o marcador com inset round(min(w,h)*graphicsSafePct) — em 1920x1080 isso da 54px nas DUAS dimensoes, quando o graphics safe horizontal da EBU R 95 e 96px: o contorno do marcador (x=54 e x=1866) fica fora do action safe [67..1853]. E um bug de layout do no, ou o marcador placeholder e isento da safe area?",
+    "por_que_aberto": "Medido no oraculo de pixel do F5-04: o marcador de midia e a unica tinta do canonico fora do EBU R 95 action safe em 16:9 (13px por lado) e fora do retangulo 9:16 provisional (topo 176px, direita 108px, base 330px na cena c-003). O F1-12 aceitou o marcador como placeholder (o oraculo integrado mede o INTERIOR dele), mas o F5-04 mede a tinta contra a safe area — e o marcador e tinta.",
+    "decisao_provisoria": "Registrado para a revisao de layout: quando o no de midia for real (asset decodificado no render, F5-07/W9) o marcador sai da tela; se o placeholder permanecer, o inset deve respeitar o graphics safe da DIMENSAO (h 5%, v 5%) em vez de min(w,h) — destino F5-07 (W9) e revisao de tokens.",
+    "verificacao": {
+      "cmd": "npx tsx tools/variantes/provar.ts",
+      "espera": "VERDE com a cena c-003 da variante 9:16 reprovada pelo oraculo de pixel (vazamento do marcador) e os frames 16:9 sem midia limpos",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o marcador for tratado como conteudo normal, nenhuma cena com midia passa na safe area 16:9; se for isento, o placeholder esconde o mesmo vazamento quando a midia real chegar.",
+      "artefatos": [
+        "src/composicao/nos/midia.tsx (consumo — nao editar no F5-04)",
+        "src/entrega/variantes/verificar.ts",
+        "tools/variantes/oraculo.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-722",
+    "titulo": "Vinheta e grade invadem o retangulo util 9:16 provisional (AB-58x confirmado em pixel)",
+    "pergunta": "As camadas de sobreposicao (grade e vinheta) usam retanguloSeguro derivado de actionSafePct 3.5% — em canvas 9:16 as bandas de margem [0..67]x[67..1853] entram no retangulo util provisional [0..918]x[230..1536] (que comeca em x=0 e y=230): a vinheta escurece e a grade risca DENTRO da safe area 9:16. AB-58x (F1-11) previu exatamente isso; o F5-04 confirma no pixel?",
+    "por_que_aberto": "O oraculo de pixel do F5-04 classifica pixels fora do retangulo seguro da PLATAFORMA como explicados pelas camadas — a vinheta dentro do retangulo 9:16 e explicada (nao e conteudo), mas ESCURECE conteudo que esteja la (papel sobreposicao come pixel). O AB-58x registrou a invasao para quando a composicao vertical existir; a variante 9:16 e a primeira composicao vertical real.",
+    "decisao_provisoria": "Confirmado por construcao (geometria) e registrado: retanguloSeguro (F1-11) continua 16:9-only por decisao do AB-58x; a composicao vertical com as camadas atuais so e segura quando o conteudo caber no miolo da interseccao das duas safe areas. Nenhuma acao nesta onda (F5-04 nao toca camadas).",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/camadas/contrato-de-camada.test.ts -t 'margemSegura'",
+      "espera": "VERDE: retanguloSeguro deriva de actionSafePct 3.5% (16:9), e a interseccao com o retangulo 9:16 provisional nao e vazia em canvas 1080x1920 — documentado no ADR-0037",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se as camadas entrarem numa composicao 9:16 sem adaptacao, a vinheta escurece texto dentro da safe area provisional sem nenhum gate acusar — o oraculo do F5-04 so acusa CONTEUDO fora, nao camada dentro.",
+      "artefatos": [
+        "src/composicao/camadas/contrato-de-camada.ts (consumo)",
+        "docs/adr/0037-variantes-de-proporcao-e-safe-area-por-plataforma.md"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-723",
+    "titulo": "Pesquisa 2026: zonas de UI das plataformas de video vertical sobre o quadro 1080x1920",
+    "pergunta": "Onde ficam as zonas de UI que as plataformas de video vertical desenham POR CIMA do quadro 1080x1920 — topo, base e laterais, em px ou % — segundo especificacao publicada pela propria plataforma? (pergunta de pesquisa obrigatoria do card F5-04)",
+    "por_que_aberto": "Tres sondagens anteriores falharam (artigo removido, SPA sem conteudo, HTTP 400). Esta sondagem (2026-08-13, search.sh Tier 1 Brave, 5 consultas) achou 5 artigos OFICIAIS e 5 secundarios: as plataformas publicam especificacoes de safe zone SEM numeros fixos inline — zonas DINAMICAS por etapa/idioma/comprimento de legenda (TikTok), guias visuais no editor (YouTube), numeros atras de login (Meta). As fontes secundarias convergem: base 250-280px, topo 100-250px, largura util 900-1080px. Placar completo no arquivo de evidencia.",
+    "decisao_provisoria": "FECHADO como evidencia: a pesquisa ALIMENTA, NAO SUBSTITUI, a decisao de tokens (contrato-w7 §6, AB-584) — o retangulo 9:16 provisional (AB-071) continua a autoridade do gate. A revisao de tokens deve considerar: base folgada (384px token vs 250-280px reportados), topo 230px vs 250px reportado, largura 918px vs 900px reportado (o token e otimista na largura).",
+    "verificacao": {
+      "cmd": "bash /home/ondokai/Projects/deep-orchestrator/scripts/search.sh \"TikTok Instagram Reels YouTube Shorts safe area UI elements overlay vertical video 1080x1920 official documentation 2026\" --count 10 --max-evolutions 3",
+      "espera": "exit 0 com resultados (fontes oficiais ads.tiktok.com e support.google.com presentes); o resumo com placar esta em ledger/evidencia/AB-723.txt",
+      "ambiente": "rede disponivel (pesquisa); o resumo e commitado para consulta offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem esta evidencia, a revisao futura do token 9:16 (AB-071) comecaria do zero, e o card ficaria sem resposta para a pergunta obrigatoria de pesquisa do PROGRAMA.",
+      "artefatos": [
+        "ledger/evidencia/AB-723.txt",
+        "docs/adr/0037-variantes-de-proporcao-e-safe-area-por-plataforma.md",
+        "src/design/tokens.ts (S-5 — revisao futura)"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Cinco sondagens 2026-08-13 (search.sh Tier 1): TikTok publica safe zone sem numeros inline (zonas dinamicas por etapa/idioma/legenda — ads.tiktok.com 3 artigos), YouTube mostra guias dinamicas no editor (support.google.com), Meta referencia safe zone com numeros atras de login. Fontes secundarias convergem com o provisional dos tokens (base 250-280px, topo 100-250px, largura util 900-1080px). Decisao: tokens NAO mudam nesta onda (AB-584); a pesquisa vira evidencia para a revisao.",
+    "evidencia": {
+      "cmd": "bash /home/ondokai/Projects/deep-orchestrator/scripts/search.sh \"TikTok Instagram Reels YouTube Shorts safe area UI elements overlay vertical video 1080x1920 official documentation 2026\" --count 10 --max-evolutions 3",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-723.txt",
+      "sha256": "d217a9a741019bd1362933d7a0422d8a766108aa468543c2fb0c91626e980ec5"
+    }
+  },
+  {
+    "id": "AB-724",
+    "titulo": "Invariante do bloco de legenda por plataforma reconferido com os tokens atuais (F3-02 consumido)",
+    "pergunta": "O bloco teorico de maxLines linhas de legenda cabe na caixa vertical util de CADA plataforma do contrato (16:9 EBU R 95 e 9:16 provisional), ancorado na base — e a regra dispara quando o bloco estoura? (pergunta 2 do card F5-04 / AB-584)",
+    "por_que_aberto": "AB-584 (F3-02) pediu para reconferir o invariante quando o retangulo 9:16 mudar; o F5-04 o consome como regra propria (C2 em verificar.ts) e o testa nos dois canvas com os tokens ATUAIS. Com os tokens atuais o bloco cabe (16:9: 54px <= 972px; 9:16: 97px <= 1306px); a sonda negativa (bloco 10000px, caixa 100px — mock do consumo F3-02) dispara a regra.",
+    "decisao_provisoria": "FECHADO: a regra C2 consome alturaDoBlocoDeLegenda/caixaVerticalUtil de src/sincronia/legendas/ (dono F3-02) e dispara por plataforma; o invariante vale para os dois canvas com os tokens atuais. Quando AB-071 fechar com numeros primarios, a regra cai sozinha no teste (a mesma observacao do AB-584).",
+    "verificacao": {
+      "cmd": "npx vitest run tests/entrega/variantes.test.ts tests/entrega/variantes-c2-sonda.test.ts",
+      "espera": "VERDE: 20 testes (invariante por plataforma nos dois canvas + sonda negativa do bloco estourado)",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o bloco de legenda estourasse a caixa vertical util, a legenda queimada nasceria sob a zona de UI da plataforma sem erro nenhum — a pergunta adversarial (4) do card.",
+      "artefatos": [
+        "src/entrega/variantes/verificar.ts",
+        "tests/entrega/variantes-c2-sonda.test.ts",
+        "src/sincronia/legendas/validar.ts (consumo)"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Regra C2 implementada em src/entrega/variantes/verificar.ts consumindo F3-02; 20 testes verdes incluindo a sonda negativa (bloco estourado reprovado) e o invariante nos canvas 1920x1080 e 1080x1920.",
+    "evidencia": {
+      "cmd": "npx vitest run tests/entrega/variantes.test.ts tests/entrega/variantes-c2-sonda.test.ts",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-724.txt",
+      "sha256": "a561eb9112f72495fd6c70dfc53cb4303cde771c4e14aeb51b77f09352b84acd"
+    }
+  }
+]

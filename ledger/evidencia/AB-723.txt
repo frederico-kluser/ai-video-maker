@@ -1,0 +1,85 @@
+PESQUISA 2026-08-13 — safe areas de plataformas de video vertical (pergunta F5-04)
+Pergunta: em 2026, onde ficam as zonas de UI que as plataformas de video vertical
+desenham POR CIMA do quadro 1080x1920 — topo, base e laterais, em px ou % —
+segundo especificacao publicada PELA PROPIA PLATAFORMA?
+
+Ferramenta: /home/ondokai/Projects/deep-orchestrator/scripts/search.sh (Tier 1 — Brave API)
+Sondagens: 5 (agregadores; TikTok oficial; Instagram/Meta; YouTube oficial; Meta oficial)
+
+--- FONTES OFICIAIS (a propria plataforma publica) ---
+
+[O1] TikTok — Creative best practices for performance ads
+     https://ads.tiktok.com/help/article/creative-best-practices?lang=en
+     "keeping your content visible within the UI safe zone as per ad specifications"
+     -> a plataforma publica especificacao de safe zone, SEM numeros inline.
+
+[O2] TikTok — In-Feed ads specifications (Auction)
+     https://ads.tiktok.com/help/article/tiktok-auction-in-feed-ads?redirected=2
+     "The safe zone size is determined by the dimension (vertical, horizontal,
+     or square)" — numeros so nos templates baixaveis (.zip "In-Feed Standard
+     Version LTR", 84,29 KB); "the ad preview is not specific to a device".
+
+[O3] TikTok — TopView (Reservation) ad specifications
+     https://ads.tiktok.com/help/article/tiktok-reservation-topview?redirected=1
+     "safe zone specifications are differentiated between initial-stage and
+     feed-stage safe zones and between left-to-right and right-to-left
+     languages"; "In-feed safe zone is more restrictive than open screen";
+     "The safe zone size is determined by the ad caption length and any
+     Interactive Add-on usage; the longer the caption, the smaller the safe
+     zone" — numeros so no .zip "TopView safe zones .zip" (146,76 KB).
+
+[O4] YouTube — Enhance your Shorts (YouTube Help)
+     https://support.google.com/youtube/answer/16215842
+     O editor de Shorts mostra guias visuais de onde aparecem like, comments e
+     video description; arrastar overlay perto da borda acende linhas brancas
+     animadas sinalizando area "non-safe" ("your content might be partially
+     hidden on some devices") — sem numeros inline, guia dinamica no editor.
+
+[O5] Meta — Facebook/Instagram Reels ads (Business Help + Ads Guide)
+     https://www.facebook.com/business/help/980593475366490/
+     https://www.facebook.com/business/ads-guide/video/facebook-facebook-reels-overlay
+     "Learn more about the safe zone here" — especificacoes e templates atras
+     de login/ads-guide; numeros nao acessiveis sem conta.
+
+--- FONTES SECUNDARIAS 2026 (agregadores, numeros convergentes) ---
+
+[S1] TikTok safe zone 2026: 900x1492 px CENTRALIZADO em 1080x1920
+     postplanify.com/blog/social-media-safe-zones-2026-complete-guide (2026-01-09)
+[S2] TikTok: texto seguro ~1080x1420 px (topo ~250px + base ~250px + margens)
+     kreatli.com/guides/tiktok-safe-zone (2026-02-01)
+[S3] Instagram Reels: base 280 px critica (caption/audio track)
+     trymypost.com/blog/instagram-reels-safe-zones-text-placement-2026 (2026-03-10)
+[S4] Instagram Reels: canvas central util ~1080x1190 px
+     quso.ai/blog/instagram-reel-dimensions (2026-06-26)
+[S5] Meta: safe zones unificadas (Stories/Reels/Facebook Reels) desde mar/2026
+     billo.app/blog/meta-ads-safe-zones/ (2026-06-16)
+[S6] Tokens do projeto ja citavam: TikTok topo 15%/base 20%/direita 15%
+     (veopro.ai 2026-01-20); IG Reels base 250px/topo 100px (trymypost
+     2026-03-30); TikTok 900x1492 (postplanify 2026-01-09).
+
+--- PLACAR ---
+
+1. "As plataformas publicam especificacoes de safe zone, sem numeros fixos
+   inline (zonas DINAMICAS: por etapa, idioma, comprimento de legenda e
+   add-ons)" — (3-0): O1+O2+O3 (TikTok), O4 (YouTube), O5 (Meta) — 3
+   plataformas, 5 artigos oficiais.
+2. "Nenhuma plataforma publica numeros fixos em px/% para o quadro
+   1080x1920 no texto da pagina" — (2-0): TikTok e YouTube publicam sem
+   numeros inline; Meta deixa os numeros atras de login (1-0 separado).
+3. "As faixas secundarias 2026 (base 250-280px; topo 100-250px; largura
+   util 900-1080px) convergem com o retangulo provisional dos tokens
+   (topo 12%/230px, base 20%/384px, direita 15%/162px)" — (1-0) por numero
+   (S1..S4), nenhuma fonte primaria; o token e MAIS conservador na base
+   (384px vs 250-280px) e na largura (918px vs 900-1080px), e MENOS
+   conservador no topo (230px vs 250px reportado por S2).
+
+--- CONCLUSAO (decisao AB-584/contrato-w7 §6) ---
+
+A pesquisa ALIMENTA, NAO SUBSTITUI, a decisao de tokens: o retangulo 9:16
+provisional (AB-071) continua a autoridade do gate. As fontes oficiais
+mostram que a zona de UI e dinamica (nao ha um numero canonico por
+plataforma), e as fontes secundarias convergem com o provisional dentro de
+tolerancia de dezenas de px. A revisao de tokens (futura) deve considerar:
+(a) base mais folgada (o provisional ja e 384px, acima dos 250-280px
+reportados); (b) topo 250px reportado vs 230px do token; (c) largura util
+900px (postplanify) vs 918px do token — o token e otimista na largura.

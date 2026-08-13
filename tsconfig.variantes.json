@@ -1,0 +1,15 @@
+{
+  "//": "Card F5-04. Type-check ESCOPADO em src/entrega/variantes/ e nos seus",
+  "//2": "testes, ferramentas e entrada de render. Existe para o gate `just",
+  "//3": "variantes` reprovar por causa DESTE card, nao por causa de outro. O",
+  "//4": "type-check do repo inteiro continua em `just typecheck` / `just build`",
+  "//5": "— este arquivo nao substitui aquele.",
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/entrega/variantes/**/*.ts",
+    "tests/entrega/**/*.ts",
+    "tools/variantes/**/*.ts",
+    "fixtures/snapshots/variantes/**/*.ts",
+    "fixtures/snapshots/variantes/**/*.tsx"
+  ]
+}

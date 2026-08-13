@@ -1816,3 +1816,76 @@ encode-perfis:
 procedencia:
     npx tsx src/entrega/procedencia/gate.ts
 # === fim F5-06 ===
+
+# === F5-04 ===
+# =============================================================================
+# Variantes de proporcao — conteudo fora da safe area de QUALQUER plataforma
+# tem de ficar VERMELHO. Dono: card F5-04 (W7). Nao edite fora destes
+# marcadores.
+#
+# Contrato congelado em docs/contrato-w7.md §6 (emenda F5-04) e o ∅-crit do
+# PROGRAMA: `just variantes` -> exit 0, snapshots por variante, conteudo fora
+# da safe area de qualquer plataforma fica vermelho.
+#
+# O que o gate verifica:
+#   - typecheck ESCOPADO (tsconfig.variantes.json): reprova por causa DESTE
+#     card, nao por causa de outro;
+#   - suite vitest: derivacao + heranca de timing (pergunta adversarial 3),
+#     bloco de legenda por plataforma (pergunta 2 do card, consumindo F3-02),
+#     safe area da plataforma certa (pergunta 2, tokens 16:9 EBU e 9:16
+#     provisional AB-071/AB-584) e o ∅-crit de mutacao (remover a checagem
+#     de safe area deixa a variante 9:16 do canonico aprovada em silencio ->
+#     VERMELHO);
+#   - render: determinismo 2x, oraculo de pixel (conteudo dentro da safe
+#     area; nada de tinta nao-explicada fora), snapshots aprovados por
+#     variante ENTREGAVEL, e o ∅-crit em dado real: a variante 9:16 do
+#     canonico TEM de ser reprovada pelo oraculo geometrico (reflow nao cabe
+#     no retangulo util provisional) — se ela voltar limpa, o gate FALHA.
+#
+# Porta TCP reservada para este card: 4504 (docs/contrato-w7.md §11).
+# Faixa de ledger: AB-720..AB-734 (ledger/inbox/F5-04.json).
+
+# O gate completo das variantes de proporcao.
+variantes: variantes-testar variantes-snapshots
+    @echo ""
+    @echo "variantes: VERDE"
+
+# So a suite (para iterar rapido).
+variantes-testar:
+    @echo "=== variantes-testar: typecheck + suite ==="
+    npx tsc --noEmit -p tsconfig.variantes.json
+    npx vitest run tests/entrega/variantes.test.ts tests/entrega/variantes-c2-sonda.test.ts
+    @echo "variantes-testar: OK"
+
+# Render 2x com bytes identicos, oraculo de pixel, snapshots por variante e
+# o ∅-crit (variante 9:16 do canonico reprovada + sondas). C5: o aprovado
+# sai do RENDER, nunca do Studio.
+variantes-snapshots:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "=== variantes-snapshots: determinismo + oraculo + snapshots ==="
+    npx tsx tools/variantes/provar.ts
+    echo ""
+    echo "=== variantes-snapshots: fixtures/snapshots/variantes/ sem mudanca ==="
+    # C3: `git diff --exit-code` NAO enxerga arquivo nao rastreado — o par
+    # com `git status --porcelain` e o oraculo de "o diretorio esta intacto".
+    git diff --exit-code fixtures/snapshots/variantes/
+    sujo=$(git status --porcelain -uall -- fixtures/snapshots/variantes/)
+    if [ -n "$sujo" ]; then
+        echo "FALHOU: fixtures/snapshots/variantes/ tem arquivo modificado ou nao rastreado:"
+        echo "$sujo"
+        exit 1
+    fi
+    echo "variantes-snapshots: OK"
+
+# (Re)aprova os snapshots. Explicito de proposito: o gate NUNCA gera snapshot
+# sozinho — "primeira execucao, vou gerar" e o falso verde que o ∅-crit derruba.
+variantes-aprovar:
+    npx tsx tools/variantes/provar.ts --aprovar
+
+# Studio para olhar as variantes com os proprios olhos. Porta 4504 (faixa
+# deste card). NAO aprova snapshot: o Chrome do Studio nao e o Chrome do
+# render (C5).
+variantes-studio:
+    npx remotion studio fixtures/snapshots/variantes/entrada.tsx --port 4504
+# === fim F5-04 ===
