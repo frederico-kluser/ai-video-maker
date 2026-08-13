@@ -1,0 +1,112 @@
+{
+  "schema_version": "Manifesto.1",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "duracao_total_frames": 1050,
+  "nos": [
+    {
+      "id": "n-001",
+      "schema": "Cabecalho.1",
+      "type": "cabecalho",
+      "duracao_frames": 120,
+      "entrada_frames": 0,
+      "texto": "Orquestrador de containers",
+      "subtitulo": "Muitos servicos, uma unica equipe de operacao",
+      "alinhamento": "centro",
+      "animacao": { "tipo": "fade", "duracao_frames": 15 }
+    },
+    {
+      "id": "n-002",
+      "schema": "Texto.1",
+      "type": "texto",
+      "duracao_frames": 180,
+      "entrada_frames": 0,
+      "texto": "Um orquestrador sobe, escala e conserta containers por voce. O time descreve o estado desejado, e ele faz o resto.",
+      "destaque": true,
+      "alinhamento": "esquerda",
+      "animacao": { "tipo": "slide", "direcao": "from-left", "duracao_frames": 20 }
+    },
+    {
+      "id": "n-003",
+      "schema": "Lista.1",
+      "type": "lista",
+      "duracao_frames": 180,
+      "entrada_frames": 0,
+      "itens": [
+        "Sobe containers em maquinas saudaveis",
+        "Reinicia o que parou",
+        "Escala replicas quando o trafego cresce"
+      ],
+      "ordenada": false,
+      "alinhamento": "esquerda",
+      "animacao": { "tipo": "scale", "duracao_frames": 12 }
+    },
+    {
+      "id": "n-004",
+      "schema": "Codigo.1",
+      "type": "codigo",
+      "duracao_frames": 180,
+      "entrada_frames": 0,
+      "codigo": "replicas: 3\nimage: api:v2\nporta: 8080",
+      "linguagem": "yaml",
+      "nome_arquivo": "deployment.yaml",
+      "animacao": { "tipo": "slide", "direcao": "from-bottom", "duracao_frames": 15 }
+    },
+    {
+      "id": "n-005",
+      "schema": "Midia.1",
+      "type": "midia",
+      "duracao_frames": 180,
+      "entrada_frames": 0,
+      "tipo_midia": "imagem",
+      "ajuste": "cover",
+      "texto_alternativo": "Diagrama com tres replicas de um servico conectadas a um balanceador de carga"
+    },
+    {
+      "id": "n-006",
+      "schema": "Grafico.1",
+      "type": "grafico",
+      "duracao_frames": 210,
+      "entrada_frames": 0,
+      "tipo_grafico": "linha",
+      "titulo": "Replicas sob trafego",
+      "dados": [
+        { "rotulo": "09h", "valor": 2 },
+        { "rotulo": "12h", "valor": 6 },
+        { "rotulo": "18h", "valor": 4 }
+      ],
+      "animacao": { "tipo": "fade", "duracao_frames": 15 }
+    }
+  ],
+  "cenas": [
+    {
+      "id": "c-001",
+      "nos": ["n-001", "n-002"],
+      "audio_cena": {
+        "texto_locucao": "Um orquestrador sobe, escala e conserta containers por voce. O time descreve o estado desejado, e ele faz o resto."
+      }
+    },
+    {
+      "id": "c-002",
+      "nos": ["n-003"],
+      "audio_cena": {
+        "texto_locucao": "Ele sobe containers em maquinas saudaveis, reinicia o que parou e escala replicas quando o trafego cresce."
+      }
+    },
+    {
+      "id": "c-003",
+      "nos": ["n-004", "n-005"],
+      "audio_cena": {
+        "texto_locucao": "No manifesto de implantacao voce pede tres replicas da imagem. O orquestrador garante que existam."
+      }
+    },
+    {
+      "id": "c-004",
+      "nos": ["n-006"],
+      "audio_cena": {
+        "texto_locucao": "Sob trafego, ele sobe mais replicas sozinho. O mesmo Kubernetes que orquestra aqui, orquestra a API e o banco pos-tres-que-el."
+      }
+    }
+  ]
+}

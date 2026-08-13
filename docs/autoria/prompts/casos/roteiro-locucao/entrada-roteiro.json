@@ -1,0 +1,58 @@
+{
+  "schema_version": "Manifesto.1",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "duracao_total_frames": 480,
+  "nos": [
+    {
+      "id": "n-001",
+      "schema": "Cabecalho.1",
+      "type": "cabecalho",
+      "duracao_frames": 120,
+      "entrada_frames": 0,
+      "texto": "Arquitetura de servicos",
+      "subtitulo": "Orquestracao, dados e API",
+      "alinhamento": "centro",
+      "animacao": { "tipo": "fade", "duracao_frames": 15 }
+    },
+    {
+      "id": "n-002",
+      "schema": "Texto.1",
+      "type": "texto",
+      "duracao_frames": 180,
+      "entrada_frames": 0,
+      "texto": "O Kubernetes orquestra containers e o PostgreSQL guarda os dados da aplicacao.",
+      "destaque": true,
+      "alinhamento": "esquerda",
+      "animacao": { "tipo": "slide", "direcao": "from-left", "duracao_frames": 20 }
+    },
+    {
+      "id": "n-003",
+      "schema": "Codigo.1",
+      "type": "codigo",
+      "duracao_frames": 180,
+      "entrada_frames": 0,
+      "codigo": "const itens = await api.buscar();\nconsole.log(itens.length);",
+      "linguagem": "typescript",
+      "nome_arquivo": "app.ts",
+      "animacao": { "tipo": "fade", "duracao_frames": 12 }
+    }
+  ],
+  "cenas": [
+    {
+      "id": "c-001",
+      "nos": ["n-001", "n-002"],
+      "audio_cena": {
+        "texto_locucao": "O Kubernetes orquestra containers e o PostgreSQL guarda os dados. A API devolve JSON."
+      }
+    },
+    {
+      "id": "c-002",
+      "nos": ["n-003"],
+      "audio_cena": {
+        "texto_locucao": "A chamada async/await em Node.js devolve 1.024 itens, e 3,5% deles são SQL puro."
+      }
+    }
+  ]
+}

@@ -1,0 +1,151 @@
+[
+  {
+    "id": "AB-570",
+    "titulo": "O schema real do contrato de autoria (F4-01) nao estava na base; o teste valida contra o contrato v1 descrito",
+    "pergunta": "Quando o schema de autoria do F4-01 (src/autoria/contrato/**) mergear, o teste tests/prompts/prompts.test.ts e os casos de referencia de docs/autoria/prompts/casos/** continuam validando contra o contrato v1 descrito no contrato-w5 §3 (AB-432 hash advisory, AB-433 texto_alternativo obrigatorio), ou precisam migrar para o schema real?",
+    "por_que_aberto": "O F4-02 roda em paralelo com o F4-01 (dependencia lateral proibida por construcao — contrato-w5 §1). A worktree base e o PREP-w5, que nao tem src/autoria/. O teste implementa o contrato v1 descrito como validador estrutural proprio e o ADR-0024 registra a migracao; a divergencia possivel: o F4-01 pode decidir campos ou restricoes alem dos dois pontos congelados (ex.: duracao em segundos, nomes de campo), e entao as saidas de referencia podem nao validar contra o schema real.",
+    "decisao_provisoria": "O teste valida contra o contrato v1 descrito (estrutura do schema/manifesto.llm.schema.json + AB-432/AB-433) ate o merge do F4-01; o campo schema_alvo do Controle de cada prompt nomeia a migracao. No merge, rodar just prompts-testar contra o schema real e ajustar o validador (mudanca localizada em tests/prompts/prompts.test.ts).",
+    "verificacao": {
+      "cmd": "rg --files-without-match 'versao:' docs/autoria/prompts/; npx vitest run tests/prompts/",
+      "espera": "apos o merge do F4-01: prompts-testar VERDE com o validador apontando para src/autoria/contrato/** (schema real), e os casos de referencia revalidando",
+      "ambiente": "branch de integracao apos merge do F4-01 (ordem W5: F3-01 -> F4-01 -> F4-02)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o F4-01 divergir do contrato descrito, as saidas de referencia (e portanto os prompts) precisam ser revalidados contra o schema real antes de o F4-03/F4-04 (W6) construirem em cima delas; sem migracao, o teste continuaria verde contra um contrato que nao e o da producao.",
+      "artefatos": [
+        "tests/prompts/prompts.test.ts",
+        "docs/autoria/prompts/casos/**",
+        "docs/adr/0024-prompts-e-decomposicao-narrativa.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "agentes-worktrees",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-571",
+    "titulo": "A fonte primaria do ritmo de locucao pt (voiceovers.com) nao expoe data de publicacao; placar (1-0)",
+    "pergunta": "A faixa 125-150 wpm para locucao portuguesa (voiceovers.com) tem data de publicacao ou fonte corroborante datada (além da banda de audiobook nao-ficcao 140-150 e da faixa geral 130-150 do flowshorts, 2026-04-11)?",
+    "por_que_aberto": "A pesquisa do card (search.sh, 2026-08-13) encontrou a faixa 125-150 wpm para voiceover portugues na voiceovers.com — unica fonte direta para pt — mas a pagina nao exibe data. As corroboracoes (audiobook 140-150; flowshorts 130-150) nao sao especificas de pt. O ADR-0024 registra o placar honesto (1-0 com data 'nao visivel'); a faixa usada nos prompts e 125-145.",
+    "decisao_provisoria": "Os prompts usam 125-145 wpm para locucao tecnica pt-BR com a fonte citada e o placar (1-0); a regra de bolso derivada (cena de 6 s ~ 13 palavras a 135 wpm) e marcada como opiniao. Nenhum numero sem fonte entrou nos prompts.",
+    "verificacao": {
+      "cmd": "/home/ondokai/Projects/deep-orchestrator/scripts/search.sh \"average speaking rate Portuguese voiceover narration study wpm\" --count 8 --freshness py",
+      "espera": "fonte datada (estudo, guia de producao ou TTS vendor) com faixa de wpm para locucao em portugues; ou confirmacao de que nao existe e o placar (1-0) fica como esta",
+      "ambiente": "rede liberada, sessao de pesquisa"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a faixa de wpm estiver errada, o comprimento de locucao orientado pelos prompts (e o orcamento de tempo do roteiro) muda; se confirmada, o ADR-0024 ganha a data e o placar sobe.",
+      "artefatos": [
+        "docs/adr/0024-prompts-e-decomposicao-narrativa.md",
+        "docs/autoria/prompts/prompt-*.md"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "audio",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-572",
+    "titulo": "Densidade de corte tem fonte unica (cutscore.io, 1-0); falta corroboracao independente",
+    "pergunta": "Existe fonte independente (estudo de edicao, metricas de retencao ou guia de producao datado) corroborando 4-8 s por corte em video explicador e 5-9 s em tutorial?",
+    "por_que_aberto": "A pesquisa do card encontrou apenas a cutscore.io (2026-06-11) com as bandas por formato; filmmakersacademy (2025-09-27) define ASL mas sem numeros para explicador. O criterio de densidade dos prompts (4-9 s por cena) repousa em fonte unica.",
+    "decisao_provisoria": "Os prompts usam 4-8 s (explicador) e 5-9 s (tutorial) com a fonte citada e placar (1-0); cena com locucao tecnica densa na banda alta. Sem corroboracao, o numero permanece (1-0) e o ADR-0024 nao sobe o placar.",
+    "verificacao": {
+      "cmd": "/home/ondokai/Projects/deep-orchestrator/scripts/search.sh \"average shot length educational explainer video seconds study pacing retention\" --count 8",
+      "espera": "fonte independente datada com numeros de duracao de corte para conteudo educacional/explicador; ou confirmacao de que nao existe",
+      "ambiente": "rede liberada, sessao de pesquisa"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a banda de densidade estiver errada, o arco de cenas orientado pelos prompts (quantas cenas em quantos segundos) muda e os casos de referencia de docs/autoria/prompts/casos/** precisam ser revistos.",
+      "artefatos": [
+        "docs/adr/0024-prompts-e-decomposicao-narrativa.md",
+        "docs/autoria/prompts/prompt-decomposicao-narrativa.md",
+        "docs/autoria/prompts/prompt-autoria-principal.md"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-573",
+    "titulo": "Pronuncias do dicionario sao provisorias ate a audicao no provedor real de TTS",
+    "pergunta": "Cada pronuncia pretendida em docs/autoria/prompts/dicionario-pronuncia.md (ex.: SQL como es-que-el, GIF como guif, Node.js como nodj) confere com a fala do provedor de TTS da locucao, ou precisa de ajuste?",
+    "por_que_aberto": "A skill tts-voiceover (R13) e explicita: 'sintetizar e ouvir e o unico teste; nenhum gate automatico deste programa pega pronuncia errada'. As pronuncias foram registradas por convencao tecnica corrente do pt-BR, sem sintese. A frase-canario do R13 exercita sigla, produto e barra.",
+    "decisao_provisoria": "A tabela registra termo + pronuncia pretendida em ortografia pt-BR (o adaptador do provedor serializa); as entradas sao provisorias e o processo de extensao do arquivo exige a audicao. Nenhuma entrada bloqueia a autoria.",
+    "verificacao": {
+      "cmd": "sintetizar a frase-canario do dicionario no provedor de TTS da locucao (maquina-alvo com a conta F2-03) e ouvir, termo a termo",
+      "espera": "audicao confirmando ou corrigindo cada pronuncia pretendida da tabela; correcoes entram no proprio dicionario",
+      "ambiente": "maquina-alvo com provedor de TTS configurado (dia de acesso)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Pronuncia errada na locucao e o modo de falha que nenhum gate pega; se a audicao divergir, a tabela muda e as locucoes de referencia de docs/autoria/prompts/casos/** que aplicam o dicionario precisam ser reescritas (nada de schema muda).",
+      "artefatos": [
+        "docs/autoria/prompts/dicionario-pronuncia.md",
+        "docs/autoria/prompts/casos/roteiro-locucao/saida-roteiro.json",
+        "docs/autoria/prompts/casos/autoria-principal/saida-autoria.json"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-574",
+    "titulo": "Regra de bolso do roteiro (135 wpm -> ~13 palavras por cena de 6 s) e opiniao sem medicao de fala sintetizada",
+    "pergunta": "A fala sintetizada do provedor de TTS da locucao, com as pausas reais do motor, cabe na banda 125-145 wpm que os prompts orientam — ou a conversao palavras-por-segundo precisa de fator de correcao?",
+    "por_que_aberto": "A regra de bolso (135 wpm / 60 x 6 s = 13,5 palavras) e derivacao aritmetica marcada como opiniao no ADR-0024; a fala sintetizada inclui pausas e prosodia que a aritmetica nao modela. A medicao exige sintese real.",
+    "decisao_provisoria": "Os prompts usam a regra como orientacao de roteiro (marcada opiniao), nunca como gate; nenhum numero entra em criterio de aceitacao sem fonte ou medicao.",
+    "verificacao": {
+      "cmd": "sintetizar a locucao de referencia de docs/autoria/prompts/casos/** no provedor de TTS e medir duracao real por cena contra a contagem de palavras",
+      "espera": "taxa real de palavras por minuto da fala sintetizada, comparada a banda 125-145; se divergir, a regra de bolso ganha fator ou vira faixa medida",
+      "ambiente": "maquina-alvo com provedor de TTS configurado (dia de acesso)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a fala real for mais lenta ou mais rapida que a aritmetica, o comprimento de locucao orientado pelos prompts estoura ou sobra na duracao das cenas; os casos de referencia nao mudam (validam schema), mas os prompts ganham o fator medido.",
+      "artefatos": [
+        "docs/autoria/prompts/prompt-decomposicao-narrativa.md",
+        "docs/autoria/prompts/prompt-autoria-principal.md",
+        "docs/adr/0024-prompts-e-decomposicao-narrativa.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-575",
+    "titulo": "duracao_frames frame-based do manifesto x contrato de timing em segundos (F3-01): o prompt converte segundos em frames",
+    "pergunta": "O contrato de autoria v1 (F4-01) e o contrato de timing (F3-01, segundos) mantem duracao_frames frame-based no manifesto da autoria, ou a instrucao dos prompts 'frames = round(segundos x fps)' fica obsoleta no merge da W5?",
+    "por_que_aberto": "O schema do manifesto (F0-02, W1) exige duracao_frames inteiro por no; o contrato de timing da W5 (F3-01) declara 'unidade: SEGUNDOS, nunca frames' e 'O manifesto carrega segundos; frame e derivado pelo sistema' (contrato-w5 §2). Os prompts instruem a conversao segundos->frames apenas para produzir manifesto valido contra o schema v1 — a duracao resolvida e do sistema. Se o F4-01 migrar o manifesto para segundos, a instrucao de conversao some.",
+    "decisao_provisoria": "Os prompts orientam ritmo em segundos e convertem para frames no fps declarado, declarando duracao_frames como pedido de ritmo; o ADR-0024 (decisao 1) registra a fronteira. Nenhum caso de referencia depende da conversao para validar schema.",
+    "verificacao": {
+      "cmd": "apos o merge de F3-01 e F4-01: ler schema/timing.schema.json e src/autoria/contrato/** e conferir se duracao_frames continua exigido na autoria",
+      "espera": "resposta sobre a unidade do manifesto de autoria (frames ou segundos); os prompts se ajustam sem mudar a fronteira de decisao",
+      "ambiente": "branch de integracao apos merges de F3-01 e F4-01"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a autoria migrar para segundos, as secoes de conversao dos prompts ficam obsoletas e precisam ser reescritas (sem tocar na fronteira de decisao); se permanecer frames, a instrucao atual vale.",
+      "artefatos": [
+        "docs/autoria/prompts/prompt-decomposicao-narrativa.md",
+        "docs/autoria/prompts/prompt-autoria-principal.md",
+        "docs/adr/0024-prompts-e-decomposicao-narrativa.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]

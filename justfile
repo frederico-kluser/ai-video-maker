@@ -1152,3 +1152,36 @@ autoria-cache:
     npx vitest run tests/autoria/contrato/cache.test.ts tests/autoria/contrato/canonicalizar.test.ts
     @echo "autoria-cache: VERDE"
 # === fim F4-01 ===
+
+# === F4-02 ===
+# =============================================================================
+# Biblioteca de prompts de autoria (docs/autoria/prompts/**) e o dicionario
+# de pronuncia — card F4-02 (W5).
+# Dono: card F4-02. Nao edite fora destes marcadores.
+#
+# NOME DA RECEITA: o PROGRAMA.html escreve `just prompts:testar`, mas `just`
+# 1.42 NAO aceita ':' em nome de receita (armadilha 9.1, ja tratada no
+# arquivo inteiro). Vale a convencao de hifen: `prompts-testar`.
+#
+# O que a receita prova:
+#   1. vitest: casos de referencia validam contra o contrato de autoria v1
+#      (contrato-w5 §3 — AB-432 hash advisory, AB-433 texto_alternativo
+#      obrigatorio), fronteira de decisao declarada em todo prompt, e o
+#      dicionario de pronuncia como fonte unica.
+#   2. ∅-crit do front-matter na forma CORRIGIDA da armadilha 9.2: em
+#      ripgrep, `-L` e `--follow`, NAO `--files-without-match`. O literal
+#      `rg -L` do PROGRAMA sai vazio justamente quando NENHUM prompt declara
+#      `versao:` — passa por ausencia. O comando abaixo exprime a intencao
+#      e anda em par com o denominador (biblioteca vazia e VERMELHO).
+# =============================================================================
+
+# Aceitacao do card F4-02, em ordem.
+prompts-testar:
+    @echo "=== prompts-testar: vitest (front-matter, casos, fronteira, dicionario) ==="
+    npx vitest run tests/prompts/
+    @echo "=== prompts-testar: ∅-crit do front-matter (versao:) ==="
+    @test "$(rg --files docs/autoria/prompts/ | wc -l)" -ge 5 || { echo "FALHOU: denominador — biblioteca de prompts vazia?"; exit 1; }
+    @test -z "$(rg --files-without-match '^versao:' docs/autoria/prompts/ -g '*.md' -g '!**/casos/**')" || { echo "FALHOU: arquivo sem 'versao:' em docs/autoria/prompts/"; exit 1; }
+    @test -z "$(rg --files-without-match '^versao:' docs/autoria/prompts/*.md)" || { echo "FALHOU: .md de topo sem 'versao:' (∅-crit literal do card)"; exit 1; }
+    @echo "prompts-testar: VERDE"
+# === fim F4-02 ===
