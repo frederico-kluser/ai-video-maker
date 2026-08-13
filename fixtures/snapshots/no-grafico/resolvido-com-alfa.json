@@ -1,0 +1,78 @@
+{
+  "schema_version": "ManifestoResolvido.1",
+  "hash_manifesto_original": "1afc2f96dce6dc1d231ee25d900738da7510f73b5cd1a4acfdabf8f88c615da9",
+  "manifesto": {
+    "schema_version": "Manifesto.1",
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "nos": [
+      {
+        "id": "g-asset",
+        "schema": "Grafico.1",
+        "type": "grafico",
+        "duracao_frames": 120,
+        "tipo_grafico": "barras",
+        "titulo": "Grafico vindo do estagio de resolucao",
+        "dados": [
+          {
+            "rotulo": "cpu",
+            "valor": 18
+          },
+          {
+            "rotulo": "qsv",
+            "valor": 41
+          },
+          {
+            "rotulo": "vaapi",
+            "valor": 37
+          },
+          {
+            "rotulo": "nvenc",
+            "valor": 96
+          },
+          {
+            "rotulo": "swangle",
+            "valor": 12
+          }
+        ]
+      }
+    ],
+    "cenas": [
+      {
+        "id": "c-001",
+        "nos": [
+          "g-asset"
+        ]
+      }
+    ]
+  },
+  "assets": {
+    "4dd3497f7719e4aa541f1087413be1522e47f4ac75c44eaceefcc4a8e5c4878c": {
+      "hash": "4dd3497f7719e4aa541f1087413be1522e47f4ac75c44eaceefcc4a8e5c4878c",
+      "tipo": "imagem",
+      "mimeType": "image/png",
+      "largura": 480,
+      "altura": 320,
+      "licenca": "CC0-1.0",
+      "atribuicaoObrigatoria": false,
+      "provedor": "manim"
+    }
+  },
+  "nos_midia": {},
+  "nos_locucao": {},
+  "nos_grafico": {
+    "g-asset": "4dd3497f7719e4aa541f1087413be1522e47f4ac75c44eaceefcc4a8e5c4878c"
+  },
+  "nos_codigo": {},
+  "nos_musica": {},
+  "trilha_sonora": null,
+  "estagios": [
+    {
+      "estagio": "grafico",
+      "versaoEstagio": "1.0.0",
+      "chave": "169f52eccf30bffd619830d2754de527afe569f988f85f24a4eb64bc506108d7",
+      "origem": "cassete"
+    }
+  ]
+}

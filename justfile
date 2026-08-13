@@ -876,3 +876,94 @@ no-codigo-aprovar:
 no-codigo-studio:
     npx remotion studio fixtures/snapshots/no-codigo/entrada.tsx --port 3108
 # === fim F1-08 ===
+
+# === F1-09 ===
+# =============================================================================
+# No: grafico — "o alfa nao e suportado" tem de falhar no BUILD, nao no video
+# =============================================================================
+# Dono: card F1-09. Nao edite fora destes marcadores.
+#
+# O que este bloco prova, e como (criterios de aceitacao do PROGRAMA):
+#
+#   1. `just no-grafico` -> exit 0. A receita completa: conferir (guarda de
+#      build sobre o manifesto resolvido), provar (render 2x com bytes
+#      identicos + snapshot aprovado + assercao de PIXEL — tinta, cores e
+#      cantos transparentes, que e a assinatura de "compoe sobre a cena"),
+#      mutar (seis sondas negativas), ausencia (o ∅-crit) e o diff/status
+#      dos snapshots.
+#
+#   2. `just det:provar --no <nome>` do PROGRAMA. O just 1.42 NAO aceita
+#      argumento em receita sem parametro (`just det-provar --no grafico`
+#      tenta rodar a receita `--no` e falha), e `det-provar` e receita de
+#      outro card. A prova de determinismo DESTE no (render 2x, bytes
+#      identicos) e a etapa `no-grafico-provar`, dentro de `no-grafico`.
+#      Registrado no ledger: ledger/inbox/F1-09.json (AB-360).
+#
+#   3. `git diff --exit-code fixtures/snapshots/no-grafico/` COMBINADO com
+#      `git status --porcelain` (C3: diff nao enxerga arquivo nao rastreado).
+#      Etapa `no-grafico-snapshots`, dentro de `no-grafico`.
+#
+#   4. ∅-crit: apagar um snapshot aprovado TEM de ficar vermelho. Etapa
+#      `no-grafico-ausencia` (tools/no-grafico/ausencia.sh), dentro de
+#      `no-grafico`, e coberta de novo pelas sondas ∅-1/∅-2 de `mutar`.
+#
+# NOME DAS RECEITAS: hifen, seguindo a convencao ja adotada por F1-01, F2-01
+# e F1-03 (criterios-de-aceitacao-corrigidos.md §2 — o just 1.42 nao aceita
+# ':' em nome de receita).
+
+# Guarda de build: um manifesto resolvido com grafico em formato sem alfa
+# tem de ser VERMELHO ANTES de abrir navegador. Aqui roda o caso bom; os
+# casos ruins (JPEG, PNG de tipo de cor 2, sem asset) sao cobrados pelas
+# sondas ∅-4, ∅-5 e ∅-6 de `no-grafico-mutar`.
+no-grafico-conferir:
+    @echo "=== no-grafico-conferir: guarda de build no caso bom ==="
+    @npx tsx tools/no-grafico/conferir.ts fixtures/snapshots/no-grafico/resolvido-com-alfa.json --loja fixtures/snapshots/no-grafico/assets
+    @echo "no-grafico-conferir: OK"
+
+# Render 2x com bytes identicos + snapshot aprovado + assercao de pixel.
+# O correspondente, no PROGRAMA, e `det:provar --no grafico` (ver AB-360).
+no-grafico-provar:
+    @echo "=== no-grafico-provar ==="
+    @npx tsx tools/no-grafico/provar.ts
+    @echo "no-grafico-provar: OK"
+
+# Grava (ou regrava) os snapshots aprovados, explicitamente.
+no-grafico-aprovar:
+    @echo "=== no-grafico-aprovar ==="
+    @npx tsx tools/no-grafico/provar.ts --aprovar
+    @echo "no-grafico-aprovar: OK"
+
+# Sondas negativas: cada garantia deste card e quebrada de proposito e o
+# gate tem de ficar VERMELHO pelo motivo certo.
+no-grafico-mutar:
+    @echo "=== no-grafico-mutar ==="
+    @npx tsx tools/no-grafico/mutar.ts
+    @echo "no-grafico-mutar: OK"
+
+# ∅-crit: apagar um snapshot aprovado tem de ficar VERMELHO, e com ele de
+# volta o gate tem de voltar VERDE.
+no-grafico-ausencia:
+    @echo "=== no-grafico-ausencia (∅-crit) ==="
+    @bash tools/no-grafico/ausencia.sh
+    @echo "no-grafico-ausencia: OK"
+
+# C3: diff --exit-code nao enxerga arquivo nao rastreado — o criterio e a
+# COMBINACAO dos dois, e os dois tem de sair vazios.
+no-grafico-snapshots:
+    @echo "=== no-grafico-snapshots: diff + status de fixtures/snapshots/no-grafico/ (C3) ==="
+    @bash tools/no-grafico/snapshots.sh
+
+# Regenera as duas fixtures de asset (grafico-com-alfa.png e grafico-opaco.png).
+# Deterministico: os hashes em cenario.ts e nos resolvido-*.json so valem se
+# os bytes nao mudarem — rodar e conferir que nada mudou e o proprio teste.
+no-grafico-gerar-assets:
+    @echo "=== no-grafico-gerar-assets ==="
+    @npx tsx tools/no-grafico/gerar-assets.ts
+    @git diff --exit-code --quiet fixtures/snapshots/no-grafico/assets/ || \
+        { echo "FALHOU: gerar-assets mudou os bytes — hashes em cenario.ts divergem"; exit 1; }
+    @echo "no-grafico-gerar-assets: OK"
+
+# A aceitacao inteira do card, em ordem. O `just no-grafico` do PROGRAMA.
+no-grafico: no-grafico-conferir no-grafico-provar no-grafico-mutar no-grafico-ausencia no-grafico-snapshots
+    @echo "no-grafico: VERDE"
+# === fim F1-09 ===

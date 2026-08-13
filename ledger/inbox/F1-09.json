@@ -1,0 +1,132 @@
+[
+  {
+    "id": "AB-360",
+    "titulo": "O criterio `just det:provar --no <nome>` nao e executavel no just 1.42",
+    "pergunta": "A prova de determinismo por no, que o PROGRAMA escreve como `just det:provar --no <nome>`, deve virar argumento de `det-provar`, receita propria do no, ou outra forma?",
+    "por_que_aberto": "O just 1.42.4 nao aceita argumento em receita sem parametro: `just det-provar --no grafico` tenta rodar a receita `--no` e falha no parse do comando ('Justfile does not contain recipe `--no`'). `det-provar` e receita de F0-06 e os seis cards de no da W4 nao podem edita-la. F1-09 adotou hifen e provou o determinismo do proprio no em `no-grafico-provar` (dentro de `just no-grafico`), mas a notacao do PROGRAMA continua aparecendo em seis cards.",
+    "decisao_provisoria": "`just no-grafico` (receita do no, com hifen) contem a prova de determinismo completa — render 2x com bytes identicos, snapshot aprovado e assercao de pixel — como etapa `no-grafico-provar`. O comando literal `just det-provar --no grafico` fica registrado como nao-executavel e a prova equivalente como parte da receita do no.",
+    "verificacao": {
+      "cmd": "just no-grafico && just det-provar --no grafico; echo \"exit=$?\"",
+      "espera": "a receita do no sai 0; o comando literal sai 1 com 'Justfile does not contain recipe `--no`' — o que motiva este item",
+      "ambiente": "worktree do repo, just 1.42.4, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o programa quiser o comando literal, `det-provar` ganha parametros (edicao de receita de F0-06, fora da regra de onda) ou o harness de determinismo aprende a filtrar por no; se mantido, o PROGRAMA e os seis cards de no precisam da mesma nota de mapeamento.",
+      "artefatos": [
+        "justfile",
+        "tools/determinismo/provar.sh",
+        "PROGRAMA.html"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "agentes-worktrees",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-361",
+    "titulo": "F2-02 precisa declarar `mimeType` no asset para a guarda do no nao recusar tudo",
+    "pergunta": "O estagio `grafico` (F2-02, W4) declara `mimeType` em todo asset que produz, e qual formato entrega por padrao?",
+    "por_que_aberto": "O no `grafico` recusa asset sem `mimeType` (desconhecido nao e aprovado por omissao) e a conferencia de bytes so sabe ler PNG e WebP. Se F2-02 entregar JPEG/MOV ou omitir o `mimeType`, o proprio asset legitimo do vizinho derruba este gate. A suposicao declarada no ADR-0007 e que o PNG RGBA e o formato default do estagio.",
+    "decisao_provisoria": "Assumir PNG RGBA como formato default de F2-02 e `mimeType` obrigatorio no descritor; as fixtures locais deste card usam PNG RGBA e PNG de tipo de cor 2 (a mentira controlada). Nada impede F2-02 de entregar WebM, que tambem passa na permissao.",
+    "verificacao": {
+      "cmd": "npx tsx tools/no-grafico/conferir.ts fixtures/snapshots/no-grafico/resolvido-com-alfa.json --loja fixtures/snapshots/no-grafico/assets",
+      "espera": "sai 0 com PNG RGBA; e a sonda ∅-5 reprova PNG de tipo de cor 2 mesmo com mimeType honesto",
+      "ambiente": "worktree do repo, node 24, tsx"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se F2-02 entregar outro formato padrao (ex.: WebM sempre), a permissao ja o aceita, mas a conferencia de bytes precisa de leitor; se omitir mimeType, todo no de grafico da fixture canonica de F2-02 falha neste gate ate a W5.",
+      "artefatos": [
+        "src/resolucao/grafico/**",
+        "src/composicao/nos/grafico.tsx",
+        "schema/manifesto-resolvido.schema.json"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "manim-bridge",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-363",
+    "titulo": "A conferencia de bytes NAO-VERIFICADO so sabe abrir PNG e WebP",
+    "pergunta": "Quem escreve os leitores de bytes para GIF, SVG, APNG e WebM (e os que declaram alfa mas nunca devem passar: JPEG, MP4, MOV), para a conferencia sair de NAO-VERIFICADO para VERDADEIRO/FALSO?",
+    "por_que_aberto": "A regra do card e 'o que nao pode ser verificado sai VERMELHO, nunca pulado'. Hoje PNG (todos os tipos de cor, tRNS de paleta) e WebP (bloco ALPH, flag VP8X, VP8L) tem leitor; os demais formatos da permissao e da recusa caem em NAO-VERIFICADO e derrubam o gate mesmo quando o asset e legitimo. A W4 nao tem um deles em fixture, entao o custo de fechar e adiar.",
+    "decisao_provisoria": "NAO-VERIFICADO permanece VERMELHO; as fixtures locais usam so PNG (caso bom e caso ruim controlado). Fechar exige leitores minimos de GIF (transparencia de 1 bit por indice), SVG (parse de atributo, impossivel sem DOM) ou a mudanca de estrategia de verificar o alfa no decode do proprio navegador.",
+    "verificacao": {
+      "cmd": "npx tsx tools/no-grafico/conferir.ts fixtures/snapshots/no-grafico/resolvido-formato-sem-alfa.json --loja fixtures/snapshots/no-grafico/assets",
+      "espera": "vermelho por dois motivos: formato sem alfa no descritor E NAO-VERIFICADO nos bytes de JPEG — nenhum deles pode virar 'pulado'",
+      "ambiente": "worktree do repo, node 24, tsx"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem trocar NAO-VERIFICADO por verde, o JPEG sem alfa passa calado; se o proprio navegador do render passar a ser a fonte de verdade do alfa, a conferencia de bytes vira checagem de cinto em vez de gate.",
+      "artefatos": [
+        "tools/no-grafico/conferir.ts",
+        "tools/no-grafico/png.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-364",
+    "titulo": "A fiacao da W5 anexa o asset ao no — o contrato de props nao tem slot para ele",
+    "pergunta": "A fiacao (W5) deve anexar o descritor do asset ao proprio no (`grafico_resolvido`) como este card assume, ou o canal e outro (contexto, memoizacao por hash)?",
+    "por_que_aberto": "O contrato de no e fechado — (no, frame, fps, width, height) — e o no usa `grafico_resolvido` (tipo declarado neste arquivo) como o unico canal para o asset. Nenhum card desta onda escreve a fiacao; a forma exata da anexacao so existe na W5. O componente trata ausencia como 'desenha do manifesto', entao a fiacao esquecida nao quebra o render — troca em silencio o que o estagio produziu pelo desenho local.",
+    "decisao_provisoria": "Assumir `grafico_resolvido` no no como contrato da fiacao, com `fonte` derivada do hash pela fiacao (nunca gravada no manifesto resolvido, C7). O componente lanca ErroDeGraficoOpaco se o asset foi resolvido mas a fonte nao chegou — a fiacao pela metade nao vira desenho local.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/no-grafico.test.ts -t \"fiacao que nao entregou o caminho\"",
+      "espera": "1 teste passa: asset resolvido sem fonte lanca ErroDeGraficoOpaco nomeando o no",
+      "ambiente": "worktree do repo, node 24, vitest 3"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a fiacao usar outro canal, o tipo NoGraficoResolvido e o ponto de fiacao mudam juntos — a tabela de formatos e as guardas nao mudam.",
+      "artefatos": [
+        "src/composicao/nos/grafico.tsx",
+        "src/composicao/ManifestoRaiz.tsx"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-362",
+    "titulo": "O no `grafico` desenhava fora da janela declarada — clampeava em vez de retornar null",
+    "pergunta": "A pergunta adversarial 4 da W4 (contrato de no) vale para o grafico: fora de [0, duracao_frames) o no retorna null, como os sete irmaos — ou congelar no ultimo estado valido e aceitavel quando a raiz (EnvelopeJanela) nunca chama o no fora da janela?",
+    "por_que_aberto": "Achado do revisor adversarial, verificado: o no `grafico` clampeava o frame (`Math.min(Math.max(frame, 0), duracao_frames - 1)`) e continuava emitindo a arvore inteira (SVG do grafico, opacidade 1) em frame >= duracao_frames e em frame < 0 — o proprio teste do card afirmava o congelamento. A mitigacao da raiz e insuficiente como contrato: um pintor futuro (ex.: pintor de cenas das transicoes) pintaria o grafico congelado sobre o conteudo seguinte sem nenhum gate acusar. O grafico era o UNICO dos oito nos a desenhar fora da janela.",
+    "decisao_provisoria": "Adotar o padrao dos irmaos: guarda no inicio do componente — `if (frame < 0 || frame >= grafico.duracao_frames) return null` — antes de qualquer desenho e antes da guarda de formato (fora da janela nenhum pixel e emitido, logo nao existe retangulo opaco a bloquear). O clamp `frameNaJanela` foi removido: dentro da janela `frame` ja esta em [0, duracao_frames), e as interpolacoes continuam com os dois extrapolate explicitos. Decisao registrada no ADR-0007, secao 6. Teste atualizado: markup vazio em -1, duracao, duracao+60 e duracao+5000.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/no-grafico.test.ts",
+      "espera": "33 testes passam, incluindo os novos it.each de markup vazio fora da janela (-1, duracao, duracao+60, duracao+5000); o caso 'dentro da janela desenha' permanece",
+      "ambiente": "worktree do repo, node 24, vitest 3"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um pintor futuro renderizar o no fora da janela, ele nao pinta nada em vez de pintar o grafico congelado por cima do conteudo seguinte; o gate de determinismo e o snapshot aprovado nao mudam (stills sao dentro da janela).",
+      "artefatos": [
+        "src/composicao/nos/grafico.tsx",
+        "tests/composicao/no-grafico.test.ts",
+        "docs/adr/0007-no-grafico-alfa-e-erro-de-build.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "evidencia": {
+      "cmd": "npx vitest run tests/composicao/no-grafico.test.ts",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-362.txt",
+      "sha256": "098d80dd78ba94f1faa556487142d0907bc732b70dfe76ee0e5dbed5ceefa015"
+    }
+  }
+]
