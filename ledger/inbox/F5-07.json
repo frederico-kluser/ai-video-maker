@@ -1,0 +1,241 @@
+[
+  {
+    "id": "AB-800",
+    "titulo": "A LISTA FECHADA do estrito vive em UMA constante nomeada, lida pelo ∅-crit (contrato-w9 §2/§12)",
+    "pergunta": "O ∅-crit do card e 'remover qualquer artefato esperado tem de ficar VERMELHO por ausencia, com o nome do artefato'. Onde vive a lista de 'esperado' e quem a reescreve?",
+    "por_que_aberto": "Se o teste digitasse os nomes a mao, ele poderia ser corrigido 'para arrumar' junto com o codigo — e o ∅-crit sumiria junto. A lista tem de ser uma fonte unica (contrato-w9 §2: 'uma unica constante nomeada (ARTEFATOS_ESPERADOS_DO_ESTRITO), lida pelo ∅-crit por leitura — o teste nunca a reescreve e nunca digita um nome a mao').",
+    "decisao_provisoria": "ARTEFATOS_ESPERADOS_DO_ESTRITO em src/pipeline/contrato.ts, com os 11 itens da tabela do contrato-w9 §2 (nome + arquivos + identidade). O conferirPresenca (src/pipeline/produzir.ts) itera a constante; o relatorio-final so e gravado com sucesso: true depois de todos os estagios e a conferencia final da propria execucao.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/e2e/produzir.test.ts && npx tsx tests/e2e/produzir-gate.ts | grep 'S0'",
+      "espera": "suite verde; cada um dos 11 artefatos removido/corrompido fica VERMELHO nomeando o artefato",
+      "ambiente": "worktree do repo, ffmpeg 6.1.1"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Mudar a lista e mudar o CONTRATO: PREP + ADR, nunca edicao do gate. O relatorio-final serializa a lista na ordem dela.",
+      "artefatos": [
+        "src/pipeline/contrato.ts",
+        "src/pipeline/produzir.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "pipeline",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Implementado como descrito: a constante e a fonte unica; conferirPresenca nomeia o artefato em cada problema (ausencia e corrupcao); o relatorio-final e gravado por ultimo e atomicamente.",
+    "evidencia": "npx tsx tests/e2e/produzir-gate.ts -> S0: cada um dos 11 artefatos removido/corrompido -> 'OK S0: <artefato> ausente/corrompido ficou VERMELHO nomeando o artefato'"
+  },
+  {
+    "id": "AB-801",
+    "titulo": "Ordem de execucao do mix ANTES do render: o encadeamento e por ENTRADA NOMEADA, nunca por posicao de tabela",
+    "pergunta": "A tabela do contrato-w9 §3 lista o render (6) antes do mix (8), mas o render consome o PlanoDeAudio (MixDeEmenda) que so o mix produz. Quem roda primeiro?",
+    "por_que_aberto": "A regra do contrato e 'encadeia pelo nome do artefato, nunca por posicao de diretorio nem por o estagio seguinte adivinha' — a ordem de execucao tem de respeitar as ENTRADAS NOMEADAS, e o render declara MixDeEmenda como entrada.",
+    "decisao_provisoria": "O mix roda antes do render; a ordem de execucao e: autoria -> reparo -> resolucao -> timing -> composicao -> MIX -> render -> encode -> pos -> variante/thumbnail -> procedencia -> mux -> relatorio-final. Documentado no codigo (estagioMix) e no ADR-0042.",
+    "verificacao": {
+      "cmd": "npx tsx src/pipeline/produzir.ts --fixture canonico --estrito",
+      "espera": "exit 0 com os 11 artefatos; o render consome o PlanoDeAudio do mix",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem reordenar por posicao de tabela, o render nao teria o PlanoDeAudio — erro nomeado, nunca plano vazio.",
+      "artefatos": [
+        "src/pipeline/produzir.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "pipeline",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Ordem implementada com as entradas nomeadas como criterio; o estagio de render monta o PlanoDeAudio via posicionarAudio (F5-01) com o MixDeEmenda do mix.",
+    "evidencia": "just produzir --fixture canonico --estrito -> exit 0; o render consome o PlanoDeAudio do mix (estagioMix antes de estagioRender no log)"
+  },
+  {
+    "id": "AB-802",
+    "titulo": "Reparo mecanico no caminho --fixture canonico: VALIDACAO estrutural do Manifesto.1, nunca reparo do documento Autoria.1",
+    "pergunta": "O F4-03 repara o documento Autoria.1 (saida do LLM). Com --fixture canonico a autoria e pulada e o manifesto da fixture entra direto — o que o estagio 2 (reparo mecanico, AB-635) faz?",
+    "por_que_aberto": "Rodar repararAutoria sobre o manifesto da fixture o REJEITARIA: a fixture e um Manifesto.1 completo (fps/width/height/cenas com transicoes) e o schema do F4-03 e do documento Autoria.1, mais restrito. O reparo de forma do LLM nao se aplica a uma fixture.",
+    "decisao_provisoria": "O estagio 2 valida o Manifesto.1 estruturalmente (schema_version, fps/width/height, nos nao-vazios com ids unicos e duracao positiva, cenas com referencias existentes — o espelho das checagens semanticas de fixtures/canonico/validar.py). A receita just produzir roda tambem o validar.py oficial (JSON Schema completo). Zero LLM no caminho estrito (AB-635).",
+    "verificacao": {
+      "cmd": "just produzir --fixture canonico --estrito | grep -E 'validar.py|VERDE'",
+      "espera": "validar.py exit 0 (fixture valida) e produzir VERDE",
+      "ambiente": "worktree do repo, python3 + jsonschema"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a fixture mudar e deixar de validar, o estrito para no estagio 2 nomeando o problema — nunca 'repara' o que e dado.",
+      "artefatos": [
+        "src/pipeline/produzir.ts",
+        "justfile"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "pipeline",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Implementado como descrito; validarManifestoDaFixture exportado para o teste.",
+    "evidencia": "just produzir --fixture canonico --estrito -> validar.py exit 0 e produzir VERDE"
+  },
+  {
+    "id": "AB-803",
+    "titulo": "A entrada gerada do bundle mora DENTRO do repo (.cache/pipeline/entrada) — o bundler resolve imports relativos a partir dela",
+    "pergunta": "A entrada Remotion e gerada em runtime com a fixture embutida. Ela pode morar em /tmp?",
+    "por_que_aberto": "O bundler (webpack do Remotion) resolve os imports relativos da entrada a partir da LOCALIZACAO dela: uma entrada em /tmp resolve '../../../src/...' para fora do repo ('No description file found in /tmp/...'). O AB-984 (saida de render em /tmp) nao cobre a entrada do bundle.",
+    "decisao_provisoria": "A entrada e o publicDir vivem em .cache/pipeline/entrada (gitignored, dentro do repo): os imports relativos (../../../src/design/fontes, ../../../src/composicao/pintura) resolvem; o diretorio e regenerado (limpo) a cada producao; a saida dos RENDERS continua em /tmp (AB-984).",
+    "verificacao": {
+      "cmd": "npx tsx src/pipeline/produzir.ts --fixture canonico --estrito",
+      "espera": "o bundle resolve e o render de 727 frames sai",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Mover a entrada para /tmp quebra o bundle com erro nomeado do webpack.",
+      "artefatos": [
+        "src/pipeline/produzir.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "pipeline",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Implementado como descrito (dirEntrada em .cache/pipeline/entrada).",
+    "evidencia": "just produzir --fixture canonico --estrito -> bundle resolve e render de 727 frames sai (exit 0)"
+  },
+  {
+    "id": "AB-804",
+    "titulo": "O oraculo de conteudo do encode e DO PIPELINE (YAVG maximo por frame), nao o piso de entropia media do F5-02",
+    "pergunta": "O verificarSaida do F5-02 falha com 'YAVG medio < 32' para o render da fixture canonica (YAVG medio ~30, maximo ~65). O render canonico e preto? O piso do F5-02 vale aqui?",
+    "por_que_aberto": "O YAVG_PISO_CONTEUDO=32 do F5-02 foi calibrado para os masters SINTETICOS do gate dele; o render da fixture canonica e escuro POR DESENHO (fundo dos tokens) e nao passa no piso medio — reprovar o encode por isso seria falso-vermelho. O card nao pode tocar src/render/encode/** (consumo).",
+    "decisao_provisoria": "O estagio 8 usa verificarSaida so para a ESTRUTURA (codec, dimensoes, frames, framemd5, sem metadado volatil — filtrando o erro de entropia) e declara o ORACULO DE CONTEUDO DO PIPELINE: o YAVG MAXIMO por frame do video codificado tem de passar de 32 (PISO_YAVG_MAXIMO_DE_CONTEUDO). Um video inteiro preto fica ~16-22 e NAO passa; o render canonico tem maximo ~65. Calibrado na execucao do proprio card: o render canonico mede YAVG medio ~30 e maximo ~65 (signalstats por frame); o piso 32 no MAXIMO separa confortavelmente de video preto (~16-22). Registrado no ADR-0042.",
+    "verificacao": {
+      "cmd": "npx tsx src/pipeline/produzir.ts --fixture canonico --estrito",
+      "espera": "estagio encode verde com o render canonico (yavg maximo ~65 > 32)",
+      "ambiente": "worktree do repo, ffmpeg 6.1.1"
+    },
+    "impacto_se_divergir": {
+      "resumo": "O piso e UMA constante no pipeline; o oraculo do F5-02 continua intocado.",
+      "artefatos": [
+        "src/pipeline/produzir.ts",
+        "docs/adr/0042-perfil-deterministico-do-estrito.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "pipeline",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Implementado como descrito: erros estruturais do verificarSaida exceto o de entropia + yavgMaximoDe com sinalstats.",
+    "evidencia": "yavgMaximoDe no encode: maximo por frame ~65 > piso 32; pipeline exit 0"
+  },
+  {
+    "id": "AB-805",
+    "titulo": "AB-745 no caminho ponta a ponta: o relatorio cita a emenda pelo hash NOVO mesmo na cadencia DEFAULT da fixture",
+    "pergunta": "O contrato-w9 §9 exige provar que o hash da emenda no relatorio do F5-06 e o NOVO (igual ao do PlanoDeAudio), nunca o do audio-fonte. Na cadencia default (0.25) a fixture tem cortes?",
+    "por_que_aberto": "Se a fixture nao tivesse cortes na cadencia default, emenda == fonte por conteudo e a prova do 'hash NOVO' seria vacua no caminho de producao (so o caso de estresse a exercitaria).",
+    "decisao_provisoria": "Medido: mesmo sem cortes, os bytes da emenda DIVERGEM da fonte (a fonte carrega chunk LIST do TTS; a emenda e re-escrita por emendar()) — o hash NOVO e distinto do antigo ja no caminho default. Execucao real: c-004 emenda 379d320f... vs fonte 6b9ec331...; c-005 emenda d1524ea1... vs fonte 2b8de8cb.... O gate prova: (1) producao default — relatorio cita emenda == PlanoDeAudio != fonte; (2) falso-verde — relatorio gerado com nos_locucao = fonte e DETECTADO (VERMELHO); (3) estresse (gap 0.05) — emendas com hash novo, citadas no relatorio.",
+    "verificacao": {
+      "cmd": "npx tsx tests/e2e/produzir-gate.ts | grep 'S1'",
+      "espera": "S1: relatorio cita hash NOVO; falso-verde detectado; estresse com hash novo",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "A prova e por construcao (marcador MARCADOR_DERIVACAO publicado no store junto da emenda).",
+      "artefatos": [
+        "src/pipeline/produzir.ts",
+        "tests/e2e/produzir-gate.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "procedencia",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Implementado: estagioProcedencia usa o manifesto pos-mix (nos_locucao = emenda hash) e publica as emendas com o marcador; o gate confere contra o PlanoDeAudio.",
+    "evidencia": "npx tsx tests/e2e/produzir-gate.ts -> 'S1: para cada cena, o relatorio cita a emenda pelo hash NOVO'; falso-verde detectado; estresse (gap 0.05) com hash novo"
+  },
+  {
+    "id": "AB-806",
+    "titulo": "Determinismo do perfil do estrito testado AO VIVO em trecho do mesmo master (2x encodes = bytes + framemd5 identicos)",
+    "pergunta": "A declaracao deterministico: true do perfil (entrega-software) precisa de prova ao vivo nesta cadeia (ADR-0036 decisao 3). Onde o F5-07 a testa sem dobrar o custo do gate?",
+    "por_que_aberto": "Encodar o master inteiro 2x (727 frames 1080p) dobraria o custo do gate. Um trecho de 30 frames usa a MESMA cadeia de flags (montarComando do F5-02) e o mesmo perfil — a declaracao e do perfil, nao da duracao.",
+    "decisao_provisoria": "S2 do gate: clip de 30 frames do master.mov produzido, 2x executarEncode com o perfil do estrito e a fila unica, comparando bytes do arquivo E framemd5 (verificarSaida).",
+    "verificacao": {
+      "cmd": "npx tsx tests/e2e/produzir-gate.ts | grep 'S2'",
+      "espera": "S2: 2x encodes = bytes identicos + framemd5 identico",
+      "ambiente": "worktree do repo, ffmpeg 6.1.1"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o perfil mentir, o gate fica VERMELHO — a declaracao e o contrato.",
+      "artefatos": [
+        "tests/e2e/produzir-gate.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "encode",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Implementado em S2 do gate.",
+    "evidencia": "npx tsx tests/e2e/produzir-gate.ts -> 'S2: 2x encodes = 45486B identicos + framemd5 identico'"
+  },
+  {
+    "id": "AB-807",
+    "titulo": "Mux com -c copy e flags bitexact DEPOIS das entradas; pin ffmpeg 6.1.1 verificado no estagio",
+    "pergunta": "O mp4 final muxado (artefato 10, AB-776) tem de ser deterministico e usar o MESMO ffmpeg 6.1.1 do pos, com o pin verificado (contrato-w9 §10). Quais flags?",
+    "por_que_aberto": "Remux com metadado de ferramenta (encoder/creation_time) nao seria deterministico entre execucoes; e o pin garante que o determinismo declarado vale para a cadeia.",
+    "decisao_provisoria": "ffmpeg -i video.mp4 -i entregavel.m4a -map 0:v:0 -map 1:a:0 -c copy -fflags +bitexact -flags +bitexact -map_metadata -1 saida.mp4; o estagio verifica o pin /^6\\.1\\.1/ antes de muxar e confere video+audio no muxado (ffprobe por stream — C4).",
+    "verificacao": {
+      "cmd": "npx tsx src/pipeline/produzir.ts --fixture canonico --estrito",
+      "espera": "entregavel-final.mp4 com 1 stream de video + 1 de audio; relatorio-final registra ffmpeg 6.1.1",
+      "ambiente": "worktree do repo, ffmpeg 6.1.1"
+    },
+    "impacto_se_divergir": {
+      "resumo": "O pin e a mesma disciplina de MixDocument.ferramentas/PosDocument.1.ferramentas.",
+      "artefatos": [
+        "src/pipeline/produzir.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "pipeline",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Implementado em estagioMux.",
+    "evidencia": "just produzir --fixture canonico --estrito -> entregavel-final.mp4 com video+audio; relatorio-final registra ffmpeg 6.1.1-3ubuntu5"
+  },
+  {
+    "id": "AB-808",
+    "titulo": "Camada de grafico da fixture canonica offline (n-009/n-011 -> HASH_DO_GRAFICO): heranca documentada do F1-12/AB-501",
+    "pergunta": "O estagio de resolucao offline resolve locucao/codigo/musica por cassetes reais contra a fixture canonica (F2-07). E as camadas de grafico e midia, cujos cassetes foram gravados contra OUTROS manifestos (AB-500)?",
+    "por_que_aberto": "Resolver o grafico da fixture canonica pelo cassete do F2-02 seria cache MISS (manifesto diferente) e ECasseteAusente; os bytes renderizados do cassete de grafico nunca foram commitados (metadata-only, AB-501). A camada offline commitada da fixture canonica e a do F1-12 (nos_grafico n-009/n-011 -> HASH_DO_GRAFICO, bytes em fixtures/canonico/assets/grafico-integrado.png) — o mesmo dado que o golden de 727 frames das W7/W8 usou.",
+    "decisao_provisoria": "Resolucao = cassetes reais (locucao/codigo/musica) + camada de grafico da fixture (validada por rehash dos bytes contra HASH_DO_GRAFICO) + midia sem camada (nos pintam o fallback do manifesto, como o golden). A origem da camada de grafico e declarada na procedencia do store (nota F1-12/AB-501) — nunca inventada.",
+    "verificacao": {
+      "cmd": "npx tsx src/pipeline/produzir.ts --fixture canonico --estrito",
+      "espera": "manifesto-resolvido.json com nos_grafico n-009/n-011 -> 4dd3497f... e o render pinta o asset",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Mudar a camada offline de grafico muda a chave C7 (os bytes entram na chave) e o render re-renderiza.",
+      "artefatos": [
+        "src/pipeline/produzir.ts",
+        "docs/adr/0042-perfil-deterministico-do-estrito.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "resolucao",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Implementado em estagioResolucaoOffline; o asset entra no store com a origem declarada.",
+    "evidencia": "just produzir --fixture canonico --estrito -> manifesto-resolvido.json com nos_grafico n-009/n-011 -> 4dd3497f...; render pinta o asset (exit 0)"
+  }
+]

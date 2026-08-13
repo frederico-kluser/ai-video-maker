@@ -2082,3 +2082,63 @@ render-cache-testar:
             { echo "FALHOU: nenhum teste selecionado (falso verde)"; exit 1; }
     @echo "render-cache-testar: OK"
 # === fim F5-09 ===
+
+# === F5-07 ===
+# =============================================================================
+# O orquestrador de ponta a ponta — card F5-07 (W9, o join 7).
+# Dono: card F5-07. Nao edite fora destes marcadores.
+#
+# Contrato congelado em docs/contrato-w9.md (TODAS as 13 secoes).
+#
+# Porta TCP deste card: 4510 (docs/contrato-w9.md §11).
+# Faixa de ledger: AB-800..AB-829 (ledger/inbox/F5-07.json).
+# ADR: docs/adr/0042-perfil-deterministico-do-estrito.md.
+#
+# O que cada etapa prova:
+#   produzir   um comando -> entrega completa: `just produzir --fixture
+#              canonico --estrito` roda o pipeline inteiro (autoria
+#              pulada, reparo mecanico zero-LLM, resolucao offline por
+#              cassetes, timing, composicao, mix, render deterministico
+#              com chave C7, encode do estrito, pos, variante 16:9 +
+#              thumbnail, procedencia, mux, relatorio-final atomico) e
+#              confere a LISTA FECHADA do contrato-w9 §2 (11 artefatos,
+#              hash + tamanho, lida da constante — ∅-crit de ausencia).
+#              Exposto: --fixture canonico, --estrito, --cache-dir
+#              (raiz default /tmp/ai-video-maker/render-cache, AB-793),
+#              --saida. A fixture e validada pelo validador oficial dela
+#              (fixtures/canonico/validar.py — o schema completo).
+#   e2e        o gate completo de ponta a ponta: suite vitest do
+#              contrato + R1 (producao com chave FRIA — miss forcado,
+#              AB-685), R2 (re-execucao integral idempotente — cache
+#              quente, 0 chamadas ao renderer, artefatos identicos),
+#              R3 (chave C7 mutada — MISS obrigatorio, C12), sondas
+#              ∅-crit de presenca (remover/corromper cada um dos 11
+#              artefatos fica VERMELHO nomeando o artefato), AB-745
+#              (hash NOVO da emenda no relatorio == PlanoDeAudio),
+#              determinismo do perfil (2x encodes = bytes + framemd5
+#              identicos), escopo 16:9 e pin ffmpeg 6.1.1.
+#
+# O gate roda 2x no CI (flake transitorio conhecido do render Chrome
+# sob carga); cada execucao faz 3 renders completos (R1/R2/R3) e ~5
+# encodes — a prova do join e cara de proposito.
+# =============================================================================
+
+# `just produzir --fixture canonico --estrito` — a entrega completa.
+produzir *args:
+    @echo "=== produzir: pipeline de ponta a ponta (F5-07, W9) ==="
+    npx tsc --noEmit
+    @python3 fixtures/canonico/validar.py --fixture fixtures/canonico/manifesto-valido.json --quiet || \
+        { echo "FALHOU: a fixture canonica nao valida contra o schema (manifesto.schema.json)"; exit 1; }
+    npx tsx src/pipeline/produzir.ts {{args}}
+
+# O gate completo de ponta a ponta (suite + R1/R2/R3 + sondas ∅-crit).
+e2e:
+    @echo "=== e2e: gate de ponta a ponta (F5-07, W9) ==="
+    npx tsc --noEmit
+    @saida=$(npx vitest run tests/e2e/ 2>&1 | sed -E 's/\x1b\[[0-9;]*m//g'); \
+        printf '%s\n' "$saida" | tail -6; \
+        printf '%s\n' "$saida" | grep -qE "Tests +[1-9][0-9]* passed" || \
+            { echo "FALHOU: nenhum teste selecionado (falso verde)"; exit 1; }
+    npx tsx tests/e2e/produzir-gate.ts
+    @echo "e2e: VERDE"
+# === fim F5-07 ===

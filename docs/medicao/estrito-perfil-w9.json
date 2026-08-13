@@ -1,0 +1,30 @@
+{
+  "onda": "W9",
+  "card": "F5-07",
+  "master": "output/master.mov",
+  "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+  "libvmaf": "AUSENTE (No such filter — AB-701)",
+  "metrica": "SSIM nativo (ffmpeg 6.1.1), tamanho em bytes",
+  "perfis": {
+    "entrega-software": {
+      "tamanho_bytes": 574842,
+      "tamanho_mib": 0.55,
+      "ssim": {
+        "min": 0.9965,
+        "max": 1.0,
+        "media": 0.9974,
+        "frames": 13
+      }
+    },
+    "entrega-nvenc": {
+      "tamanho_bytes": 757757,
+      "tamanho_mib": 0.72,
+      "ssim": {
+        "min": 0.9964,
+        "max": 1.0,
+        "media": 0.9974,
+        "frames": 13
+      }
+    }
+  }
+}
