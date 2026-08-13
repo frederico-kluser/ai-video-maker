@@ -1,0 +1,148 @@
+[
+  {
+    "id": "AB-700",
+    "titulo": "NVENC sem garantia de determinismo entre execucoes — amostra unica identica nao e garantia",
+    "pergunta": "O perfil entrega-nvenc declara deterministico: false (ADR-0036, decisao 3). Em 2026-08-13, uma amostra unica de 1 s (320x180, h264_nvenc p5 -rc vbr -cq 23) saiu com bytes identicos entre duas execucoes. Quanto disso e garantia do driver/sessao e quanto foi sorte de amostra curta? Existe alguma condicao (driver, resolucao, presets, carga da GPU) em que o NVENC diverge entre execucoes da MESMA entrada?",
+    "por_que_aberto": "A declaracao false e um CONTRATO de seguranca, nao uma medicao: sem garantia, sem golden. Virar true exigiria cerimonia formal de determinismo (N repeticoes, ambiente variado, sessoes intercaladas) — que nao foi feita e nao e barata.",
+    "decisao_provisoria": "Manter deterministico: false e a recusa de golden (testada em golden.test.ts). Se um dia o pipeline quiser golden do caminho NVENC, rodar a cerimonia (>= 10 repeticoes, 2 resolucoes, com e sem outra sessao NVENC ativa) e reverter a declaracao por escrito no perfil.",
+    "verificacao": {
+      "cmd": "cd <worktree> && npx vitest run tests/render/encode/golden.test.ts && npx tsx -e \"(async () => { const { listarPerfis } = await import('src/render/encode/descobrir.js'); const p = (await listarPerfis()).find(d => d.perfil.nome === 'entrega-nvenc'); console.log(p?.perfil.deterministico); })()\"",
+      "espera": "golden recusado para entrega-nvenc e deterministico === false; qualquer mudanca da declaracao exige a cerimonia acima",
+      "ambiente": "maquina com GPU NVIDIA (RTX 4070), ffmpeg 6.1.1"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem declarar NVENC deterministico sem cerimonia, o golden de bytes pisca vermelho por motivo de sessao/driver (nao por regressao) e o oraculo morre de limiar afrouxado — o desfecho classico do video-characterization.",
+      "artefatos": [
+        "src/render/encode/perfis/entrega-nvenc.ts",
+        "src/render/encode/golden.ts",
+        "docs/adr/0036-perfis-de-encode.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-701",
+    "titulo": "\"Mais proximo de CRF\" nao e equivalencia — escolha entre perfis exige medição de saida, nunca igualar numeros",
+    "pergunta": "O alvo do NVENC (-rc vbr -cq N) e descrito como 'o mais proximo de CRF' do vocabulario da API, sem ser equivalencia (ffmpeg-media-ops, matriz por API). Os numeros crf=18 (software) e cq=23 (hardware) dos perfis deste card sao pontos de partida: qual a relacao real entre eles NO CONTEUDO DESTE PROGRAMA (texto vetorial, bordas duras, fundo chapado) — tamanho e SSIM a mesmos numeros?",
+    "por_que_aberto": "A qualidade de encoder de hardware no conteudo deste programa nao foi medida (ffmpeg-media-ops, 'Não verificado': unico benchmark publico legivel usou camera/jogo). libvmaf NAO existe no build 6.1.1-3ubuntu5 (Unknown filter, placar 2-0) — a metrica disponivel hoje e SSIM/PSNR nativos.",
+    "decisao_provisoria": "Os valores declarados nos perfis sao pontos de partida (crf 18, cq 23). A escolha do perfil por padrao do pipeline e do F5-07, com evidencia: encodar o MESMO master nos dois perfis, comparar tamanho e SSIM minimo por frame, e registrar a tabela em docs/medicao. Nunca escolher por igualar numeros de eixos diferentes.",
+    "verificacao": {
+      "cmd": "ffmpeg -hide_banner -h filter=libvmaf 2>&1 | grep -q 'Unknown filter' && echo 'sem libvmaf — usar ssim/psnr'",
+      "espera": "confirmar a disponibilidade do oraculo de qualidade no build e registrar a tabela crf x cq do conteudo real no F5-07",
+      "ambiente": "maquina com GPU NVIDIA, ffmpeg 6.1.1"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o F5-07 escolher perfil 'por equivalencia de numero', o tamanho/qualidade da entrega diverge sem nenhum gate acusar — o falso verde que este card existe para impedir.",
+      "artefatos": [
+        "src/render/encode/perfis/*.ts",
+        "docs/adr/0036-perfis-de-encode.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-702",
+    "titulo": "Posicao dos flags de bitexact medida em 6.1.1 (NV-5) — re-medir a cada bump de ffmpeg",
+    "pergunta": "A posicao dos tres flags canonicos (-fflags +bitexact -flags +bitexact -map_metadata -1) DEPOIS das entradas foi medida em ffmpeg 6.1.1-3ubuntu5: antes do -i o MP4 sai com TAG:encoder=Lavf... com exit 0 (NV-5, placar 1-0). A posicao vale em outras versoes/builds?",
+    "por_que_aberto": "E medicao local de uma versao (convencao B, placar 1-0). O oraculo que desarma o falso verde e o check de format_tags no artefato (verificar.ts) — ele falha se o metadado voltar, independente da versao.",
+    "decisao_provisoria": "O construtor unico (comando.ts) fixa a posicao por contrato e o teste de posicao asserta o indice relativo; o gate verificar.ts falha se format_tags volatel aparecer. A cada bump de ffmpeg, re-medir a posicao (2x encodes com e sem flags) antes de subir.",
+    "verificacao": {
+      "cmd": "ffmpeg -version | head -1 && npx vitest run tests/render/encode/comando.test.ts tests/render/encode/reais.test.ts",
+      "espera": "ffmpeg 6.1.1 e a suite de comando/reais verde; versao diferente -> re-medir NV-5",
+      "ambiente": "worktree do repo, ffmpeg 6.1.1"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Num build novo em que a posicao deixe de valer, os bytes dos encodes deterministicos divergem e o gate de determinismo acusa — o check de format_tags nomeia a causa (comando montado errado) em vez de culpar o baseline.",
+      "artefatos": [
+        "src/render/encode/comando.ts",
+        "src/render/encode/verificar.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-703",
+    "titulo": "Determinismo byte a byte vale para a cadeia pinada — bump de ffmpeg invalida a declaracao e os goldens",
+    "pergunta": "O perfil entrega-software declara deterministico: true com justificativa MEDIDA em ffmpeg 6.1.1-3ubuntu5 (2x bytes identicos). O que acontece com a declaracao e com qualquer golden de bytes gravado quando o ffmpeg sobe de versao? O gate conferencia a versao do ffmpeg?",
+    "por_que_aberto": "O determinismo do x264 e da cadeia pinada (R10-25/R11-11): bump de versao quebra a igualdade de bytes sem aviso, e o sintoma fica indistinguivel de regressao real (video-characterization, camada 1).",
+    "decisao_provisoria": "A declaracao do perfil cita a versao medida; o gate encode-perfis roda a prova 2x ao vivo a cada execucao (o que acusa o bump na hora). Registrar a versao do ffmpeg junto do golden quando o F5-07 pinar baselines; bump de ffmpeg = re-baseline por escrito, nunca afrouxar a comparacao.",
+    "verificacao": {
+      "cmd": "ffmpeg -version | head -1 && npx tsx -e \"(async () => { const { listarPerfis } = await import('src/render/encode/descobrir.js'); const p = (await listarPerfis()).find(d => d.perfil.nome === 'entrega-software'); console.log(p?.perfil.justificativaDeterminismo); })()\"",
+      "espera": "versao 6.1.1 e justificativa citando a versao medida; versao nova -> re-medir e atualizar a justificativa do perfil",
+      "ambiente": "worktree do repo, ffmpeg 6.1.1"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o ffmpeg subir e ninguem re-medir, o gate de determinismo pisca e a reacao natural (afrouxar) mata o oraculo; a prova 2x ao vivo no gate e o tripwire.",
+      "artefatos": [
+        "src/render/encode/perfis/entrega-software.ts",
+        "justfile (bloco F5-02)"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-704",
+    "titulo": "VRAM por sessao NVENC nao isolada — perfis 4K podem esbarrar em VRAM antes do teto de sessoes",
+    "pergunta": "O I-03 mediu sessoes NVENC em 720p (limite de inicializacao em 8, teto declarado 4) sem isolar a VRAM por sessao (AB-987 herdado). Se o F5-07 rodar perfis 4K paralelos, a VRAM da RTX 4070 (8 GiB) pode ser o teto real antes das 4 sessoes.",
+    "por_que_aberto": "A medicao deste card repetiu a metodologia do I-03 em 320x180/1 s; nenhum encode pesado (1080p+ real do pipeline) foi amostrado em VRAM.",
+    "decisao_provisoria": "O modulo nao reserva VRAM — quem orquestrar encodes paralelos (F5-01/F5-07) deve monitorar nvidia-smi memory.used antes de subir resolucao; o teto de sessoes segue como esta (ADR-0032, decisao 2).",
+    "verificacao": {
+      "cmd": "nvidia-smi --query-gpu=memory.used --format=csv,noheader durante encodes 1080p paralelos do F5-07",
+      "espera": "memory.used < 4096 MiB com 4 sessoes 1080p; se proximo do limite de 8188 MiB, a VRAM e o teto real e o teto de sessoes cai",
+      "ambiente": "maquina com GPU NVIDIA, ffmpeg 6.1.1"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Encode 4K paralelo estoura VRAM e falha na inicializacao — erro de ambiente com o gate verde; o F5-07 precisa do numero antes de escalar.",
+      "artefatos": [
+        "docs/adr/0036-perfis-de-encode.md",
+        "docs/medicao/maquina.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-705",
+    "titulo": "A fila explicita e por-modulo (default 4+4) — quem e o DONO da fila compartilhada entre pipeline e orquestrador?",
+    "pergunta": "A fila deste card (src/render/encode/fila.ts) tem default 4 NVENC + 4 libx264 e e criada por chamada de executarEncode quando nao injetada. O F5-01 (pipeline por faixas, irmao da W7) e o F5-07 (orquestrador, W9) podem lancar encodes de lugares diferentes: existe UMA fila compartilhada no processo, ou cada chamador cria a sua e o teto do I-03 deixa de valer globalmente?",
+    "por_que_aberto": "O teto do ADR-0032 e um teto DA MAQUINA (a GPU nao sabe de quantas filas veio cada sessao). O executor deste card aceita fila injetada (testado), mas o dono da instancia unica no processo do pipeline ainda nao existe — o F5-01/F5-07 decide.",
+    "decisao_provisoria": "O executor aceita fila injetada e o default e por-chamada; o orquestrador que juntar encodes paralelos deve criar UMA fila e passar para todos os executarEncode do lote. O gate nao valida isso (e decisao de composicao do F5-07, W9).",
+    "verificacao": {
+      "cmd": "grep -n 'fila' src/render/encode/executar.ts | head -5",
+      "espera": "executarEncode recebe fila opcional e usa a injetada quando presente (contrato documentado no ADR-0036, decisao 7)",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se cada chamador criar a propria fila, o lote paralelo do F5-07 pode lancar 4+4 por chamador — estourando o teto medido da maquina (falha de inicializacao NVENC a partir de 10 sessoes, medido no I-03).",
+      "artefatos": [
+        "src/render/encode/fila.ts",
+        "src/render/encode/executar.ts",
+        "docs/adr/0036-perfis-de-encode.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]

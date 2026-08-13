@@ -1705,3 +1705,104 @@ audio-mix:
     npx tsx tests/audio/mix.ferramenta.ts --conferir
     @echo "audio-mix: VERDE"
 # === fim F3-05 ===
+
+# === F5-02 ===
+# =============================================================================
+# Perfis de encode (hardware e software) — card F5-02 (W7). ADR-0036.
+# =============================================================================
+# Contrato: docs/contrato-w7.md §1 (dono de src/render/encode/**), §6 (emenda:
+# o perfil DECLARA se o encode e deterministico; goldens so em perfis
+# deterministicos; o ∅-crit do PROGRAMA permanece), §7 (esta receita),
+# §11 (porta TCP 4502 reservada), §12 (presenca, nunca lista completa).
+# Tetos de sessoes: I-03/ADR-0032 decisao 2 — 4 NVENC + 4 libx264 com fila
+# explicita (S-10); NVENC nao tem CRF (perfis por qualidade).
+#
+# ∅-crit do PROGRAMA: um perfil SEM ALVO DE QUALIDADE DECLARADO tem de
+# falhar — o passo [3/6] roda listarPerfis() sobre o disco, que lança no
+# primeiro perfil invalido; o vitest cobre a sonda negativa por unidade.
+#
+# A pergunta obrigatoria da onda (§12): toda assercao e de PRESENCA dos
+# perfis DESTE card (entrega-software, entrega-nvenc), nunca de lista
+# completa de perfis — o merge dos irmaos pode trazer mais.
+encode-perfis:
+    @echo "=== encode-perfis: perfis de encode (hw/sw — um nao tem CRF) ==="
+    @echo "--- [1/6] tipos (tsc do repositorio inteiro) ---"
+    npx tsc --noEmit
+    @echo "--- [2/6] vitest: tests/render/encode (∅-crit + 4 adversariais + presenca + encodes reais) ---"
+    @# C2: um alvo que nao casa nenhum teste sai verde. Exigimos o numerador.
+    @saida=$(npx vitest run tests/render/encode/ 2>&1); \
+        echo "$saida" | tail -8; \
+        echo "$saida" | grep -qE "Tests +[1-9][0-9]* passed" || \
+            { echo "FALHOU: o vitest nao rodou nenhum teste deste card (falso verde)"; exit 1; }
+    @echo "--- [3/6] ∅-crit: todo perfil do disco declara alvo de qualidade (listarPerfis lança em invalido) ---"
+    @npx tsx -e "(async () => { \
+        const { listarPerfis } = await import('src/render/encode/descobrir.js'); \
+        const ps = await listarPerfis(); \
+        const nomes = ps.map(p => p.perfil.nome); \
+        for (const nome of ['entrega-software', 'entrega-nvenc']) { \
+            if (!nomes.includes(nome)) { \
+                console.error('FALHOU: perfil esperado ausente do disco: ' + nome); \
+                process.exit(1); \
+            } \
+        } \
+        for (const p of ps) { \
+            console.log('  - ' + p.perfil.nome + ' (motor ' + p.perfil.motor + \
+                ', alvo ' + p.perfil.alvoQualidade.tipo + '=' + p.perfil.alvoQualidade.valor + \
+                ', deterministico: ' + p.perfil.deterministico + ')'); \
+        } \
+    })().catch((e) => { console.error(e.message); process.exit(1); });"
+    @echo "--- [4/6] NVENC: deteccao por smoke test de 1 s (C8) + contrato de fallback declarado ---"
+    @npx tsx -e "(async () => { \
+        const { detectarNvenc } = await import('src/render/encode/detectar.js'); \
+        const { escolherPerfil } = await import('src/render/encode/escolher.js'); \
+        const { listarPerfis } = await import('src/render/encode/descobrir.js'); \
+        const ps = (await listarPerfis()).map(d => d.perfil); \
+        const nvenc = ps.find(p => p.nome === 'entrega-nvenc'); \
+        const software = ps.find(p => p.nome === 'entrega-software'); \
+        if (!nvenc || !software) { console.error('FALHOU: perfis ausentes'); process.exit(1); } \
+        const d = await detectarNvenc(); \
+        console.log('  deteccao: ' + (d.nvenc ? 'NVENC DISPONIVEL' : 'NVENC INDISPONIVEL') + ' — ' + d.motivo); \
+        const escolha = escolherPerfil(nvenc, { nvenc: d.nvenc }, [nvenc, software]); \
+        if (d.nvenc) { \
+            if (escolha.fallback.ativo) { console.error('FALHOU: fallback declarado com NVENC disponivel'); process.exit(1); } \
+        } else { \
+            if (!escolha.fallback.ativo) { console.error('FALHOU: fallback NAO declarado com NVENC indisponivel — o fallback tem de ser declarado (pergunta adversarial 3)'); process.exit(1); } \
+            console.log('  fallback DECLARADO: ' + escolha.fallback.solicitado + ' -> ' + escolha.perfil.nome); \
+        } \
+    })().catch((e) => { console.error(e.message); process.exit(1); });"
+    @echo "--- [5/6] determinismo declarado TESTADO ao vivo (2x bytes identicos no perfil deterministico, ffmpeg real) ---"
+    @npx tsx -e "(async () => { \
+        const { execFile } = await import('node:child_process'); \
+        const { mkdtemp, readFile, rm } = await import('node:fs/promises'); \
+        const { tmpdir } = await import('node:os'); \
+        const { join } = await import('node:path'); \
+        const { createHash } = await import('node:crypto'); \
+        const rodar = (c, a) => new Promise((res, rej) => execFile(c, a, { timeout: 120000 }, (e) => e ? rej(e) : res())); \
+        const dir = await mkdtemp(join(tmpdir(), 'f5-02-gate-')); \
+        try { \
+            const master = join(dir, 'master.mp4'); \
+            await rodar('ffmpeg', ['-y','-hide_banner','-loglevel','error','-f','lavfi','-i','testsrc2=size=320x180:rate=30:duration=1','-c:v','libx264','-preset','ultrafast','-pix_fmt','yuv420p','-fflags','+bitexact','-flags','+bitexact','-map_metadata','-1', master]); \
+            const { listarPerfis } = await import('src/render/encode/descobrir.js'); \
+            const { executarEncode } = await import('src/render/encode/executar.js'); \
+            const { calcularFramemd5 } = await import('src/render/encode/verificar.js'); \
+            const catalogo = (await listarPerfis()).map(d => d.perfil); \
+            const software = catalogo.find(p => p.nome === 'entrega-software'); \
+            if (!software) { console.error('FALHOU: entrega-software ausente'); process.exit(1); } \
+            if (!software.deterministico) { console.error('FALHOU: perfil deterministico declarou false'); process.exit(1); } \
+            const s1 = join(dir, 'd1.mp4'); const s2 = join(dir, 'd2.mp4'); \
+            await executarEncode({ perfil: software, entrada: master, saida: s1, catalogo }); \
+            await executarEncode({ perfil: software, entrada: master, saida: s2, catalogo }); \
+            const sha = async (f) => createHash('sha256').update(await readFile(f)).digest('hex'); \
+            const a = await sha(s1); const b = await sha(s2); \
+            if (a !== b) { console.error('FALHOU: 2x encodes divergiram (' + a + ' vs ' + b + ') — determinismo declarado nao confere'); process.exit(1); } \
+            const f1 = await calcularFramemd5(s1); const f2 = await calcularFramemd5(s2); \
+            if (f1 !== f2) { console.error('FALHOU: framemd5 divergiu entre os 2x encodes'); process.exit(1); } \
+            console.log('  2x encodes byte-a-byte identicos (sha256 ' + a.slice(0, 12) + '...); framemd5 identico'); \
+        } finally { await rm(dir, { recursive: true, force: true }).catch(() => undefined); } \
+    })().catch((e) => { console.error(e.message); process.exit(1); });"
+    @echo "--- [6/6] conferencia do ambiente: muxer framemd5 no build (build-dependente) ---"
+    @ffmpeg -hide_banner -h muxer=framemd5 >/dev/null 2>&1 || \
+        { echo "FALHOU: o build local de ffmpeg nao tem o muxer framemd5 — o oraculo de determinismo (camada 1) nao roda neste ambiente"; exit 1; }
+    @echo ""
+    @echo "=== encode-perfis: VERDE (∅-crit + eixos + fallback declarado + determinismo testado) ==="
+# === fim F5-02 ===
