@@ -1,11 +1,18 @@
 // =============================================================================
-// FIACAO — o ponto onde a composicao integrada vira render
+// FIACAO E ORACULO DA SUITE INTEGRADA — o ponto onde a composicao vira render
 // =============================================================================
 // Card: F1-12 — Suite integrada de composicao (onda W5)
 //
-// Este modulo e o que os oito nos da W4 declararam como suposicao (AB-364,
-// AB-374, AB-383) e que nenhum card da W4 podia escrever porque so existe no
-// join:
+// No PREP-w7 (AB-493) o PINTOR DE CENA DE PRODUCAO foi promovido para
+// src/composicao/pintura/ — a fiacao (`fiar`), o pintor de cena das
+// transicoes (`pintorDeCena`) e o pintor integrado (`pintar`/
+// `ArvoreIntegrada`) agora sao codigo de producao puro, e ESTE arquivo os
+// IMPORT de la, reexportando-os para o resto da suite. A suite integrada
+// continua o oraculo; este arquivo mantem o que e dela: os dados da fixture
+// integrada e a geometria das regioes do oraculo de conteudo.
+//
+// O que os oito nos da W4 declararam como suposicao (AB-364, AB-374,
+// AB-383) e que nenhum card da W4 podia escrever porque so existe no join:
 //
 //   1. A FIACAO: anexa ao no `grafico` o descritor do asset que mora fora
 //      dele — `assets[nos_grafico[no.id]]` — com `fonte` derivada do hash
@@ -15,9 +22,9 @@
 //
 //   2. O PINTOR DE CENA REAL: `SequenciaComTransicoes` (F1-10) recebe o
 //      pintor INJETADO por prop (AB-374). O pintor de producao, o que pinta
-//      os nos do registro de verdade dentro da janela de cada cena, e este
-//      arquivo. A demonstracao da W4 usava pintor chapado proprio; aqui o
-//      pintor real.
+//      os nos do registro de verdade dentro da janela de cada cena, vive em
+//      src/composicao/pintura/. A demonstracao da W4 usava pintor chapado
+//      proprio; aqui o pintor real, importado.
 //
 //   3. A COMPOSICAO DAS CAMADAS com a timeline de nos (AB-383): as camadas
 //      globais (fundo/grade/vinheta) cobrem a composicao inteira e se
@@ -31,142 +38,43 @@
 // consegue provar o pixel.
 // =============================================================================
 
-import { createElement, type ReactElement } from "react";
-import { AbsoluteFill, staticFile } from "remotion";
-import type { Manifesto, No } from "../../../src/contratos/manifesto";
-import { background, fontFamily } from "../../../src/design/tokens";
+import type { Manifesto } from "../../../src/contratos/manifesto";
 import {
-  planoDeComposicao,
-  type PlanoDeComposicao,
-} from "../../../src/composicao/ManifestoRaiz";
-import { REGISTRO_DE_NOS } from "../../../src/composicao/registro";
-import type {
-  GraficoResolvido,
-  NoGraficoResolvido,
-} from "../../../src/composicao/nos/grafico";
-import { CAMADAS } from "../../../src/composicao/camadas/registro";
-import type {
-  CamadaProps,
-  ModuloDeCamada,
-} from "../../../src/composicao/camadas/contrato-de-camada";
-import SequenciaComTransicoes, {
-  type PintorDeCena,
-} from "../../../src/composicao/transicoes/sequencia";
-import type { AssetResolvido } from "../../../src/resolucao/manifesto-resolvido";
+  ArvoreIntegrada,
+  fiar,
+  fiarApadrao,
+  resolverPadrao,
+  pintorDeCena,
+  HASH_DO_GRAFICO,
+  NOME_DO_ARQUIVO_DO_GRAFICO,
+  type ArvoreIntegradaProps,
+  type Fiado,
+  type FixtureIntegrada,
+} from "../../../src/composicao/pintura";
 import fixtureIntegrado from "../../../fixtures/snapshots/integrado/manifesto-integrado.json";
 
 // ---------------------------------------------------------------------------
-// Tipos da fixture integrada
+// Reexport da camada de pintura promovida (AB-493)
 // ---------------------------------------------------------------------------
-
-/** A fixture integrada: manifesto canonico + a camada de resolucao. */
-export interface FixtureIntegrada {
-  schema_version: "ManifestoResolvido.1";
-  hash_manifesto_original: string;
-  manifesto: Manifesto;
-  assets: Record<string, AssetResolvido>;
-  nos_grafico: Record<string, string>;
-}
-
-/** A fixture ja fiada: manifestos e planos prontos para render. */
-export interface Fiado {
-  /** O manifesto com os assets anexados aos nos de grafico. */
-  manifesto: Manifesto;
-  /** Os nos do manifesto, indexados por id. */
-  porId: ReadonlyMap<string, No>;
-  /** O plano de composicao (raiz, F1-01). */
-  plano: PlanoDeComposicao;
-  /** Resolvedor de hash -> caminho local servido ao navegador. */
-  resolverFonte: (hash: string) => string;
-}
+// A suite inteira continua importando de ./fiar; o que mudou e que a
+// implementacao vive em src/composicao/pintura/ (producao pura) e este
+// arquivo apenas a reexporta junto do que e do oraculo.
+export {
+  ArvoreIntegrada,
+  fiar,
+  fiarApadrao,
+  resolverPadrao,
+  pintorDeCena,
+  HASH_DO_GRAFICO,
+  NOME_DO_ARQUIVO_DO_GRAFICO,
+};
+export type { ArvoreIntegradaProps, Fiado, FixtureIntegrada };
 
 export const FIXTURA_INTEGRADA = fixtureIntegrado as unknown as FixtureIntegrada;
 
 /** O manifesto canonico — a lista de presenca que o gate exige. */
 export function manifestoCanonico(): Manifesto {
   return FIXTURA_INTEGRADA.manifesto;
-}
-
-// ---------------------------------------------------------------------------
-// O asset de grafico — endereco por conteudo (C7)
-// ---------------------------------------------------------------------------
-
-/** SHA-256 de fixtures/snapshots/integrado/assets/grafico-integrado.png. */
-export const HASH_DO_GRAFICO =
-  "4dd3497f7719e4aa541f1087413be1522e47f4ac75c44eaceefcc4a8e5c4878c";
-
-/** Nome do arquivo no publicDir da fixture integrada. */
-export const NOME_DO_ARQUIVO_DO_GRAFICO = "grafico-integrado.png";
-
-/**
- * A fiacao: anexa `grafico_resolvido` a todo no de grafico que o manifesto
- * resolvido declara em `nos_grafico`.
- *
- * Regra de ouro (AB-364): TODO asset fiado TEM de ter `fonte`. Um asset
- * resolvido sem fonte e ErroDeGraficoOpaco no componente — a fiacao pela
- * metade nao vira desenho local.
- */
-export function fiar(
-  fixture: FixtureIntegrada,
-  resolverFonte: (hash: string) => string,
-): Fiado {
-  const manifesto = JSON.parse(JSON.stringify(fixture.manifesto)) as Manifesto;
-  const porId = new Map(manifesto.nos.map((no) => [no.id, no] as const));
-
-  for (const no of manifesto.nos) {
-    if (no.type !== "grafico") continue;
-    const hash = fixture.nos_grafico[no.id];
-    if (hash === undefined) continue;
-    const asset = fixture.assets[hash];
-    if (asset === undefined) {
-      throw new Error(
-        `fiar: nos_grafico["${no.id}"] aponta para ${hash}, que nao existe ` +
-          `em assets — referencia pendurada nao vira grafico`,
-      );
-    }
-    const resolvido: GraficoResolvido = {
-      asset,
-      fonte: resolverFonte(hash),
-    };
-    // O tipo da W4 declara o campo readonly de proposito (a fiacao e o
-    // unico lugar que o preenche). A anexacao e por cast de atribuicao.
-    (no as NoGraficoResolvido & { grafico_resolvido?: GraficoResolvido }).grafico_resolvido =
-      resolvido;
-  }
-
-  const plano = planoDeComposicao(manifesto);
-
-  return { manifesto, porId, plano, resolverFonte };
-}
-
-/** A fixture integrada fiada, com o resolvedor de fonte padrao (staticFile). */
-export function fiarApadrao(): Fiado {
-  return fiar(FIXTURA_INTEGRADA, resolverPadrao);
-}
-
-/**
- * O resolvedor de fonte padrao: hash -> caminho servido ao navegador.
- *
- * A resolucao passa por `staticFile()` do Remotion — e ISTO que a fiacao
- * da W4 declarou como suposicao (AB-364): a fonte e o caminho local JA
- * RESOLVIDO, e o resolvedor e o ponto onde o runtime manda. Um caminho
- * escrito a mao ("/grafico-integrado.png") funciona no Studio e quebra no
- * render: o bundle serve os arquivos de public/ sob o prefixo de runtime
- * (`/public/...`), e o `staticFile()` e quem traduz o nome para o caminho
- * certo do bundle. Achado da propria suite integrada — o primeiro render
- * 404ou exatamente por isso.
- *
- * No teste de node (sem `window`) o staticFile devolve a forma relativa:
- * e o mesmo valor que o markup do teste espera.
- */
-export function resolverPadrao(hash: string): string {
-  if (hash === HASH_DO_GRAFICO) {
-    return staticFile(NOME_DO_ARQUIVO_DO_GRAFICO);
-  }
-  throw new Error(
-    `fiar: nao existe mapeamento hash->arquivo para ${hash} no publicDir ` +
-      `da fixture integrada (conhecido: ${HASH_DO_GRAFICO})`,
-  );
 }
 
 // ---------------------------------------------------------------------------
@@ -223,126 +131,6 @@ export const FIXTURA_GRAFICO_ASSET: FixtureIntegrada = {
   assets: FIXTURA_INTEGRADA.assets,
   nos_grafico: { "n-009": HASH_DO_GRAFICO },
 };
-
-// ---------------------------------------------------------------------------
-// O pintor de cena REAL
-// ---------------------------------------------------------------------------
-
-/**
- * O pintor de cena de producao: pinta os nos do registro dentro da janela
- * da cena, com o frame local de cada no derivado do relogio da cena.
- *
- * `frame` chega local da CENA (0 = primeiro frame da cena). O no tem o
- * proprio relogio: `frame - entrada_frames`. Fora da janela do no, nada e
- * emitido — os proprios nos ja recusam (contrato de F1-01), e esta dupla
- * guarda e o que a pergunta adversarial 4 da W4 cobrou.
- *
- * A ordem de pintura e a ordem declarada em `cena.nos` — a mesma do plano
- * da raiz (ManifestoRaiz). Quem pinta por ultimo fica por cima.
- */
-export function pintorDeCena(estado: Fiado): PintorDeCena {
-  const { manifesto, porId, plano } = estado;
-  const cenaPorId = new Map(manifesto.cenas.map((c) => [c.id, c] as const));
-
-  const Pintor: PintorDeCena = ({ cenaId, frame, fps, width, height }) => {
-    const cena = cenaPorId.get(cenaId);
-    if (cena === undefined) {
-      throw new Error(`pintorDeCena: cena "${cenaId}" nao existe no manifesto`);
-    }
-    return createElement(
-      "div",
-      { "data-cena": cenaId, "data-frame": String(frame), style: { position: "absolute", inset: 0 } },
-      cena.nos.map((noId) => {
-        const no = porId.get(noId);
-        if (no === undefined) {
-          throw new Error(
-            `pintorDeCena: cena "${cenaId}" referencia no inexistente "${noId}"`,
-          );
-        }
-        const entrada = no.entrada_frames ?? 0;
-        const local = frame - entrada;
-        if (local < 0 || local >= no.duracao_frames) return null;
-        const modulo = REGISTRO_DE_NOS.get(no.type);
-        if (modulo === undefined) {
-          throw new Error(
-            `pintorDeCena: tipo "${no.type}" do no "${noId}" nao tem componente ` +
-              `registrado em src/composicao/registro.ts`,
-          );
-        }
-        const Componente = modulo.componente;
-        return createElement(Componente, {
-          key: noId,
-          no,
-          frame: local,
-          fps,
-          width,
-          height,
-        });
-      }),
-    );
-  };
-
-  void plano;
-  return Pintor;
-}
-
-// ---------------------------------------------------------------------------
-// A arvore integrada — camadas + sequencia com transicoes + nos
-// ---------------------------------------------------------------------------
-
-export interface ArvoreIntegradaProps {
-  fixture: FixtureIntegrada;
-  frame: number;
-}
-
-/**
- * A composicao integrada, em arvore pura:
- *
- *   <AbsoluteFill bg={background.primary}>
- *     <CAMADAS.../>                    <- fundo (z 0), grade e vinheta (z 20)
- *     <SequenciaComTransicoes          <- quem decide as cenas do frame
- *        Cena={pintorDeCena(estado)}/> <- o pintor REAL, injetado
- *   </AbsoluteFill>
- *
- * As camadas se posicionam por z-index (tokens.zIndex.background/overlay);
- * o palco das transicoes fica entre as duas — e por isso que a vinheta
- * cobre o conteudo e o fundo nao.
- *
- * `fixture` e injetada de proposito: e a mesma funcao que o ∅-crit usa
- * quando muta a fixture (remove um no) para exigir que o gate fique
- * VERMELHO POR AUSENCIA.
- */
-export function ArvoreIntegrada({
-  fixture,
-  frame,
-}: ArvoreIntegradaProps): ReactElement {
-  const estado = fiar(fixture, resolverPadrao);
-  const propsDeCamada: CamadaProps = {
-    frame,
-    fps: estado.plano.fps,
-    width: estado.plano.width,
-    height: estado.plano.height,
-    duracaoEmFrames: estado.plano.totalFrames,
-  };
-
-  return createElement(
-    AbsoluteFill,
-    {
-      style: {
-        backgroundColor: background.primary,
-        fontFamily: fontFamily.sans,
-      },
-    },
-    CAMADAS.map((modulo: ModuloDeCamada) =>
-      createElement(modulo.componente, { ...propsDeCamada, key: modulo.meta.id }),
-    ),
-    createElement(SequenciaComTransicoes, {
-      manifesto: estado.manifesto,
-      frame,
-      Cena: pintorDeCena(estado),
-    }),
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Geometria das regioes do oraculo de conteudo (AB-344, AB-390)

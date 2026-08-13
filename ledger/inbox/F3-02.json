@@ -112,7 +112,16 @@
     "categoria": "audio",
     "responde": "PREP-w7",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Contrato C1 do PREP-w7 (docs/contrato-w7.md §2, ADR-0034): a fala da cena carrega ALEM da janela visual, ancorada no INICIO ABSOLUTO da cena (AB-600); onde duas falas se sobrepoem, a locucao da cena POSTERIOR manda e a cauda da anterior e cortada/fadeada no inicio da posterior (o envelope estendido cobre o resto — ADR-0028 cobre fala alem da janela); sobreposicao residual de fala > 0,1 s no mix e ERRO (∅-crit do F3-05). Assinado pelos dois consumidores (F3-05 e F5-01), derivando as MESMAS posicoes dos MESMOS inputs (timing canonico + envelope + cadencia) — sem dependencia lateral. A fixture incoerente vira CASO DE ESTRESSE DELIBERADO (nao corrigir: duracao_s e medicao dos bytes TTS; corrigir exigiria regravar TTS com rede). O item AB-600 e respondido pela mesma ancora (contrato-w7 §5, C4).",
+    "evidencia": {
+      "cmd": "cat ledger/evidencia/AB-583.txt",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-583.txt",
+      "sha256": "7f5a0bd2e7e942bd2ae723f641ba619821633c3728a6f2cc76fcd0b28581f5e7"
+    },
+    "decisao_provisoria": "A decisao do PREP-w7 substitui a provisoria de F3-02: a legenda continua descrevendo a fala e o limite continua sendo o fim do audio (ADR-0027, decisoes 2 e 3); a reconciliacao janela x fala e o C1 deste contrato, assinado por F3-05 e F5-01."
   },
   {
     "id": "AB-584",

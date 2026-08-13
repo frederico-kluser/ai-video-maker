@@ -30,3 +30,33 @@ legenda descreve a fala e o limite e o fim do audio; quem reconcilia
 janela visual x fala e a ponte AB-550 e o mix F3-05 (W7).
 
 QUEM TROPEÇA: PREP-w7 / F3-05 (mix) / F5-01 (render) / AB-550.
+
+===========================================================================
+RESOLUCAO PREP-w7 (2026-08-13) — contrato C1, docs/contrato-w7.md §2,
+ADR-0034. FECHADO com esta decisao:
+
+  1. A fala da cena carrega ALÉM da janela visual: a duracao da locucao e
+     a do timing canonico (F3-01); a janela visual (F1-01) nao corta, nao
+     desloca e nao estica a fala.
+  2. Ancoragem: INICIO ABSOLUTO da cena (AB-600, contrato-w7 §5/C4) — o
+     audio comeca no frameInicial/fps da aritmetica de composicao e toca
+     pela duracao declarada no timing. O envelope de ducking (ADR-0028)
+     cobre fala alem da janela.
+  3. Onde duas falas se sobrepoem, a locucao da CENA POSTERIOR MANDA: a
+     cauda da anterior e cortada/fadeada no inicio da posterior; o resto
+     da cauda e coberto pelo envelope estendido.
+  4. Sobreposicao residual de fala > 0,1 s no mix e ERRO (∅-crit do
+     F3-05, W7).
+  5. Assinado pelos dois consumidores (F3-05 e F5-01): derivam as MESMAS
+     posicoes dos MESMOS inputs (timing canonico + envelope + cadencia),
+     sem dependencia lateral.
+  6. A fixture incoerente e CASO DE ESTRESSE DELIBERADO — NAO CORRIGIR:
+     duracao_s e medicao dos bytes TTS (F2-03); corrigir exigiria regravar
+     TTS com rede. Os dois consumidores tem de passar com ela.
+
+Artefatos que tropecam na W7: src/audio/mix/** (F3-05) com a emenda e o
+corte da cauda; src/render/pipeline/** (F5-01) posicionando audio pelo
+inicio absoluto; src/composicao/pintura/** (promovido neste PREP, AB-493)
+como a camada de pintura que o F5-01 consome; fixtures/canonico/assets/
+grafico-integrado.png (bytes de grafico commitados neste PREP, AB-501)
+para o primeiro render integrado.
