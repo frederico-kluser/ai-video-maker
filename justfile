@@ -1452,3 +1452,43 @@ ritmo:
     npx vitest run tests/sincronia/ritmo.test.ts
     @echo "=== ritmo: VERDE (nenhuma palavra cortada — ADR-0029) ==="
 # === fim F3-04 ===
+
+# === F4-03 ===
+# =============================================================================
+# Validacao e reparo da saida do LLM de autoria — card F4-03 (W6).
+# Dono: card F4-03. Nao edite fora destes marcadores.
+#
+# NOME DA RECEITA: o PROGRAMA.html escreve `just autoria:reparo`, mas o
+# `just` 1.42 NAO aceita ':' em nome de receita (armadilha 9.1). Vale a
+# convencao de hifen: `autoria-reparo` (contrato-w6 §5).
+#
+# O que a receita prova (contrato-w6 §3, congelado):
+#   1. REPARAVEL = FORMA (espaco, escape, case de enum, ordem, duplicata);
+#      REJEICAO DEFINITIVA = SEMANTICA (tipo de no desconhecido,
+#      texto_alternativo ausente — AB-433, AB-432/433, transicao fora do
+#      vocabulario v1 fade/slide/wipe/flip/none — AB-555);
+#   2. o ∅-crit do card: um manifesto irreparavel TEM de ser REJEITADO,
+#      nunca "melhorado" ate passar — vazio-crit.test.ts prova que o
+#      reparador nunca e invocado para semantica;
+#   3. tres tentativas com simplificacao progressiva (T1⊃T2⊃T3) TERMINAM,
+#      e o erro final NOMEIA a regra que falhou com o caminho JSON.
+#
+# C2 (falso verde): o vitest sai 0 quando um caminho listado nao existe
+# mas outro casa. Cada receita confere por `test -f` que OS ARQUIVOS
+# existem antes de rodar — apagar o ∅-crit deixa a receita VERMELHA por
+# ausencia.
+#
+# Porta TCP reservada: 4403 (docs/contrato-w6.md §9). Faixa de ledger:
+# AB-630..AB-649 (ledger/inbox/F4-03.json).
+# =============================================================================
+
+# Gate de validacao e reparo: classificacao + tres tentativas + ∅-crit.
+autoria-reparo:
+    @echo "=== autoria-reparo: validacao e reparo de forma (F4-03) ==="
+    @for f in vazio-crit.test.ts classificar.test.ts reparar.test.ts reparador-mecanico.test.ts; do \
+        test -f "tests/autoria/reparo/$f" || { echo "FALHOU: tests/autoria/reparo/$f ausente"; exit 1; }; \
+    done
+    @test -f src/autoria/reparo/reparar.ts || { echo "FALHOU: src/autoria/reparo/reparar.ts ausente"; exit 1; }
+    npx vitest run tests/autoria/reparo/
+    @echo "autoria-reparo: VERDE"
+# === fim F4-03 ===

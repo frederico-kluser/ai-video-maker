@@ -1,0 +1,143 @@
+[
+  {
+    "id": "AB-630",
+    "titulo": "Duplicata com conteudo diferente: keep-first e normalizacao sem oraculo",
+    "pergunta": "Quando dois nos compartilham o mesmo id com conteudo DIFERENTE, o reparo mantem a primeira ocorrencia e descarta a segunda. Se a intencao narrativa do LLM era a segunda (ou uma fusao), o documento aprovado diverge silenciosamente — o reparo escolheu sem redecidir?",
+    "por_que_aberto": "O contrato-w6 §3 lista duplicata como REPARAVEL (forma), e o reparador mecanico normaliza com keep-first por ser deterministico e preservar a ordem narrativa original. Mas nao ha oraculo para 'qual duplicata era a certa': a escolha e uma convencao documentada (ADR-0030, decisao 2), nao uma verdade medida.",
+    "decisao_provisoria": "Keep-first em ids de no, de cena e em referencias repetidas de cena.nos; a divergencia de conteudo entre duplicatas nao e detectada nem reportada.",
+    "verificacao": {
+      "cmd": "quando o F4-04 gravar cassetes reais de autoria, contar documentos com ids duplicados e, entre eles, os com conteudo divergente (grep por ids repetidos nos cassetes)",
+      "espera": "frequencia medida de duplicatas divergentes; se material, abrir sonda para o reparo reportar e o pipeline decidir",
+      "ambiente": "dia do acesso aos cassetes reais (F4-04)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a frequencia de duplicatas divergentes for alta, o keep-first aprovara documentos com a narrativa errada sem nenhum sinal — o sintoma aparece como video com texto estranho, nao como erro.",
+      "artefatos": [
+        "src/autoria/reparo/reparador-mecanico.ts",
+        "src/autoria/reparo/classificar.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "autoria",
+    "responde": "F5-07",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-631",
+    "titulo": "Referencia inexistente em cena.nos: rejeitada por decisao da camada, o schema nao a reprova",
+    "pergunta": "O schema Autoria.1 nao exige que cena.nos referencie ids existentes: 'nos': ['n-999'] valida no Ajv. A camada de reparo trata referencia inexistente como REJEICAO DEFINITIVA (remover a referencia muda a composicao da cena; inventar o no e conteudo). A fronteira de composicao concordaria em tolerar cena com referencia morta (ignorando-a), ou prefere o erro?",
+    "por_que_aberto": "A decisao de rejeitar foi tomada neste card pelo principio 'o que nao e forma nao e reparavel' (ADR-0030, decisao 1), mas quem CONSUME a cena e a composicao/resolucao — e o consumidor e quem deveria assinar a politica de referencia morta.",
+    "decisao_provisoria": "Referencia inexistente e irreparavel e derruba o documento no reparo (testado em vazio-crit.test.ts).",
+    "verificacao": {
+      "cmd": "quando a fronteira de resolucao/composicao (AB-550, F5-01) consumir o documento, decidir a politica de referencia morta e fechar ou reabrir este item",
+      "espera": "a politica do consumidor coincide com a rejeicao (item fecha) ou diverge (item vira PREP)",
+      "ambiente": "W7+"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o consumidor preferisse ignorar referencias mortas, o F4-03 estaria rejeitando documentos que o pipeline aceitaria; hoje a rejeicao e o comportamento conservador e seguro.",
+      "artefatos": [
+        "src/autoria/reparo/classificar.ts",
+        "docs/adr/0030-reparo-de-autoria-por-forma.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "autoria",
+    "responde": "F5-07",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-632",
+    "titulo": "Taxa de sucesso por tentativa do reparo nao medida: T1⊃T2⊃T3 e desenho sem dados",
+    "pergunta": "A simplificacao progressiva (escopo T1 -> T2 -> T3) reduz o escopo do pedido porque o reparador LLM falha pedidos complexos — mas nenhum numero mede isso: quantas geracoes passam na tentativa 1, quantas precisam da 2, quantas da 3, quantas sao rejeitadas?",
+    "por_que_aberto": "A escolha dos escopos e herdada do padrao do projeto de referencia (llm-authoring: retry com simplificacao progressiva), sem medicao local. O contador por tentativa so existe se alguem instrumentar a chamada (o reparador injetado e chamado com pedido.tentativa).",
+    "decisao_provisoria": "Os escopos T1/T2/T3 sao constantes do F4-03; a mediana de tentativas por geracao fica em aberto ate a instrumentacao.",
+    "verificacao": {
+      "cmd": "no executor de autoria (F4-04) ou no pipeline (F5-07), persistir o numero da tentativa vencedora por geracao e alarmar quando a mediana sair de 1",
+      "espera": "metrica com mediana e cauda; escopos reajustados se a tentativa 1 acertar ~100%",
+      "ambiente": "dia do acesso com credencial (offline: cassete apenas)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se T1 resolver tudo na pratica, T2/T3 sao custo morto (uma chamada extra por geracao problematica); se T1 resolver pouco, o escopo completo esta pedindo demais do reparador.",
+      "artefatos": [
+        "src/autoria/reparo/reparar.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "autoria",
+    "responde": "F4-04",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-633",
+    "titulo": "Decodificacao de escape pode corromper texto com backslash legitimo",
+    "pergunta": "O reparo de escape decodifica \\n \\t \\r \\\\ \\\" em campos textuais. Um texto que legitimanente contenha backslash (ex.: caminho 'C:\\\\temp' ou regex) muda de conteudo apos o reparo — a decodificacao e incondicional ou precisa de criterio?",
+    "por_que_aberto": "Nao existe fixture com backslash legitimo no dominio de autoria (narrativa), e o reparo mecanico decodifica cegamente (ADR-0030, decisao 5). Sem oraculo, o risco e aceito por rareza — mas nenhuma sonda mede a frequencia.",
+    "decisao_provisoria": "Decodificacao deterministica de \\n \\t \\r \\\\ \\\" em campos textuais (exceto id e hash); sem heuristica de contexto.",
+    "verificacao": {
+      "cmd": "nos cassetes reais do F4-04, contar campos textuais com backslash seguido de n/t/r/backslash/aspas",
+      "espera": "frequencia ~0 (narrativa nao tem backslash); se material, o escape sai do escopo automatico",
+      "ambiente": "dia do acesso aos cassetes reais (F4-04)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um texto com backslash legitimo (ex.: nome de arquivo no roteiro) apareceria alterado no video, com o reparo verde.",
+      "artefatos": [
+        "src/autoria/reparo/reparador-mecanico.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "autoria",
+    "responde": "F5-07",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-634",
+    "titulo": "Conjuntos derivados do schema em runtime: paridade testada hoje, heranca no futuro",
+    "pergunta": "A camada de reparo deriva os conjuntos fechados (tipos de no, enums, ordens canonicas, campos com minLength) do proprio arquivo do schema, e a paridade com validarSaidaAutoria e testada. Se um dia o schema virar Autoria.2 (novo $def, enum novo, campo novo), o derivar.ts acompanha automaticamente ou a derivacao precisa de revisao manual?",
+    "por_que_aberto": "A derivacao cobre o formato atual do schema (defs de nos/cena/audio, dados embutido no NoGrafico). Um formato novo (ex.: $def novo, array de cenas aninhado) pode escapar da derivacao e os testes de paridade sao a unica rede.",
+    "decisao_provisoria": "Derivacao generica onde possivel; casos especificos (dados de grafico, ordem da raiz) tratados a parte; bump de schema_version e o gatilho para revisar derivar.ts.",
+    "verificacao": {
+      "cmd": "no dia do bump de Autoria.1 -> Autoria.2, rodar a suite do reparo com o schema novo ANTES de tocar codigo — paridade + classificacao tem de apontar o que derivar",
+      "espera": "suite vermelha nos pontos de derivacao, apontando a revisao",
+      "ambiente": "dia do bump (W7+)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a derivacao nao acompanhar, a classificacao pode aceitar semantica nova (ou rejeitar forma nova) em silencio — a suite de paridade e o detector.",
+      "artefatos": [
+        "src/autoria/reparo/derivar.ts",
+        "tests/autoria/reparo/classificar.test.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "autoria",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-635",
+    "titulo": "Reparador mecanico vs reparador LLM no pipeline: a costura existe, a politica nao",
+    "pergunta": "O reparo de forma tem duas implementacoes possiveis na costura injetavel do F4-03: o reparador mecanico (deterministico, offline, cobre as cinco categorias) e um reparador de chamada LLM (mais caro, nao-deterministico, protegido pela reclassificacao da camada). Qual o pipeline usa quando?",
+    "por_que_aberto": "O reparador mecanico cobre toda a FORMA detectavel — o reparador LLM so teria vantagem em forma nao-mecanizavel, que hoje nao existe catalogada. A escolha de politica (mecanico sempre; LLM como fallback; LLM nunca) e do orquestrador, nao da camada.",
+    "decisao_provisoria": "Default mecanico; a injecao de reparador LLM fica disponivel mas sem politica definida.",
+    "verificacao": {
+      "cmd": "no F5-07, decidir a politica do reparador no pipeline e fechar este item (ou abrir PREP se exigir chamada LLM)",
+      "espera": "politica registrada; a camada nao muda (a costura ja existe)",
+      "ambiente": "W9"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o pipeline adotar LLM sem politica, cada geracao invalida paga 1-3 chamadas extras; se nunca usar, a costura e codigo morto.",
+      "artefatos": [
+        "src/autoria/reparo/reparar.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "autoria",
+    "responde": "F5-07",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]
