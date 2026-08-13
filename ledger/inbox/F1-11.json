@@ -1,0 +1,102 @@
+[
+  {
+    "id": "AB-380",
+    "titulo": "Opacidades e contagens de camada vivem fora de tokens.ts",
+    "pergunta": "OPACIDADE_MINIMA_VISIVEL, OPACIDADE_DA_VINHETA, OPACIDADE_DA_GRADE, OPACIDADE_DO_FUNDO, PASSOS_DA_VINHETA, PASSOS_DO_FUNDO, COLUNAS_DA_GRADE e LINHAS_DA_GRADE vao migrar para src/design/tokens.ts?",
+    "por_que_aberto": "AGENTS.md Regra 2 manda que toda cor, espacamento, duracao, fonte e tamanho viva em src/design/tokens.ts. tokens.ts NAO define opacidade nem contagem hoje, e o card nao podia edita-lo: e o singleton S-5 e o contrato da W4 (docs/contrato-w4.md §1) proibe os treze agentes de toca-lo. As constantes ficaram em src/composicao/camadas/tokens-de-camada.ts, dentro do diretorio exclusivo do card, com os valores justificados (opacidade minima metrologica de 8 bits; contagem de passos escolhida para o arredondamento inteiro nao produzir fatia de tamanho zero).",
+    "decisao_provisoria": "Manter em tokens-de-camada.ts: nenhum dos nomes existe em tokens.ts, entao nao ha redeclaracao de token (o gate design-varrer segue verde). A migracao para tokens.ts e PREP da onda seguinte, quando o dono de S-5 puder edita-lo.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/design/literal-scan.test.ts",
+      "espera": "verde: nenhum literal de cor/espacamento/duracao fora de src/design/",
+      "ambiente": "vitest 3.2.7, Node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um irmao da onda definir os mesmos nomes em tokens.ts no merge, o espelho de tokens-de-camada.ts passa a divergir do token real e o gate design-varrer acusa. A migracao precisa ser feita por quem tem a chave de S-5, com recaptura dos snapshots se os valores mudarem.",
+      "artefatos": [
+        "src/composicao/camadas/tokens-de-camada.ts",
+        "src/design/tokens.ts",
+        "fixtures/snapshots/camadas/"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "design-tokens",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-381",
+    "titulo": "Aceitacao `just det:provar --no camadas` e inexecutavel como escrita",
+    "pergunta": "O criterio comum da W4 (`just det:provar --no <nome>`) vai ser reescrito, ou a convencao de hifen vira a forma canonica das receitas?",
+    "por_que_aberto": "O PROGRAMA.html pede `just det:provar --no camadas`. Em just 1.42, ':' nao e valido em nome de receita e a receita `det-provar` (card F0-06) nao aceita argumentos. A regra da onda proibe editar receita alheia, entao o card nao pode fazer `just det-provar --no camadas` funcionar. O equivalente vive no bloco F1-11: `just camadas-det-provar` (render 2x, bytes identicos).",
+    "decisao_provisoria": "Receitas com hifen no bloco F1-11: no-camadas, camadas-det-provar, camadas-ausencia, camadas-invasao, camadas-testar, camadas-capturar. A mesma convencao de F1-01, F1-03 e F2-01 neste arquivo. A aceitacao literal do PROGRAMA fica como esta, com este item nomeando a divergencia de nome.",
+    "verificacao": {
+      "cmd": "just camadas-det-provar",
+      "espera": "exit 0 com 'render 2x identico' (7 composicoes, bytes identicos)",
+      "ambiente": "just 1.42.4, Linux"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Quem rodar `just det-provar --no camadas` literal recebe erro de receita e conclui que o gate nao existe. O handoff e este item sao o canal que corrige a leitura.",
+      "artefatos": [
+        "justfile",
+        "tools/camadas/provar.sh",
+        "PROGRAMA.html"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "ambiente",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-382",
+    "titulo": "O contrato de camada so implementa a safe area 16:9",
+    "pergunta": "Quando uma composicao 9:16 (TikTok/Reels) for suportada, retanguloSeguro vai receber o aspecto como parametro e usar tokens.safeArea9x16?",
+    "por_que_aberto": "retanguloSeguro deriva a margem de tokens.safeArea16x9.actionSafePct — o unico retangulo seguro que o contrato conhece. tokens.safeArea9x16 existe mas e provisorio (AB-071) e tem forma diferente (margens por lado, nao percentual simetrico). Uma vinheta de composicao vertical que use o contrato atual trataria a tela 9:16 como se fosse 16:9.",
+    "decisao_provisoria": "Contrato 16:9 apenas, documentado no ADR. O cenario de prova renderiza em tokens.breakpoints.hd. A composicao vertical e trabalho futuro, junto da estabilizacao do AB-071.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/camadas/contrato-de-camada.test.ts -t \"escala para qualquer resolucao\"",
+      "espera": "verde: margem proporcional ao percentual de action safe 16:9",
+      "ambiente": "vitest 3.2.7, Node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem reutilizar as camadas num canvas 9:16 sem adaptar o contrato, a vinheta e a grade passam a invadir a safe area vertical sem que nenhum gate desta suite acuse — o cenario de prova so mede 16:9.",
+      "artefatos": [
+        "src/composicao/camadas/contrato-de-camada.ts",
+        "src/design/tokens.ts",
+        "src/composicao/camadas/prova/cena.tsx"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "design-tokens",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-383",
+    "titulo": "Integracao das camadas na raiz de producao e do F1-12 (W5)",
+    "pergunta": "Como a raiz de producao (src/Root.tsx, S-3) compoe as camadas globais com os nos: as camadas cobrem a composicao inteira, e os nos cobrem a janela de cada cena — quem renderiza o quê?",
+    "por_que_aberto": "Este card entrega as camadas como modulos registrados (src/composicao/camadas/registro.ts) mais o cenario de prova autonomo (src/composicao/camadas/prova/). Nada disso fala com a raiz de producao: src/Root.tsx e o singleton S-3 e o card nao podia toca-lo. A composicao de camadas globais (fundo abaixo de tudo, sobreposicoes acima do conteudo) com a timeline de nos e o trabalho do join da W5 (F1-12).",
+    "decisao_provisoria": "Aceitacao deste card fecha com o cenario de prova: fundo em zIndex.background, conteudo sentinela em zIndex.content, sobreposicoes em zIndex.overlay — a mesma ordem que a raiz de producao vai precisar. O gate de pixel cobra o z-index: um fundo que subisse para cima do conteudo reprova com INVASAO.",
+    "verificacao": {
+      "cmd": "bash tools/camadas/invasao.sh",
+      "espera": "verde: as duas sondas reprovam com as mensagens INVASAO e QUADRO VAZIO",
+      "ambiente": "worktree do repo, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o join da W5 compor as camadas em outra ordem de z-index ou ignorar o registro, o video sai com camadas cobrindo o conteudo e nenhum gate desta suite acusa — o cenario de prova nao e a producao.",
+      "artefatos": [
+        "src/Root.tsx",
+        "src/composicao/camadas/registro.ts",
+        "src/composicao/camadas/contrato-de-camada.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "integracao",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]

@@ -1010,3 +1010,46 @@ transicoes-aprovar:
 transicoes-studio:
     npx remotion studio src/composicao/transicoes/entrada.tsx --port 3110
 # === fim F1-10 ===
+
+# === F1-11 ===
+# =============================================================================
+# Camadas globais — fundo, grade, vinheta — e a prova de que nenhuma
+# sobreposicao cobre a safe area.
+# Dono: card F1-11. Nao edite fora destes marcadores.
+#
+# NOME DAS RECEITAS: o PROGRAMA escreve `just no:<nome>` e `just det:provar
+# --no <nome>`, mas `just` 1.42 nao aceita ':' em nome de receita e a receita
+# `det-provar` (F0-06) nao recebe argumentos — nao se edita receita alheia.
+# Vale a convencao de hifen deste arquivo: no-camadas, camadas-det-provar.
+# O equivalente exato de `just det:provar --no camadas` e
+# `just camadas-det-provar` (render 2x, bytes identicos).
+# =============================================================================
+
+# Gate das camadas: denominador + entropia + render + regressao + medicao
+# + os dois oraculos de git sobre fixtures/snapshots/camadas/.
+no-camadas:
+    bash tools/camadas/gate.sh
+
+# `det:provar --no camadas` do PROGRAMA: render 2x e exige bytes identicos.
+camadas-det-provar:
+    bash tools/camadas/provar.sh
+
+# ∅-crit: apagar um snapshot aprovado TEM de ficar VERMELHO.
+camadas-ausencia:
+    bash tools/camadas/ausencia.sh
+
+# O medidor sabe reprovar? Sondas INVASAO e QUADRO VAZIO com assercao de
+# mensagem, nao so de exit code.
+camadas-invasao:
+    bash tools/camadas/invasao.sh
+
+# Testes unitarios das camadas (geometria, contrato, medicao, registro).
+camadas-testar:
+    npx vitest run tests/composicao/camadas/
+
+# Gera (ou regenera) os snapshots aprovados a partir do RENDER, com a prova
+# de determinismo ANTES de copiar. Re-baseline explicito — o commit seguinte
+# registra o que mudou.
+camadas-capturar:
+    bash tools/camadas/aprovar.sh
+# === fim F1-11 ===
