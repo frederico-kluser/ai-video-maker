@@ -1,0 +1,151 @@
+[
+  {
+    "id": "AB-340",
+    "titulo": "O criterio `just det:provar --no midia` nao roda: a receita F0-06 nao tem argumentos",
+    "pergunta": "O PROGRAMA escreve a aceitacao dos oito nos de W4 como `just det:provar --no <nome>`; a receita `det-provar` de F0-06 nao declara argumentos e o contrato da W4 proibe editar receita alheia — como o gate de determinismo por no e invocado?",
+    "por_que_aberto": "`just det-provar --no midia` sai com erro de just ('Justfile does not contain recipe `--no`') e nao existe harness generico `--no <nome>` em lugar nenhum. Cada card de no precisou de um provador proprio; o caminho executavel deste card e `just det-provar-midia` (hifen, convencao do arquivo). Generalizar `det-provar --no <nome>` e trabalho de PREP, com um dono so.",
+    "decisao_provisoria": "Receita propria no bloco F1-07: `det-provar-midia` roda `npx tsx tools/no-midia/provar.ts`, que faz o que o PROGRAMA pede (render 2x identico + identico ao aprovado + o GIF avanca entre frames). Registrado tambem no justfile e em docs/adr/0007-no-de-midia.md.",
+    "verificacao": {
+      "cmd": "just det-provar-midia",
+      "espera": "exit 0: 4 stills renderizados 2x, bytes identicos entre si e ao aprovado; stills do GIF em frames diferentes divergem",
+      "ambiente": "worktree do repo, node 24, remotion 4.0.507, Chrome headless shell via --gl=swangle"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um harness generico `det-provar --no <nome>` nascer no PREP da W5, os oito provadores proprios podem ser substituidos por ele sem mudanca de criterio; se nascer como parametro de `det-provar`, o justfile muda para todos os cards de no.",
+      "artefatos": [
+        "justfile",
+        "tools/determinismo/provar.sh",
+        "tools/no-midia/provar.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "agentes-worktrees",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-341",
+    "titulo": "Cadencia do GIF provisoria (100 ms por quadro) ate F2-04 entregar a real",
+    "pergunta": "O no de midia marca a cadencia do GIF com 100 ms por quadro (transitionDuration.instant, token) — o GIF89a mede o delay em centesimos de segundo e 10 cs e o piso pratico; quando o asset resolvido chegar, a cadencia real do arquivo deve entrar por `msPorQuadro`. O parametro existe desde ja; a troca muda alguma chamada?",
+    "por_que_aberto": "O asset real (F2-04, irmao desta onda) pode ter delay por quadro diferente de 100 ms — GIFs de 20, 50, 80 ms existem. Enquanto o no desenha o MARCADOR (o asset em si nao chega a este card), a cadencia e um paramento com default de token; o teste prova a aritmetica, nao a verdade do arquivo.",
+    "decisao_provisoria": "`framesPorQuadroDeGif(fps, msPorQuadro = MS_POR_QUADRO_DE_GIF)` e `quadroDeGif(frame, fps, msPorQuadro = ...)` — default de token, parametro injetavel. F2-04 deve passar a cadencia real lida do arquivo; a assinatura nao muda.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/no-midia.test.ts -t \"cadencia sai de token\"",
+      "espera": "1 teste passa: 100 ms a 30 fps = 3 frames por quadro de GIF; a 60 fps = 6; nunca menos de 1",
+      "ambiente": "worktree do repo, node 24, vitest 3"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a cadencia real divergir muito do token, a fita de cadencia do marcador anda em ritmo diferente do asset quando F2-04 ligar — a assinatura com parametro evita reescrita, mas o valor default vira deciso de produto (escolha da cadencia de design enquanto nao ha asset).",
+      "artefatos": [
+        "src/composicao/nos/midia.tsx",
+        "tests/composicao/no-midia.test.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-342",
+    "titulo": "Os hashes dos nos de midia da fixture canonica sao forma canonica, nao SHA-256 de asset real",
+    "pergunta": "n-005, n-006 e n-007 declaram hashes de 64 hex minusculo (forma canonica), mas nenhum corresponde ao SHA-256 de um asset no store — quando F2-04 resolver hash->bytes, o cassete dele liga esses hashes a bytes reais ou o contrato exige trocar os hashes da fixture?",
+    "por_que_aberto": "O card F1-07 prova o CONTRATO (hash, nunca URL) com a fixture canonica coerente do PREP-w4; o asset binario em si e do irmao F2-04. Um hash canonico que nao resolve para bytes nenhum passa no oraculo deste card — o que esta certo por escopo — mas vira mentira no instante em que a composicao final precisar dos bytes.",
+    "decisao_provisoria": "Manter os hashes da fixture canonica como estao (forma canonica). O cassete de F2-04 deve ligar exatamente esses hashes a bytes reais (sosia, nao sucessor); se o cassete nao puder, o PREP da W5 troca os hashes da fixture e recaptura os snapshots de F1-07 em bloco.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/no-midia.test.ts -t \"controle positivo\"",
+      "espera": "verde com os hashes canonicos atuais; o teste so exige forma canonica, nunca resolucao",
+      "ambiente": "worktree do repo, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se os hashes da fixture forem trocados por hashes reais do store, os snapshots de marcacao (que exibem o prefixo do hash) e os stills aprovados mudam de bytes e precisam de recaptura; se F2-04 servir o cassete com os hashes atuais, nao muda nada.",
+      "artefatos": [
+        "fixtures/canonico/manifesto-valido.json",
+        "fixtures/snapshots/no-midia/**",
+        "src/resolucao/midia/**"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-343",
+    "titulo": "Prover de determinismo proprio por no, em vez de generalizar o harness de F0-06",
+    "pergunta": "Seis cards de no rodam esta onda em paralelo e cegos entre si; o `det:provar` de F0-06 e do canario, sem argumentos. Cada card editar o mesmo script de determinismo produz o merge silencioso que o contrato da W4 manda evitar — o harness generico `--no <nome>` fica para quem?",
+    "por_que_aberto": "Seis agentes editando `tools/determinismo/provar.sh` em seis worktrees nao conflitam no git (cada um muda uma faixa do mesmo arquivo) e o resultado funde — possivelmente quebrando o canario e os seis nos de uma vez, sem bisseccao possivel (contrato da W4, §6).",
+    "decisao_provisoria": "Cada card de no tem seu provador em `tools/<no>/provar.ts`, com a mesma arquitetura do canario (render 2x, bytes identicos, snapshot aprovado, presenca obrigatoria). Generalizar `det-provar --no <nome>` e trabalho de PREP da onda seguinte, com um dono so.",
+    "verificacao": {
+      "cmd": "npx tsx tools/no-midia/provar.ts",
+      "espera": "exit 0: 4 casos renderizados 2x identicos ao aprovado; o par de stills do GIF em frames diferentes diverge",
+      "ambiente": "worktree do repo, node 24, remotion 4.0.507"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o harness generico nascer, os provadores proprios viram chamadas de um alvo comum; os snapshots aprovados nao mudam, so o caminho de invocacao.",
+      "artefatos": [
+        "tools/no-midia/provar.ts",
+        "tools/determinismo/provar.sh",
+        "justfile"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "agentes-worktrees",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-344",
+    "titulo": "O contrato de alfa do no e provado por still isolado; o compositor final ainda nao reprova o alfa",
+    "pergunta": "O still do no de midia conta pixel transparente e opaco sobre fundo nenhum (PNG RGBA) — mas o video composto, com o fundo de cena e os nos irmaos, ainda nao existe. Quem prova que o compositor nao pinta fundo por cima do alfa do no?",
+    "por_que_aberto": "O still isolado prova o NO (nao pinta fundo, alfa preservado na saida dele), nao o compositor. A composicao final (join da W5, F1-12) pode aplicar um fundo opaco ou mesclar errado e o alfa sumir sem nenhum gate deste card ficar vermelho.",
+    "decisao_provisoria": "Este card prova a camada que ele desenha: raiz do no sem cor de fundo, sem filtro/mask/background-image, e pixel transparente > opaco no still. O join da W5 (F1-12) deve renderizar a cena composta e reaplicar a contagem de alfa sobre o quadro inteiro.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/no-midia.test.ts -t \"contrato de alfa\"",
+      "espera": "verde: raiz sem background, nenhum filtro/mistura/animacao, still com opacos > 0 e transparentes > opacos",
+      "ambiente": "worktree do repo, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o compositor final pintar fundo, o defeito aparece so no join — o handoff deste card endereca a F1-12 a responsabilidade de re-provar o alfa no quadro composto.",
+      "artefatos": [
+        "src/composicao/raiz.tsx",
+        "src/composicao/camadas/**",
+        "src/composicao/ManifestoRaiz.tsx"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-345",
+    "titulo": "O schema do manifesto so impoe 64 caracteres ao hash; a forma canonica e a recusa de URL vivem no no",
+    "pergunta": "schema/manifesto.schema.json define `hash` como string de 64 caracteres sem pattern; o schema e S-4 e este card nao toca nele. A recusa de URL (ativa, com tripwire) e hoje a unica guarda da forma canonica hex-minuscula — isso deve subir para o schema?",
+    "por_que_aberto": "Uma URL de 64+ caracteres passaria pelo schema como hash; e URL contrabandeada em `texto_alternativo`, `licenca` ou propriedade de nome de endereco (`src`, `href`, `caminho`...) passa pelo schema inteiro. A fronteira de determinismo depende da recusa no componente, que roda em tempo de composicao.",
+    "decisao_provisoria": "Recusa ativa no no de midia (validarNoDeMidia estoura ErroDeMidia; o componente nunca desenha no torto). O schema ganha `pattern: ^[0-9a-f]{64}$` quando um dono do S-4 decidir — vira defesa em profundidade, nao dependencia.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/no-midia.test.ts -t \"recusa URL\"",
+      "espera": "verde: URL por sete portas reprova; hex maiusculo, 63/65 chars, numero, caminho de disco e nome de arquivo reprovam; os tres nos da fixture passam",
+      "ambiente": "worktree do repo, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o schema ganhar o pattern, o LLM de autoria para de produzir hashes tortos na origem; se nao ganhar, a recusa do no continua sendo a barreira e nenhum pixel errado sai.",
+      "artefatos": [
+        "schema/manifesto.schema.json",
+        "src/composicao/nos/midia.tsx",
+        "schema/manifesto.llm.schema.json"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]

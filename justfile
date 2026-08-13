@@ -332,7 +332,6 @@ fontes-offline:
     fi
     @echo "fontes-offline: OK (sem resultado)"
 # === fim F1-03 ===
-
 # === F2-02 ===
 # =============================================================================
 # Resolucao: grafico (Manim headless) — F2-02
@@ -792,3 +791,38 @@ no-lista-aprovar:
 no-lista-studio:
     npx remotion studio src/composicao/raiz.tsx --port 3106
 # === fim F1-06 ===
+
+# === F1-07 ===
+# =============================================================================
+# No de midia — F1-07 (endereco por hash, contrato de alfa, GIF por frame)
+# =============================================================================
+# O PROGRAMA escreve estas receitas como `just no:<nome>` e
+# `just det:provar --no <nome>`. `just` 1.42 nao aceita ':' em nome de
+# receita (AB-243), entao valem os hifens, como no resto do arquivo.
+#
+# `just det-provar` (F0-06) NAO aceita `--no midia`: a receita nao declara
+# argumentos e este card nao edita receita alheia (contrato da W4, §1).
+# O provador de determinismo do no de midia e `det-provar-midia`, que faz
+# exatamente o que o PROGRAMA pede: render 2x identico + identico ao
+# snapshot aprovado + o GIF avanca entre frames. Ver ledger/inbox/F1-07.json
+# (AB-343) e docs/adr/0007-no-de-midia.md.
+
+# `just no:midia` do PROGRAMA — o smoke do no: marcacao byte a byte identica
+# ao aprovado + o oraculo inteiro. O provador de pixel (2x render) e receita
+# separada, como em F0-06 (`det-provar` / `det-ausencia`).
+no-midia:
+    @echo "=== no-midia: marcacao aprovada ==="
+    npx tsx tools/no-midia/marcacao.ts
+    @echo "=== no-midia: oraculo (vitest) ==="
+    npx vitest run tests/composicao/no-midia.test.ts
+    @echo "no-midia: VERDE"
+
+# `just det:provar --no midia` do PROGRAMA — determinismo e regressao do still
+det-provar-midia:
+    npx tsx tools/no-midia/provar.ts
+
+# ∅-crit: apagar um snapshot aprovado TEM de ficar vermelho, e a restauracao
+# devolve o verde
+no-midia-ausencia:
+    bash tools/no-midia/ausencia.sh
+# === fim F1-07 ===
