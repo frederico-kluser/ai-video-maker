@@ -1,0 +1,29 @@
+AB-617 — o documento compactado preserva o campo `audio` da FONTE (F3-04, 2026-08-13)
+=======================================================================================
+
+Pergunta: a cadencia (documento compactado) reusa o campo `audio` do
+documento de entrada — o SHA-256 do audio-FONTE. O audio emendado (palavras
+na ordem, ligadas pelas lacunas restantes) nao existe em bytes; quando o
+F3-05 (W7) o materializar, os bytes e o hash novos substituem o campo e o
+documento ganha identidade nova — quem dispara essa regeneracao?
+
+Decisao provisoria: a cadencia e um PLANO DE EDICAO, nao o documento do
+audio emendado: `audio` permanece o hash da fonte e quem materializar a
+emenda trata-a como derivada, com regeneracao por ato explicito (mesma
+disciplina de AB-521).
+
+1) Comando literal do item (verificacao.cmd):
+
+   $ npx vitest run tests/sincronia/ritmo.test.ts -t "audio"
+   Test Files  1 passed (1)
+        Tests  1 passed | 22 skipped (23)
+
+   (O teste "o campo audio da cadencia e o MESMO da entrada (a emenda nao
+   tem bytes ainda — AB-617)" assere a preservacao cena a cena com corte
+   real, alvo 0.05.)
+
+2) A suite inteira do card, sem filtro:
+
+   $ npx vitest run tests/sincronia/ritmo.test.ts
+   Test Files  1 passed (1)
+        Tests  23 passed (23)

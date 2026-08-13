@@ -1,0 +1,27 @@
+AB-616 — o corte e idempotente e deterministico (F3-04, 2026-08-13)
+======================================================================
+
+Pergunta (adversarial 2 do card): aplicar o corte 2x produz o mesmo
+resultado que aplicar 1x? O corte e funcao pura dos bytes de entrada?
+
+Decisao (ADR-0029): idempotente POR CONSTRUCAO — apos o corte nenhuma
+lacuna passa do alvo, entao o segundo passo nao corta nada (2x = 1x,
+bytes identicos na serializacao canonica); deterministico — funcao pura
+do (documento, alvo), duas chamadas produzem bytes identicos.
+
+1) Comando literal do item (verificacao.cmd):
+
+   $ npx vitest run tests/sincronia/ritmo.test.ts -t "IDEMPOTENTE"
+   Test Files  1 passed (1)
+        Tests  3 passed | 20 skipped (23)
+
+   (3 testes do describe "ritmo — adversarial (2): o resultado e IDEMPO-
+   TENTE e deterministico": 2x = 1x na fixture com corte real; idempotente
+   com alvo acima das lacunas e no piso do oraculo; duas chamadas com a
+   mesma entrada produzem bytes identicos.)
+
+2) A suite inteira do card, sem filtro:
+
+   $ npx vitest run tests/sincronia/ritmo.test.ts
+   Test Files  1 passed (1)
+        Tests  23 passed (23)

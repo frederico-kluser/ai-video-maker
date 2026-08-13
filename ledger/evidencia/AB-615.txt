@@ -1,0 +1,31 @@
+AB-615 — o corte de silencio NAO come o ataque de nenhuma palavra (F3-04, 2026-08-13)
+======================================================================================
+
+Pergunta: a politica de corte opera sobre lacunas declaradas; se uma regiao
+de corte tocar o intervalo [inicio_s, fim_s] de uma palavra, o ataque dela e
+comido sem erro nenhum. O ∅-crit do card exige o TESTE que prova que nenhuma
+palavra foi cortada.
+
+Decisao (ADR-0029): regiao de corte sempre sub-intervalo de lacuna DECLARADA;
+palavras da cadencia sao as MESMAS (texto e duracao intactos, posicao
+deslocada pelo corte acumulado); o teste reconstroi a timeline ORIGINAL a
+partir da compactada (round-trip); o modulo reaplica o oraculo na entrada
+(documento com silencio sobre palavra e recusado).
+
+1) Comando literal do item (verificacao.cmd):
+
+   $ npx vitest run tests/sincronia/ritmo.test.ts -t "NENHUMA palavra foi cortada"
+   Test Files  1 passed (1)
+        Tests  6 passed | 17 skipped (23)
+
+   (6 testes do describe "ritmo — ∅-crit: o teste que prova que NENHUMA
+   palavra foi cortada": sobrevivencia palavra a palavra, deslocamento =
+   corte acumulado, round-trip de inicio E fim, regiao dentro de lacuna
+   declarada, sonda negativa de ataque coberto, e o oraculo como premissa
+   independente.)
+
+2) A suite inteira do card, sem filtro:
+
+   $ npx vitest run tests/sincronia/ritmo.test.ts
+   Test Files  1 passed (1)
+        Tests  23 passed (23)

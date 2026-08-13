@@ -1422,3 +1422,33 @@ ducking-gravar:
     npx tsx tests/sincronia/ducking.ferramenta.ts --gravar
     @echo "revise antes de commitar: git diff tests/fixtures/ducking-canono.json"
 # === fim F3-03 ===
+
+# === F3-04 ===
+# =============================================================================
+# Ritmo — corte de silencio e cadencia. Dono: card F3-04 (W6, dependencia
+# F3-01: timing canonico).
+#
+# Contrato congelado em docs/contrato-w6.md §2: consumo do timing canonico
+# por CONTEUDO (lerTimingCanonico / serializarTimingCanonico, unidade
+# SEGUNDOS, silencio DECLARADO, fonte dos bytes = replay do cassete).
+# A politica do corte e o ADR-0029.
+#
+# ∅-crit (criterio de aceitacao do PROGRAMA): o teste que prova que NENHUMA
+# palavra foi cortada — o corte de silencio nunca come o ataque de uma
+# palavra. Vive em tests/sincronia/ritmo.test.ts (comparacao do timing
+# antes/depois + round-trip + sonda negativa de ataque coberto).
+#
+# Porta TCP reservada: 4304 (docs/contrato-w6.md §9).
+# Faixa de ledger: AB-615..AB-629 (ledger/inbox/F3-04.json).
+#
+# A aceitacao pede `just ritmo` (hifen — AB-284, just 1.42 nao aceita ':' em
+# nome de receita). O conjunto que fecha o card:
+#   - typecheck do repositorio inteiro (sem tsconfig escopado: os irmaos da
+#     W6 nao podem criar dois arquivos de raiz com o mesmo nome);
+#   - vitest da suite inteira (∅-crit + adversariais 1/2/3/4 + presenca).
+ritmo:
+    @echo "=== ritmo: corte de silencio e cadencia ==="
+    npx tsc --noEmit
+    npx vitest run tests/sincronia/ritmo.test.ts
+    @echo "=== ritmo: VERDE (nenhuma palavra cortada — ADR-0029) ==="
+# === fim F3-04 ===

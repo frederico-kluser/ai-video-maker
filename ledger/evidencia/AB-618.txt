@@ -1,0 +1,30 @@
+AB-618 — a cadencia respeita o timing canonico, e o corte ATUALIZA a duracao (F3-04, 2026-08-13)
+=================================================================================================
+
+Pergunta (adversarial 3 e 4 do card): o corte muda a duracao total SEM
+atualizar o documento de timing? A cadencia resultante respeita o timing
+canonico?
+
+Decisao (ADR-0029): `duracao_s` do compactado = original - soma dos cortes
+(o documento E atualizado, exato na comparacao); o modulo reaplica o oraculo
+de `src/sincronia/timing/validar.ts` na entrada E na saida — a cadencia e um
+TimingCanonico VALIDO (cobertura palavras + silencio = [0, duracao_s],
+monotonicidade, sem sobreposicao), e os MESMOS bytes voltam a passar por
+lerTimingCanonico(serializarTimingCanonico(doc)).
+
+1) Comando literal do item (verificacao.cmd):
+
+   $ npx vitest run tests/sincronia/ritmo.test.ts -t "respeita o timing canonico"
+   Test Files  1 passed (1)
+        Tests  4 passed | 19 skipped (23)
+
+   (4 testes do describe "ritmo — adversarial (4): a cadencia respeita o
+   timing canonico": oraculo + round-trip de bytes; lacunas da cadencia no
+   maximo o alvo; politica declarada; opcoes invalidas recusadas. A relacao
+   exata de duracao vive no describe adversarial (3).)
+
+2) A suite inteira do card, sem filtro:
+
+   $ npx vitest run tests/sincronia/ritmo.test.ts
+   Test Files  1 passed (1)
+        Tests  23 passed (23)

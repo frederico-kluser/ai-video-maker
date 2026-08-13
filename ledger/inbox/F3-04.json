@@ -1,0 +1,146 @@
+[
+  {
+    "id": "AB-615",
+    "titulo": "O corte de silencio pode comer o ataque de uma palavra",
+    "pergunta": "A politica de corte opera sobre as lacunas de silencio declaradas; se uma regiao de corte tocar o intervalo [inicio_s, fim_s] de uma palavra, o ataque dela e comido (a palavra comeca mais tarde, ou perde a release) sem erro nenhum. Como o corte PROVA que nenhuma palavra foi cortada — o ∅-crit do card F3-04 exige o teste, nao a promessa?",
+    "por_que_aberto": "O corte muda posicoes (tudo depois de uma regiao desloca) e isso pode mascarar um corte de palavra: um teste que so compare duracoes totais nao ve a palavra encurtada. A prova tem de ser por comparacao do timing ANTES e DEPOIS, palavra a palavra.",
+    "decisao_provisoria": "Fechado com prova em tres camadas (ADR-0029): (1) a regiao de corte e SEMPRE um sub-intervalo de uma lacuna DECLARADA — nunca de palavra — e o modulo reaplica o oraculo na entrada (documento com silencio sobre palavra e recusado com ETimingCanonicoInvalido, sonda negativa testada); (2) as palavras da cadencia sao as MESMAS do documento de entrada: mesmo texto, mesma duracao, e o deslocamento de cada palavra e EXATAMENTE o corte acumulado antes dela; (3) o teste reconstroi a timeline ORIGINAL a partir da compactada + regioes de corte (round-trip por ponto fixo): cada palavra devolve o inicio E o fim originais.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/sincronia/ritmo.test.ts -t \"NENHUMA palavra foi cortada\"",
+      "espera": "VERDE: os 6 testes do describe ∅-crit passam (sobrevivencia palavra a palavra, deslocamento = corte acumulado, round-trip, regiao dentro de lacuna declarada, sonda negativa de ataque coberto, oraculo como premissa independente)",
+      "ambiente": "qualquer maquina offline; a fixture canonica e o cassete commitados"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um corte que coma o ataque de uma palavra produz legenda dessincronizada ou fala truncada no video final sem nenhum erro — exatamente o falso verde que o ∅-crit existe para matar.",
+      "artefatos": [
+        "src/sincronia/ritmo/cortar.ts",
+        "tests/sincronia/ritmo.test.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Prova em tres camadas implementada e testada em tests/sincronia/ritmo.test.ts: regioes de corte sempre sub-intervalo de lacuna declarada (com guarda ECorteInvadePalavra contra regressao da politica); palavras da cadencia identicas (texto, duracao, deslocamento = corte acumulado); round-trip que reconstroi inicio E fim originais de cada palavra; sonda negativa (silencio sobre o ataque da proxima palavra e recusado pelo oraculo reaplicado na entrada).",
+    "evidencia": {
+      "cmd": "npx vitest run tests/sincronia/ritmo.test.ts -t \"NENHUMA palavra foi cortada\"",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-615.txt",
+      "sha256": "cb126d1fef1751f82e6b0c3bbb2ea86ab2001b32966e5fa23c6c23a574f8fc6b"
+    }
+  },
+  {
+    "id": "AB-616",
+    "titulo": "Idempotencia e determinismo do corte de silencio",
+    "pergunta": "Aplicar o corte 2x produz o mesmo resultado que aplicar 1x? O corte e funcao pura dos bytes de entrada (mesmos bytes in, mesmos bytes out), ou depende de estado, relogio ou ordem de iteracao?",
+    "por_que_aberto": "O corte roda abaixo da fronteira de determinismo e e consumido pelo pipeline de render (F5-01, W7): um corte nao-idempotente encurta o video a cada aplicacao em cascata, e um corte nao-puro quebra o determinismo testado do render.",
+    "decisao_provisoria": "Fechado: idempotente POR CONSTRUCAO — apos o corte nenhuma lacuna passa do alvo, entao o segundo passo nao corta nada (2x = 1x, bytes identicos na serializacao canonica, inclusive no piso do oraculo); deterministico — funcao pura do (documento, alvo), duas chamadas com a mesma entrada produzem bytes identicos; iteracao sobre cenas ordenada por id.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/sincronia/ritmo.test.ts -t \"IDEMPOTENTE\"",
+      "espera": "VERDE: os 3 testes do describe adversarial (2) passam (2x = 1x com corte real; idempotente com alvo acima das lacunas e no piso do oraculo; duas chamadas produzem bytes identicos)",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Cascata: cada passada do pipeline que reaplicasse o corte encurtaria o video mais um pouco, e dois renders da mesma entrada divergiriam em bytes — o determinismo da composicao morreria em silencio.",
+      "artefatos": [
+        "src/sincronia/ritmo/cortar.ts",
+        "tests/sincronia/ritmo.test.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Idempotencia e determinismo provados por teste (describe adversarial 2): 2x = 1x na fixture canonica com alvo 0.05 (corte real), com alvo acima das lacunas e no piso do oraculo; determinismo por duas chamadas com a mesma entrada, bytes identicos.",
+    "evidencia": {
+      "cmd": "npx vitest run tests/sincronia/ritmo.test.ts -t \"IDEMPOTENTE\"",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-616.txt",
+      "sha256": "4313bb47e1541c52456c7df712ca407b5e8eaa9cdbdeee75d2c1b6659125722e"
+    }
+  },
+  {
+    "id": "AB-617",
+    "titulo": "A cadencia carrega o hash do audio-FONTE; a emenda materializada ainda nao tem bytes",
+    "pergunta": "A cadencia (documento compactado) preserva o campo `audio` do documento de entrada — o SHA-256 do audio-FONTE. O audio EMENDADO (palavras na ordem, ligadas pelas lacunas restantes) nao existe em bytes; quando o F3-05 (W7) o materializar, os bytes e o hash novos substituem o campo e o documento ganha identidade nova. Quem dispara essa regeneracao, e ela exige revisao explicita (mesma disciplina de AB-521)?",
+    "por_que_aberto": "O hash do campo `audio` nao descreve os bytes da emenda (duracao diferente), e ninguem pode medir o hash novo hoje: o store nao existe (AB-411) e a emenda e de outro card da W7. Sem decisao registrada, o F5-01 pode usar o hash antigo como endereco da emenda e casar errado por conteudo.",
+    "decisao_provisoria": "A cadencia e um PLANO DE EDICAO, nao o documento do audio emendado: `audio` permanece o hash da FONTE (a fala vem dele) e quem materializar a emenda trata-a como derivada, com regeneracao por ato explicito (hash novo + revisao, mesma disciplina de AB-521). O F3-05 (W7) nomeia no handoff dele o momento da regeneracao.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/sincronia/ritmo.test.ts -t \"audio\"",
+      "espera": "VERDE: o teste 'o campo audio da cadencia e o MESMO da entrada (a emenda nao tem bytes ainda — AB-617)' passa cena a cena, com corte real (alvo 0.05)",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "O campo `audio` com hash do audio-fonte e a ligacao por conteudo do contrato; se um consumidor o ler como endereco da emenda, casa timing com os bytes errados em silencio (ou o hash antigo invalida o cache da emenda a cada render).",
+      "artefatos": [
+        "src/sincronia/ritmo/cortar.ts",
+        "src/sincronia/ritmo/formato.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-618",
+    "titulo": "A cadencia respeita o timing canonico, e o corte ATUALIZA a duracao no documento",
+    "pergunta": "O corte muda a duracao total SEM atualizar o documento de timing? E a cadencia resultante respeita o timing canonico (perguntas adversariais 3 e 4 do card)?",
+    "por_que_aberto": "Um corte que mudasse a duracao e deixasse o documento com a duracao antiga produziria um timing que nao cobre a propria timeline: a cobertura palavras + silencio = [0, duracao_s] do oraculo C8 estouraria em silencio quando o consumidor posicionasse a cadencia na composicao.",
+    "decisao_provisoria": "Fechado: `duracao_s` do compactado = original - soma dos cortes (o documento E atualizado, e a relacao e exata na comparacao); o modulo reaplica o oraculo de src/sincronia/timing/validar.ts na entrada E na saida — a cadencia e um TimingCanonico VALIDO (cobertura, monotonicidade, sem sobreposicao), e os MESMOS bytes voltam a passar por lerTimingCanonico(serializarTimingCanonico(doc)).",
+    "verificacao": {
+      "cmd": "npx vitest run tests/sincronia/ritmo.test.ts -t \"respeita o timing canonico\"",
+      "espera": "VERDE: os 4 testes do describe adversarial (4) passam (oraculo + round-trip de bytes; lacunas da cadencia no maximo o alvo; politica declarada; opcoes invalidas recusadas) — a relacao exata de duracao esta no describe adversarial (3)",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Duracao desatualizada = timeline que nao bate com o conteudo: palavras fora da cena ou cobertura estourando o fim — e ninguem fica vermelho porque o documento ainda valida por forma.",
+      "artefatos": [
+        "src/sincronia/ritmo/cortar.ts",
+        "tests/sincronia/ritmo.test.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Duracao sempre atualizada (relacao exata duracao_s compactada = original - soma dos cortes, testada no describe adversarial 3) e cadencia sempre valida (oraculo reaplicado na saida pelo proprio modulo; cobertura C8 conferida de novo em teste, por premissa independente).",
+    "evidencia": {
+      "cmd": "npx vitest run tests/sincronia/ritmo.test.ts -t \"respeita o timing canonico\"",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-618.txt",
+      "sha256": "7661b876a4fe0540d2ed920f3a3e7077f8eb610ad089bfd5212c0b4d26717eb8"
+    }
+  },
+  {
+    "id": "AB-619",
+    "titulo": "GAP_ALVO_S e politica do modulo de ritmo, nao token de design",
+    "pergunta": "O alvo default de lacuna (0.25 s) vive em src/sincronia/ritmo/formato.ts e nao em src/design/tokens.ts — mas a Regra 2 do AGENTS.md diz que 'toda duracao' vive nos tokens (S-5, dono unico). Quando o ritmo virar configuravel por manifesto, quem move o valor e como ele migra?",
+    "por_que_aberto": "O valor e um parametro de POLITICA do corte (funcao pura), nao um valor de layout/animacao — mas a fronteira 'politica vs design' nao esta decidida, e o F3-04 nao podia tocar tokens.ts (S-5).",
+    "decisao_provisoria": "0.25 s fica como constante de politica no modulo, com override por chamada (OpcoesDeCorte.gapAlvoS) e politica declarada no resultado (Ritmo.1). O F5-01 (W7) faz o sign-off do default como produto (ritmo agressivo vs natural) quando levar o ritmo ao render. Se o ritmo virar campo de manifesto, o schema muda por ADR e o valor migra por leitura de configuracao — nunca por segundo literal nos consumidores.",
+    "verificacao": {
+      "cmd": "grep -rn \"GAP_ALVO_S = 0.25\" src/sincronia/ritmo/ | wc -l",
+      "espera": "1 — a constante existe no modulo e nao nos tokens; a decisao de movimento fica registrada neste item",
+      "ambiente": "qualquer maquina"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um segundo literal do alvo nos consumidores (W7+) diverge do modulo sem conflito de merge — a mesma classe de falso verde que a Regra 2 existe para matar.",
+      "artefatos": [
+        "src/sincronia/ritmo/formato.ts",
+        "docs/adr/0029-ritmo-corte-de-silencio-cadencia.md"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]
