@@ -2180,3 +2180,45 @@ politica-editorial:
     fi
     @echo "politica-editorial: VERDE"
 # === fim I-04 ===
+
+# === F6-01 ===
+# =============================================================================
+# Checklist de revisao humana e dossie — card F6-01 (W10, critico, tdd).
+# Dono: card F6-01. Nao edite fora destes marcadores.
+#
+# Entregas do card: docs/revisao/** (checklist + dossie + rascunho canonico),
+# tools/revisao/*.ts, docs/adr/0045-*.md, ledger/inbox/F6-01.json.
+# Faixa de ledger: AB-850..AB-869.
+#
+# A alavanca-mestra da politica editorial (docs/politica-editorial.md §2) e a
+# flag que desliga a publicacao inteira; o gate G-HUM e o ponto em que o
+# dossie entra nela: a publicacao exige dossie assinado — sem dossie, BLOQUEIA
+# (PROGRAMA.html:2994). A W11 (F6-02) materializa a alavanca como flag real e
+# chama estes comandos a partir do runbook; o F6-03 (gates P-1..P-5) consome o
+# dossie assinado como pre-requisito numerado.
+#
+#   revisar            gera o RASCUNHO do dossie da entrega (criterio 1).
+#                      Nunca assina: um rascunho e invalido por construcao —
+#                      gerar != aprovar. Recusa sobrescrever dossie assinado.
+#   revisar-bloqueia   o ∅-crit executavel (gate G-HUM): falha quando nao ha
+#                      dossie VALIDO para a entrega — arquivo ausente, papel
+#                      nao assinado, enquadramento/disclosure ausentes,
+#                      relatorio adulterado, regeneracao divergente, entrega
+#                      inexistente. VERMELHO = publicacao bloqueada.
+#   revisar-gate       o gate do proprio card: presenca per-item, geracao,
+#                      sondas negativas por alvo e sonda positiva, tudo em
+#                      diretorio temporario (offline, cassetes commitados).
+# =============================================================================
+
+# `just revisar [--entrega <id>] [--saida <dir>] [--dossie <caminho>]` — gera o rascunho do dossie.
+revisar *args:
+    npx tsx tools/revisao/gerar-dossie.ts {{args}}
+
+# `just revisar-bloqueia [--entrega <id>] [--saida <dir>] [--dossie <caminho>]` — ∅-crit: falha sem dossie valido.
+revisar-bloqueia *args:
+    npx tsx tools/revisao/verificar-dossie.ts {{args}}
+
+# O gate do card F6-01: presenca, geracao e sondas do ∅-crit.
+revisar-gate:
+    npx tsx tools/revisao/gate.ts
+# === fim F6-01 ===

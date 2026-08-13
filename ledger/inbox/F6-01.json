@@ -1,0 +1,223 @@
+[
+  {
+    "id": "AB-850",
+    "titulo": "O checklist e assinavel por papel nomeado, ou por 'o time'? — os 4 papeis da politica, nunca o coletivo",
+    "pergunta": "A pergunta adversarial 1 do F6-01: o checklist e assinavel por PAPEL NOMEADO, ou por 'o time'? A politica do I-04 (§3) nomeia quatro papeis — Revisor editorial, Operador de reversao, Operador de publicacao, Revisor juridico — e o dossie usa os MESMOS papeis. O que impede alguem de assinar 'o time' ou de trocar o papel por um cargo generico?",
+    "por_que_aberto": "Num programa pessoal a separacao e documental, nao fisica (AB-991): o mesmo humano opera varios papeis, e a unica defesa contra 'o time' e o REGISTRO. Se o dossie aceitasse 'o time' como assinatura, a aprovacao nominal da fase 1 da politica deixaria de nomear quem decidiu — e a reavaliacao sob AB-950 ficaria sem responsavel registrado.",
+    "decisao_provisoria": "O dossie tem quatro blocos de assinatura, um por papel nomeado, com nome + data + veredito; o gate G-HUM (just revisar-bloqueia) falha quando qualquer um dos quatro esta ausente, sem nome ou sem data. O vocabulario dos papeis vive em tools/revisao/formato.ts com os MESMOS nomes da politica §3 — alterar o nome quebra o fecho de proposito.",
+    "verificacao": {
+      "cmd": "just revisar-gate",
+      "espera": "VERDE: a sonda 'assinatura do Revisor editorial removida' (e as outras tres) fica VERMELHA nomeando o papel; o dossie-canonico rascunho e rejeitado por falta de assinaturas",
+      "ambiente": "qualquer maquina offline; cassetes commitados"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem papel nomeado na assinatura, a fase 1 vira teatro: a politica diz 'aprovacao nominal' e o registro nao nomeia ninguem — o primeiro conflito editorial nao teria responsavel para responder.",
+      "artefatos": [
+        "docs/revisao/checklist.md",
+        "docs/revisao/dossie.md",
+        "tools/revisao/formato.ts",
+        "tools/revisao/verificar-dossie.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-851",
+    "titulo": "Os itens que so um humano pega — conformidade visual, qualidade narrativa e adequacao editorial sem oraculo",
+    "pergunta": "A pergunta adversarial 2 do F6-01: o checklist inclui os itens que SO um humano pega? O oraculo cobre determinismo, procedencia, loudness e geometria de safe area; ele nao tem opiniao sobre 'se o video presta' (PROGRAMA.html:1897). O que garante que o checklist nao vira uma lista de conferencias que a maquina ja faz?",
+    "por_que_aberto": "Um checklist com 100% de itens automatizaveis passa no gate sem nenhum humano ter visto o artefato — o proprio falso verde que o F6-01 existe para matar (PROGRAMA.html:2415).",
+    "decisao_provisoria": "O checklist (docs/revisao/checklist.md) separa por papel: o Revisor editorial assina E1..E5 — conformidade visual (marcador, vinheta, safe area — territorio declarado pelo F5-07/AB-804), qualidade narrativa, adequacao editorial, legibilidade e acabamento; o gate exige veredito humano em cada item e rejeita NÃO_APLICAVEL fora do J2.",
+    "verificacao": {
+      "cmd": "just revisar-gate",
+      "espera": "VERDE: a sonda 'veredito do item E1 de volta a PENDENTE' fica VERMELHA nomeando E1; o rascunho gerado por just revisar e rejeitado com todos os vereditos em branco",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o checklist so conferir o que a maquina ja confere, a 'revisao humana' e um carimbo: o video 'presta' vira verde por inercia e o item mais caro do programa (a decisao editorial) fica sem dono.",
+      "artefatos": [
+        "docs/revisao/checklist.md",
+        "tools/revisao/verificar-dossie.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "render",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-852",
+    "titulo": "Existe caminho que publica sem dossie? — o gate de publicacao consome a alavanca-mestra da politica",
+    "pergunta": "A pergunta adversarial 3 do F6-01: existe caminho que publica SEM passar pela revisao humana? A politica (§5) responde 'nao' — sem dossie assinado nao ha publicacao, e o runbook do F6-02 nao pode criar atalho. Como tornar essa resposta executavel antes do F6-02 (W11) materializar a alavanca como flag real?",
+    "por_que_aberto": "A alavanca-mestra e conceito com guarda de presenca ate a W11 (AB-990): o sweep garante que a politica e o ADR-0033 citam a alavanca, mas nenhum comando falha por AUSENCIA de dossie. O F6-01 precisa entregar a verificacao executavel que o runbook da W11 vai chamar.",
+    "decisao_provisoria": "just revisar-bloqueia (tools/revisao/verificar-dossie.ts) e o gate G-HUM: falha quando nao existe dossie valido para a entrega pedida — arquivo ausente, identidade divergente, relatorio adulterado, regeneracao divergente, enquadramento ou disclosure ausentes, veredito pendente, assinatura de papel ausente, ou entrega inexistente no disco. O F6-02 (W11) herda o comando; enquanto nao ha alavanca real, a fase 0 e o unico estado alcancavel (politica §2.4).",
+    "verificacao": {
+      "cmd": "just revisar-bloqueia --entrega canonico",
+      "espera": "VERMELHO nomeando a primeira falha — o dossie rascunho da entrega canonica nao pode liberar publicacao; a sonda 'entrega sem dossie (arquivo removido)' do just revisar-gate fica VERMELHA com 'sem dossie'",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem o bloqueio executavel, o runbook do F6-02 nasceria com um passo 'conferir dossie' que ninguem roda: a publicacao voltaria a depender de disciplina, e a pergunta 3 do card ficaria respondida so no papel.",
+      "artefatos": [
+        "tools/revisao/verificar-dossie.ts",
+        "docs/revisao/dossie.md",
+        "justfile"
+      ]
+    },
+    "risco": "critico",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-853",
+    "titulo": "Dossie gerado != dossie assinado — just revisar gera o rascunho, e o gate so libera com assinatura humana",
+    "pergunta": "O criterio de aceitacao 1 do F6-01 e 'just revisar gera o dossie'; o ∅-crit exige dossie ASSINADO para publicar. O que impede o gerador de assinar sozinho (ou o gate de aceitar o rascunho)? Se o gate aceitasse o que o gerador emite, a 'revisao humana' seria o proprio agente se aprovando com passos extras.",
+    "por_que_aberto": "Ferramenta de geracao que escreve o veredito que aprova e a forma mais barata de falso verde: o gate passa sem nenhum humano ter visto o video, e nada no diff denuncia.",
+    "decisao_provisoria": "O gerador (tools/revisao/gerar-dossie.ts) emite o rascunho com vereditos PENDENTE e blocos de assinatura em branco, e RECUSA sobrescrever um dossie ja assinado. O gate (just revisar-gate) prova por sonda que o rascunho gerado e REJEITADO por just revisar-bloqueia — gerar nunca aprova.",
+    "verificacao": {
+      "cmd": "just revisar-gate",
+      "espera": "VERDE: a sonda 'rascunho rejeitado (gerar != aprovar)' fica VERMELHA; a sonda 'gerador recusa sobrescrever dossie assinado' fica VERMELHA",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o rascunho passasse no gate, o ∅-crit morreria no dia 1: toda entrega ganharia dossie 'aprovado' sem revisao, e a fase 1 da politica deixaria de existir na pratica.",
+      "artefatos": [
+        "tools/revisao/gerar-dossie.ts",
+        "tools/revisao/gate.ts"
+      ]
+    },
+    "risco": "critico",
+    "categoria": "ambiente",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-854",
+    "titulo": "Gaps de data no dossie — visiveis na primeira pagina, aceitos por decisao do dono, nunca omitidos",
+    "pergunta": "O relatorio do F5-06 trata 'adquiridoEm' ausente como gapsDeData: visivel, nao bloqueante (AB-746). O dossie herda a disciplina — os gaps aparecem na primeira pagina — mas quem decide se um gap vira bloqueio quando o dossie existir?",
+    "por_que_aberto": "AB-746 ficou aberto de proposito ate o dossie existir: a politica 'gap visivel vs bloqueio' e decisao do dono, nao do modulo. O dossie e o lugar onde essa decisao e registrada por entrega.",
+    "decisao_provisoria": "O dossie lista os gaps em secao propria ('## 2. Gaps de data visiveis') com linha de decisao do dono por gap; o gate exige a secao (marcador gaps=DECLARADO) mas nao bloqueia por gap — bloqueio por data continua sendo decisao registrada, e o rascunho da entrega canonica documenta o primeiro uso.",
+    "verificacao": {
+      "cmd": "just revisar-gate",
+      "espera": "VERDE: a sonda 'disclosure de voz removido' fica VERMELHA; o rascunho canonico lista a secao de gaps; a sonda 'item J3 marcado NAO_APLICAVEL' fica VERMELHA",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem os gaps visiveis no dossie, a reavaliacao sob AB-950 (que precisa da data para avaliar vigencia de termos) teria de reconstruir o estado por arqueologia — o oposto do que o dossie existe para evitar.",
+      "artefatos": [
+        "docs/revisao/dossie.md",
+        "tools/revisao/gerar-dossie.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "assets-licenca",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-855",
+    "titulo": "A declaracao de enquadramento no dossie — AB-993 materializado como seccao obrigatoria, nunca omitida",
+    "pergunta": "A politica (§7, AB-993) decide o caso em que ninguem pensou por REGISTRO — item de ledger + decisao provisoria + ADR reaberto se contrariar a politica. O dossie e o registro da fase 1: como a declaracao de enquadramento entra nele sem virar mais um campo que ninguem le?",
+    "por_que_aberto": "O gatilho AB-950 nao tem sinal tecnico (R01-05): a deteccao e por declaracao, e 'omissao e falha de gate' (ADR-0003). Se o dossie omitisse a declaracao, a reavaliacao sob mudanca de escopo ficaria cega na propria porta de entrada da publicacao.",
+    "decisao_provisoria": "O dossie tem a seccao '## 4. Declaracao de enquadramento (AB-993)': uso pessoal / ADR-0003, o gatilho AB-950 declarado ('AB-950 continua fechado' ou 'AB-950 disparou') e a clausula do caso nao previsto. O gate falha quando a declaracao falta ou o gatilho nao e um dos dois valores validos.",
+    "verificacao": {
+      "cmd": "just revisar-gate",
+      "espera": "VERDE: as sondas 'declaracao de enquadramento removida' e 'gatilho AB-950 nao declarado' ficam VERMELHAS nomeando AB-993",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Dossie sem enquadramento e dossie de outra politica: a publicacao sairia sem a declaracao que o ADR-0003 torna obrigatoria, e o primeiro caso nao previsto seria resolvido por improviso — a exata classe de falha do AB-993.",
+      "artefatos": [
+        "docs/revisao/dossie.md",
+        "tools/revisao/gerar-dossie.ts",
+        "tools/revisao/verificar-dossie.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "juridico",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-856",
+    "titulo": "Disclosure de voz sintetica no dossie — AB-999 conferido pelo Revisor juridico em seccao obrigatoria",
+    "pergunta": "A obrigacao de disclosure de voz sintetica e do provedor, independente do enquadramento (ADR-0003 D4; AB-999 responde juridico). Onde o dossie declara se a entrega contem voz sintetica e como o disclosure foi atendido — e quem impede o silencio?",
+    "por_que_aberto": "Voz sintetica sem disclosure e um dos tres custos irreversiveis da politica (§5): um video publicado com voz clonada sem consentimento nao se despublica sem custo. Sem seccao obrigatoria no dossie, o silencio vira aprovacao.",
+    "decisao_provisoria": "O dossie tem a seccao '## 5. Disclosure de voz sintetica (AB-999)': o gerador detecta a locucao nos estagios do manifesto resolvido e preenche a declaracao; o Revisor juridico assina o item J2; NÃO_APLICAVEL so e aceito no J2, e com justificativa no texto da seccao.",
+    "verificacao": {
+      "cmd": "just revisar-gate",
+      "espera": "VERDE: a sonda 'disclosure de voz removido' fica VERMELHA nomeando AB-999; o rascunho canonico declara a presenca de voz sintetica (estagio locucao)",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem a seccao, o dossie poderia aprovar um video com voz sintetica sem nenhum registro do disclosure — e o custo so apareceria no despublicar, quando ja e irreversivel.",
+      "artefatos": [
+        "docs/revisao/checklist.md",
+        "tools/revisao/gerar-dossie.ts",
+        "tools/revisao/verificar-dossie.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "assets-licenca",
+    "responde": "juridico",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-857",
+    "titulo": "O dossie embute o relatorio do F5-06 e registra a regeneracao — AB-748 fechado no ciclo da revisao",
+    "pergunta": "A reavaliacao sob AB-950 regenera o relatorio dos MESMOS commitados, sem re-renderizar (AB-748). O dossie embute o relatorio da entrega — mas como o leitor sabe que o relatorio embutido e fiel ao que os commitados produzem, e nao uma foto antiga ou adulterada?",
+    "por_que_aberto": "O relatorio e funcao pura de (manifesto resolvido, store, cassetes, relogio): regeneravel. Se o dossie embutisse um relatorio divergente, a reavaliacao juridica usaria uma base mentirosa sem sinal nenhum.",
+    "decisao_provisoria": "O dossie embute o JSON do relatorio com o hash sha256 (marcador relatorio-embutido-hash); o gate confere o hash contra o relatorio-procedencia.json da entrega e exige regeneracao CONSISTENTE (vereditos essenciais iguais) marcada no dossie. Hash adulterado ou regeneracao DIVERGENTE = dossie invalido.",
+    "verificacao": {
+      "cmd": "just revisar-gate",
+      "espera": "VERDE: as sondas 'hash do relatorio embutido adulterado' e 'regeneracao DIVERGENTE' ficam VERMELHAS nomeando o motivo",
+      "ambiente": "qualquer maquina offline; cassetes commitados"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Dossie com relatorio divergente e a porta de entrada para a reavaliacao cega: a suficiencia juridica seria avaliada contra um retrato que nao e o da entrega.",
+      "artefatos": [
+        "tools/revisao/gerar-dossie.ts",
+        "tools/revisao/verificar-dossie.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "assets-licenca",
+    "responde": "juridico",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-858",
+    "titulo": "O rascunho canonico commitado e rejeitado pelo proprio gate — a publicacao fica bloqueada ate a assinatura humana",
+    "pergunta": "O dossie da entrega canonica (docs/revisao/dossie-canonico.md) sera commitado como rascunho. Como provar, no proprio repositório, que o rascunho NAO libera publicacao — sem depender de um humano ter assinado um dossie de verdade (nenhum video foi publicado ainda; a politica esta ENCERRADO COMO CONSTRUIDO E NAO DISPARADO)?",
+    "por_que_aberto": "Um gate que so sabe falhar em dossies sinteticos de diretorio temporario nao prova nada sobre o dossie que fica no repo: o rascunho canonico poderia estar 'valido por engano' e a publicacao destravada sem revisao.",
+    "decisao_provisoria": "O gate roda just revisar-bloqueia contra o dossie-canonico commitado e exige VERMELHO: o rascunho existe (criterio 1 do card) e o ∅-crit o rejeita (criterio 2) — a entrega canonica continua em fase 0 ate um humano assinar. A sonda positiva (dossie preenchido e assinado em temp) prova que o caminho verde existe e e humano.",
+    "verificacao": {
+      "cmd": "just revisar-gate",
+      "espera": "VERDE: a sonda '[4/4] o dossie-rascunho canonico commitado e rejeitado' fica VERMELHA; a sonda positiva 'dossie preenchido e assinado pelos 4 papeis' sai VERDE",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o rascunho canonico passasse no gate, o ∅-crit teria um buraco no proprio artefato de demonstracao: alguem poderia publicar a entrega canonica sem nenhuma revisao humana registrada.",
+      "artefatos": [
+        "docs/revisao/dossie-canonico.md",
+        "tools/revisao/gate.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]
