@@ -826,3 +826,53 @@ det-provar-midia:
 no-midia-ausencia:
     bash tools/no-midia/ausencia.sh
 # === fim F1-07 ===
+
+# === F1-08 ===
+# =============================================================================
+# No de codigo — desenha tokens PRE-COMPUTADOS, nunca destaca em render
+# =============================================================================
+# Dono: card F1-08. Nao edite fora destes marcadores.
+#
+# NOME DAS RECEITAS: hifen, nunca ':' — `just` 1.42 le `a:b` como "receita a
+# depende de b" e o arquivo inteiro deixa de parsear. Mesma convencao de
+# design-varrer, comp-testar e res-offline.
+#
+# Porta 3108 (faixa deste card) no studio, para nao colidir com irmao da onda.
+
+# Tudo do card, na ordem em que um vermelho nomeia a causa certa.
+no-codigo: no-codigo-testar no-codigo-render no-codigo-ausencia
+    @echo "no-codigo: VERDE"
+
+# Tipos + testes de unidade do no. Traz sonda contra filtro vazio (C2): um
+# seletor que nao casa nada faz o vitest sair verde sem olhar nada.
+no-codigo-testar:
+    @echo "=== no-codigo-testar: tipos de src/composicao/ ==="
+    npx tsc --noEmit -p tsconfig.composicao.json
+    @echo "=== no-codigo-testar: unidade (recusa, janela, cor de token) ==="
+    @saida=$(npx vitest run tests/composicao/no-codigo.test.ts 2>&1); \
+        echo "$saida" | tail -6; \
+        echo "$saida" | grep -qE "Tests +[1-9][0-9]* passed" || \
+            { echo "FALHOU: nenhum teste selecionado (falso verde)"; exit 1; }
+    @echo "no-codigo-testar: OK"
+
+# Render de verdade (webpack do Remotion, nao Studio — C5): 2x bytes
+# identicos, analise de pixel e comparacao com o snapshot aprovado.
+no-codigo-render:
+    bash tools/no-codigo/provar.sh
+
+# (∅-crit) Apagar um snapshot aprovado TEM de ficar vermelho. Prova por
+# mutacao, com o gate voltando ao verde depois de cada uma.
+no-codigo-ausencia:
+    bash tools/no-codigo/ausencia.sh
+
+# Grava o snapshot aprovado. Ato explicito — o gate nunca grava sozinho.
+no-codigo-aprovar:
+    bash tools/no-codigo/provar.sh --aprovar
+    @echo "Agora: git add fixtures/snapshots/no-codigo/ && commit"
+
+# Studio na porta deste card, para olhar o no com o olho.
+# ATENCAO: o Chrome do Studio nao e o Chrome do render (C5). Nada que sai
+# daqui vira snapshot aprovado.
+no-codigo-studio:
+    npx remotion studio fixtures/snapshots/no-codigo/entrada.tsx --port 3108
+# === fim F1-08 ===

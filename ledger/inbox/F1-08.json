@@ -1,0 +1,52 @@
+[
+  {
+    "id": "AB-350",
+    "titulo": "Formato do asset de destaque assumido pelo no nao foi conferido com o estagio",
+    "pergunta": "O asset apontado por `nos_codigo[<id>]` produzido por F2-05 e mesmo o JSON `DestaqueCodigo.1` (linguagem, destacador, linhas[].numero/tokens[]) que o no de codigo consome, ou o estagio entrega outro formato?",
+    "por_que_aberto": "O contrato de estagio so fixa `nos_codigo: Record<NodeId, Sha256>` — um hash de asset por no. O conteudo do asset nao esta contratado, e F2-05 e irmao cego desta onda. O no (F1-08) assumiu o formato DestaqueCodigo.1 por decisao propria, declarada em docs/adr/0007-no-codigo-destaque-pre-computado.md. Se o estagio entregar outro formato, a recusa do no e ruidosa (ErroDeDestaque), mas o pipeline fica preso ate a hidratacao ser corrigida.",
+    "decisao_provisoria": "O no le o campo estruturalmente e confere cada linha por reconstrucao caractere a caractere; formato de outra versao e RECUSA dura com erro que nomeia o no e todos os problemas. A hidratacao (anexar destaque_sintaxe ao no) ainda nao existe e pertence ao join F1-12. Conferencia do par estagio x formato: no join da W5, com o cassete real de F2-05.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/no-codigo.test.ts -t \"controle positivo\" && bash tools/no-codigo/provar.sh --somente-snapshot",
+      "espera": "verde com a fixture de tokens; quando o cassete real de F2-05 existir, o mesmo caminho de leitura tem de aceita-lo sem recusa",
+      "ambiente": "worktree do repo, node 24, remotion 4.0.507"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se F2-05 entregar outro formato, todo no de codigo do video real cai em ErroDeDestaque e o render para alto — visivel, mas preso. Se a hidratacao for escrita para o formato errado, o no passa a desenhar um codigo que nao e o do manifesto sem nada ficar vermelho.",
+      "artefatos": [
+        "src/composicao/nos/codigo.tsx",
+        "src/resolucao/codigo/estagio.ts",
+        "docs/adr/0007-no-codigo-destaque-pre-computado.md"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "contrato",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-353",
+    "titulo": "Nao existe grupo de cores `sintaxe` em src/design/tokens.ts",
+    "pergunta": "A paleta de destaque de codigo deve ganhar um grupo proprio de tokens (ex.: sintaxe.palavraChave, sintaxe.cadeia), ou continua reaproveitando os papeis semanticos (text, highlight, state) para cores de sintaxe?",
+    "por_que_aberto": "O no de codigo (F1-08) precisa de oito cores, uma por papel lexico. tokens.ts (S-5, singleton) nao tem grupo de sintaxe, e declarar cor dentro do no violaria a Regra 2 (literais fora de src/design/). A decisao provisoria reaproveita: palavra-chave = highlight.secondary, cadeia = state.success, numero = highlight.accent, funcao = highlight.primary, tipo = state.info, e cinzas de text para os demais. Isso amarra a paleta de sintaxe ao design system geral: trocar a cor de 'sucesso' muda a cor das strings de codigo. Criar o grupo proprio e alteracao de S-5 e vira PREP do orquestrador, nao trabalho deste card.",
+    "decisao_provisoria": "Manter o mapa COR_POR_PAPEL em src/composicao/nos/codigo.tsx reaproveitando papeis semanticos, com nota no codigo e aqui. As cores distintivas de papel (5 de 8) nao sao usadas pela moldura do no — premissa do teste de pixel — e o teste de unidade confere que nenhuma cor de papel coincide com as da moldura.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/composicao/no-codigo.test.ts -t \"as cores distintivas\" && just design-varrer",
+      "espera": "verde: toda cor vem de tokens.ts e nenhuma cor de papel e usada pela moldura",
+      "ambiente": "worktree do repo, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um dia for criado o grupo sintaxe, os snapshots de no-codigo sao recapturados (mudanca de pixel) e o mapa do no muda junto. Se a moldura de outro no usar uma das cinco cores de papel, o teste de pixel do no-codigo-cru acusa falso positivo de destaque.",
+      "artefatos": [
+        "src/design/tokens.ts",
+        "src/composicao/nos/codigo.tsx",
+        "fixtures/snapshots/no-codigo/aprovado/"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "design-system",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]
