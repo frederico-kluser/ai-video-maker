@@ -1,0 +1,23 @@
+DECISAO AB-721 (2026-08-13) — revisao pre-golden ADR-0043: marcador de
+midia com inset 54px mantido; divergencia documentada, causa no NO, nao
+no token.
+
+Comando de verificacao: npx tsx tools/variantes/provar.ts (exit 0)
+Saida relevante: variante-16x9 SEGURA (action safe EBU R 95); os stills
+com midia (variante-16x9-c001/002) sao identicos aos snapshots aprovados.
+
+Fatos medidos:
+- Token graphicsSafePct = 0.05 e CONFORME a EBU R 95 v1.1 em 16:9
+  (graphics safe h=96px, v=54px — tokens.ts safeArea16x9.graphicsSafe).
+- O no de midia (src/composicao/nos/midia.tsx) calcula o inset como
+  round(min(w,h)*graphicsSafePct) = 54px em 1920x1080 — colapsa as duas
+  dimensoes no menor lado; o estouro de 13px/lado do action safe e do
+  CONSUMO, nao do token. Corrigir pelo token quebraria os valores
+  conformes; corrigir o no esta fora da fronteira desta PREP (somente
+  tokens.ts editavel).
+
+Condicao de saida: o marcador e placeholder (F1-12 mede o INTERIOR dele);
+quando a midia real chegar (decisao F5-07/W9) ele sai da tela e a
+divergencia desaparece sem mudanca de token. Se permanecer, a correcao e
+de no (inset por dimensao: round(width*pct), round(height*pct)).
+Ver ADR-0043, decisao 2.

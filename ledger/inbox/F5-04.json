@@ -22,7 +22,15 @@
     "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "DECISAO (ADR-0043): safe area 9:16 permanece PROVISIONAL (AB-071) com a reprovacao documentada — a variante 9:16 do canonico continua REPROVADA nomeando as margens (direita 124px, topo 162px, base 316px) e o estrito da W10 e 16:9-only (ADR-0042 D4). NENHUM valor de token mudou: ajustar os percentuais a faixa pesquisada (AB-723) nao tornaria o reflow entregavel (o problema e re-layout por plataforma, decisao de composicao futura) e invalidaria a medicao documentada. Gate verde e teste de reprovacao verde apos a revisao.",
+    "evidencia": {
+      "cmd": "npx tsx tools/variantes/provar.ts",
+      "exit": 0,
+      "arquivo": "ledger/evidencia/AB-720.txt",
+      "sha256": "7d70f26bcfb048db677f0e8edfc6e5024281facf727d5608db57daa662ee7bb1"
+    }
   },
   {
     "id": "AB-721",
@@ -47,7 +55,15 @@
     "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "DECISAO (ADR-0043): marcador de midia mantido com inset 54px; divergencia documentada. O token graphicsSafePct 0.05 e CONFORME a EBU R 95 (96px h / 54px v); o estouro de 13px/lado vem do CONSUMO no no (min(w,h)*pct — src/composicao/nos/midia.tsx), fora da fronteira desta PREP. Corrigir pelo token quebraria os valores conformes. Condicao de saida: midia real (F5-07/W9) remove o placeholder; se permanecer, a correcao e de NO (inset por dimensao). Nenhum snapshot recapturado (nenhum valor mudou).",
+    "evidencia": {
+      "cmd": "npx tsx tools/variantes/provar.ts",
+      "exit": 0,
+      "arquivo": "ledger/evidencia/AB-721.txt",
+      "sha256": "6112bede7d633cb9b9fd4b05c7815006bd19062eba56221373a7f76bdff3b148"
+    }
   },
   {
     "id": "AB-722",
@@ -71,7 +87,15 @@
     "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "DECISAO (ADR-0043): vinheta e grade confirmadas 16:9-only (retanguloSeguro deriva de actionSafePct 3.5% por dimensao — decisao AB-58x/F1-11). A invasao do retangulo util 9:16 provisional e documentada; o oraculo de pixel do F5-04 classifica a tinta como explicada pelas camadas (nao e conteudo) — nenhum gate falso-verde. Como o 9:16 nao e entregavel (AB-720, ADR-0042 D4), nenhuma acao nesta revisao: a composicao vertical futura exigira camadas verticais proprias (decisao de layout, nao de token).",
+    "evidencia": {
+      "cmd": "npx vitest run tests/composicao/camadas/contrato-de-camada.test.ts -t 'margemSegura'",
+      "exit": 0,
+      "arquivo": "ledger/evidencia/AB-722.txt",
+      "sha256": "ebcfc2f1e3628dcf72762dfdac62dd993bca4ce7712a08cf02097de3c2806472"
+    }
   },
   {
     "id": "AB-723",

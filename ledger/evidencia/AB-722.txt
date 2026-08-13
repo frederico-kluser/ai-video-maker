@@ -1,0 +1,20 @@
+DECISAO AB-722 (2026-08-13) — revisao pre-golden ADR-0043: vinheta e grade
+(retanguloSeguro 3.5%) confirmadas 16:9-only por decisao do AB-58x (F1-11);
+a invasao do retangulo util 9:16 provisional e documentada, nenhuma acao
+nesta revisao.
+
+Comando de verificacao: npx vitest run tests/composicao/camadas/contrato-de-camada.test.ts -t 'margemSegura' (exit 0)
+Saida relevante:
+
+  ✓ tests/composicao/camadas/contrato-de-camada.test.ts (23 tests | 19 skipped)
+  Test Files  1 passed (1)
+      Tests  4 passed | 19 skipped (23)
+
+Confirmacoes: retanguloSeguro deriva de actionSafePct 3.5% POR DIMENSAO
+(src/composicao/camadas/contrato-de-camada.ts: horizontal =
+round(largura*0.035), vertical = round(altura*0.035)) — 16:9-only. Em
+canvas 9:16 as bandas de margem das camadas entram no retangulo util
+provisional; o oraculo de pixel do F5-04 classifica essa tinta como
+explicada pelas camadas (nao e conteudo) — nenhum gate falso-verde. A
+composicao vertical futura exigira camadas verticais proprias (decisao de
+layout, nao de token). Ver ADR-0043, decisao 3, e ADR-0037.

@@ -576,6 +576,17 @@ export const safeArea16x9 = {
 //   TikTok: top 15%, bottom 20%, right 15% — veopro.ai (2026-01-20)
 //   Instagram Reels: bottom 250px, top 100px — trymypost.com (2026-03-30)
 //   TikTok: 900x1492 centered — postplanify.com (2026-01-09)
+// Pesquisa 2026-08-13 (AB-723, ledger/evidencia/AB-723.txt): as plataformas
+//   publicam zonas de UI DINAMICAS sem numeros fixos inline (TikTok 3 artigos
+//   ads.tiktok.com, YouTube guia visual no editor, Meta atras de login);
+//   fontes secundarias convergem: base 250-280px, topo 100-250px, largura
+//   util 900-1080px. O provisional e mais conservador na base (384px) e
+//   semelhante na largura (918px vs 900px), menos conservador no topo
+//   (230px vs 250px). Decisao da revisao pre-golden: VALORES INALTERADOS —
+//   a pesquisa alimenta a documentacao (ADR-0043), nao substitui a decisao
+//   (AB-584); o estrito e 16:9-only (ADR-0042, decisao 4) e a variante 9:16
+//   do canonico permanece REPROVADA pelo gate com as margens medidas
+//   (direita 124px, topo 162px, base 316px — AB-720/ADR-0043).
 // Valores provisorios sem fonte primaria; medir por app e versao.
 export const safeArea9x16 = {
   /** Resolucao de referencia */
@@ -652,11 +663,14 @@ export const breakpoints = {
 //     https://support.spotify.com/artists/article/loudness-normalization (2026-08-11)
 //   Google Assistant = -16 LUFS stereo
 //     https://developers.google.com/assistant/tools/audio-loudness (2026-08-11)
-// targetLufs e decisao do dono registrada em ADR (P-09 → ADR-009)
+// targetLufs e decisao do dono registrada em ADR-0040 (pos, F5-03/W8):
+//   -23.0 LUFS EBU R 128 broadcast, congelado pelo gate do pos (o ADR-0009
+//   citado em versao anterior deste comentario era o estagio grafico do
+//   Manim — referencia stale, corrigida na revisao pre-golden AB-720..723).
 // Pesquisa web 2026-08-11: YouTube ≈ -14 LUFS (sem fonte primaria)
 //   Instagram/TikTok ≈ -10 a -12 LUFS — opus.pro (2026-05-06)
 
-/** Alvo de loudness integrada (LUFS) — placeholder, decisao ADR pendente */
+/** Alvo de loudness integrada (LUFS) — congelado pelo ADR-0040 */
 // EBU R 128 broadcast como default conservador
 export const targetLufs = -23.0;
 

@@ -1,0 +1,22 @@
+DECISAO AB-720 (2026-08-13) — revisao pre-golden ADR-0043: safe area 9:16
+permanece PROVISIONAL (AB-071) com a reprovacao da variante 9:16 documentada.
+
+Comando de verificacao: npx tsx tools/variantes/provar.ts (exit 0)
+Saida relevante (gate do F5-04):
+
+  variante-9x16: REPROVADA (∅-crit em dado real):
+    - [C3] conteudo da variante fora da safe area da plataforma 9:16:
+      imagem do retangulo de conteudo da fonte [38..1042)x[68..1852) nao
+      cabe no retangulo seguro [0..918)x[230..1536) — margem(ões):
+      direita 124px, topo 162px, base 316px
+    -> variante NAO entregavel nesta onda (ver ADR-0037)
+
+Decisao: NENHUM valor de safeArea9x16 mudou. O estrito da W10 e 16:9-only
+(ADR-0042, decisao 4 — "o 9:16 nao e entregavel (AB-720..722) e nenhum
+artefato 9:16 existe na lista fechada"); a reprovacao e o estado correto
+e o teste que a exige (tests/entrega/variantes.test.ts, ∅-crit de mutacao)
+permanece VERDE. Mudar os percentuais para a faixa pesquisada (AB-723)
+nao tornaria o reflow proporcional entregavel (o problema e re-layout, nao
+margem) e invalidaria a medicao documentada (124/162/316px). A entrega
+vertical exige re-layout por plataforma — decisao de composicao futura.
+Ver ADR-0043, decisao 1.
