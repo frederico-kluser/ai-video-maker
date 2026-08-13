@@ -1,0 +1,36 @@
+{
+  "schema_version": "Manifesto.1",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "nos": [
+    {
+      "id": "n-midia-01",
+      "schema": "Midia.1",
+      "type": "midia",
+      "duracao_frames": 90,
+      "hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "tipo_midia": "imagem",
+      "ajuste": "contain",
+      "texto_alternativo": "flowchart diagram",
+      "licenca": "a-resolver"
+    },
+    {
+      "id": "n-midia-02",
+      "schema": "Midia.1",
+      "type": "midia",
+      "duracao_frames": 45,
+      "hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "tipo_midia": "gif",
+      "ajuste": "contain",
+      "texto_alternativo": "pipeline diagram",
+      "licenca": "a-resolver"
+    }
+  ],
+  "cenas": [
+    {
+      "id": "c-001",
+      "nos": ["n-midia-01", "n-midia-02"]
+    }
+  ]
+}

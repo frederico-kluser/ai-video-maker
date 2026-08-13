@@ -581,3 +581,42 @@ res-musica-gravar *args:
 res-musica-determinismo:
     npx tsx tools/musica/verificar.ts
 # === fim F2-06 ===
+
+# === F2-04 ===
+# Midia externa — decisao de hotlink e estagio de resolucao de midia.
+# Dono: card F2-04. Nao edite fora destes marcadores.
+# Decisao de hotlink: docs/adr/0008-hotlink-e-midia-externa.md
+#
+# NOME DAS RECEITAS: hifen, nunca dois-pontos (ver bloco de F2-01, AB-284).
+# `just res:midia` do PROGRAMA = `just res-midia`.
+
+# O relatorio da decisao sai 1 se a decisao estiver violada (provedor que
+# exige hotlink com adaptador implementado). Depois a suite offline do
+# estagio e o oraculo completo (tools/midia/verificar.ts, 7 fases — a
+# fase 6 e a perna de determinismo NAO-VACUA, regravada a partir do
+# cassete; ver ledger AB-440 e o bloco res-midia-determinismo abaixo).
+res-midia:
+    npx tsx src/resolucao/midia/relatorio.ts
+    bash tools/resolucao/offline.sh --estagio midia
+    npx tsx tools/midia/verificar.ts
+    @echo "res-midia: VERDE"
+
+# Determinismo do estagio — a fase 6 do oraculo acima. Medido a partir do
+# CASSETE (ledger AB-440, mesma classe do AB-473 do irmao musica):
+# regravar contra a rede real devolve headers volateis do fornecedor
+# (date, age, server, x-request-id, x-cache, content-length…) que entram
+# em chamadas.json fora de CAMPOS_VOLATEIS, e o CORPO da busca muda ate
+# dentro do mesmo segundo (ranking do Commons nao e estavel) — os dois
+# refutam o diff sem nenhum defeito do estagio. A prova correta regrava a
+# partir do cassete, com as chamadas reais (busca + download) rodando em
+# cada gravacao, e exige 0 refutacoes + sonda negativa vermelha.
+res-midia-determinismo:
+    npx tsx tools/midia/verificar.ts
+
+# ∅-crit do card, com a intencao certa: --files-without-match lista os
+# procedencia.json SEM "licenca". O `rg -L` do PROGRAMA e -L=--follow e
+# imprime as linhas que casam — sai vazio justamente quando NENHUMA
+# procedencia declara licenca (armadilha registrada em AB-270).
+res-midia-licenca:
+    @test -z "$(rg --files-without-match '"licenca"' fixtures/cassetes/midia/**/procedencia.json)" && echo "res-midia-licenca: VERDE" || { echo "res-midia-licenca: VERMELHO — algum procedencia.json sem 'licenca'"; exit 1; }
+# === fim F2-04 ===

@@ -1,0 +1,278 @@
+[
+  {
+    "id": "AB-430",
+    "titulo": "O teto de requisicoes de cada provedor de midia esta documentado, nunca verificado por maquina",
+    "pergunta": "Quem garante que o teto de requisicoes e a obrigacao de cache registrados na tabela de politicas continuam valendo quando o cassete for regravado?",
+    "por_que_aberto": "O card F2-04 pede, por provedor e com data do termo: teto de requisicoes, obrigacao de cache e politica de hotlink. A tabela em src/resolucao/midia/politicas.ts registra os tres (Unsplash 50/1000 por h, GIPHY 100 por h beta, Pixabay 100 por 60 s + cache 24 h, Pexels 200 por h / 20.000 por mes, Commons sem teto duro + header real 10000;w=1 observado no cassete). Mas nenhum gate le o documento de novo: o relatorio imprime a data, e so.",
+    "decisao_provisoria": "O relatorio (npx tsx src/resolucao/midia/relatorio.ts) imprime documento e data de consulta a cada gate, e a regravacao manual do cassete — o unico momento em que o estagio fala com o provedor — e o ponto natural de re-leitura. Nenhum gate de re-verificacao automatica; isso e declarado, nao escondido.",
+    "verificacao": {
+      "cmd": "npx tsx src/resolucao/midia/relatorio.ts",
+      "espera": "sai 0 e imprime, para cada provedor, o documento e a data de consulta ao lado da politica",
+      "ambiente": "worktree do repo, node 24, tsx"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um teto que caiu sem aviso (ex.: Pixabay reduzir 100/60s) faz a regravacao falhar com 429 no meio da onda, e o sintoma parece bug de codigo em vez de termo mudado.",
+      "artefatos": [
+        "src/resolucao/midia/politicas.ts",
+        "src/resolucao/midia/relatorio.ts",
+        "docs/adr/0008-hotlink-e-midia-externa.md"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "assets-licenca",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-431",
+    "titulo": "A obrigacao de cache de 24 h da Pixabay colide com o cache-por-hash permanente do pipeline?",
+    "pergunta": "O documento da API da Pixabay exige 'requests must be cached for 24 hours'. O pipeline cacheia respostas por hash para sempre. Isso satisfaz a obrigacao, ou a obrigacao e sobre nao servir URLs velhas ao usuario final?",
+    "por_que_aberto": "A frase existe na documentacao da API (2026-08-11, re-verificada 2026-08-13). O estagio de midia nem usa a Pixabay (provedor elegivel, sem adaptador), entao a colisao e latente: no dia em que alguem implementar o adaptador, a leitura da clausula decide se o cache-por-hash do store (que nunca expira) esta em conformidade. Hoje a clausula nao bloqueia nada.",
+    "decisao_provisoria": "Nenhum adaptador da Pixabay neste card. A clausula fica registrada na entrada da tabela de politicas com a citacao literal, e a leitura correta e decidida no card que implementar o adaptador.",
+    "verificacao": {
+      "cmd": "grep -n 'cached for 24 hours' src/resolucao/midia/politicas.ts docs/adr/0008-hotlink-e-midia-externa.md",
+      "espera": "a citacao aparece nos dois lugares, com a data de consulta",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a leitura certa for 'nao cachear alem de 24h', o adaptador da Pixabay precisara de logica de expiracao que o contrato de estagio nao prevê — o buraco e do contrato, nao do adaptador.",
+      "artefatos": [
+        "src/resolucao/midia/politicas.ts",
+        "src/resolucao/midia/adaptadores.ts",
+        "docs/adr/0008-hotlink-e-midia-externa.md"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "assets-licenca",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-432",
+    "titulo": "O manifesto declara hash para o no de midia que a autoria nao tem como conhecer",
+    "pergunta": "O schema do manifesto pede `hash` no no de midia, mas o SHA-256 de um arquivo que ainda nao foi baixado e incompressivel pela autoria. O estagio deve corrigir o hash no manifesto, ignorar a divergencia, ou registra-la?",
+    "por_que_aberto": "A fixture canonica traz hashes ficticios nos nos de midia (n-005..n-007), e o manifesto de gravacao deste card traz zeros. A composicao consome `nos_midia` do parcial, nunca o `hash` declarado — mas o campo existe no schema e alguem pode vir a le-lo.",
+    "decisao_provisoria": "O estagio registra a divergencia na procedencia (notas), nunca corrige o manifesto (integridade do manifesto e regra do contrato) e nunca silencia. Os hashes do parcial enderecam os bytes reais.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/resolucao/midia.test.ts -t \"replay: o estagio reproduz\"",
+      "espera": "verde; e a procedencia do cassete contem a divergencia com o hash declarado e o adquirido",
+      "ambiente": "worktree do repo, node 24, vitest 3"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o manifesto for corrigido, dois nos com o mesmo texto_alternativo dariam o mesmo asset e o manifesto perderia o registro de intencao; se a divergencia for silenciada, uma mudanca de ranking que troque o arquivo passa sem rastro.",
+      "artefatos": [
+        "src/resolucao/midia/estagio.ts",
+        "fixtures/cassetes/midia/**/procedencia.json",
+        "schema/manifesto.schema.json"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "resolucao",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-433",
+    "titulo": "texto_alternativo e opcional no schema, obrigatorio de fato para midia externa",
+    "pergunta": "O schema torna `texto_alternativo` opcional, mas um no de midia EXTERNA sem descricao nao tem termo de busca. O campo deve virar obrigatorio no schema, ou o estagio continua recusando o no com erro nomeado?",
+    "por_que_aberto": "A fixture canonica tem n-007 sem texto_alternativo, e o estagio o recusa com EMidiaNaoResolvivel antes de qualquer rede. Um no local (asset proprio, futura biblioteca) pode nao precisar de descricao — entao 'obrigatorio no schema' pode ser largo demais. O schema e singleton S-4; o estagio nao decide por ele.",
+    "decisao_provisoria": "O estagio recusa o no sem texto_alternativo com erro nomeado, citando AB-433, sem tocar no schema. A autoria precisa descrever o que quer buscar; inventar um termo produziria 'a primeira imagem do Commons para a palavra imagem'.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/resolucao/midia.test.ts -t \"sem texto_alternativo\"",
+      "espera": "verde: o no n-007 da fixture canonica e recusado com EMidiaNaoResolvivel e zero chamadas de rede",
+      "ambiente": "worktree do repo, node 24, vitest 3"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o schema tornar o campo obrigatorio, a autoria (F0-xx) passa a falhar em manifestos que hoje sao validos; se o estagio passar a inventar termo, o resultado vira arbitrario sem ninguem perceber.",
+      "artefatos": [
+        "schema/manifesto.schema.json",
+        "src/resolucao/midia/estagio.ts",
+        "src/contratos/manifesto.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "resolucao",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-434",
+    "titulo": "O adaptador do Commons nao suporta video — e 'suportado mas nunca rodado' e a forma mais cara de mentira",
+    "pergunta": "O Commons tem video, o filtro CirrusSearch tem filetype:video, e o MIME webm/ogg/mp4 esta na lista — mas nenhum download de video foi exercitado contra o provedor. O adaptador declara video suportado ou nao?",
+    "por_que_aberto": "A fixture canonica tem n-006 (video). O estagio o recusa com erro nomeado. Declarar suporte sem ter gravado um cassete de video faria o primeiro uso real falhar no meio de um render, com o erro aparecendo longe do estagio.",
+    "decisao_provisoria": "tiposSuportados = [imagem, gif]. O caminho de video existe no codigo de filtro (a busca pediria filetype:video), mas nao e exercitado: o cassete de midia deste card so tem imagem e gif. O no n-006 cai com EMidiaNaoResolvivel citando AB-434.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/resolucao/midia.test.ts -t \"a fixture canonica tem nos irresolviveis\"",
+      "espera": "verde: n-006 e recusado como tipo nao suportado, com zero chamadas de rede",
+      "ambiente": "worktree do repo, node 24, vitest 3"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se video for declarado sem exercicio, um render com no de video de verdade quebra em producao; se nunca for declarado, a autoria nao pode pedir video e o buraco fica visivel no manifesto.",
+      "artefatos": [
+        "src/resolucao/midia/commons.ts",
+        "src/resolucao/midia/estagio.ts",
+        "fixtures/cassetes/midia/**"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "resolucao",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-435",
+    "titulo": "O contrato de estagio nao tem canal formal estagio -> store de conteudo",
+    "pergunta": "O estagio baixa os bytes e os escreve no diretorioTrabalho por hash. Quem os move para o store de conteudo (F0-07), e qual e a assinatura desse canal?",
+    "por_que_aberto": "O ADR-0006 e o contrato de estagio falam em 'store por hash' e 'nada que sobreviva aqui atravessa a fronteira', mas nao definem como o store recebe os bytes do estagio. O estagio de midia escreve o arquivo nomeado pelo hash no diretorioTrabalho — um acordo implicito que o F2-07 (suite offline) e a composicao vao herdar. Se cada estagio da W4 inventar um canal diferente, o orquestrador nao tera onde achar os bytes.",
+    "decisao_provisoria": "Convencao: arquivo nomeado pelo SHA-256 dentro do diretorioTrabalho. Quem consome le do diretorioTrabalho na propria execucao. O canal formal e decidido pelo card dono do orquestrador/store.",
+    "verificacao": {
+      "cmd": "grep -rn 'writeFile(join(entrada.diretorioTrabalho' src/resolucao/midia/estagio.ts",
+      "espera": "o estagio escreve o byte por hash no diretorioTrabalho, e nenhum outro canal e usado",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o orquestrador esperar bytes em outro lugar, todo asset de midia fica orfao em silencio e a composicao renderiza buraco; se o canal for formalizado com assinatura diferente, os cinco estagios regravam juntos.",
+      "artefatos": [
+        "src/resolucao/orquestrador.ts",
+        "src/resolucao/contrato.ts",
+        "src/resolucao/midia/estagio.ts",
+        "docs/contrato-estagio-resolucao.md"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "resolucao",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-436",
+    "titulo": "PDM-1.0 como identificador canonico de dominio publico",
+    "pergunta": "O Commons escreve 'pd', 'pd-usgov' e 'public domain'; o vocabulario canonico do pipeline nao tem dominio publico (nao ha SPDX). Qual identificador usar?",
+    "por_que_aberto": "A escolha PDM-1.0 (Creative Commons Public Domain Mark 1.0) cobre 'nao ha restricao conhecida' de forma greppavel, mas a marca nao e licenca e 'dominio publico' depende de jurisdicao. Um arquivo marcado 'pd' nos EUA pode ter restricao noutro pais.",
+    "decisao_provisoria": "PDM-1.0 para todas as formas de dominio publico do Commons. A escolha fica nesta entrada para o gate de publicacao (F5-06) saber que PDM-1.0 no cassete significa 'marca de dominio publico', nao licenca outorgada.",
+    "verificacao": {
+      "cmd": "grep -n '\"pd\"\\|\"pd-usgov\"\\|\"public domain\"' src/resolucao/midia/commons.ts",
+      "espera": "as tres formas mapeiam para PDM-1.0 em LICENCAS_CANONICAS",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o F5-06 tratar PDM-1.0 como licenca, o relatorio de procedencia mentira por omissao de jurisdicao; se o vocabulario ganhar outra forma, os cassetes antigos precisam de migracao.",
+      "artefatos": [
+        "src/resolucao/midia/commons.ts",
+        "src/store/procedencia.ts",
+        "docs/adr/0008-hotlink-e-midia-externa.md"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "assets-licenca",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-437",
+    "titulo": "Termos de provedor mudam sem aviso; as citacoes tem data mas ninguem re-verifica automaticamente",
+    "pergunta": "O ADR-0008 e a tabela de politicas citam os termos com data (2026-08-11, re-verificados 2026-08-13). Quem re-verifica quando o documento muda, e como a mudanca chega ao repositorio?",
+    "por_que_aberto": "Nenhum gate le o documento de novo: a citacao e uma string no codigo. A unica janela de re-leitura e a regravacao manual do cassete — que pode nunca acontecer por meses. O vencimento de um termo nao produz sinal tecnico (mesma classe do AB-950).",
+    "decisao_provisoria": "Cada entrada traz documento + data; o relatorio imprime a data a cada execucao do gate; a regravacao do cassete e o ponto declarado de re-leitura. Sem alarme automatico — isto e declarado, nao esquecido.",
+    "verificacao": {
+      "cmd": "npx tsx src/resolucao/midia/relatorio.ts | grep -c 'consultado em'",
+      "espera": "pelo menos 5 linhas com 'consultado em', uma por provedor da tabela",
+      "ambiente": "worktree do repo, node 24, tsx"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um termo mudar (ex.: Unsplash liberar download, GIPHY proibir hotlink), o repositorio continua citando o texto antigo com data antiga — e o erro so aparece quando alguem reabre a questao.",
+      "artefatos": [
+        "src/resolucao/midia/politicas.ts",
+        "docs/adr/0008-hotlink-e-midia-externa.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "assets-licenca",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-438",
+    "titulo": "Pexels 'silente' e busca negativa — evidencia fraca rotulada como tal",
+    "pergunta": "A politica do Pexels foi classificada como 'silente' porque a busca nao achou 'hotlink' nos docs nem nos termos. Isso autoriza usa-lo como provedor primario?",
+    "por_que_aberto": "Busca negativa nao e prova de ausencia (C11). O Pexels tem 200 req/h e 20.000/mes, exige link proeminente e credito ao fotografo — tudo registrado. Mas a ausencia de clausula sobre hotlink pode ser ausencia de pagina consultada, nao ausencia de regra.",
+    "decisao_provisoria": "Elegivel, sem adaptador neste card. A categoria 'silente' e distinta de 'desencoraja' de proposito, e a entrada pede re-verificacao (com a pagina dos termos aberta) antes de virar provedor primario.",
+    "verificacao": {
+      "cmd": "grep -n 'silente\\|busca negativa' src/resolucao/midia/politicas.ts | head -5",
+      "espera": "a entrada do Pexels marca silente e cita a busca negativa com a data",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o Pexels virar primario com a classificacao errada, um termo que proiba re-hospedagem seria descoberto depois de assets ja gravados; se nunca for re-verificado, a chance e deixada no ar para sempre.",
+      "artefatos": [
+        "src/resolucao/midia/politicas.ts",
+        "src/resolucao/midia/adaptadores.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "assets-licenca",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-439",
+    "titulo": "Regravar o cassete de midia pode mudar os bytes sem bump de versao (C7)",
+    "pergunta": "A busca do Commons devolve um ranking que muda com o tempo; a mesma versao do estagio pode produzir cassete com arquivos diferentes em duas gravacoes. O determinismo prometido e POR cassete ou ENTRE cassetes?",
+    "por_que_aberto": "O gate regravar-e-diffar grava duas vezes e exige bytes identicos — mas as duas gravacoes sao seguidas, com o ranking estavel. Dois dias separados podem escolher arquivos diferentes (C7: o asset da rede muda mantendo a URL). O estagio nao tem como impedir: a escolha e do ranking do provedor.",
+    "decisao_provisoria": "O determinismo e POR cassete: gravacoes repetidas no mesmo periodo reproduzem o cassete, e a regravacao manual e o ponto onde a mudanca de mundo entra no repositorio. Quem consome o parcial nunca ve o ranking — ve hashes.",
+    "verificacao": {
+      "cmd": "npx tsx tools/resolucao/regravar-e-diffar.ts --estagio midia",
+      "espera": "VERDE: duas gravacoes seguidas produzem cassete identico, com so volatil.json e adquiridoEm diferindo",
+      "ambiente": "worktree do repo, node 24, tsx"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem tratar 'regravar reproduz byte a byte' como promessa entre dias, uma troca de arquivo vira bug de determinismo; se a troca passar despercebida, um asset velho continua sendo servido com cassete novo.",
+      "artefatos": [
+        "src/resolucao/midia/estagio.ts",
+        "fixtures/cassetes/midia/**",
+        "docs/adr/0008-hotlink-e-midia-externa.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "resolucao",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-440",
+    "titulo": "Regravar contra a rede real refuta o cassete de midia por headers volateis e corpo de busca nao-deterministico — a prova de determinismo passa a ser feita a partir do cassete",
+    "pergunta": "O determinismo do estagio de midia deve ser medido regravando contra a rede real (headers date/age/x-request-id mudam a cada resposta e entram crus em chamadas.json, fora de CAMPOS_VOLATEIS; o ranking da busca do Commons muda ate dentro do mesmo segundo) ou a partir do proprio cassete, como o irmao musica decidiu no AB-473?",
+    "por_que_aberto": "O revisor adversarial gravou o cassete DUAS VEZES contra o provedor vivo e diffeu: 22-25 refutacoes, por duas causas independentes, nenhuma delas defeito do estagio. (a) Headers volateis do provedor entram crus em chamadas.json — date, age, server, x-request-id, server-timing, x-search-id, x-cache, x-cache-status, content-length, transfer-encoding — e a whitelist CAMPOS_VOLATEIS (src/resolucao/cassete/formato.ts) so cobre volatil.json#/* e procedencia.json#/adquiridoEm. (b) O corpo da busca muda entre gravacoes consecutivas: hashCorpo 8883742a… -> 25c8700d…, bytesCorpo 14222 -> 14223 — o AB-439 reconhecia drift 'entre dias', o revisor provou que o ranking nao e estavel nem no mesmo segundo. Pior: a perna de determinismo encadeada em res-midia era VACUA — tools/resolucao/regravar-e-diffar.ts usa um manifesto fixo com ZERO nos de midia, o estagio nao faz NENHUMA chamada e o verde e por vazio (C2).",
+    "decisao_provisoria": "O determinismo do estagio de midia e medido a partir do cassete: tools/midia/verificar.ts, fase 6, regrava duas vezes com fetchReal = reprodutor do cassete e relogios diferentes, exige 0 refutacoes e sonda negativa (mutar resultado.json deixa o diff VERMELHO), e conta/nomeia as chamadas reais regravadas (2 busca + 2 download) para a prova nao ser vacua. O regravar contra a rede real e intrinsecamente nao-deterministico e fica FORA do gate — e exatamente o problema registrado aqui. A decisao sobre a whitelist de headers volateis em CAMPOS_VOLATEIS (ou redacao na gravacao) e do join F2-07, na W5 — mesmo dono do AB-473 do irmao musica.",
+    "verificacao": {
+      "cmd": "npx tsx tools/midia/verificar.ts",
+      "espera": "fase 6: zero refutacoes em duas gravacoes a partir do cassete com relogios diferentes, 4 chamadas reais por gravacao (2 busca + 2 download), sonda negativa deixa o diff VERMELHO; fases 1-5 e 7 verdes com a rede bloqueada",
+      "ambiente": "worktree da W4, node 24, rede bloqueada em processo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o regravar contra a rede real voltar a ser gate do card, o diff fica vermelho por volatilidade do fornecedor (headers + ranking) e o gate ensina a ignorar refutacao; se a prova voltar a rodar com manifesto sem nos de midia, o determinismo deixa de ser medido em silencio (C2).",
+      "artefatos": [
+        "tools/midia/verificar.ts",
+        "tools/resolucao/regravar-e-diffar.ts",
+        "src/resolucao/cassete/formato.ts",
+        "src/resolucao/cassete/diff.ts",
+        "justfile"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "assets-licenca",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]
