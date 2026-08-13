@@ -1,0 +1,345 @@
+[
+  {
+    "id": "AB-830",
+    "titulo": "O golden NAO compara o MP4 final byte a byte — compara manifesto resolvido, frames-chave (QTRLE) e envelope de audio",
+    "pergunta": "O card F5-08 diz: 'O golden master compara o MP4 byte a byte? Isso e falso oraculo — o encoder muda'. O que o golden de fato compara, item a item?",
+    "por_que_aberto": "Comparar o container e o erro mais caro do dominio: o MP4 carrega a versao do encoder — bump de ffmpeg invalidaria 100% dos baselines de uma vez, indistinguivel de regressao real (video-characterization, camada 1).",
+    "decisao_provisoria": "O golden (fixtures/gm/**) compara: (a) 4 manifestos (manifesto-resolvido, mix-documento, pos-documento, relatorio-final); (b) 8 frames-chave PNG extraidos do master.mov (QTRLE/argb — o render deterministico da chave C7) pelo mesmo ffmpeg pinado 6.1.1; (c) o envelope do audio (RMS por janela de 100 ms do master.wav do mix). O MP4 entra apenas POR INDICE (o relatorio-final.json carrega o hash dos 11 artefatos).",
+    "verificacao": {
+      "cmd": "just gm-e2e | grep -E 'R1|R2|VERDE'",
+      "espera": "R1/R2 VERDES com os 13 itens byte a byte identicos ao golden; nenhum item do golden e o MP4",
+      "ambiente": "worktree do repo, ffmpeg 6.1.1, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem adicionar o MP4 ao golden, o oraculo morre no primeiro bump de ffmpeg e ensina a ignorar o alarme.",
+      "artefatos": [
+        "fixtures/gm/**",
+        "tools/gm/extrair.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Implementado: extrairItens (tools/gm/extrair.ts) so le manifestos, master.mov (frames) e master.wav (envelope). ADR-0044 decisao 1. O indice naoCobre declara o MP4 byte a byte.",
+    "evidencia": "just gm-e2e -> R1: 13 itens byte a byte identicos ao golden; o indice (fixtures/gm/manifesto.json) nao contem entregavel-final.mp4 (naoCobre declara o MP4 byte a byte)"
+  },
+  {
+    "id": "AB-831",
+    "titulo": "Frames-chave: derivados do manifesto pelas mesmas funcoes do render, gravados no indice com o MOTIVO, extraidos do master.mov",
+    "pergunta": "Quais frames o golden captura e por que? A lista e digitada ou derivada?",
+    "por_que_aberto": "Frame 0 de quase toda animacao e o estado inicial (tela quase vazia): o golden tem de ir no meio das transicoes, onde a interpolacao esta exercida. E uma lista digitada a mao desliza quando a fixture muda de forma.",
+    "decisao_provisoria": "derivarFramesDoManifesto (tools/gm/extrair.ts) usa planoDeComposicao — as mesmas funcoes do render: frame 0 (inicio); primeira moldura de cada cena (fronteiras de transicao); meio das cenas com no tipo 'grafico' e 'codigo' (representativas); ultima moldura (fim). Cada frame e gravado no indice com o motivo. O gate usa a lista GRAVADA — mudanca de forma da fixture acende o diff em vez de deslocar a amostragem.",
+    "verificacao": {
+      "cmd": "python3 -c \"import json; i=json.load(open('fixtures/gm/manifesto.json')); print(len(i['frames']), [f['frame'] for f in i['frames']])\"",
+      "espera": "8 frames (0, 75, 265, 355, 427, 487, 547, 726) cada um com 'motivo' nao-vazio",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Uma lista digitada ou re-derivada por execucao mascara regressao quando a fixture muda (a amostragem desliza).",
+      "artefatos": [
+        "tools/gm/extrair.ts",
+        "fixtures/gm/manifesto.json"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Implementado como descrito; a lista gravada tem 8 frames com motivo; extracao do master.mov medida deterministico (2x = mesmo sha256).",
+    "evidencia": "npx tsx tools/gm/capturar.ts --no-run -> indice com frames[8] cada um com motivo; f-355.png sha256 identico em duas extracoes"
+  },
+  {
+    "id": "AB-832",
+    "titulo": "Regressao de AUDIO sem regressao de VIDEO e detectada pelo envelope por janela do master.wav",
+    "pergunta": "A pergunta adversarial 3 do card: uma regressao de audio sem regressao de video e detectada?",
+    "por_que_aberto": "Diff de forma de onda amostra a amostra e fragil por construcao (video-characterization: 'envelope por janela, nunca amostra a amostra'); e sem um artefato de audio no golden, o oraculo seria cego a som.",
+    "decisao_provisoria": "audio/envelope.json: projecao PURA dos bytes do master.wav (calcularEnvelope em tools/gm/extrair.ts — lerWavPcm do F3-05, RMS por janela de 100 ms, por canal, 243 janelas para a fixture canonica). Mudou ganho/ducking/bytes da emenda -> mudou o envelope -> gate VERMELHO, mesmo com frames identicos.",
+    "verificacao": {
+      "cmd": "python3 -c \"import json; e=json.load(open('fixtures/gm/audio/envelope.json')); print(e['schema_version'], len(e['janelas']))\"",
+      "espera": "EnvelopeGolden.1 com 243 janelas (24.23 s a 48 kHz, 100 ms)",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem o envelope, um defeito so de audio passaria com o golden verde.",
+      "artefatos": [
+        "tools/gm/extrair.ts",
+        "fixtures/gm/audio/envelope.json"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Envelope implementado e capturado; o limite declarado: deslocamento menor que uma janela (100 ms) pode passar (naoCobre).",
+    "evidencia": "fixtures/gm/audio/envelope.json (EnvelopeGolden.1, 243 janelas) — mesmo hash nas 2 extracoes da auto-conferencia da captura"
+  },
+  {
+    "id": "AB-833",
+    "titulo": "relatorio-final.json participa do golden como INDICE: cobre os 11 artefatos sem capturar os 11",
+    "pergunta": "O golden nao captura entregavel.m4a, entregavel.srt, thumbnail, variante nem o mp4 — como uma mudanca neles acende o diff?",
+    "por_que_aberto": "Capturar os 11 artefatos inteiros duplicaria armazenamento e a maioria deles ja tem hash no relatorio-final do pipeline.",
+    "decisao_provisoria": "manifestos/relatorio-final.json e item do golden: ele declara hash + tamanho de CADA um dos 11 artefatos de entrega. Qualquer mudanca de bytes de qualquer artefato muda o hash dele e o relatorio-final divergente acende o golden.",
+    "verificacao": {
+      "cmd": "python3 -c \"import json; r=json.load(open('fixtures/gm/manifestos/relatorio-final.json')); print(len(r['artefatos']), r['sucesso'])\"",
+      "espera": "10 entradas de artefato com sucesso true (o 11 e o proprio relatorio)",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Remover o relatorio-final do golden deixa 7 dos 11 artefatos sem oraculo de conteudo.",
+      "artefatos": [
+        "fixtures/gm/manifestos/relatorio-final.json"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Implementado: o relatorio-final e um dos 4 manifestos capturados; o indice naoCobre documenta a cobertura por indice.",
+    "evidencia": "fixtures/gm/manifestos/relatorio-final.json (RelatorioFinal.1, 10 artefatos, escritoEm DATA_EPOCH)"
+  },
+  {
+    "id": "AB-834",
+    "titulo": "2x identico: R1 com cache FRIO (a regeneracao do card) + R2 com o MESMO cache quente",
+    "pergunta": "O criterio '2x identico' do card prova o quê, e como o gate evita o falso verde de duas execucoes quentes?",
+    "por_que_aberto": "Cache quente nao prova render (AB-685): duas execucoes que acertam o cache inteiro sao uma unica execucao repetida. E o cache por conteudo nao inclui os BYTES das fontes (AB-849) — so uma producao fria garante que mudanca de fonte flui para os pixels.",
+    "decisao_provisoria": "R1 do gate (tools/gm/gate.ts) roda o pipeline com cache-dir NOVO por execucao (frio) e compara os 13 itens byte a byte com o golden; R2 re-roda com o MESMO cache-dir (quente, 0 chamadas ao renderer) e exige bytes identicos a R1. O par prova render deterministico E fidelidade do cache no mesmo gate.",
+    "verificacao": {
+      "cmd": "just gm-e2e | grep -E 'R1|R2'",
+      "espera": "R1: 13 itens identicos ao golden; R2: 13 itens identicos entre as 2 execucoes",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem o par frio+quente, o gate aprova um render que nunca foi exercitado.",
+      "artefatos": [
+        "tools/gm/gate.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Implementado: R1 cache-dir novo (mkdtemp), R2 o mesmo cache-dir; comparacao item a item por sha256 nomeando divergencias.",
+    "evidencia": "just gm-e2e -> 'R1: 13 itens byte a byte identicos ao golden' + 'R2: 13 itens byte a byte identicos entre as 2 execucoes' (2x identico)"
+  },
+  {
+    "id": "AB-835",
+    "titulo": "Versao de ferramenta verificada POR PIN (sem re-render): ffmpeg/node registrados + chave C7 recomputada",
+    "pergunta": "O ∅-crit exige que 'mudanca de versao de ferramenta acenda o diff'. Como, sem re-renderizar a cada bump?",
+    "por_que_aberto": "O card autoriza: 'a verificacao de versao pode ser pelo pin, nao por re-render'. Sem isso o gate dependeria de re-render para acusar bump de ferramenta.",
+    "decisao_provisoria": "S0 do gate: (a) ffmpeg corrente tem de casar o pin 6.1.1 E o registrado no indice do golden; (b) node corrente tem de casar o registrado; (c) a chave C7 recomputada da saida da R1 (o MESMO calcularChaveC7 do F5-09, com tokens reais, versoes e pin da maquina) tem de casar a chave do golden — bump de Remotion/Chrome muda os componentes versoes/ferramentas da chave e o S0 acende.",
+    "verificacao": {
+      "cmd": "just gm-e2e | grep S0",
+      "espera": "S0: ffmpeg 6.1.1-3ubuntu5 no pin; node v24.15.0 == registrado; chave C7 recomputada == golden",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem o pin, um bump de ffmpeg/Remotion passaria verde ate o proximo re-render manual.",
+      "artefatos": [
+        "tools/gm/gate.ts",
+        "fixtures/gm/manifesto.json"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Implementado: S0 compara versoes atuais com o indice e recomputa a chave C7 da saida da R1.",
+    "evidencia": "just gm-e2e -> S0: ffmpeg no pin, node registrado, chave C7 recomputada == golden (d9b1ac27…)"
+  },
+  {
+    "id": "AB-836",
+    "titulo": "Mutacao de token faz parte do gate: background.primary trocado TEM de acender o diff",
+    "pergunta": "O ∅-crit exige que 'qualquer mudanca de token acenda o diff'. Como o gate prova isso sem depender de um humano editando tokens.ts?",
+    "por_que_aberto": "Um golden que nunca foi desafiado pode ser cego: a mutacao e a sonda que prova sensibilidade (det-mutar, disciplina F0-06).",
+    "decisao_provisoria": "M1 do gate: faz backup de src/design/tokens.ts, troca background.primary de palette.gray[950] (#030712) para palette.gray[900] (#111827) — escuro, valido, muda o pixel de TODOS os frames; CALIBRADO contra os pares declarados de tokens.ts (o pior caso e state.error #EF4444 / highlight.primary #3B82F6 sobre o fundo mutado: 4.71:1 e 4.82:1 >= 4.5 AA normal; gray[800] #1F2937 cai para 3.99:1 e o thumbnail do pipeline FALHA — mutacao invalida, medido na execucao do card) —, roda o pipeline com cache FRIO, extrai e EXIGE divergencia de pelo menos um item do golden. Restaura tokens.ts byte a byte e confere por sha256.",
+    "verificacao": {
+      "cmd": "just gm-e2e | grep M1",
+      "espera": "M1: mutacao de token acendeu o diff em N item(ns); tokens.ts restaurado byte a byte",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um golden que nao acende sob mutacao de token nao e oraculo — e decoracao.",
+      "artefatos": [
+        "tools/gm/gate.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Implementado como descrito; a mutacao escolhida muda o fundo de todos os frames (8 frames + relatorio-final divergem). Calibracao registrada: gray[900] passa todos os pares declarados (minimo medido 4.71:1).",
+    "evidencia": "just gm-e2e -> 'OK M1: mutacao de token acendeu o diff em 9 item(ns): frames/frame-0000.png, frame-0075, frame-0265...' + 'tokens.ts restaurado byte a byte'; razoes medidas: gray[900] 4.71/4.82:1 (passa), gray[800] 3.99:1 (FALHA o thumbnail do pipeline)"
+  },
+  {
+    "id": "AB-837",
+    "titulo": "Mutacao de fonte faz parte do gate: bytes de Inter-Regular.woff2 trocados TEM de acender o diff",
+    "pergunta": "O ∅-crit exige que 'qualquer mudanca de fonte acenda o diff'. Como o gate prova, dado que os bytes das fontes nao entram na chave C7 (AB-849)?",
+    "por_que_aberto": "A troca de um arquivo de fonte com o mesmo nome de familia nao muda a chave C7 — so uma producao com cache FRIO garante que a mutacao flua para os pixels.",
+    "decisao_provisoria": "M2 do gate: faz backup de assets/fontes/Inter-Regular.woff2, grava os bytes de JetBrainsMono-Regular.woff2 no lugar (fonte valida, tipografia diferente — mesmo nome de familia, nome de arquivo inalterado), roda o pipeline com cache FRIO, extrai e EXIGE divergencia. Restaura o arquivo byte a byte e confere por sha256. Sonda invalida (fontes identicas) e VERMELHO.",
+    "verificacao": {
+      "cmd": "just gm-e2e | grep M2",
+      "espera": "M2: mutacao de fonte acendeu o diff em N item(ns); Inter-Regular.woff2 restaurado byte a byte",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um golden que nao acende sob mutacao de fonte nao cobre tipografia — a regressao mais silenciosa do dominio (C6).",
+      "artefatos": [
+        "tools/gm/gate.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Implementado como descrito; M2 roda com cache frio proprio (a chave C7 nao cobre bytes de fonte — gap AB-849).",
+    "evidencia": "just gm-e2e -> 'OK M2: mutacao de fonte acendeu o diff em 6 item(ns): frames/frame-0075.png, frame-0265.png, frame-0355.png...' + 'Inter-Regular.woff2 restaurado byte a byte'"
+  },
+  {
+    "id": "AB-838",
+    "titulo": "O que o golden NAO cobre esta escrito: campo naoCobre no indice, exigido pelo gate",
+    "pergunta": "A pergunta adversarial 2 do card: o que o golden nao cobre esta escrito?",
+    "por_que_aberto": "Ausencia de verificador e indistinguivel de conformidade — a cobertura negativa tem de ser declarada e verificada.",
+    "decisao_provisoria": "O indice (fixtures/gm/manifesto.json) tem o campo naoCobre nao-vazio (MP4 byte a byte, timing sub-janela, 9:16, rede, maquina) e o gate P0 FALHA se o campo estiver ausente ou vazio. O README e o ADR-0044 repetem a lista.",
+    "verificacao": {
+      "cmd": "python3 -c \"import json; print(len(json.load(open('fixtures/gm/manifesto.json'))['naoCobre']))\" && just gm-e2e | grep P0",
+      "espera": "naoCobre com >= 1 item; P0 VERDE com o campo presente",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem a declaracao, a cobertura negativa vira premissa invisivel e ninguem registra quando um canto morre.",
+      "artefatos": [
+        "fixtures/gm/manifesto.json",
+        "tools/gm/gate.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Implementado: naoCobre com 6 entradas no indice; P0 exige o campo nao-vazio.",
+    "evidencia": "fixtures/gm/manifesto.json -> naoCobre (6 itens); just gm-e2e -> P0 VERDE"
+  },
+  {
+    "id": "AB-839",
+    "titulo": "O baseline vale para a maquina que o capturou — registrado no indice (sem container)",
+    "pergunta": "O golden nasceu numa maquina especifica. Quem roda em outra maquina sabe que o baseline pode nao valer?",
+    "por_que_aberto": "Sem container, o baseline vale so na maquina que o gerou (video-characterization) — a limitacao tem de estar registrada, nunca parecer conformidade.",
+    "decisao_provisoria": "O indice registra captura.maquina, captura.commit, ferramentas (ffmpeg/node), pilha Remotion (4.0.507) e navegador (149.0.7790.0). O README e o naoCobre declaram a validade por maquina.",
+    "verificacao": {
+      "cmd": "python3 -c \"import json; i=json.load(open('fixtures/gm/manifesto.json')); print(i['captura']['maquina'], i['captura']['commit'])\"",
+      "espera": "maquina e commit registrados",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem o registro, outra maquina roda o gate, falha por rasterizador diferente e alguem 'conserta' recapturando — apagando a evidencia da divergencia.",
+      "artefatos": [
+        "fixtures/gm/manifesto.json"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Registrado no indice e declarado no README/ADR-0044.",
+    "evidencia": "fixtures/gm/manifesto.json -> captura.maquina pop-os/linux/x64, commit 1153c76"
+  },
+  {
+    "id": "AB-840",
+    "titulo": "Divergencia de forma literal: PROGRAMA.html e ADR-0043 citam 'just gm:e2e'; o gate real e 'just gm-e2e' (hifen)",
+    "pergunta": "O comando de aceitacao do card no PROGRAMA.html e 'just gm:e2e'. Por que a receita se chama gm-e2e?",
+    "por_que_aberto": "O just 1.42.4 deste repositorio nao aceita dois-pontos em nome de receita (medido: erro de parse em 'gm:e2e: ...'); a convencao das demais receitas do justfile e hifen (design-varrer, det-provar, no-texto-ausencia...).",
+    "decisao_provisoria": "O gate e `just gm-e2e`; a divergencia da forma literal esta nomeada no ADR-0044, no comentario da receita e no handoff do F5-08 — o F6-04 (W11) deve usar `just gm-e2e`.",
+    "verificacao": {
+      "cmd": "just --list | grep gm",
+      "espera": "gm-e2e e gm-capturar listados; nenhuma receita com dois-pontos",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um consumidor futuro seguindo a letra do PROGRAMA rodaria 'just gm:e2e' e receberia erro de parse.",
+      "artefatos": [
+        "justfile"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "ambiente",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Nomeada em tres lugares (ADR-0044, justfile, handoff).",
+    "evidencia": "just --list -> gm-e2e, gm-capturar; erro de parse reproduzido com 'gm:e2e:' no just 1.42.4"
+  },
+  {
+    "id": "AB-841",
+    "titulo": "A extracao dos frames-chave foi medida deterministico: 2x extracoes do mesmo frame = mesmo sha256",
+    "pergunta": "O PNG gerado pelo ffmpeg ao extrair do QTRLE e deterministico byte a byte, ou carrega metadado volatil (ex.: tIME)?",
+    "por_que_aberto": "Se o encoder de PNG do ffmpeg gravasse timestamp, o golden falharia toda execucao ou exigiria normalizacao por posicao.",
+    "decisao_provisoria": "Medido na captura: duas extracoes do mesmo frame do master.mov (ffmpeg 6.1.1-3ubuntu5, -fflags +bitexact -flags +bitexact -map_metadata -1) produzem o MESMO sha256 (frame 0: 307cd15e…; frame 355: 3c1aabee…). A extracao usa sempre o ffmpeg pinado; o pin e verificado no S0 do gate.",
+    "verificacao": {
+      "cmd": "grep -rn '3c1aabee' fixtures/gm/manifesto.json | head -1",
+      "espera": "o sha256 medido aparece no indice (frame-0355)",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem a medicao, uma extracao nao-deterministica acenderia o golden em toda execucao e alguem afrouxaria o gate.",
+      "artefatos": [
+        "tools/gm/extrair.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Medido e documentado no ADR-0044 decisao 1; a extracao usa bitexact + map_metadata -1 + ffmpeg pinado.",
+    "evidencia": "sha256sum de duas extracoes do frame 355 -> 3c1aabee055bf2f2bf009bc56ed1b49ee817ddc8ae171b1ee3c2e4451f91765a (2x)"
+  },
+  {
+    "id": "AB-849",
+    "titulo": "GAP DECLARADO: os BYTES de assets/fontes/*.woff2 nao entram na chave C7 do cache de render",
+    "pergunta": "A troca de um arquivo de fonte com o mesmo nome de familia (mesmo fontFamily no token) muda o pixel mas NAO muda a chave C7 — o cache do F5-09 serviria frames velhos. Quem corrige?",
+    "por_que_aberto": "A chave C7 (ADR-0041) hasheia manifesto, assets do grafico, agregado de tokens, versoes e pin — os bytes das fontes nao entram em nenhum componente. A consequencia pratica: o ∅-crit de fonte do golden SO funciona com cache frio (M2 do gate usa cache frio proprio). Corrigir na chave e mudanca de src/ (fora do escopo do F5-08, S-5/src proibidos).",
+    "decisao_provisoria": "O golden compensa: R1/M1/M2 rodam com cache-dir NOVO (frio) — a regeneracao sempre re-renderiza. A correcao da chave (adicionar componente dos bytes de fontes) fica para o dono do cache (F5-09), com este item como rastreador. Nenhum valor de producao usa cache quente para o golden.",
+    "verificacao": {
+      "cmd": "grep -c 'fontes' src/render/cache/chave.ts",
+      "espera": "0 ocorrencias de bytes de fonte na chave (gap confirmado)",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem 'consertar' o gate usando cache quente no golden, a mutacao de fonte passa a nao acender e o ∅-crit morre em silencio.",
+      "artefatos": [
+        "src/render/cache/chave.ts",
+        "tools/gm/gate.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO",
+    "resolucao": "",
+    "evidencia": "grep -c 'fontes' src/render/cache/chave.ts -> 0; M2 do gate acendeu o diff APENAS com cache frio"
+  }
+]

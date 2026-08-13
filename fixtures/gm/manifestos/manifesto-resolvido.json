@@ -1,0 +1,570 @@
+{
+  "schema_version": "ManifestoResolvido.1",
+  "hash_manifesto_original": "a0ae9cdd0e99d3f62bd8aecce8246e1dcfebfa56be0099854ea6fd479cb27158",
+  "manifesto": {
+    "schema_version": "Manifesto.1",
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "duracao_total_frames": 727,
+    "nos": [
+      {
+        "id": "n-001",
+        "schema": "Cabecalho.1",
+        "type": "cabecalho",
+        "duracao_frames": 90,
+        "entrada_frames": 0,
+        "texto": "Editor de Vídeo IA — Pipeline Declarativo",
+        "subtitulo": "Da ideia ao frame final, sem edição manual",
+        "alinhamento": "centro",
+        "animacao": {
+          "tipo": "fade",
+          "duracao_frames": 15
+        }
+      },
+      {
+        "id": "n-002",
+        "schema": "Texto.1",
+        "type": "texto",
+        "duracao_frames": 120,
+        "entrada_frames": 0,
+        "texto": "O pipeline converte um manifesto JSON em vídeo renderizado. Cada nó visual é uma unidade atômica com tipo, duração e animação independentes.",
+        "destaque": true,
+        "alinhamento": "esquerda",
+        "animacao": {
+          "tipo": "slide",
+          "direcao": "from-left",
+          "duracao_frames": 20
+        }
+      },
+      {
+        "id": "n-003",
+        "schema": "Lista.1",
+        "type": "lista",
+        "duracao_frames": 180,
+        "entrada_frames": 30,
+        "itens": [
+          "Cabeçalho: título e subtítulo com alinhamento configurável",
+          "Texto: corpo com destaque opcional e animação de entrada",
+          "Lista: itens ordenados ou não, com bullets automáticos"
+        ],
+        "ordenada": false,
+        "alinhamento": "esquerda",
+        "animacao": {
+          "tipo": "scale",
+          "duracao_frames": 12
+        }
+      },
+      {
+        "id": "n-004",
+        "schema": "Lista.1",
+        "type": "lista",
+        "duracao_frames": 150,
+        "itens": [
+          "Primeiro passo: definir o manifesto",
+          "Segundo passo: validar contra o schema",
+          "Terceiro passo: resolver timeline",
+          "Quarto passo: renderizar com Remotion"
+        ],
+        "ordenada": true,
+        "alinhamento": "esquerda",
+        "animacao": {
+          "tipo": "spring",
+          "configuracao_mola": {
+            "damping": 10,
+            "stiffness": 100,
+            "mass": 1
+          }
+        }
+      },
+      {
+        "id": "n-005",
+        "schema": "Midia.1",
+        "type": "midia",
+        "duracao_frames": 90,
+        "hash": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
+        "tipo_midia": "imagem",
+        "ajuste": "cover",
+        "texto_alternativo": "Diagrama do pipeline de renderização mostrando as etapas: manifesto → validação → timeline → Remotion → vídeo",
+        "licenca": "CC-BY-4.0",
+        "animacao": {
+          "tipo": "fade",
+          "duracao_frames": 10
+        }
+      },
+      {
+        "id": "n-006",
+        "schema": "Midia.1",
+        "type": "midia",
+        "duracao_frames": 60,
+        "hash": "b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3",
+        "tipo_midia": "video",
+        "ajuste": "contain",
+        "texto_alternativo": "Demonstração curta do editor em ação: uma cena com transição slide entre dois nós de texto",
+        "licenca": "MIT",
+        "animacao": {
+          "tipo": "none"
+        }
+      },
+      {
+        "id": "n-007",
+        "schema": "Midia.1",
+        "type": "midia",
+        "duracao_frames": 45,
+        "hash": "c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4",
+        "tipo_midia": "gif",
+        "ajuste": "fill",
+        "licenca": "CC0-1.0",
+        "entrada_frames": 15
+      },
+      {
+        "id": "n-008",
+        "schema": "Codigo.1",
+        "type": "codigo",
+        "duracao_frames": 180,
+        "codigo": "import { Composition } from 'remotion';\nimport { Manifesto } from './contratos/manifesto';\n\nexport const VideoEditor: React.FC<{ manifesto: Manifesto }> = ({ manifesto }) => {\n  return manifesto.cenas.map((cena) => (\n    <Sequence key={cena.id}>\n      {cena.nos.map((nodeId) => renderNode(nodeId))}\n    </Sequence>\n  ));\n};",
+        "linguagem": "typescript",
+        "linhas_destaque": [
+          1,
+          3,
+          5
+        ],
+        "nome_arquivo": "VideoEditor.tsx",
+        "animacao": {
+          "tipo": "slide",
+          "direcao": "from-bottom",
+          "duracao_frames": 16
+        }
+      },
+      {
+        "id": "n-009",
+        "schema": "Grafico.1",
+        "type": "grafico",
+        "duracao_frames": 120,
+        "tipo_grafico": "barras",
+        "titulo": "Tempo de Render por Tipo de Nó (ms)",
+        "dados": [
+          {
+            "rotulo": "Cabeçalho",
+            "valor": 45,
+            "cor": "#3B82F6"
+          },
+          {
+            "rotulo": "Texto",
+            "valor": 32,
+            "cor": "#22C55E"
+          },
+          {
+            "rotulo": "Lista",
+            "valor": 78,
+            "cor": "#F59E0B"
+          },
+          {
+            "rotulo": "Mídia",
+            "valor": 210,
+            "cor": "#EF4444"
+          },
+          {
+            "rotulo": "Código",
+            "valor": 156,
+            "cor": "#A855F7"
+          },
+          {
+            "rotulo": "Gráfico",
+            "valor": 95,
+            "cor": "#06B6D4"
+          }
+        ],
+        "animacao": {
+          "tipo": "scale",
+          "duracao_frames": 20
+        }
+      },
+      {
+        "id": "n-010",
+        "schema": "Grafico.1",
+        "type": "grafico",
+        "duracao_frames": 90,
+        "tipo_grafico": "linha",
+        "titulo": "Evolução do Tempo Total de Render",
+        "dados": [
+          {
+            "rotulo": "Dia 1",
+            "valor": 1200
+          },
+          {
+            "rotulo": "Dia 2",
+            "valor": 980
+          },
+          {
+            "rotulo": "Dia 3",
+            "valor": 750
+          },
+          {
+            "rotulo": "Dia 4",
+            "valor": 620
+          },
+          {
+            "rotulo": "Dia 5",
+            "valor": 510
+          }
+        ]
+      },
+      {
+        "id": "n-011",
+        "schema": "Grafico.1",
+        "type": "grafico",
+        "duracao_frames": 90,
+        "tipo_grafico": "pizza",
+        "titulo": "Distribuição de Tipos de Nó",
+        "dados": [
+          {
+            "rotulo": "Texto",
+            "valor": 35,
+            "cor": "#3B82F6"
+          },
+          {
+            "rotulo": "Cabeçalho",
+            "valor": 20,
+            "cor": "#22C55E"
+          },
+          {
+            "rotulo": "Mídia",
+            "valor": 15,
+            "cor": "#F59E0B"
+          },
+          {
+            "rotulo": "Código",
+            "valor": 15,
+            "cor": "#EF4444"
+          },
+          {
+            "rotulo": "Gráfico",
+            "valor": 10,
+            "cor": "#A855F7"
+          },
+          {
+            "rotulo": "Lista",
+            "valor": 5,
+            "cor": "#06B6D4"
+          }
+        ]
+      },
+      {
+        "id": "n-012",
+        "schema": "Grafico.1",
+        "type": "grafico",
+        "duracao_frames": 90,
+        "tipo_grafico": "area",
+        "dados": [
+          {
+            "rotulo": "Jan",
+            "valor": 100
+          },
+          {
+            "rotulo": "Fev",
+            "valor": 200
+          },
+          {
+            "rotulo": "Mar",
+            "valor": 150
+          }
+        ]
+      },
+      {
+        "id": "n-013",
+        "schema": "Grafico.1",
+        "type": "grafico",
+        "duracao_frames": 90,
+        "tipo_grafico": "dispersao",
+        "dados": [
+          {
+            "rotulo": "A",
+            "valor": 1.5
+          },
+          {
+            "rotulo": "B",
+            "valor": 3.2
+          },
+          {
+            "rotulo": "C",
+            "valor": 2.8
+          }
+        ]
+      },
+      {
+        "id": "n-014",
+        "schema": "Texto.1",
+        "type": "texto",
+        "duracao_frames": 150,
+        "texto": "O manifesto é a fonte única de verdade. Um arquivo JSON versionado por objeto, validado contra JSON Schema 2020-12, com subset para LLM. A timeline resolvida é gerada deterministicamente a partir das âncoras absolutas — nunca somando durações.",
+        "destaque": false,
+        "alinhamento": "direita",
+        "entrada_frames": 30
+      },
+      {
+        "id": "n-015",
+        "schema": "Cabecalho.1",
+        "type": "cabecalho",
+        "duracao_frames": 60,
+        "texto": "Fim",
+        "alinhamento": "centro"
+      }
+    ],
+    "cenas": [
+      {
+        "id": "c-001",
+        "nos": [
+          "n-001"
+        ],
+        "transicao_saida": {
+          "tipo": "fade",
+          "duracao_frames": 15
+        }
+      },
+      {
+        "id": "c-002",
+        "nos": [
+          "n-002",
+          "n-003"
+        ],
+        "transicao_saida": {
+          "tipo": "wipe",
+          "duracao_frames": 20,
+          "direcao": "from-right"
+        }
+      },
+      {
+        "id": "c-003",
+        "nos": [
+          "n-005",
+          "n-008",
+          "n-004"
+        ],
+        "transicao_saida": {
+          "tipo": "clockWipe",
+          "duracao_frames": 18,
+          "timing": {
+            "kind": "spring",
+            "config": {
+              "damping": 15,
+              "stiffness": 150,
+              "mass": 0.8
+            }
+          }
+        }
+      },
+      {
+        "id": "c-004",
+        "nos": [
+          "n-009",
+          "n-010",
+          "n-011",
+          "n-012",
+          "n-013"
+        ],
+        "audio_cena": {
+          "hash_locucao": "d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5",
+          "volume": 0.9,
+          "texto_locucao": "Nesta seção, apresentamos os dados de desempenho do pipeline. Cada tipo de nó tem características de renderização distintas."
+        }
+      },
+      {
+        "id": "c-005",
+        "nos": [
+          "n-014",
+          "n-006",
+          "n-007",
+          "n-015"
+        ],
+        "transicao_saida": {
+          "tipo": "fade",
+          "duracao_frames": 30
+        },
+        "audio_cena": {
+          "hash_locucao": "e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6",
+          "volume": 0.85,
+          "texto_locucao": "Concluindo, o manifesto é a peça central do pipeline. Obrigado por assistir."
+        },
+        "transicao_entrada": {
+          "tipo": "none",
+          "duracao_frames": 0
+        }
+      }
+    ],
+    "audio": {
+      "trilha_sonora": "f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7",
+      "volume": 0.25,
+      "inicio_frames": 0
+    }
+  },
+  "assets": {
+    "09c8a304b49dd8b632c1a8c4ed22ce829b4932fad9314600bf98d843e2dec7ea": {
+      "atribuicaoObrigatoria": false,
+      "byteSize": 1900,
+      "duracaoSegundos": 5.355,
+      "hash": "09c8a304b49dd8b632c1a8c4ed22ce829b4932fad9314600bf98d843e2dec7ea",
+      "licenca": "CC0-1.0",
+      "mimeType": "application/vnd.editor-video-ia.timing-locucao+json",
+      "provedor": "sosia-local",
+      "tipo": "dados"
+    },
+    "0c4a9057a1b8199a9621e08e99c76cb403dc8f20d7b89d1f4ddea82abe6ddef2": {
+      "atribuicaoObrigatoria": false,
+      "byteSize": 12669,
+      "hash": "0c4a9057a1b8199a9621e08e99c76cb403dc8f20d7b89d1f4ddea82abe6ddef2",
+      "licenca": "CC0-1.0",
+      "mimeType": "application/json",
+      "provedor": "local",
+      "tipo": "dados"
+    },
+    "126e3d99f83e7aee719fe13806d837b68752c8878e9c4c48f198903773430255": {
+      "atribuicao": "\"Music Box Sound Effect\" por Big Daddy sob Public domain",
+      "atribuicaoObrigatoria": false,
+      "byteSize": 31035,
+      "duracaoSegundos": 2.136235827664399,
+      "hash": "126e3d99f83e7aee719fe13806d837b68752c8878e9c4c48f198903773430255",
+      "licenca": "Public domain",
+      "mimeType": "application/ogg",
+      "provedor": "wikimedia-commons",
+      "tipo": "audio"
+    },
+    "15ea1591069231d080425045634404e2d3c2e5f51bc84fe991fc147a36856bdd": {
+      "atribuicaoObrigatoria": false,
+      "byteSize": 2586,
+      "duracaoSegundos": 8.505,
+      "hash": "15ea1591069231d080425045634404e2d3c2e5f51bc84fe991fc147a36856bdd",
+      "licenca": "CC0-1.0",
+      "mimeType": "application/vnd.editor-video-ia.timing-locucao+json",
+      "provedor": "sosia-local",
+      "tipo": "dados"
+    },
+    "2b8de8cb0a8e0acd586bc0e68ed2edb245ca7960be56454383714a26e118adeb": {
+      "atribuicao": "Audio sintetico de referencia — nao e voz humana",
+      "atribuicaoObrigatoria": true,
+      "byteSize": 171504,
+      "duracaoSegundos": 5.355,
+      "hash": "2b8de8cb0a8e0acd586bc0e68ed2edb245ca7960be56454383714a26e118adeb",
+      "licenca": "CC0-1.0",
+      "mimeType": "audio/wav",
+      "provedor": "sosia-local",
+      "tipo": "audio"
+    },
+    "3a00855408e16a823176c25052bc801b2f70023c382e75fa11d7d913609daa80": {
+      "atribuicao": "\"Sound Effect - Door Bell\" por Amada44 sob CC0",
+      "atribuicaoObrigatoria": false,
+      "byteSize": 98867,
+      "duracaoSegundos": 3.6998639455782314,
+      "hash": "3a00855408e16a823176c25052bc801b2f70023c382e75fa11d7d913609daa80",
+      "licenca": "CC0",
+      "mimeType": "application/ogg",
+      "provedor": "wikimedia-commons",
+      "tipo": "audio"
+    },
+    "6ac2876495aa5f0a8d4558bc35aa3e05f6e88b667a097cd3b7f41f15874276bb": {
+      "atribuicao": "\"Kevin MacLeod - Lift Motif\" por Kevin MacLeod sob CC BY 3.0",
+      "atribuicaoObrigatoria": true,
+      "byteSize": 827184,
+      "duracaoSegundos": 44.38204081632653,
+      "hash": "6ac2876495aa5f0a8d4558bc35aa3e05f6e88b667a097cd3b7f41f15874276bb",
+      "licenca": "CC BY 3.0",
+      "mimeType": "application/ogg",
+      "provedor": "wikimedia-commons",
+      "tipo": "audio"
+    },
+    "6b9ec331d006e5fd80db18acd52d003ef10f89d06249d8d9dd9eee65df61950c": {
+      "atribuicao": "Audio sintetico de referencia — nao e voz humana",
+      "atribuicaoObrigatoria": true,
+      "byteSize": 272356,
+      "duracaoSegundos": 8.505,
+      "hash": "6b9ec331d006e5fd80db18acd52d003ef10f89d06249d8d9dd9eee65df61950c",
+      "licenca": "CC0-1.0",
+      "mimeType": "audio/wav",
+      "provedor": "sosia-local",
+      "tipo": "audio"
+    },
+    "cce5b73c814b7f8c501d0370ce27995c28fe2e6c2bed06547208cba00f285c2b": {
+      "atribuicao": "\"Airplane Chime Sound Effect\" por Sharelk sob CC0",
+      "atribuicaoObrigatoria": false,
+      "byteSize": 16225,
+      "duracaoSegundos": 2.9335,
+      "hash": "cce5b73c814b7f8c501d0370ce27995c28fe2e6c2bed06547208cba00f285c2b",
+      "licenca": "CC0",
+      "mimeType": "application/ogg",
+      "provedor": "wikimedia-commons",
+      "tipo": "audio"
+    },
+    "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988": {
+      "atribuicao": "\"Achievement unlocked sound effect video game\" por rhodesmas sob CC BY 3.0",
+      "atribuicaoObrigatoria": true,
+      "byteSize": 202702,
+      "duracaoSegundos": 1.1,
+      "hash": "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988",
+      "licenca": "CC BY 3.0",
+      "mimeType": "audio/wav",
+      "provedor": "wikimedia-commons",
+      "tipo": "audio"
+    },
+    "4dd3497f7719e4aa541f1087413be1522e47f4ac75c44eaceefcc4a8e5c4878c": {
+      "hash": "4dd3497f7719e4aa541f1087413be1522e47f4ac75c44eaceefcc4a8e5c4878c",
+      "tipo": "imagem",
+      "mimeType": "image/png",
+      "largura": 480,
+      "altura": 320,
+      "byteSize": 2253,
+      "licenca": "CC0-1.0",
+      "atribuicaoObrigatoria": false,
+      "provedor": "local"
+    }
+  },
+  "nos_midia": {},
+  "nos_locucao": {
+    "c-004": "6b9ec331d006e5fd80db18acd52d003ef10f89d06249d8d9dd9eee65df61950c",
+    "c-005": "2b8de8cb0a8e0acd586bc0e68ed2edb245ca7960be56454383714a26e118adeb"
+  },
+  "nos_grafico": {
+    "n-009": "4dd3497f7719e4aa541f1087413be1522e47f4ac75c44eaceefcc4a8e5c4878c",
+    "n-011": "4dd3497f7719e4aa541f1087413be1522e47f4ac75c44eaceefcc4a8e5c4878c"
+  },
+  "nos_codigo": {
+    "n-008": "0c4a9057a1b8199a9621e08e99c76cb403dc8f20d7b89d1f4ddea82abe6ddef2"
+  },
+  "nos_musica": {
+    "n-001": "cce5b73c814b7f8c501d0370ce27995c28fe2e6c2bed06547208cba00f285c2b",
+    "n-002": "126e3d99f83e7aee719fe13806d837b68752c8878e9c4c48f198903773430255",
+    "n-003": "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988",
+    "n-004": "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988",
+    "n-005": "3a00855408e16a823176c25052bc801b2f70023c382e75fa11d7d913609daa80",
+    "n-006": "3a00855408e16a823176c25052bc801b2f70023c382e75fa11d7d913609daa80",
+    "n-007": "3a00855408e16a823176c25052bc801b2f70023c382e75fa11d7d913609daa80",
+    "n-008": "126e3d99f83e7aee719fe13806d837b68752c8878e9c4c48f198903773430255",
+    "n-009": "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988",
+    "n-010": "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988",
+    "n-011": "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988",
+    "n-012": "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988",
+    "n-013": "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988",
+    "n-014": "126e3d99f83e7aee719fe13806d837b68752c8878e9c4c48f198903773430255",
+    "n-015": "cce5b73c814b7f8c501d0370ce27995c28fe2e6c2bed06547208cba00f285c2b"
+  },
+  "trilha_sonora": "6ac2876495aa5f0a8d4558bc35aa3e05f6e88b667a097cd3b7f41f15874276bb",
+  "estagios": [
+    {
+      "estagio": "locucao",
+      "versaoEstagio": "1.0.0",
+      "chave": "3a5fb7645aee1a748f0a9dd4776ca67257f144ff85d462d67181f44963855003",
+      "origem": "cassete"
+    },
+    {
+      "estagio": "codigo",
+      "versaoEstagio": "1.0.0",
+      "chave": "c274246ea5649da5ccf7f9811cb052c91b613beab268c515a9e264a0d564689b",
+      "origem": "cassete"
+    },
+    {
+      "estagio": "musica",
+      "versaoEstagio": "1.0.1",
+      "chave": "440eeb9e409454a9eaf833bf9560d5ce72b1a16338fba51549acce513b5b8506",
+      "origem": "cassete"
+    }
+  ]
+}

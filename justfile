@@ -2222,3 +2222,62 @@ revisar-bloqueia *args:
 revisar-gate:
     npx tsx tools/revisao/gate.ts
 # === fim F6-01 ===
+
+# === F5-08 ===
+# =============================================================================
+# Golden master de ponta a ponta — card F5-08 (W10, critico). fixtures/gm/**.
+# ADR-0044. Faixa de ledger: AB-830..AB-849 (ledger/inbox/F5-08.json).
+# =============================================================================
+# Contrato: o golden NAO compara o MP4 final (o encoder muda — oraculo
+# falso). O que ele compara, item a item:
+#   manifestos/  manifesto-resolvido.json + mix-documento.json +
+#                pos-documento.json + relatorio-final.json (o indice de
+#                hashes dos 11 artefatos do pipeline — qualquer mudanca
+#                de hash de QUALQUER artefato muda o relatorio-final);
+#   frames/      frames-chave PNG extraidos do master.mov (QTRLE/argb —
+#                o render deterministico da chave C7), nos frames
+#                declarados no indice (inicio, fronteiras de transicao,
+#                meios de cenas representativas, fim — o por que de cada
+#                um esta no indice);
+#   audio/       envelope do master.wav do mix (RMS por janela de 100 ms
+#                por canal): regressao de AUDIO sem regressao de VIDEO
+#                muda o envelope e o gate fica VERMELHO.
+# O que o golden NAO cobre esta escrito no indice (campo naoCobre) e no
+# ADR-0044: MP4 byte a byte, timing sub-janela da locucao, 9:16 (nao
+# entregavel do estrito), rede e maquina (baseline vale na maquina que
+# capturou — ffmpeg/Chrome pinados).
+#
+# O gate (tools/gm/gate.ts):
+#   P0  presenca: item do golden apagado fica VERMELHO nomeando o item;
+#   R1  producao com cache FRIO e extracao byte a byte == golden;
+#   R2  re-execucao com o MESMO cache (quente): bytes identicos (2x);
+#   S0  pin: ffmpeg 6.1.1 e node registrados; chave C7 recomputada ==
+#       a do golden (versao de ferramenta por PIN, sem re-render);
+#   M1  mutacao de token (background.primary) -> diff TEM de acender;
+#   M2  mutacao de fonte (Inter-Regular.woff2) -> diff TEM de acender;
+#   e restaura cada arquivo mutado byte a byte (conferido).
+# Tempo de execucao: ~4 producoes (2x identico + 2 mutacoes) — o custo e
+# de proposito: o oraculo final do programa.
+# =============================================================================
+
+# `just gm-e2e` — o gate do golden master (F5-08, W10).
+# NOTA DE DIVERGENCIA: o PROGRAMA.html e o ADR-0043 citam `just gm:e2e`
+# (com dois-pontos); este justfile nao suporta dois-pontos em nome de
+# receita (just 1.42.4), entao o gate e `just gm-e2e` (hifen, a convencao
+# das demais receitas). A divergencia esta nomeada no ADR-0044 e no
+# handoff do F5-08.
+gm-e2e:
+    @echo "=== gm-e2e: golden master de ponta a ponta (F5-08, W10) ==="
+    npx tsc --noEmit
+    npx tsx tools/gm/gate.ts
+
+# `just gm-capturar [--no-run --saida DIR]` — captura o golden em
+# fixtures/gm/** a partir de uma producao fresca (ou de uma saida
+# existente com --no-run). Ato explicito de re-baseline: rodar isto e
+# re-aprovar o oraculo — so quando a divergencia e BUG-A-DIVERGIR
+# (ADR nominal), nunca para "parar de piscar".
+gm-capturar *args:
+    @echo "=== gm-capturar: captura do golden master (F5-08, W10) ==="
+    npx tsc --noEmit
+    npx tsx tools/gm/capturar.ts {{args}}
+# === fim F5-08 ===

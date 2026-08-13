@@ -1,0 +1,37 @@
+{
+  "alvo": {
+    "margemOvershootDb": 1,
+    "maxTruePeakDbtp": -1,
+    "targetLufs": -23,
+    "toleranciaMedicaoLu": 0.3
+  },
+  "entregavel": {
+    "canais": 2,
+    "codec": "aac",
+    "hash": "5370f578021c0fbd09c5f94c90bd1784aac287e8a8a910128c9ad0030c6d2a1a",
+    "nome": "entregavel.m4a",
+    "perfil": "pos-audio-aac",
+    "taxa": 48000
+  },
+  "ferramentas": {
+    "ffmpeg": "6.1.1-3ubuntu5",
+    "node": "v24.15.0"
+  },
+  "medicoes": {
+    "integradoLufs": -23,
+    "overshootDb": -3.552713678800501e-15,
+    "truePeakDbtp": -19.3
+  },
+  "normalizacao": {
+    "ganhoAplicadoDb": -7.6,
+    "lufsDoMaster": -15.4,
+    "truePeakDoMasterDbtp": -11.7,
+    "truePeakPreEncodeDbtp": -19.299999999999997
+  },
+  "schema_version": "PosDocument.1",
+  "sidecar": {
+    "fonte_documento_hash": "625a8243ba0cdcd1a4be22dfbb1b9b552650228036f51b41b043cdfca1ab377a",
+    "hash": "2d546d1e7b0796089cae769603bfe3aea8526999b893b6523b86d545747fcec7",
+    "nome": "entregavel.srt"
+  }
+}

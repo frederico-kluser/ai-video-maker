@@ -1,0 +1,120 @@
+{
+  "schema_version": "RelatorioFinal.1",
+  "pipeline": {
+    "fixture": "canonico",
+    "estrito": true
+  },
+  "sucesso": true,
+  "artefatos": [
+    {
+      "nome": "manifesto-resolvido.json",
+      "arquivos": [
+        {
+          "nome": "manifesto-resolvido.json",
+          "sha256": "1c0ea9f8a86d3f323aafc7f9dfeee2f98bf31a3fe8492352eed03a6836fc761f",
+          "tamanho": 17883
+        }
+      ]
+    },
+    {
+      "nome": "master-de-video-deterministico",
+      "arquivos": [
+        {
+          "nome": "master.mov",
+          "sha256": "44bc866d0317a4493d6e90e073418d24594fbf2f72f21c50dcf91bdae9c5d038",
+          "tamanho": 22995405
+        }
+      ]
+    },
+    {
+      "nome": "master-de-audio-do-mix",
+      "arquivos": [
+        {
+          "nome": "master.wav",
+          "sha256": "64d172e6efec8be2cc2b1e2d8ab20280fdf1baea957dee91a6d36ede74dc7f29",
+          "tamanho": 9305644
+        },
+        {
+          "nome": "mix-documento.json",
+          "sha256": "eb709326cbef4f47b780d70b21c48ff04ce7525a88e1eed97f1decddee0c2b65",
+          "tamanho": 1146
+        }
+      ]
+    },
+    {
+      "nome": "entregavel.m4a",
+      "arquivos": [
+        {
+          "nome": "entregavel.m4a",
+          "sha256": "5370f578021c0fbd09c5f94c90bd1784aac287e8a8a910128c9ad0030c6d2a1a",
+          "tamanho": 568288
+        }
+      ]
+    },
+    {
+      "nome": "entregavel.srt",
+      "arquivos": [
+        {
+          "nome": "entregavel.srt",
+          "sha256": "2d546d1e7b0796089cae769603bfe3aea8526999b893b6523b86d545747fcec7",
+          "tamanho": 308
+        }
+      ]
+    },
+    {
+      "nome": "pos-documento.json",
+      "arquivos": [
+        {
+          "nome": "pos-documento.json",
+          "sha256": "1cf119438356aabe8540f7d9cbb750168b88b34d7e6eeaa0ec016885d2bb8507",
+          "tamanho": 970
+        }
+      ]
+    },
+    {
+      "nome": "variante-16x9.json",
+      "arquivos": [
+        {
+          "nome": "variante-16x9.json",
+          "sha256": "bed97b2df491a68695c9c7f80cc14edf859a17101fd4bb69aab161e5f8ddb1f8",
+          "tamanho": 9730
+        }
+      ]
+    },
+    {
+      "nome": "thumbnail.png",
+      "arquivos": [
+        {
+          "nome": "thumbnail.png",
+          "sha256": "ff2d57b8e0ebe0df24033050fc8652e8745fc4390e9501e88f6c1febabcd6a8d",
+          "tamanho": 40158
+        }
+      ]
+    },
+    {
+      "nome": "relatorio-procedencia.json",
+      "arquivos": [
+        {
+          "nome": "relatorio-procedencia.json",
+          "sha256": "901fce3cad0172ff15e168cfc5d843a81d023d1419f2b79e8faa2d2b7c3c8e45",
+          "tamanho": 14420
+        }
+      ]
+    },
+    {
+      "nome": "entregavel-final.mp4",
+      "arquivos": [
+        {
+          "nome": "entregavel-final.mp4",
+          "sha256": "28171670eb8a7535c34909e220c5fad70ae0389026dee405c053da96fa89b17d",
+          "tamanho": 1156329
+        }
+      ]
+    }
+  ],
+  "ferramentas": {
+    "ffmpeg": "6.1.1-3ubuntu5",
+    "node": "v24.15.0"
+  },
+  "escritoEm": "1970-01-01T00:00:00.000Z"
+}

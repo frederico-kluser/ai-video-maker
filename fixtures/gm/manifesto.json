@@ -1,0 +1,159 @@
+{
+  "schema_version": "GoldenMaster.1",
+  "fixture": "canonico",
+  "estrito": true,
+  "captura": {
+    "commit": "1153c76d572f5d935cb3d883b4f917f13ed957be",
+    "maquina": "pop-os / linux / x64",
+    "em": "2026-08-13",
+    "pipeline": "just produzir --fixture canonico --estrito (API do F5-07)"
+  },
+  "ferramentas": {
+    "ffmpeg": "6.1.1-3ubuntu5",
+    "node": "v24.15.0",
+    "pilha": {
+      "remotion": "4.0.507",
+      "renderer": "4.0.507",
+      "bundler": "4.0.507",
+      "compositor": "4.0.507",
+      "navegador": "149.0.7790.0"
+    },
+    "pin": {
+      "node": "24.15.0",
+      "ffmpeg": "6.1.1-3ubuntu5"
+    }
+  },
+  "chaveC7": "d9b1ac2703f58d2e5950d2156f7136df6eee6d4b424041d74d778052410bc75b",
+  "componentesC7": {
+    "manifesto": "1c0ea9f8a86d3f323aafc7f9dfeee2f98bf31a3fe8492352eed03a6836fc761f",
+    "assets": "721cdcd92cce12ecfe2e315d2173dc202ff4851bdb4ea25039a082d9ce157848",
+    "tokens": "1ee31eb7ffecb3b70c1d63eb2eac563b9cfa2e284e53ac199db4536cfad0d515",
+    "versoes": "4679b7b877c0a34cfe4d9dcb268189aaf7ea2c970852dc4dba8d1f605efe1ce9",
+    "ferramentas": "4a67982b6da7e525ddd4daf7df3d1fb1eeb7cb1582c4bf948db5572787c10a14"
+  },
+  "frames": [
+    {
+      "frame": 0,
+      "arquivo": "frames/frame-0000.png",
+      "motivo": "inicio do video — primeira moldura da cena 1",
+      "sha256": "307cd15e86bd33a262c89e6a203e1017615e267def030cc27b18f8bcdaeaba63"
+    },
+    {
+      "frame": 75,
+      "arquivo": "frames/frame-0075.png",
+      "motivo": "primeira moldura da cena c-002 — fronteira de transicao com a cena anterior (interpolacao exercida)",
+      "sha256": "e36ee26994fd90ffdce79733e4f8957d76e39696bd5dab90720cc2db93d61c5d"
+    },
+    {
+      "frame": 265,
+      "arquivo": "frames/frame-0265.png",
+      "motivo": "primeira moldura da cena c-003 — fronteira de transicao com a cena anterior (interpolacao exercida)",
+      "sha256": "8ab60fe4319cc7d148aca77f37c3aeaa86743af72028f2c513015dd7f5221bb6"
+    },
+    {
+      "frame": 355,
+      "arquivo": "frames/frame-0355.png",
+      "motivo": "meio da cena c-003 — cena representativa (contem no tipo \"codigo\")",
+      "sha256": "3c1aabee055bf2f2bf009bc56ed1b49ee817ddc8ae171b1ee3c2e4451f91765a"
+    },
+    {
+      "frame": 427,
+      "arquivo": "frames/frame-0427.png",
+      "motivo": "primeira moldura da cena c-004 — fronteira de transicao com a cena anterior (interpolacao exercida)",
+      "sha256": "73b778d3cf7b151fa5dcd3c6deba06c3efc3bf4203fa6ee3a5dd84c871438ba2"
+    },
+    {
+      "frame": 487,
+      "arquivo": "frames/frame-0487.png",
+      "motivo": "meio da cena c-004 — cena representativa (contem no tipo \"grafico\")",
+      "sha256": "90d59517405fc7a579082264d0f3f3b1d40b39b5f8e5187a7533c22c8ffa225b"
+    },
+    {
+      "frame": 547,
+      "arquivo": "frames/frame-0547.png",
+      "motivo": "primeira moldura da cena c-005 — fronteira de transicao com a cena anterior (interpolacao exercida)",
+      "sha256": "a9cae503ceab3701de96837783630318cb4da0cbe0a76a4d20e28acdb80b9bce"
+    },
+    {
+      "frame": 726,
+      "arquivo": "frames/frame-0726.png",
+      "motivo": "ultima moldura do video (fim)",
+      "sha256": "a2451695a9632f77a2a38543702d94739da16e245bf080a6d057af30ab1b7b33"
+    }
+  ],
+  "itens": [
+    {
+      "arquivo": "audio/envelope.json",
+      "sha256": "c4da22199cd0e7c8e7d248461b3a3b47a58366ea9d3488e880e55f3ff19e0549",
+      "tamanho": 16094
+    },
+    {
+      "arquivo": "frames/frame-0000.png",
+      "sha256": "307cd15e86bd33a262c89e6a203e1017615e267def030cc27b18f8bcdaeaba63",
+      "tamanho": 10615
+    },
+    {
+      "arquivo": "frames/frame-0075.png",
+      "sha256": "e36ee26994fd90ffdce79733e4f8957d76e39696bd5dab90720cc2db93d61c5d",
+      "tamanho": 34512
+    },
+    {
+      "arquivo": "frames/frame-0265.png",
+      "sha256": "8ab60fe4319cc7d148aca77f37c3aeaa86743af72028f2c513015dd7f5221bb6",
+      "tamanho": 37744
+    },
+    {
+      "arquivo": "frames/frame-0355.png",
+      "sha256": "3c1aabee055bf2f2bf009bc56ed1b49ee817ddc8ae171b1ee3c2e4451f91765a",
+      "tamanho": 78232
+    },
+    {
+      "arquivo": "frames/frame-0427.png",
+      "sha256": "73b778d3cf7b151fa5dcd3c6deba06c3efc3bf4203fa6ee3a5dd84c871438ba2",
+      "tamanho": 57388
+    },
+    {
+      "arquivo": "frames/frame-0487.png",
+      "sha256": "90d59517405fc7a579082264d0f3f3b1d40b39b5f8e5187a7533c22c8ffa225b",
+      "tamanho": 81266
+    },
+    {
+      "arquivo": "frames/frame-0547.png",
+      "sha256": "a9cae503ceab3701de96837783630318cb4da0cbe0a76a4d20e28acdb80b9bce",
+      "tamanho": 15264
+    },
+    {
+      "arquivo": "frames/frame-0726.png",
+      "sha256": "a2451695a9632f77a2a38543702d94739da16e245bf080a6d057af30ab1b7b33",
+      "tamanho": 41591
+    },
+    {
+      "arquivo": "manifestos/manifesto-resolvido.json",
+      "sha256": "1c0ea9f8a86d3f323aafc7f9dfeee2f98bf31a3fe8492352eed03a6836fc761f",
+      "tamanho": 17883
+    },
+    {
+      "arquivo": "manifestos/mix-documento.json",
+      "sha256": "eb709326cbef4f47b780d70b21c48ff04ce7525a88e1eed97f1decddee0c2b65",
+      "tamanho": 1146
+    },
+    {
+      "arquivo": "manifestos/pos-documento.json",
+      "sha256": "1cf119438356aabe8540f7d9cbb750168b88b34d7e6eeaa0ec016885d2bb8507",
+      "tamanho": 970
+    },
+    {
+      "arquivo": "manifestos/relatorio-final.json",
+      "sha256": "defb62488c7dac983ca1bc8b8907f174bf2dbdd47e5af75db48bb6a36f1c851d",
+      "tamanho": 2976
+    }
+  ],
+  "naoCobre": [
+    "o MP4 final (entregavel-final.mp4): o container carrega a versao do encoder — o golden compara frames decodificados do master QTRLE, nunca bytes do MP4",
+    "os artefatos nao capturados (thumbnail, variante, entregavel.m4a/.srt, mp4): cobertos POR INDICE via relatorio-final.json — qualquer mudanca de hash deles muda o relatorio-final, que e item do golden",
+    "o timing palavra-a-palavra da locucao: o envelope por janela de 100 ms pega mudanca de ganho/duracao; um deslocamento menor que uma janela pode passar (declarado)",
+    "o 9:16: o estrito e 16:9-only (ADR-0042 decisao 4) — nenhum artefato 9:16 existe",
+    "a rede: o render estrito e offline por construcao; o golden nao bloqueia rede (o offline-guard cobre)",
+    "a maquina: o baseline vale para a maquina que o capturou (ffmpeg/Chrome pinados; sem container — declarado no README)"
+  ]
+}

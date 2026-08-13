@@ -1,0 +1,41 @@
+{
+  "cadencia": {
+    "gapAlvoS": 0.25,
+    "versao": "Ritmo.1"
+  },
+  "canais": 2,
+  "duracao_s": 24.233333333333334,
+  "faixas": {
+    "locucao": [
+      {
+        "cena": "c-004",
+        "emenda_hash": "379d320fff25fbadad95ab1c1d3f4be1794d85f0a45eb125ab5da5f7973783a2",
+        "fim_s": 18.233333333333334,
+        "fonte_hash": "6b9ec331d006e5fd80db18acd52d003ef10f89d06249d8d9dd9eee65df61950c",
+        "inicio_s": 14.233333333333333,
+        "volume": 0.9
+      },
+      {
+        "cena": "c-005",
+        "emenda_hash": "d1524ea13153bac7fa8c434596a42c29e4b812834e59374d69407d6ca7147705",
+        "fim_s": 23.588333333333335,
+        "fonte_hash": "2b8de8cb0a8e0acd586bc0e68ed2edb245ca7960be56454383714a26e118adeb",
+        "inicio_s": 18.233333333333334,
+        "volume": 0.85
+      }
+    ],
+    "musica": {
+      "fim_s": 24.233333333333334,
+      "hash": "6ac2876495aa5f0a8d4558bc35aa3e05f6e88b667a097cd3b7f41f15874276bb",
+      "inicio_s": 0,
+      "volume": 0.25
+    }
+  },
+  "ferramentas": {
+    "ffmpeg": "6.1.1-3ubuntu5",
+    "node": "v24.15.0"
+  },
+  "rate": 48000,
+  "schema_version": "MixDocument.1",
+  "unidade": "segundos"
+}
