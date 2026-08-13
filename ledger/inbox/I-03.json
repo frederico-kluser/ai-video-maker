@@ -1,0 +1,216 @@
+[
+  {
+    "id": "AB-980",
+    "titulo": "Medicao da maquina feita sob carga compartilhada — numeros dependem do dia",
+    "pergunta": "Os numeros de docs/medicao/maquina.md (RAM por worker, curva de saturacao, sessoes de encode) foram medidos com outros agentes/processos rodando no mesmo host (loadavg 3-6, ~18 GiB de 31,7 GiB usados por processos alheios). Quanto mudam com o host ocioso?",
+    "por_que_aberto": "A maquina e compartilhada e as medicoes nao podem ser repetidas em silencio hoje. As tolerancias declaradas (±30% RAM, ±25% disco) absorvem parte do ruido; o pico de RSS do grupo e a curva de saturacao sao os mais sensiveis.",
+    "decisao_provisoria": "Declarar nos tetos do ADR-0032 uma margem dupla (medicao + folga de 20%) e re-medir com o host ocioso quando houver janela; a conferencia curta (medir-maquina --conferir) continua valendo como tripwire.",
+    "verificacao": {
+      "cmd": "uptime && python3 tools/medir-maquina.py rss --concurrency 16 --frames 0-119",
+      "espera": "loadavg < 2 e ram_worker_marginal_mib dentro de ±30% do valor declarado em docs/medicao/maquina.md",
+      "ambiente": "host ocioso (sem outros agentes ativos), worktree do repo, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o host ocioso der RAM/worker ou ponto de saturacao bem menores, o teto declarado esta conservador (seguro, mas lento); se der maiores, o teto pode ser subido com margem mantida.",
+      "artefatos": [
+        "docs/medicao/maquina.md",
+        "docs/adr/0032-maquina-de-render.md",
+        "tools/medir-maquina.py"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-981",
+    "titulo": "Limite de sessoes NVENC medido no driver 580.159.03 — bump de driver pode mover o teto",
+    "pergunta": "O numero de sessoes h264_nvenc simultaneas que inicializam (medido neste card) vale para o driver 580.159.03; um bump de driver NVIDIA pode mudar o limite de sessoes simultaneas do GeForce.",
+    "por_que_aberto": "A medicao de encode e dependente de driver (categoria infra). O teto declarado no ADR-0032 vem da medicao real; trocar o driver invalida o numero sem aviso.",
+    "decisao_provisoria": "O teto de sessoes de encode e o valor medido MENOS 1 (margem); a conferencia curta re-mede o teto declarado a cada execucao do gate e falharia se o driver novo reduzisse o limite.",
+    "verificacao": {
+      "cmd": "nvidia-smi --query-gpu=driver_version --format=csv,noheader && python3 tools/medir-maquina.py encode --nvenc 8",
+      "espera": "driver 580.159.03 e 8 sessoes inicializando; driver diferente -> re-medir e atualizar docs/medicao/maquina.md",
+      "ambiente": "maquina com GPU NVIDIA (RTX 4070), ffmpeg 6.1.1"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o driver novo reduzir o limite para abaixo do teto declarado, o F5-02 (perfis de encode) pode lancar encodes que falham na inicializacao em producao; o gate de conferencia pega antes.",
+      "artefatos": [
+        "docs/medicao/maquina.md",
+        "tools/medir-maquina.py"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-982",
+    "titulo": "Render do Remotion nao usou a GPU — RAM/curva sao do caminho SwiftShader",
+    "pergunta": "Medido neste card: nvidia-smi a 0% de utilizacao durante renders da composicao integrado com --gl default E com --gl=swangle. Os numeros de RAM por worker e ponto de saturacao descrevem o caminho CPU (SwiftShader). Se F5-01 habilitar ANGLE/Vulkan na GPU, eles mudam.",
+    "por_que_aberto": "A decisao de backend grafico do pipeline (F5-01, W7) ainda nao existe; este card mediu o caminho atual do programa (--gl=swangle e o default, que caem no mesmo SwiftShader aqui).",
+    "decisao_provisoria": "Declarar no ADR-0032 que os tetos valem para o caminho CPU-bound medido; se o F5-01 trocar o backend, re-medir antes de subir tetos.",
+    "verificacao": {
+      "cmd": "nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader durante: npx remotion render fixtures/snapshots/integrado/entrada.tsx integrado /tmp/medir-maquina/gpu-test.mp4 --frames=0-59 --concurrency=8",
+      "espera": "0% de utilizacao (SwiftShader); se >0%, o render passou a usar a GPU e os numeros de RAM/saturacao precisam ser re-medidos",
+      "ambiente": "maquina com GPU NVIDIA, node 24, remotion 4.0.507"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o pipeline futuro usar GPU para render, o ponto de saturacao sobe e a RAM por worker cai — os tetos declarados ficam conservadores, mas a conferencia curta compara com numeros do caminho CPU e seguiria verde por medir o mesmo caminho.",
+      "artefatos": [
+        "docs/adr/0032-maquina-de-render.md",
+        "docs/medicao/maquina.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-983",
+    "titulo": "Curva de saturacao medida em frames 0-239 (cenas leves) — cenas pesadas podem saturar antes",
+    "pergunta": "A curva tempo-por-frame x concurrency foi medida nos frames 0-239 da composicao integrado (abertura e cenas de fundo/camadas). Nos com grafico (n-009) e midia (n-005) podem ter custo por frame maior e saturar com menos workers.",
+    "por_que_aberto": "A fixture canonica tem 15 nos; os frames mais pesados (grafico com asset, midia) ficam fora da faixa medida. O custo por frame por cena nao foi isolado.",
+    "decisao_provisoria": "O teto de concurrency declarado usa o ponto de saturacao dos frames leves MENOS margem; o F5-01 pode re-medir por faixa quando o pipeline existir (a ferramenta aceita --frames).",
+    "verificacao": {
+      "cmd": "python3 tools/medir-maquina.py saturacao --frames 240-479 --niveis 4,8,16",
+      "espera": "ponto de saturacao <= o dos frames 0-239 (mesmo ou menor); se maior, os tetos estao conservadores",
+      "ambiente": "worktree do repo, node 24, remotion 4.0.507"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se cenas pesadas saturarem antes, o teto declarado pode permitir concurrency que nao acelera a faixa pesada (perda de tempo, sem falha); a RAM por worker e o teto de RAM sao os limites duros.",
+      "artefatos": [
+        "docs/medicao/maquina.md",
+        "tools/medir-maquina.py"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-984",
+    "titulo": "Disco a 96% de uso (41 GiB livres) — teto pratico de concorrencia inclui espaco, nao so throughput",
+    "pergunta": "O filesystem raiz tem 41 GiB livres de 915 GiB. O teto de concorrencia do ADR-0032 declara throughput (medido), mas o limite pratico de renders paralelos pode ser o ESPACO de saida. Quem declara o teto de espaco por render?",
+    "por_que_aberto": "Medido neste card: df -h mostra 96% de uso. Renders da fixture canonica (24 s, 1920x1080) geram ~1-5 MiB por render em mp4; renders longos (minutos) ou saidas em sequence PNG crescem muito.",
+    "decisao_provisoria": "O ADR-0032 declara o teto de espaco: saida de trabalho em /tmp (fora do filesystem do repo) e limpeza apos o render; a regra pratica de espaco (>= 10 GiB livres antes de render em lote) fica como recomendacao ao F5-01.",
+    "verificacao": {
+      "cmd": "df -h /home | tail -1",
+      "espera": "disponivel >= 10 GiB antes de um lote de renders; abaixo disso, parar e limpar saidas",
+      "ambiente": "host com filesystem raiz quase cheio"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o espaco zerar no meio de um render, o ffmpeg/Remotion falha na escrita final sem deixar video; o gate nao pega (e falha de ambiente, nao de codigo).",
+      "artefatos": [
+        "docs/medicao/maquina.md",
+        "docs/adr/0032-maquina-de-render.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-985",
+    "titulo": "Conferencia curta usa renders de 60 frames — startup domina o tempo-por-frame curto",
+    "pergunta": "A medicao curta de saturacao renderiza 60 frames; o startup (bundle cacheado + Chrome + encode) pesa mais no tempo-por-frame curto do que nos 240 frames da cerimonia completa. A definicao do ponto de saturacao e consistente entre as duas (mesma distorcao), mas o valor absoluto difere.",
+    "por_que_aberto": "A conferencia precisa ser curta (criterio de aceitacao); a cerimonia completa precisa de precisao. A distorcao de startup e conhecida e declarada.",
+    "decisao_provisoria": "Manter as duas medicoes na mesma metodologia (tempo de parede / frames, com startup incluido) e declarar a faixa de frames de cada uma no documento. Nao misturar medicoes de faixas diferentes.",
+    "verificacao": {
+      "cmd": "python3 tools/medir-maquina.py saturacao --frames 0-59 --niveis 8,16",
+      "espera": "tf_por_frame da faixa curta maior que o da faixa 0-239 (startup diluido em menos frames), e as relacoes entre niveis preservadas",
+      "ambiente": "worktree do repo, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem comparar o tempo-por-frame curto com o da cerimonia completa, ve divergencia que e metodologica, nao da maquina; o documento declara as duas faixas para evitar a comparacao errada.",
+      "artefatos": [
+        "docs/medicao/maquina.md"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-986",
+    "titulo": "MemAvailable variou 12-13,3 GiB durante as medicoes — RAM livre e instavel no host compartilhado",
+    "pergunta": "Durante as medicoes deste card, /proc/meminfo MemAvailable oscilou entre ~12,0 e ~13,3 GiB por causa de processos alheios. O teto de RAM do ADR-0032 usa o TOTAL (31,7 GiB), nao o disponivel. O disponivel e uma entrada de teto confiavel?",
+    "por_que_aberto": "Host compartilhado: o disponivel depende do que mais roda. Um teto por 'disponivel' seria refem do ambiente; um teto por total precisa de margem grande.",
+    "decisao_provisoria": "Teto por TOTAL com margem de seguranca: render+encode+gate <= 24 GiB dos 31,7 GiB (sobra ~7,7 GiB para o resto do host); a conferencia checa os picos de cada componente, nao o disponivel.",
+    "verificacao": {
+      "cmd": "free -m | head -2",
+      "espera": "MemTotal ~32553 MiB; se o total da maquina mudar (VM, upgrade), re-medir e recalcular os tetos",
+      "ambiente": "host atual"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o total da maquina cair, o teto de 24 GiB estoura RAM com OOM-kill no render; o F5-01 deve ler o total em runtime e reduzir concurrency quando MemTotal < 28 GiB.",
+      "artefatos": [
+        "docs/adr/0032-maquina-de-render.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-987",
+    "titulo": "VRAM do NVENC nao foi medida sob carga — sessoes usam pouca, mas o teto e da VRAM dedicada",
+    "pergunta": "As sessoes h264_nvenc usam a GPU dedicada (RTX 4070, 8 GiB). A VRAM consumida por sessao nao foi isolada; se o F5-02 rodar encodes 4K ou com filtros pesados, a VRAM pode ser o teto antes das sessoes.",
+    "por_que_aberto": "A medicao deste card usou 720p simples; o consumo de VRAM por sessao nao foi amostrado (nvidia-smi mostrou 15 MiB em idle e o encode nao foi monitorado em VRAM).",
+    "decisao_provisoria": "O teto de sessoes declarado usa o limite de inicializacao medido; o F5-02 deve monitorar memory.used da GPU em perfis pesados antes de subir resolucao.",
+    "verificacao": {
+      "cmd": "nvidia-smi --query-gpu=memory.used --format=csv,noheader durante: python3 tools/medir-maquina.py encode --nvenc 8",
+      "espera": "memory.used < 2048 MiB com 8 sessoes 720p; se proximo do limite de 8188 MiB, a VRAM e o teto real",
+      "ambiente": "maquina com GPU NVIDIA, ffmpeg 6.1.1"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o F5-02 lancar encodes 4K paralelos assumindo so o teto de sessoes, a VRAM pode estourar e o encode falha na inicializacao — erro de ambiente, verde no gate.",
+      "artefatos": [
+        "docs/medicao/maquina.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-988",
+    "titulo": "F5-01 consome teto por WORKER; pipeline por faixas pode precisar de teto por FAIXA",
+    "pergunta": "O ADR-0032 declara RAM marginal por worker de render e teto de concurrency. O F5-01 (pipeline por faixas + concatenacao) pode renderizar faixas com workers dentro de cada faixa: o teto que ele precisa e por faixa (workers ativos no total), nao por worker isolado.",
+    "por_que_aberto": "O formato de paralelismo do F5-01 (N faixas × M workers) ainda nao existe; a medicao deste card da o custo marginal por worker, que e o insumo para converter faixa x worker em RAM total.",
+    "decisao_provisoria": "Regra de conversao declarada no ADR-0032: RAM_total_estimada = base(1 worker) + (workers_totais - 1) x ram_worker_marginal; o F5-01 usa workers_totais <= teto e RAM_total <= 24 GiB.",
+    "verificacao": {
+      "cmd": "python3 -c \"import json; print(json.load(open('docs/medicao/maquina.md')))\"",
+      "espera": "formula de conversao presente no ADR-0032 e consumivel pelo F5-01 (W7)",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o F5-01 usar o teto por worker sem a formula, pode lancar faixas cujo TOTAL de workers estoura a RAM (OOM) — o gate nao pega OOM de ambiente.",
+      "artefatos": [
+        "docs/adr/0032-maquina-de-render.md",
+        "src/render/pipeline/**"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]

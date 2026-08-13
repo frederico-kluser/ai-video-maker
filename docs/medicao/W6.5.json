@@ -1,0 +1,23 @@
+{
+  "onda": "W6.5",
+  "executado": true,
+  "timestamp": "2026-08-13T17:50:56Z",
+  "duracao_ms": 2700000,
+  "api": {
+    "chamadas": 0,
+    "tokens_entrada": 0,
+    "tokens_saida": 0,
+    "modelo": "claude-sonnet-4-20250514"
+  },
+  "arquivos": {
+    "modificados": 1,
+    "criados": 4,
+    "lista": [
+      "justfile",
+      "tools/medir-maquina.py",
+      "docs/medicao/maquina.md",
+      "docs/adr/0032-maquina-de-render.md",
+      "ledger/inbox/I-03.json"
+    ]
+  }
+}

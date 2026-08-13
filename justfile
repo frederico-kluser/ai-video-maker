@@ -1637,3 +1637,17 @@ autoria-gravar *args:
 autoria-medir *args:
     npx tsx src/autoria/executor/medir-limites.ts {{args}}
 # === fim F4-04 ===
+
+# === I-03 ===
+# Maquina de render (card I-03): medicao + conferencia da maquina.
+#   just medir-maquina                  -> inventario rapido da maquina
+#   just medir-maquina rss --concurrency 16   -> RAM por worker (cerimonia completa)
+#   just medir-maquina saturacao        -> curva tempo-por-frame x concurrency
+#   just medir-maquina encode --nvenc 1,4,8 --soft 1,4   -> sessoes de encode
+#   just medir-maquina disco --com-store -> throughput de disco (dd)
+#   just medir-maquina --conferir       -> medicao CURTA vs docs/medicao/maquina.md
+#                                        (falha alem da tolerancia declarada)
+# Todo numero tem o comando que o reproduz (∅-crit: rg -L "comando:" -> vazio).
+medir-maquina *args:
+    @python3 tools/medir-maquina.py {{args}}
+# === fim I-03 ===
