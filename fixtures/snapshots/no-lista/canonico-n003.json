@@ -1,0 +1,69 @@
+{
+  "noId": "n-003",
+  "visivel": true,
+  "frame": 177,
+  "duracaoFrames": 180,
+  "itens": 3,
+  "colunas": 1,
+  "linhas": 3,
+  "fonte": 22,
+  "pisoDeFonte": 16,
+  "fonteBase": 22,
+  "alturaDeLinha": 31,
+  "larguraMarcador": 19,
+  "opacidadeDoNo": 1,
+  "alinhamento": "esquerda",
+  "safeRect": {
+    "x": 67,
+    "y": 38,
+    "largura": 1786,
+    "altura": 1004
+  },
+  "bloco": {
+    "x": 67,
+    "y": 481,
+    "largura": 626,
+    "altura": 117
+  },
+  "caixas": [
+    {
+      "indice": 0,
+      "texto": "Cabeçalho: título e subtítulo com alinhamento configurável",
+      "marcador": "•",
+      "coluna": 0,
+      "linha": 0,
+      "x": 67,
+      "y": 481,
+      "largura": 626,
+      "altura": 31,
+      "larguraMedida": 621,
+      "opacidade": 1
+    },
+    {
+      "indice": 1,
+      "texto": "Texto: corpo com destaque opcional e animação de entrada",
+      "marcador": "•",
+      "coluna": 0,
+      "linha": 1,
+      "x": 67,
+      "y": 524,
+      "largura": 626,
+      "altura": 31,
+      "larguraMedida": 626,
+      "opacidade": 1
+    },
+    {
+      "indice": 2,
+      "texto": "Lista: itens ordenados ou não, com bullets automáticos",
+      "marcador": "•",
+      "coluna": 0,
+      "linha": 2,
+      "x": 67,
+      "y": 567,
+      "largura": 626,
+      "altura": 31,
+      "larguraMedida": 587,
+      "opacidade": 1
+    }
+  ]
+}

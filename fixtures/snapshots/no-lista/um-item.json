@@ -1,0 +1,43 @@
+{
+  "noId": "lista-um-item",
+  "visivel": true,
+  "frame": 87,
+  "duracaoFrames": 90,
+  "itens": 1,
+  "colunas": 1,
+  "linhas": 1,
+  "fonte": 22,
+  "pisoDeFonte": 16,
+  "fonteBase": 22,
+  "alturaDeLinha": 31,
+  "larguraMarcador": 19,
+  "opacidadeDoNo": 1,
+  "alinhamento": "esquerda",
+  "safeRect": {
+    "x": 67,
+    "y": 38,
+    "largura": 1786,
+    "altura": 1004
+  },
+  "bloco": {
+    "x": 67,
+    "y": 524,
+    "largura": 470,
+    "altura": 31
+  },
+  "caixas": [
+    {
+      "indice": 0,
+      "texto": "Um item so, e a grade nao pode ficar absurda",
+      "marcador": "•",
+      "coluna": 0,
+      "linha": 0,
+      "x": 67,
+      "y": 524,
+      "largura": 470,
+      "altura": 31,
+      "larguraMedida": 470,
+      "opacidade": 1
+    }
+  ]
+}

@@ -733,3 +733,62 @@ no-texto-aprovar:
 no-texto-studio:
     npx remotion studio fixtures/snapshots/no-texto/index.tsx --port 3105
 # === fim F1-05 ===
+
+# === F1-06 ===
+# =============================================================================
+# No `lista` — grade, bullets, e os dois extremos: UM item e VINTE itens
+# =============================================================================
+# NOME DAS RECEITAS: hifen, nunca ':'. O `just` 1.42 le `a:b:` como "receita a
+# depende de b" e o arquivo INTEIRO deixa de parsear.
+# Ver docs/criterios-de-aceitacao-corrigidos.md §2.
+#
+# Porta TCP reservada para este card: 3106 (docs/contrato-w4.md §4).
+# Faixa de ledger: AB-330..AB-339 (ledger/inbox/F1-06.json).
+
+# A aceitacao inteira do card, em ordem. Este e o `just no-lista` do PROGRAMA.
+no-lista: no-lista-testar no-lista-snapshot no-lista-determinismo no-lista-ausencia no-lista-mutar
+    @echo ""
+    @echo "no-lista: VERDE"
+
+# Tipos do escopo de composicao + a suite do no.
+no-lista-testar:
+    @echo "=== no-lista-testar: tipos + suite do no lista ==="
+    npx tsc --noEmit -p tsconfig.composicao.json
+    npx vitest run tests/composicao/no-lista.test.ts
+
+# Regrava os snapshots por cima dos aprovados e exige que NADA tenha mudado.
+# `git diff --exit-code` pega o que mudou; `git status --porcelain` pega o que
+# NASCEU e nunca foi rastreado — sozinho, o diff nao ve arquivo novo (C3).
+no-lista-snapshot:
+    @echo "=== no-lista-snapshot: regrava e exige diff limpo ==="
+    npx tsx tools/no-lista/gravar.ts fixtures/snapshots/no-lista
+    git diff --exit-code fixtures/snapshots/no-lista/
+    @sujeira=$(git status --porcelain -- fixtures/snapshots/no-lista/); \
+        if [ -n "$sujeira" ]; then \
+            echo "FALHOU: snapshot nao rastreado ou modificado:"; echo "$sujeira"; exit 1; \
+        fi
+    @echo "no-lista-snapshot: OK"
+
+# Render 2x em processos separados, `cmp` byte a byte, com assercao de entropia.
+no-lista-determinismo:
+    bash tools/no-lista/determinismo.sh
+
+# ∅-crit: apagar, corromper ou nao rastrear um snapshot aprovado fica VERMELHO.
+no-lista-ausencia:
+    bash tools/no-lista/ausencia.sh
+
+# Sondas negativas sobre o componente: quadro vazio, safe area zerada e piso de
+# fonte de 1px TEM de deixar a suite vermelha.
+no-lista-mutar:
+    bash tools/no-lista/mutar.sh
+
+# Reaprova os snapshots. So depois de revisar o diff — este comando nao valida
+# nada, ele grava o que o codigo faz hoje.
+no-lista-aprovar:
+    npx tsx tools/no-lista/gravar.ts fixtures/snapshots/no-lista
+    @echo "revise antes de commitar: git diff fixtures/snapshots/no-lista/"
+
+# Preview no Studio, na porta reservada deste card.
+no-lista-studio:
+    npx remotion studio src/composicao/raiz.tsx --port 3106
+# === fim F1-06 ===
