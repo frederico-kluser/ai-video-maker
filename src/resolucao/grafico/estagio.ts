@@ -100,9 +100,16 @@ export const PARAMETROS_GRAFICO = {
   // render, sem cache, custando ate 3 spawns de subprocesso
   // (docs/reuso-3b1b.md item 2.17, IGNORAR).
   renderer: "cairo",
-  formato: "mov",
-  // `-t` sozinho produz .mov com qtrle/argb — nao WebM com alfa, e nao
-  // ProRes 4444 (AGENTS.md, armadilhas de dominio; verificado com ffprobe).
+  formato: "webm",
+  // Cartucho webm (F2-02, estagio de resolucao de grafico): o `.mov`
+  // qtrle/argb do default anterior tinha alfa mas o navegador do render do
+  // Remotion NAO o reproduz (F1-12 marcou video/quicktime
+  // reproduzivelNoNavegador:false e o render integrado recusou de proposito).
+  // Medido na regravacao do cassete (2026-08-13): `-t --format=webm` no
+  // Manim 0.20.1 + PyAV 18 produz VP9 **yuv420p** — o alfa e descartado
+  // (libvpx-vp9 desta cadeia nao carrega canal alfa; verificado com ffprobe
+  // e decodificacao PyAV). O navegador reproduz webm; o alfa e uma pergunta
+  // em aberto (AB-390).
   fundoTransparente: true,
 } as const satisfies ParametrosEstagio;
 
@@ -135,11 +142,11 @@ export function criarEstagioGrafico(
   const executor = opcoes.executor ?? new ExecutorManimSubprocesso();
 
   return {
-    identidade: { nome: "grafico", versao: opcoes.versao ?? "1.0.0" },
+    identidade: { nome: "grafico", versao: opcoes.versao ?? "1.1.0" },
     parametros: PARAMETROS_GRAFICO,
 
     async resolver(entrada: EntradaEstagio): Promise<SaidaEstagio> {
-      const formato = String(entrada.parametros["formato"] ?? "mov") as FormatoDeVideo;
+      const formato = String(entrada.parametros["formato"] ?? "webm") as FormatoDeVideo;
       const assets: Record<Sha256, AssetResolvido> = {};
       const nosGrafico: Record<string, Sha256> = {};
       const procedenciaAssets: ProcedenciaAsset[] = [];
@@ -169,7 +176,7 @@ export function criarEstagioGrafico(
         assets[render.hash] = {
           hash: render.hash,
           tipo: "video",
-          mimeType: MIME_POR_FORMATO[formato] ?? MIME_POR_FORMATO.mov,
+          mimeType: MIME_POR_FORMATO[formato] ?? MIME_POR_FORMATO.webm,
           byteSize: render.bytes,
           duracaoSegundos: cena.duracaoSegundos,
           largura: render.largura,

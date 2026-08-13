@@ -1,7 +1,7 @@
 # ADR-0009: Estagio de resolucao `grafico` — Manim headless, quirks do 3b1b e formato de alfa
 
 **Status:** ACEITO
-**Data:** 2026-08-11
+**Data:** 2026-08-11 (base), 2026-08-13 (cartucho webm — D3/D10 revistos)
 **Card:** `F2-02` (W4) — Resolucao: grafico (Manim headless)
 **Depende de:** ADR-0004 (reuso 3b1b), ADR-0007-contrato-de-estagio-e-cassete (F2-01),
 `docs/contrato-estagio-resolucao.md`
@@ -17,6 +17,15 @@ npx tsx tools/resolucao/chave.ts --estagio grafico # C12: um componente por vez
 PYTHON_BIN=<python-com-manim> npx tsx src/resolucao/grafico/gravar.ts --conferir
 python3 -m pytest tests/resolucao/test_grafico_quirks.py -q
 ```
+
+> **Aviso do cartucho webm (2026-08-13):** `--conferir` saiu do estado "regrava e
+> reproduz byte a byte". O libvpx-vp9 desta cadeia (PyAV 18, ffmpeg 8.x) NAO e
+> determinista: dois renders da mesma cena na mesma maquina produzem bytes
+> diferentes (medido; ver AB-396). Sob webm, `--conferir` sai VERMELHO por
+> construcao — as 8 refutacoes sao exatamente os campos de hash de
+> `resultado.json` e `procedencia.json`. O v1.1.0 (webm) e a versao em que isso
+> acontece; o v1.0.0 (mov/qtrle) era deterministico. A comparacao byte a byte
+> so volta com um encoder determinista, e a pergunta esta aberta em AB-396.
 
 ## Contexto
 
@@ -43,9 +52,11 @@ Quatro fatos do ambiente decidem o desenho:
    namespace de `from manim import *`, `fill_opacity` em
    `add_background_rectangle`, `tip_style` de ManimGL) — erros que so
    estouram dentro do subprocesso de render (ADR-0004).
-4. `-t` sozinho produz **.mov com qtrle/argb**, nao WebM com alfa e nao
-   ProRes (AGENTS.md, armadilhas de dominio; verificado com ffprobe na
-   gravacao). WebM com alfa exige `-t` **e** `--format=webm` juntos.
+4. O navegador do render do Remotion NAO reproduz o `.mov` qtrle/argb do
+   default original — a suite integrada F1-12 marcou `video/quicktime` com
+   `reproduzivelNoNavegador: false` e o render integrado recusou de
+   proposito. O conserto decidido na revisao de plano: trocar o formato para
+   **webm** e regravar o cassete (o cartucho deste ADR, 2026-08-13).
 
 ## Decisao
 
@@ -68,23 +79,46 @@ um dos dois — a mensagem diz exatamente o que bumpar e o que regravar.
 Omitir o muxer e o modo de falha C12 em sua forma mais silenciosa: o
 container muda, a chave nao.
 
-### D3 — Formato de alfa: `.mov` qtrle/argb por default, webm por parametro
+### D3 — Cartucho webm (2026-08-13): o default e `webm`, o `.mov` qtrle/argb foi aposentado
 
-- `-t` sozinho produz **.mov com qtrle/argb** (QuickTime Animation RLE,
-  lossless) — verificado com ffprobe na gravacao do cassete. NAO e WebM
-  com alfa (exige `--format=webm` junto) e NAO e ProRes 4444 (ProRes nao
-  aparece no codigo do gerador — `scene_file_writer.py`).
-- O default do estagio e `formato: "mov"` + `fundoTransparente: true`.
-  O runner ja implementa `--format=webm` como alternativa de parametro.
-- A extracao de frame na composicao e fora do navegador (FFmpeg no
-  `<OffthreadVideo>` do Remotion), entao o codec qtrle nao passa pelo
-  decoder do Chrome — a premissa do PROGRAMA e exatamente essa ("o
-  formato de alfa escolhido toca no navegador — nao toca").
-- O PROGRAMA projeta esta decisao como "ADR-0008 — Formato de alfa entre
-  graficos e composicao". A numeracao real segue a ordem de criacao dos
-  arquivos (precedente: F2-01 gravou 0007-contrato-de-estagio-e-cassete
-  onde o PROGRAMA projetava 0011). O consumo pelo `<OffthreadVideo>` nao
-  esta confirmado — rastreado em **AB-390**, verificado no join da W5.
+**O que mudou e por que.** O default original era `formato: "mov"` (`-t`
+sozinho produz **.mov com qtrle/argb**, QuickTime Animation RLE lossless,
+verificado com ffprobe na gravacao do v1.0.0). A suite integrada F1-12
+PROVOU que esse cassete nao e reproduzivel no navegador do render do
+Remotion: a tabela de permissao do no marcou `video/quicktime` com
+`reproduzivelNoNavegador: false` e o render integrado recusou de proposito.
+A contingencia decidida na revisao de plano era exatamente esta: trocar o
+parametro `formato` para **webm** (o runner ja implementava
+`--format=webm`), bumpar `identidade.versao` (1.0.0 -> 1.1.0 — a chave de
+cache muda por construcao) e regravar o cassete. Executado em 2026-08-13.
+
+**O que foi medido na regravacao (ffprobe + decodificacao PyAV):**
+
+- `-t --format=webm` no Manim 0.20.1 + PyAV 18 produz **VP9 yuv420p** —
+  o container e `matroska,webm` e o navegador o reproduz, mas o **canal
+  alfa e descartado**: a expectativa "vp9/yuva420p" do registro AB-390 foi
+  falsificada empiricamente. O libvpx-vp9 desta cadeia nao carrega alfa:
+  ate o ffmpeg CLI com `-pix_fmt yuva420p` sai yuv420p, e vp8/yuva420p
+  falha com `avcodec_open2` 22. O `.mov` qtrle/argb do v1.0.0 TINHA alfa.
+- O libvpx-vp9 desta cadeia **nao e determinista**: dois renders da mesma
+  cena, mesma maquina, mesmo job, produzem bytes diferentes (AB-396). O
+  qtrle do v1.0.0 era byte-a-byte deterministico (medido: dois renders
+  reproduzem o hash commitado `39d3dec8...`).
+
+**Decisoes:**
+
+- `formato: "webm"` no default do estagio (v1.1.0), `fundoTransparente`
+  continua `true`: pedir fundo transparente e o pedido certo, e carregar
+  ou nao o alfa e do container — hoje nao carrega (AB-390 aberto com a
+  consequencia: o grafico composto sobre a cena vem com retangulo preto,
+  e nao transparente).
+- `video/quicktime` sai do uso pelo estagio, mas a entrada permanece na
+  tabela `MIME_POR_FORMATO` e na tabela de permissao do no F1-09 (que
+  segue marcando `reproduzivelNoNavegador: false` — agora com cassete que
+  nunca mais o pede).
+- O consumo pelo `<OffthreadVideo>` do Remotion permanece rastreado em
+  **AB-390** (agora: webm reproduz, alfa ausente), verificado no join da
+  W5/F1-12.
 
 ### D4 — Quirks do 3b1b absorvidos com citacao `arquivo:linha`, conserto na ENTRADA
 
@@ -145,14 +179,27 @@ a memoria de quem regrava.
 de `resolver()` poria nao-determinismo no estagio para preencher um campo
 que a auditoria ja tem em `volatil.json`. — **AB-391**.
 
-### D10 — Determinismo provado, nao declarado
+### D10 — Determinismo provado, nao declarado (revisto pelo cartucho webm)
 
 `res-grafico-conferir` grava o cassete duas vezes com relogios diferentes,
 diffa (zero refutacoes fora de `CAMPOS_VOLATEIS`), compara com o cassete
-commitado byte a byte e muta um byte exigindo VERMELHO. Executado com
+commitado byte a byte e muta um byte exigindo VERMELHO.
+
+**O que o v1.0.0 (mov/qtrle) provou:** executado com
 `PYTHON_BIN=<venv com manim 0.20.1>` (o venv de referencia do 3b1b serve:
 `/home/ondokai/Projects/3blue1brown/manim-api/venv`) ele regravou os tres
-arquivos estaveis identicos ao commitado.
+arquivos estaveis identicos ao commitado — e o qtrle e deterministico no
+nivel do byte (dois renders reproduzem o hash commitado).
+
+**O que o v1.1.0 (webm) provou — e o que deixou de provar:** o determinismo
+dos ARQUIVOS DE ESTRUTURA permanece (chave estavel, `volatil.json` como
+unica diferenca explicada, sonda negativa VERDE), mas o hash do asset
+deixou de ser reproduzivel: o libvpx-vp9 desta cadeia nao e determinista,
+e `--conferir` sai VERMELHO com 8 refutacoes que sao exatamente os campos
+de hash de `resultado.json` e `procedencia.json` (**AB-396**). A cadeia
+record -> store-put -> replay offline por hash permanece consistente
+dentro de uma gravacao; o que se perdeu e a reproducao byte a byte do
+video entre gravacoes.
 
 ## O que este estagio NAO e
 
@@ -174,13 +221,16 @@ arquivos estaveis identicos ao commitado.
 1. A suite roda sem o Manim instalado: offline o orquestrador reproduz o
    cassete e nao invoca `resolver()`. O Manim e dependencia de GRAVACAO,
    nao de teste.
-2. A troca de formato de handoff (mov → webm) e um parametro, e o runner
-   ja implementa os dois caminhos — AB-390 fecha no join da W5.
+2. O cartucho webm (v1.1.0) resolve a refutacao da F1-12: o cassete novo
+   e `matroska,webm`/VP9, reproduzivel no navegador do render — a tabela
+   do no F1-09 aceita `video/webm` (alfa declarado: true na tabela, mas o
+   bitstream real sai yuv420p — ver AB-390).
 3. As quatro perguntas adversariais do card tem resposta executavel:
    rede com cache quente (sondas do `offline.sh` + teste do orquestrador
    com estagio que explode), versao na chave (`chave.ts` + teste),
    credencial no cassete (`procurarCredencial` sobre todos os bytes),
-   sosia vs sucessor (D4/D5 + `res-grafico-conferir`).
+   sosia vs sucessor (D4/D5 + `res-grafico-conferir` — com a ressalva do
+   aviso do cartucho no cabecalho).
 
 ### Negativas
 
@@ -190,6 +240,14 @@ arquivos estaveis identicos ao commitado.
 2. O cassete de 480x270 nao prova a qualidade visual de 1920x1080; prova
    o caminho de codigo e o determinismo. Qualidade e o oraculo visual
    (W5+).
+3. **O webm nao carrega alfa nesta cadeia** (VP9 yuv420p, medido): o
+   grafico composto sobre a cena vem como retangulo preto, nao
+   transparente — troca deliberada para sair do `reproduzivelNoNavegador:
+   false`, consequencia registrada em AB-390.
+4. **O webm nao e determinista** (libvpx-vp9, AB-396): o hash do asset
+   varia entre gravacoes; `--conferir` reprovado por construcao. O
+   qtrle do v1.0.0 era deterministico; a volta do determinismo exige um
+   encoder/saida determinista e e uma pergunta aberta.
 
 ## O que o sign-off NAO autoriza
 

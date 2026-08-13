@@ -1,0 +1,50 @@
+AB-390 — cartucho webm executado (2026-08-13, worktree onda5-fix-webm-grafico)
+==============================================================================
+
+Original: ".mov qtrle/argb entre o estagio grafico e a composicao nao esta
+confirmado". A suite integrada F1-12 reprovou o cassete mov de proposito
+(video/quicktime marcado reproduzivelNoNavegador:false). A decisao
+provisoria era o cartucho: trocar formato para webm, bumpar versao,
+regravar. Executado.
+
+1) Regravacao do cassete (estagio v1.1.0, formato webm):
+
+   $ PYTHON_BIN=<3b1b venv> MANIM_BIN=<3b1b venv> npx tsx src/resolucao/grafico/gravar.ts
+   Estagio: grafico v1.1.0
+   Parametros: {"versaoManim":"0.20.1","versaoMuxer":"Lavf62.12.102","renderer":"cairo","formato":"webm","fundoTransparente":true}
+   chave:     098c83801e253029d2dcf1068a90435cffcbf97873cc862e53ca5dec7297a0b4
+   chamadas HTTP gravadas: 0
+   === VERDE: cassete gravado ===
+
+   (chave antiga 4490f9f3... do v1.0.0/mov removida — cassete orfao.)
+
+2) ffprobe do asset renderizado com o mesmo job da gravacao
+   (runner.py, cena real g-001):
+
+   $ ffprobe -v error -show_entries format=format_name -of csv=p=0 <arquivo>.webm
+   "matroska,webm"
+
+   $ ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,pix_fmt -of csv=p=0 <arquivo>.webm
+   vp9,480,270,yuv420p
+
+   Container webm real. Codificado VP9. NAO ha canal alfa: o bitstream
+   sai yuv420p mesmo com -t (transparent) + --format=webm.
+
+3) Alfa: medicao da falsificacao da expectativa "vp9/yuva420p"
+
+   - manim 0.20.1 imprime dentro da cena: transparent=True, format=webm,
+     movie_file_extension=.webm, background_opacity=0.0 — e o arquivo
+     produzido ainda decodifica yuv420p (3 planos, sem alfa).
+   - PyAV 18 direto: libvpx-vp9 com pix_fmt=yuva420p -> bitstream yuv420p.
+   - ffmpeg CLI: -c:v libvpx-vp9 -pix_fmt yuva420p -> yuv420p.
+   - libvpx (vp8) com yuva420p: avcodec_open2 retorna 22.
+   - qtrle/argb do v1.0.0 TINHA alfa (probe com -t sozinho).
+
+4) Consumo pela composicao (F1-09): a tabela de permissao aceita
+   video/webm (alfa:true, reproduzivelNoNavegador:true) — o cassete novo
+   passa. A tabela declara alfa para webm; o bitstream real e yuv420p —
+   consequencia visual (retangulo opaco sobre a cena) registrada no
+   AB-397.
+
+Status: FECHADO (cartucho executado; pergunta original superada).
+Perguntas novas: AB-396 (nao-determinismo do webm), AB-397 (webm sem alfa).

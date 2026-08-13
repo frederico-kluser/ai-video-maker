@@ -2,14 +2,14 @@
   "assets": [
     {
       "atribuicaoObrigatoria": false,
-      "hash": "39d3dec8ca0d27dd3eb2925997cc4cd4e0e6ac18dd7147589a68d97bdd7d90e6",
+      "hash": "943bdb0f597e16a6430121d85c451a809fb5f6bc8fb01679d17615474ba4003a",
       "idNoProvedor": "Cena_g_001_f061eb95",
       "licenca": "CC0-1.0",
       "provedor": "local"
     },
     {
       "atribuicaoObrigatoria": false,
-      "hash": "8e25e9c7118fea2e62e6c0f24c7ac85df5c05a12ffe2d0bcd9fc9a5d9946f604",
+      "hash": "afa60b4957155b8b5d9b1314e65827cccaa7dfd4863495dd239253741355c08d",
       "idNoProvedor": "Cena_g_002_82f2bf7a",
       "licenca": "CC0-1.0",
       "provedor": "local"

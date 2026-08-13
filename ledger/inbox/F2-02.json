@@ -23,7 +23,15 @@
     "categoria": "alfa",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Cartucho webm executado: formato trocado para webm, versao do estagio bumped para 1.1.0, cassete regravado (chave 098c8380...), cassete mov antigo removido. A suite F1-12 reprovou video/quicktime de proposito (reproduzivelNoNavegador:false); o webm reproduz no navegador. A expectativa provisoria 'vp9/yuva420p' foi FALSIFICADA: o bitstream sai yuv420p (sem alfa). Perguntas novas: AB-396 (nao-determinismo) e AB-397 (webm sem alfa).",
+    "evidencia": {
+      "cmd": "PYTHON_BIN=<3b1b venv> MANIM_BIN=<3b1b venv> npx tsx src/resolucao/grafico/gravar.ts && ffprobe <asset>.webm",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-390.txt",
+      "sha256": "df22a51019c45db08b7ed138429cabb9fe9d8526d3e71bca9fcf6d3af244ff53"
+    }
   },
   {
     "id": "AB-391",
@@ -146,6 +154,56 @@
     "categoria": "infra",
     "responde": "dono",
     "antecedencia": "merge",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-396",
+    "titulo": "libvpx-vp9 nao-determinista: o hash do asset de grafico varia entre gravacoes",
+    "pergunta": "O cassete webm (v1.1.0) pode conviver com um hash de asset que muda entre duas gravacoes da MESMA cena, ou o estagio precisa de um encoder/saida determinista para sustentar o determinismo provado do v1.0.0 (mov/qtrle)?",
+    "por_que_aberto": "Medido na regravacao do cartucho webm (2026-08-13): dois renders da mesma cena, mesma maquina, mesmo job, bytes de tamanho igual e hashes diferentes (a3ab3fef... vs f27cb912...). O mov/qtrle era deterministico (dois renders reproduzem o hash commitado 39d3dec8...). Todas as combinacoes testadas no ffmpeg CLI (threads=1, row-mt=0, lag-in-frames=0, cpu-used 0..4, tile-columns=0, auto-alt-ref=0) continuam nao-deterministicas. Consequencia direta: gravar.ts --conferir sai VERMELHO por construcao sob webm (8 refutacoes, todas nos campos de hash de resultado.json/procedencia.json).",
+    "decisao_provisoria": "Executar o cartucho webm assim mesmo (mandato da revisao de plano — o mov nao e reproduzivel no navegador) e registrar o custo: a estrutura do cassete permanece deterministico; o valor do hash do asset e de cada gravacao. A cadeia record -> store-put -> replay offline por hash fica consistente dentro da gravacao. O --conferir fica documentado como reprovado por construcao ate um encoder determinista existir.",
+    "verificacao": {
+      "cmd": "PYTHON_BIN=<3b1b venv> MANIM_BIN=<3b1b venv> npx tsx src/resolucao/grafico/gravar.ts --conferir",
+      "espera": "hoje: VERMELHO com 8 refutacoes de hash. Depois da correcao: VERDE (comparacao byte a byte volta a valer)",
+      "ambiente": "worktree do cartucho webm, manim 0.20.1 + PyAV 18 (venv 3b1b)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem voltar a prometer determinismo byte a byte sob webm, o --conferir vira um gate que nunca fecha; se o webm for regravado varias vezes, cada cassete carrega um hash diferente do mesmo conteudo visual — o store acumula variantes.",
+      "artefatos": [
+        "src/resolucao/grafico/estagio.ts",
+        "src/resolucao/grafico/gravar.ts",
+        "fixtures/cassetes/grafico/**"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "manim",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-397",
+    "titulo": "WebM vp9 sai yuv420p (sem alfa): o grafico composto sobre a cena vira retangulo opaco",
+    "pergunta": "Com o bitstream vp9/yuv420p do cassete webm (v1.1.0), o no F1-09 compoe um retangulo preto por cima da cena em vez do grafico recortado — qual a correcao?",
+    "por_que_aberto": "A decisao provisoria do AB-390 prometia 'vp9/yuva420p'; medido na regravacao do cartucho: o Manim 0.20.1 roda com transparent=True + --format=webm e o libvpx-vp9 da cadeia (PyAV 18 / ffmpeg 8.x) descarta o alfa no encode — bitstream yuv420p (ffprobe + decode PyAV). ffmpeg CLI com -pix_fmt yuva420p tambem sai yuv420p; vp8/yuva420p falha com avcodec_open2 22. O mov/qtrle do v1.0.0 tinha alfa, mas o navegador nao o reproduzia — a troca era obrigatoria; o custo e este.",
+    "decisao_provisoria": "Aceitar o webm sem alfa por ora: o cassete novo passa nas guardas do no F1-09 (mimeType video/webm na permissao) e o efeito (retangulo preto) so aparece no render real. A guarda do no checa mimeType, nao bitstream — discrepancia documentada. Decidir no join W5/F1-12 entre: aceitar fundo opaco, pos-processar o asset (PNG sequence/keying, muda o contrato, exige ADR), compor no estagio (nao conhece a cena), ou sonda de bitstream no no.",
+    "verificacao": {
+      "cmd": "render de composicao com o cassete webm sobre cena de fundo claro, conferindo se o grafico aparece recortado ou como retangulo preto",
+      "espera": "hoje: retangulo preto. Depois da correcao: grafico recortado com alfa",
+      "ambiente": "W5, apos F1-09/F2-07 mergearem (composicao real)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem correcao, todo grafico de todo video entra com fundo preto por cima da cena — defeito visual sistematico, sem erro de build (a guarda passa pelo mimeType).",
+      "artefatos": [
+        "src/composicao/nos/grafico.tsx",
+        "src/resolucao/grafico/estagio.ts",
+        "fixtures/cassetes/grafico/**"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "alfa",
+    "responde": "plataforma",
+    "antecedencia": "onda",
     "status": "ABERTO"
   }
 ]

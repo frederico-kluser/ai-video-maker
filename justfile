@@ -405,12 +405,14 @@ res-grafico: res-grafico-licenca
     @echo ""
     @if command -v manim >/dev/null 2>&1 || [ -n "${MANIM_BIN:-}" ] || [ -n "${PYTHON_BIN:-}" ]; then \
         echo "  [MOTOR PRESENTE] 'just res-grafico-conferir' exercita o render de verdade"; \
+        echo "                   ATENCAO (cartucho webm): o libvpx-vp9 desta cadeia e"; \
+        echo "                   nao-determinista — o hash do asset muda entre gravacoes"; \
+        echo "                   e '--conferir' sai VERMELHO por construcao (AB-396)."; \
     else \
         echo "  [NAO-EXERCITADA] o render real do Manim nao rodou nesta invocacao."; \
         echo "                   O Manim CE esta declarado em pyproject.toml e nao esta"; \
         echo "                   instalado neste ambiente. O cassete commitado FOI gravado"; \
-        echo "                   com manim 0.20.1 + Lavf62.12.102 (ADR-0007), e"; \
-        echo "                   'just res-grafico-conferir' reproduz a gravacao byte a byte."; \
+        echo "                   com manim 0.20.1 + Lavf62.12.102 (ADR-0007) em webm."; \
     fi
     @echo "res-grafico: OK"
 

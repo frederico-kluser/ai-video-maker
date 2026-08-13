@@ -1,17 +1,17 @@
 {
-  "chave": "4490f9f34a4f7ba93c28b2f365a50f70d3da76ea41e5665dd4e3eeaf93864434",
+  "chave": "098c83801e253029d2dcf1068a90435cffcbf97873cc862e53ca5dec7297a0b4",
   "componentes": {
     "hashManifesto": "ee8564897a17bacc30794ca80bc842e395255cd2b786a617f65d7f4e8e1facff",
     "nome": "grafico",
     "parametros": {
-      "formato": "mov",
+      "formato": "webm",
       "fundoTransparente": true,
       "renderer": "cairo",
       "versaoManim": "0.20.1",
       "versaoMuxer": "Lavf62.12.102"
     },
     "versaoContrato": "1.0.0",
-    "versaoEstagio": "1.0.0"
+    "versaoEstagio": "1.1.0"
   },
   "formato": "1.0.0",
   "quantidadeChamadas": 0

@@ -1,0 +1,39 @@
+AB-397 — webm/vp9 sem canal alfa: o grafico composto vira retangulo opaco
+==========================================================================
+
+Consequencia do cartucho webm (AB-390 fechado). Medicoes 2026-08-13.
+
+1) O arquivo produzido pelo estagio (v1.1.0, formato webm) decodifica
+   sem alfa:
+
+   $ ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,pix_fmt -of csv=p=0 Cena_g_001_f061eb95.webm
+   vp9,480,270,yuv420p
+
+   $ python3 -c "av.open(...) decode" -> frame shape (405, 480) — 3 planos
+   YUV, sem plano alfa.
+
+2) O Manim 0.20.1 tinha TUDO para gravar alfa e nao gravou:
+   config.transparent=True, format=webm, movie_file_extension=.webm,
+   background_opacity=0.0 (impresso dentro da cena) — e o bitstream sai
+   yuv420p. O code (scene_file_writer.py) escolhe yuva420p para
+   webm+transparente, mas o encoder desta cadeia (PyAV 18 / ffmpeg 8.x /
+   libvpx-vp9) descarta o alfa no encode.
+
+3) Nao e contornavel por parametro: ffmpeg CLI com -pix_fmt yuva420p
+   tambem sai yuv420p; vp8 (libvpx) com yuva420p falha (avcodec_open2 22).
+   VP9 com alfa de verdade exigiria outra cadeia de encode.
+
+4) Consequencia na composicao: o no F1-09 (grafico.tsx) aceita
+   video/webm (tabela: alfa:true, reproduzivelNoNavegador:true) — o
+   cassete novo passa nas guardas, mas o que entra no video por cima da
+   cena e um retangulo preto (o preto do fundo transparente
+   comprimido sem alfa), nao o grafico recortado. A guarda do no checa
+   mimeType, nao bitstream: a discrepancia so aparece no render real.
+
+Opcoes (nao decididas, dependem do join W5/F1-12):
+  (a) aceitar o retangulo opaco se a cena de baixo for escura;
+  (b) pos-processar o asset para embutir alfa (ex.: PNG sequence, ou
+      keying com ffmpeg) — muda o contrato do estagio, exige ADR;
+  (c) renderizar o grafico JA composto sobre a cor da cena no proprio
+      estagio (o estagio nao conhece a cena — contrato F2-01);
+  (d) sonda de bitstream no no F1-09 (mimeType nao basta).

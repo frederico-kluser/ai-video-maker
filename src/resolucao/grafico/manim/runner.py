@@ -259,9 +259,15 @@ def _montar_comando(
         "--write_to_movie",
     ]
     if job["fundoTransparente"]:
-        # `-t` sozinho NAO produz WebM com alfa: produz .mov com qtrle/argb
-        # (verificado com ffprobe: codec_name=qtrle, pix_fmt=argb). WebM com
-        # alfa exige `--format=webm` junto. AGENTS.md, armadilhas de dominio.
+        # Cartucho webm (2026-08-13): o default do estagio e webm. Medido na
+        # regravacao do cassete: `-t --format=webm` no Manim 0.20.1 + PyAV 18
+        # produz VP9 yuv420p — o alfa e DESCARTADO pelo libvpx-vp9 desta
+        # cadeia (ffprobe e decodificacao PyAV; vp8/yuva420p falha com
+        # avcodec_open2 22; ate o ffmpeg CLI com -pix_fmt yuva420p sai
+        # yuv420p). O .mov qtrle/argb do default anterior TINHA alfa, mas o
+        # navegador do render nao o reproduz (F1-12) — troca deliberada.
+        # A flag `-t` continua passada: pedir fundo transparente e o pedido
+        # certo, carregar ou nao o alfa e do container (AB-390).
         comando.append(FLAG_TRANSPARENTE)
     if job["formato"] == "webm":
         comando.append("--format=webm")
