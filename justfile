@@ -2342,3 +2342,47 @@ gm-capturar *args:
     npx tsc --noEmit
     npx tsx tools/gm/capturar.ts {{args}}
 # === fim F5-08 ===
+
+# === F6-03 ===
+# =============================================================================
+# Gates numerados de publicacao — card F6-03 (W11, critico). docs/gates/**.
+# Dono: card F6-03. Nao edite fora destes marcadores.
+#
+# Entregas do card: docs/gates/** (README + P-1..P-5 + evidencias/),
+# tools/gates/*.ts, docs/adr/0047-*.md, ledger/inbox/F6-03.json.
+# Faixa de ledger: AB-890..AB-909.
+#
+# Os cinco gates P-1..P-5 sao os pre-requisitos numerados de publicacao
+# (PROGRAMA.html:2995): o dossie do F6-01 e o pre-requisito do P-1; o runbook
+# do F6-02 (W11) executa os cinco e referencia `GATE P-1`. O veredito
+# CONFERE so vale com a EVIDENCIA ANEXADA (saida de comando salva) — um gate
+# CONFERE sem evidencia falha (∅-crit); REPROVADO/NÃO_COLETADO bloqueiam a
+# publicacao. Assinatura por papel nomeado (os 4 papeis acentuados de
+# tools/revisao/formato.ts), nunca "o time". A alavanca-mestra da politica
+# editorial (docs/politica-editorial.md §2) e a flag que desliga a publicacao
+# inteira; o P-5 confere o estado dela antes do ato de publicacao.
+#
+#   gates-validar    o gate do proprio card: presenca per-item, estrutura
+#                    dos documentos e as sondas do ∅-crit (CONFERE sem
+#                    evidencia tem de falhar VERMELHO nomeando o gate;
+#                    sonda positiva: os cinco CONFERE com evidencia -> VERDE).
+#                    NOTA DE DIVERGENCIA: o PROGRAMA.html cita
+#                    `just gates:validar` (dois-pontos); este justfile nao
+#                    suporta dois-pontos em nome de receita (just 1.42.4),
+#                    entao o gate e `just gates-validar` (hifen, a convencao
+#                    das demais receitas — mesmo caso do gm-e2e do F5-08).
+#   gates-bloqueia   o ∅-crit executavel (tools/gates/verificar-gates.ts):
+#                    valida o estado corrente de docs/gates/** — falha com
+#                    gate ausente, REPROVADO/NÃO_COLETADO, CONFERE sem
+#                    evidencia anexada ou papel nao nomeado. VERMELHO por
+#                    construcao no estado commitado (nada publicado).
+# =============================================================================
+
+# `just gates-validar` — o gate do card F6-03 (exit 0 com as sondas verdes).
+gates-validar:
+    npx tsx tools/gates/gate.ts
+
+# `just gates-bloqueia` — o ∅-crit executavel: falha sem os cinco gates CONFERE com evidencia.
+gates-bloqueia:
+    npx tsx tools/gates/verificar-gates.ts
+# === fim F6-03 ===
