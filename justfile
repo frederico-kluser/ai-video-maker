@@ -1968,3 +1968,63 @@ render-testar:
             { echo "FALHOU: nenhum teste selecionado (falso verde)"; exit 1; }
     @echo "render-testar: OK"
 # === fim F5-01 ===
+
+# === F5-03 ===
+# =============================================================================
+# Pos-processamento de entrega: loudness e sidecar — card F5-03 (W8, caminho
+# critico). Dono: card F5-03. Nao edite fora destes marcadores.
+#
+# Contrato congelado em docs/contrato-w8.md: §1 (mapa: src/entrega/pos/** e do
+# F5-03), §2 (C1 — as emendas do card) e §7 (a pergunta da onda: assercao de
+# PRESENCA, nunca lista completa). Decisoes: ADR-0040 (alvo -23.0 LUFS lido
+# dos tokens, teto -1.0 dBTP, tolerancia ±0.3 LU, margem AAC 1.0 dB,
+# instrumento ffmpeg 6.1.1 + pin).
+#
+# Porta TCP reservada: 4503 (docs/contrato-w8.md §5). Faixa de ledger:
+# AB-770..AB-789 (ledger/inbox/F5-03.json).
+#
+# Os ∅-crits, todos MEDIDOS (nunca por escuta):
+#   1. original — um entregavel FORA DO ALVO DE LUFS tem de bloquear (a
+#      guarda da producao lanca, o oraculo G3 acusa — sonda S1);
+#   2. (a) — o sidecar SRT nasce do MESMO documento LegendasCanonicas.1 via
+#      lerLegendas; um intervalo divergindo do golden fica VERMELHO (S2/S8);
+#   3. (b) — CASO C1 (c-004): a queimada existe so na janela visual; o gate
+#      assere COERENCIA DE inicio_s onde a queimada existe, nunca igualdade
+#      de duracao total (S3);
+#   4. (c) — true peak conferido no entregavel CODIFICADO, decodificado de
+#      volta (S4);
+#   5. pin — ffmpeg 6.1.1 + node no PosDocument.1; versao corrente
+#      divergindo derruba o gate (S5);
+#   6. perfil deterministico: false nunca participa da comparacao (S6);
+#   7. normalizacao aplicada UMA vez (adversarial 1 — S7).
+#
+# Determinismo: o veredito e em MEDIDA (loudness), nunca em bytes do
+# entregavel (AB-396/397, ADR-0035); o perfil de audio DECLARA
+# deterministico: true e o gate TESTA ao vivo (2x encodes = bytes identicos).
+#
+# Consumo (contratos FECHADOS): mix de F3-05 (W7), perfis/fila de F5-02 (W7),
+# legendas de F3-02 (W6, ADR-0027), tokens S-5 (leitura).
+#
+# Os entregaveis saem em output/ (entregavel.m4a, entregavel.srt,
+# pos-documento.json) SO depois do gate verde.
+# =============================================================================
+
+# Gate do pos: fixture canonica + producao + conferencia + sondas ∅-crit.
+pos:
+    @echo "=== pos: pos-processamento (F5-03, W8) ==="
+    npx tsc --noEmit
+    @test -f src/entrega/pos/formato.ts || { echo "FALHOU: src/entrega/pos/formato.ts ausente"; exit 1; }
+    @test -f src/entrega/pos/medir.ts || { echo "FALHOU: src/entrega/pos/medir.ts ausente"; exit 1; }
+    @test -f src/entrega/pos/normalizar.ts || { echo "FALHOU: src/entrega/pos/normalizar.ts ausente"; exit 1; }
+    @test -f src/entrega/pos/perfil-audio.ts || { echo "FALHOU: src/entrega/pos/perfil-audio.ts ausente"; exit 1; }
+    @test -f src/entrega/pos/sidecar.ts || { echo "FALHOU: src/entrega/pos/sidecar.ts ausente"; exit 1; }
+    @test -f src/entrega/pos/index.ts || { echo "FALHOU: src/entrega/pos/index.ts ausente"; exit 1; }
+    @test -f tests/entrega/pos/pos.test.ts || { echo "FALHOU: suite do pos ausente"; exit 1; }
+    @test -f tests/entrega/pos/gate.ts || { echo "FALHOU: gate do pos ausente"; exit 1; }
+    @saida=$(npx vitest run tests/entrega/pos/ 2>&1 | sed -E 's/\x1b\[[0-9;]*m//g'); \
+        printf '%s\n' "$saida" | tail -6; \
+        printf '%s\n' "$saida" | grep -qE "Tests +[1-9][0-9]* passed" || \
+            { echo "FALHOU: nenhum teste selecionado (falso verde)"; exit 1; }
+    npx tsx tests/entrega/pos/gate.ts
+    @echo "pos: VERDE"
+# === fim F5-03 ===

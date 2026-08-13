@@ -1,0 +1,270 @@
+[
+  {
+    "id": "AB-770",
+    "titulo": "Leitura da tolerancia de medicao ±0,3 LU do ADR-0040 (decisao 2): banda de comparacao na leitura",
+    "pergunta": "O ADR-0040 diz 'tolerancia de medicao ±0,3 LU' para a loudness integrada e 'a mesma tolerancia aplicada a leitura' para o true peak. Como o gate compara o medido contra alvo/teto?",
+    "por_que_aberto": "Duas leituras possiveis do texto: banda na comparacao (medido <= teto + 0,3) ou margem de seguranca (medido <= teto - 0,3). A escolha muda o veredito na faixa de 0,3 LU acima do teto — o gate precisa de uma leitura FIXA, registrada.",
+    "decisao_provisoria": "Banda de comparacao: loudness aceita |medido - alvo| <= 0,3 LU; true peak aceita medido <= teto + 0,3 LU (-0,7 dBTP). A margem de 1,0 dB do ADR mantem o entregavel real longe da banda (a fixture mede -19,3 dBTP). A leitura esta registrada em src/entrega/pos/index.ts (G3/G4) e na sonda S4 do gate.",
+    "verificacao": {
+      "cmd": "npx tsx tests/entrega/pos/gate.ts | grep 'S4'",
+      "espera": "sonda S4 (true peak acima do teto no CODIFICADO): VERMELHO confirmado",
+      "ambiente": "worktree do repo, ffmpeg 6.1.1"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um revisor preferir a leitura conservadora (medido <= teto - 0,3), o cambio e UMA constante em src/entrega/pos/index.ts e a sonda S4 recalibra — o alvo e o teto do ADR nao mudam.",
+      "artefatos": [
+        "src/entrega/pos/index.ts",
+        "tests/entrega/pos/gate.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Leitura fixada como banda de comparacao na leitura, registrada no codigo (G3/G4) e evidenciada pela sonda S4 (entregavel real com pico pre-encode ~-0,5 dBTP decodificado estoura o teto e o gate acusa G4). A margem de 1,0 dB garante folga de sobra no caminho normal.",
+    "evidencia": "npx tsx tests/entrega/pos/gate.ts -> 'sonda S4 true peak acima do teto no CODIFICADO (∅-crit (c)): VERMELHO confirmado'"
+  },
+  {
+    "id": "AB-771",
+    "titulo": "Estrategia de gain staging do pos (ADR-0040 deixa ao card): min(ganhoParaAlvo, ganhoMaximoPorTeto)",
+    "pergunta": "O ADR-0040 congela a medicao e deixa 'a estrategia de gain staging (quanto reduzir/levantar o master)' ao card. Qual e a estrategia?",
+    "por_que_aberto": "O ganho tem de levar o master ao alvo -23.0 LUFS SEM estourar o teto pre-encode -2.0 dBTP (teto - margem). Se o master for inaudivel com pico quente, os dois objetivos conflitam — quem manda?",
+    "decisao_provisoria": "ganho = min(targetLufs - lufsDoMaster, (maxTruePeakDbtp - margemOvershootDb) - truePeakDoMasterDbtp), aplicado UMA vez. O clamp pelo teto manda: master que nao alcanca o alvo dentro do teto fica FORA do alvo e a entrega BLOQUEIA (∅-crit original — sonda S1). Fixture canonica: master -15,4 LUFS / -11,7 dBTP -> ganho -7,6 dB -> entregavel -23,00 LUFS / -19,3 dBTP.",
+    "verificacao": {
+      "cmd": "npx tsx tests/entrega/pos/gate.ts | grep -E 'ganho aplicado|S1'",
+      "espera": "'ganho aplicado: -7.60 dB (master -15.4 LUFS -> entregavel -23.00 LUFS)' e 'sonda S1 entregavel fora do alvo de LUFS (∅-crit original): VERMELHO confirmado'",
+      "ambiente": "worktree do repo, ffmpeg 6.1.1"
+    },
+    "impacto_se_divergir": {
+      "resumo": "A estrategia e funcao pura em src/entrega/pos/normalizar.ts (computarGanho), testada em unit e no gate; um ajuste editorial futuro e trocar a funcao, nunca os numeros do ADR.",
+      "artefatos": [
+        "src/entrega/pos/normalizar.ts",
+        "tests/entrega/pos/pos.test.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Estrategia implementada e medida: a fixture canonica sai EXATAMENTE no alvo (-23,00 LUFS, medido no entregavel AAC decodificado), com true peak -19,3 dBTP (folga de 18,3 dB do teto). A sonda S1 prova o bloqueio quando o clamp deixa o entregavel fora da tolerancia.",
+    "evidencia": "npx tsx tests/entrega/pos/gate.ts -> entregavel: -23.00 LUFS / -19.30 dBTP; sonda S1 VERMELHO confirmado"
+  },
+  {
+    "id": "AB-772",
+    "titulo": "Overshoot real de codec AAC na cadeia pinada: medido ~0,00 dB (margem 1,0 dB folgada nesta cadeia)",
+    "pergunta": "O ADR-0040 (decisao 3) declara margem de overshoot AAC de 1,0 dB (envelope conservador, 'declaracao de contrato, nao medicao') e exige o overshoot REAL medido como tripwire a cada execucao. Quanto o aac nativo do ffmpeg 6.1.1 overshota nesta cadeia?",
+    "por_que_aberto": "A margem so pode ser revisada por ADR se o overshoot medido a superar; medir de verdade e condicao do tripwire.",
+    "decisao_provisoria": "Tripwire implementado: o gate mede e imprime o overshoot real (truePeak do decodificado menos truePeak pre-encode) a cada execucao; se superar a margem declarada, o gate fica VERMELHO exigindo revisao por ADR (G6). Fixture canonica (2026-08-13): overshoot medido -0,00 dB — o aac nativo nao overshota o master com pico -19,3 dBTP. A calibracao por escuta/outros perfis e da W10 (AB-661).",
+    "verificacao": {
+      "cmd": "npx tsx tests/entrega/pos/gate.ts | grep overshoot",
+      "espera": "overshoot AAC: -0.00 dB (margem declarada 1.0 dB...)",
+      "ambiente": "worktree do repo, ffmpeg 6.1.1"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um ffmpeg futuro overshotar acima de 1,0 dB, o G6 fica VERMELHO e a margem e revisada por ADR — nunca ajustada em silencio (o gate NAO tem caminho de ajuste silencioso).",
+      "artefatos": [
+        "src/entrega/pos/index.ts",
+        "tests/entrega/pos/gate.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Overshoot medido -0,00 dB na fixture canonica; tripwire G6 ativo e visivel a cada execucao do gate.",
+    "evidencia": "npx tsx tests/entrega/pos/gate.ts -> 'overshoot AAC: -0.00 dB (margem declarada 1.0 dB ...)'"
+  },
+  {
+    "id": "AB-773",
+    "titulo": "Fila de encode do pos e INJETADA (instancia do card); a dona da fila compartilhada do processo e a F5-07",
+    "pergunta": "O AB-705 registra que a fila compartilhada entre pipeline e orquestrador e da F5-07 (W9). O pos (F5-03) usa a fila do F5-02 para o encode de conferencia — qual instancia?",
+    "por_que_aberto": "O executarEncode do F5-02 tem default de singleton de modulo; o pos nao pode tocar nele (AB-705).",
+    "decisao_provisoria": "O pos cria a SUA instancia por criarFilaDeEncode() (F5-02) e a injeta nas chamadas de producao — o encode de conferencia adquire o motor libx264 nessa instancia. Nenhum singleton compartilhado e tocado; o F5-07 (W9) decide a instancia unica do processo.",
+    "verificacao": {
+      "cmd": "grep -rn 'criarFilaDeEncode\\|fila' src/entrega/pos/index.ts | head",
+      "espera": "produzirPos recebe opcoes.fila (obrigatoria) e adquire PERFIL_AUDIO_POS.motor na instancia injetada",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o F5-07 quiser limitar sessoes do pos no pipeline final, ele injeta uma fila com limites proprios — a interface OpcoesDoPos.fila ja e o ponto de injecao.",
+      "artefatos": [
+        "src/entrega/pos/index.ts",
+        "tests/entrega/pos/gate.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "infra",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "OpcoesDoPos.fila e obrigatoria e injetada pelo consumidor; o gate cria a instancia do card e o encode de conferencia adquire motor nela.",
+    "evidencia": "src/entrega/pos/index.ts (OpcoesDoPos.fila) + tests/entrega/pos/gate.ts (filaDoCard)"
+  },
+  {
+    "id": "AB-774",
+    "titulo": "O catalogo do F5-02 nao tem perfil de AUDIO — o pos cria o seu com o mesmo contrato",
+    "pergunta": "O contrato-w8 §2 manda usar 'os perfis de encode do F5-02' no encode de conferencia do pos, e o ADR-0040 (decisao 5) exige deterministico: true. O catalogo do F5-02 (listarPerfis) tem apenas entrega-software (video, libx264) e entrega-nvenc (video, nao-deterministico). De onde vem o perfil de audio?",
+    "por_que_aberto": "O enunciado do card autoriza: 'perfil deterministico de audio se existir, senao crie o seu com o mesmo contrato'. O pos nao pode escrever em src/render/encode/perfis/ (mapa da W7).",
+    "decisao_provisoria": "O pos cria PERFIL_AUDIO_POS (src/entrega/pos/perfil-audio.ts) com o MESMO contrato do F5-02: objeto inteiro, alvo de qualidade declarado no eixo do encoder (bitrate 192 kbps para o aac nativo), determinismo declarado com justificativa MEDIDA e testado ao vivo (2x encodes = bytes identicos). A guarda EPerfilNaoDeterministico recusa qualquer deterministico: false na comparacao (sonda S6); o gate confere o catalogo do F5-02 por listarPerfis() e exige a presenca de ao menos um deterministico: true. Se o F5-02 ganhar um perfil de audio deterministico, o pos passa a consumi-lo no ponto de uso (montarComandoAudio).",
+    "verificacao": {
+      "cmd": "npx tsx tests/entrega/pos/gate.ts | grep -E 'catalogo|S6|determinismo'",
+      "espera": "catalogo: entrega-nvenc(ndet), entrega-software(det); sonda S6 VERMELHO confirmado; determinismo: VERDE",
+      "ambiente": "worktree do repo, ffmpeg 6.1.1"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um futuro perfil de audio deterministico nascer no catalogo do F5-02, o pos deve consumi-lo (contrato-w8 §2) — a troca e no ponto de uso, sem mudar o alvo nem a medicao.",
+      "artefatos": [
+        "src/entrega/pos/perfil-audio.ts",
+        "tests/entrega/pos/gate.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "infra",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO",
+    "verificacao_futura": {
+      "cmd": "grep -rn 'perfil-audio\\|aac' src/render/encode/perfis/ || echo 'sem perfil de audio no catalogo'",
+      "espera": "se o catalogo ganhar perfil de audio deterministico, o pos consome pelo mesmo contrato"
+    }
+  },
+  {
+    "id": "AB-775",
+    "titulo": "Round-trip do SRT: srtTimecode arredonda ao milissegundo; o parse confere com tolerancia de 1 ms",
+    "pergunta": "O sidecar SRT serializa tempos ABSOLUTOS em segundos do documento LegendasCanonicas.1; o parse do gate (conferirSidecar) compara de volta. Qual a tolerancia do round-trip?",
+    "por_que_aberto": "Os tempos do documento sao fracionarios (14,233333...); o SRT so carrega milissegundos — o round-trip tem de arredondar e a conferencia tem de tolerar o arredondamento SEM tolerar mutacao.",
+    "decisao_provisoria": "srtTimecode arredonda ao milissegundo mais proximo (Math.round); a conferencia aceita diferenca de ate 1 ms em inicio/fim (a menor unidade do formato). Uma mutacao de qualquer intervalo (inicio, fim ou texto) fica VERMELHA (sondas S2/S3/S8).",
+    "verificacao": {
+      "cmd": "npx vitest run tests/entrega/pos/ 2>&1 | tail -3",
+      "espera": "27 passed — round-trip e mutacoes cobertos na suite",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "O SRT e o formato de consumo (F5-07/W9 e players); se um player exigir outro arredondamento, a troca e em srtTimecode e a suite recalibra — o documento de legendas nao muda.",
+      "artefatos": [
+        "src/entrega/pos/sidecar.ts",
+        "tests/entrega/pos/pos.test.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "legenda",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Round-trip fechado: serializarSrt -> parseSrt confere inicio/fim/texto de todas as legendas do golden; mutacoes de intervalo (inicio, fim, texto) reprovadas pela conferencia.",
+    "evidencia": "npx vitest run tests/entrega/pos/ -> 27 passed"
+  },
+  {
+    "id": "AB-776",
+    "titulo": "F5-07 (W9): o pos entrega m4a + srt + PosDocument.1; a muxagem com o video e do orquestrador",
+    "pergunta": "O que exatamente o F5-07 consome do pos no pipeline final (tema -> entrega completa)?",
+    "por_que_aberto": "Registro do handoff (contrato-w8 §1): o pos e consumido pelo F5-07 na W9, que nao enxerga esta worktree.",
+    "decisao_provisoria": "O pos entrega: (a) output/entregavel.m4a — AAC 192 kbps 48 kHz estéreo, normalizado UMA vez a -23.0 LUFS com true peak dentro do teto; (b) output/entregavel.srt — sidecar do MESMO documento LegendasCanonicas.1 (lerLegendas -> serializarSrt); (c) output/pos-documento.json — PosDocument.1 (alvo, ganho, medicoes, hashes, pins). A muxagem do audio com o video do F5-01 (e a escolha do contêiner final) e do F5-07; o pos NAO escreve video. API de consumo: produzirPos(masterBytes, documentoLegendasBytes, contextoLegendas, dirTrabalho, fila) -> { entregavel, sidecar, documento }.",
+    "verificacao": {
+      "cmd": "ls output/entregavel.m4a output/entregavel.srt output/pos-documento.json",
+      "espera": "os tres artefatos existem apos o gate verde",
+      "ambiente": "worktree do repo, apos npx tsx tests/entrega/pos/gate.ts"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o F5-07 precisar de outro contêiner (mp4 com video), ele re-muxa os bytes do entregavel.m4a — os hashes e as medicoes do documento continuam valendo; o pin (ffmpeg 6.1.1 + node) e conferido no consumo.",
+      "artefatos": [
+        "src/entrega/pos/index.ts",
+        "output/pos-documento.json"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "entrega",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-777",
+    "titulo": "Pin do pos: ffmpeg 6.1.1 + node registrados no PosDocument.1; divergencia derruba o gate",
+    "pergunta": "O contrato-w8 §2 exige 'ffmpeg 6.1.1 + node no documento do pos, gate falha se divergir'. O node nao tem numero pinado no ADR-0040 — qual versao entra no documento?",
+    "por_que_aberto": "O ADR-0040 pina o ffmpeg 6.1.1 (instrumento); para o node, o documento registra a versao corrente e a divergencia FUTURA derruba o gate — o bump e detectado, nunca assumido.",
+    "decisao_provisoria": "PosDocument.1.ferramentas registra ffmpeg (6.1.1-3ubuntu5) e node (v24.15.0 na maquina do gate, 2026-08-13). O gate falha se: ffmpeg corrente nao casar 6.1.1, ffmpeg corrente divergir do registrado, ou node corrente divergir do registrado (G2, sonda S5). Bump de qualquer um invalida o documento e exige re-verificacao (padrao MixDocument.ferramentas).",
+    "verificacao": {
+      "cmd": "npx tsx tests/entrega/pos/gate.ts | grep -E 'ffmpeg:|sonda S5'",
+      "espera": "ffmpeg: 6.1.1-3ubuntu5 node: v24.15.0; sonda S5 VERMELHO confirmado",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um bump de ffmpeg muda a medicao (ebur128) e o encode (aac); o gate fica VERMELHO por pin antes de medir — a re-verificacao e o caminho nominal.",
+      "artefatos": [
+        "src/entrega/pos/index.ts",
+        "output/pos-documento.json"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "infra",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Pin implementado e sondado: G2 falha em qualquer divergencia de ffmpeg (pin ou registrado) ou de node; a sonda S5 injeta 7.0.0 e o gate acusa.",
+    "evidencia": "npx tsx tests/entrega/pos/gate.ts -> 'sonda S5 pin divergindo (contrato-w8 §2: ffmpeg 6.1.1 + node): VERMELHO confirmado'"
+  },
+  {
+    "id": "AB-778",
+    "titulo": "Dupla normalizacao: o oraculo G5 re-deriva o ganho da estrategia e compara com o medido no entregavel",
+    "pergunta": "Pergunta adversarial (1) do card: 'a normalizacao foi aplicada duas vezes em algum caminho?' Como o gate detecta a reaplicacao do ganho?",
+    "por_que_aberto": "Aplicar o ganho duas vezes desloca a saida pela propria magnitude do ganho — mas so se o oraculo conferir a RELACAO esperada, nao so o alvo absoluto.",
+    "decisao_provisoria": "O oraculo re-mede o master, re-deriva o ganho da estrategia (computarGanho) e exige |medidoNoEntregavel - (masterMedido + ganhoDaEstrategia)| <= 0,3 LU (G5) alem do alvo absoluto (G3). A sonda S7 aplica o ganho DUAS vezes e o gate acusa G3/G5 — a producao normaliza UMA vez por construcao (aplicarGanhoNoMaster e chamada uma unica vez em produzirPos).",
+    "verificacao": {
+      "cmd": "npx tsx tests/entrega/pos/gate.ts | grep 'S7'",
+      "espera": "sonda S7 normalizacao aplicada DUAS vezes (adversarial 1): VERMELHO confirmado",
+      "ambiente": "worktree do repo, ffmpeg 6.1.1"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um refactor futuro chamar aplicarGanhoNoMaster duas vezes no caminho de producao, o G5 acusa na conferencia — nenhum caminho de dupla normalizacao passa em silencio.",
+      "artefatos": [
+        "src/entrega/pos/index.ts",
+        "tests/entrega/pos/gate.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "G5 implementado e sondado; a producao aplica o ganho exatamente uma vez (unica chamada a aplicarGanhoNoMaster em produzirPos).",
+    "evidencia": "npx tsx tests/entrega/pos/gate.ts -> 'sonda S7 normalizacao aplicada DUAS vezes (adversarial 1): VERMELHO confirmado'"
+  },
+  {
+    "id": "AB-779",
+    "titulo": "Queimada x sidecar: a coerencia e de inicio_s ONDE a queimada existe; duracao total nunca e comparada",
+    "pergunta": "Pergunta adversarial (3) do card: 'o sidecar de legenda bate com o queimado?' A fixture canonica expoe o CASO C1 (c-004: janela visual de 4 s, fala de 8,505 s ate 22,738 s) — que assercao o gate faz?",
+    "por_que_aberto": "Asserir igualdade de duracao total entre sidecar e queimada seria o falso-verde que o contrato-w8 §2 ∅-crit (b) existe para impedir: os dois lados divergem POR CONSTRUCAO no C1.",
+    "decisao_provisoria": "O gate deriva a queimada = documento CLIPADO a janela visual (F1-01) e assere: onde a queimada existe (duracao residual > 0), o sidecar tem um cue com o MESMO inicio_s (o MESMO numero nos dois, derivado do MESMO documento). Nunca compara fim nem duracao total. A divergencia legitima (queimada de c-004 morre em 18,233 s; sidecar descreve a fala ate 22,738 s) fica VERDE por construcao; a mutacao do inicio_s fica VERMELHA (sonda S3).",
+    "verificacao": {
+      "cmd": "npx tsx tests/entrega/pos/gate.ts | grep -E 'conferencia|S3'",
+      "espera": "conferencia: VERDE; sonda S3 queimada x sidecar: VERMELHO confirmado",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "O F5-07 (W9) consume sidecar e queimada sabendo que o fim do sidecar pode exceder a janela visual — a sincronizacao dos players usa inicio_s; o fim da fala alem da janela e coberto pelo mix (F3-05), nao pela legenda (ADR-0027).",
+      "artefatos": [
+        "src/entrega/pos/sidecar.ts",
+        "tests/entrega/pos/pos.test.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "legenda",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Coerencia de inicio_s implementada (conferirCoerenciaDaQueimada), o CASO C1 fica verde no gate e a mutacao de inicio fica vermelha (S3); a suite prova que a queimada de c-004 morre em 18,233 s e o sidecar termina em 22,738 s sem que o gate acuse.",
+    "evidencia": "npx vitest run tests/entrega/pos/ (27 passed) + npx tsx tests/entrega/pos/gate.ts ('conferencia: VERDE', 'S3 VERMELHO confirmado')"
+  }
+]
