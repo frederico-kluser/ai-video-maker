@@ -1,0 +1,9 @@
+{
+  "license": "CC0-1.0",
+  "attributionRequired": false,
+  "source": "local",
+  "acquiredAt": "2026-08-13T00:00:00.000Z",
+  "mimeType": "image/png",
+  "byteSize": 2253,
+  "notes": "Procedencia do asset de grafico da fixture canonica (AB-501): PNG RGBA deterministico gerado pelo proprio programa (tests/integracao/composicao/gerar-assets.ts), servido pela ponte AB-550 do F5-01 — a licenca vem DESTE documento (F0-07), nunca digitada na ponte."
+}

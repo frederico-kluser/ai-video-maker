@@ -1931,3 +1931,40 @@ thumb:
     npx tsx tests/entrega/thumbnail/gate.ts
     echo "thumb: OK"
 # === fim F5-05 ===
+
+# === F5-01 ===
+# =============================================================================
+# Pipeline de render e paralelismo — render por faixa + concatenacao.
+# Dono: card F5-01 (onda W7, hub). Nao edite fora destes marcadores.
+#
+# O PROGRAMA escreve a aceitacao como `just render:fixture`; o `just` 1.42
+# NAO aceita ':' em nome de receita — vale o hifen, convencao da W7 §7:
+# `render-fixture` (hifen, nunca dois-pontos).
+#
+# Porta TCP deste card: 4501 (docs/contrato-w7.md §11).
+# Faixa de ledger: AB-680..AB-699 (ledger/inbox/F5-01.json).
+# ADR: docs/adr/0035-pipeline-de-render-por-faixas.md.
+#
+# O que cada etapa prova:
+#   render-fixture   o gate de ponta a ponta (∅-crits): faixa == inteiro
+#                    byte a byte no codec deterministico (PNG/QTRLE — vp9 e
+#                    MP4 excluidos por declaracao, AB-396/397), integridade
+#                    referencial cena.nos (C2), teto do I-03 com MemTotal
+#                    em runtime (AB-986), ancora absoluta do audio (C4/C3).
+#   render-testar    a suite vitest do pipeline (ponte, faixas, orcamento,
+#                    audio, codecs, worker morto) — rapida, sem navegador.
+
+# `just render:fixture` do PROGRAMA — a aceitacao inteira do card.
+render-fixture:
+    npx tsx tests/render/pipeline/render-fixture.ts
+
+# A suite de unidade do pipeline (sem render de verdade — o gate do render
+# e a receita acima).
+render-testar:
+    @echo "=== render-testar: suite vitest do pipeline ==="
+    @saida=$(npx vitest run tests/render/pipeline/ 2>&1 | sed -E 's/\x1b\[[0-9;]*m//g'); \
+        printf '%s\n' "$saida" | tail -6; \
+        printf '%s\n' "$saida" | grep -qE "Tests +[1-9][0-9]* passed" || \
+            { echo "FALHOU: nenhum teste selecionado (falso verde)"; exit 1; }
+    @echo "render-testar: OK"
+# === fim F5-01 ===

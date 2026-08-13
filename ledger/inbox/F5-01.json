@@ -1,0 +1,285 @@
+[
+  {
+    "id": "AB-680",
+    "titulo": "Dependencia do F3-05 (mix) registrada: o mix NAO mergeou nesta base",
+    "pergunta": "O F3-05 (trilha de audio composta, mesma onda) ainda nao esta na base deste card — src/audio/mix/** nao existe. O pipeline posiciona a emenda pelo contrato C3 (MixDeEmenda: cenaId -> hash NOVO), mas os BYTES do mix nao existem para o render final com trilha.",
+    "por_que_aberto": "Registro obrigatorio do handoff (contrato-w7 §1: dependencia lateral proibida por construcao; a interface descrita no C3 e o maximo que este card consome). O F5-07 (W9) precisa do mix para o render com audio.",
+    "decisao_provisoria": "O gate deste card renderiza VIDEO (sequencia PNG + .mov qtrle), sem trilha; o posicionamento de audio e codigo de producao testado contra a cadencia (Ritmo.1) e o envelope (DuckingEnvelope.1) reais da fixture. A posicao dos bytes emendados no render final e do F5-07.",
+    "verificacao": {
+      "cmd": "test -d src/audio/mix && echo mergeado || echo pendente",
+      "espera": "apos o merge do F3-05, src/audio/mix existe e o F5-07 consome o mix com hash novo",
+      "ambiente": "worktree do repo, W7"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o F3-05 entregar o mix com interface diferente da MixDeEmenda, a adaptacao e no ponto de consumo (F5-07) — os numeros absolutos (c-004 em [14,233..22,738]) sao os MESMOS dos dois lados (C1).",
+      "artefatos": [
+        "src/render/pipeline/audio.ts",
+        "docs/contrato-w7.md §4 (C3)"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-681",
+    "titulo": "QTRLE nao e codec de SAIDA do Remotion — a concatenacao real e validada por framemd5 do .mov decodificado",
+    "pergunta": "O contrato-w7 §6 delimita a comparacao byte a byte a PNG/QTRLE. O Remotion NAO tem qtrle na lista de codecs de saida (validCodecs: h264, h265, vp8, vp9, av1, mp3, aac, wav, prores, h264-mkv, h264-ts, gif). Como validar a concatenacao em arquivos de video deterministicos?",
+    "por_que_aberto": "O caminho escolhido: as faixas viram .mov qtrle/argb via ffmpeg (o mesmo codec deterministico do cassete F2-02), concat demuxer -c copy, e a comparacao e por frame DECODIFICADO (framemd5) contra o .mov do render inteiro — 727/727 hashes. Comparar bytes do CONTAINER .mov seria falso oraculo (offsets de chunk divergem entre arquivo unico e concatenado).",
+    "decisao_provisoria": "Manter a dupla comparacao: (a) PNG byte a byte por frame (o ∅-crit literal) e (b) .mov qtrle concatenado x inteiro por framemd5. Registrar no ADR-0035 (decisao 1).",
+    "verificacao": {
+      "cmd": "npx tsx tests/render/pipeline/render-fixture.ts | grep qtrle",
+      "espera": "qtrle: 727/727 frames decodificados — framemd5 identico entre concat e inteiro",
+      "ambiente": "worktree do repo, ffmpeg 6.1.1"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um ffmpeg futuro mudar o encode qtrle de forma nao-determinista entre processos, a sonda acusa no gate; a comparacao PNG (independete de ffmpeg) continua valendo como ∅-crit.",
+      "artefatos": [
+        "src/render/pipeline/codificacoes.ts",
+        "tests/render/pipeline/render-fixture.ts",
+        "docs/adr/0035-pipeline-de-render-por-faixas.md"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "plataforma",
+    "antecedencia": "card",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-682",
+    "titulo": "Comparacao byte a byte DELIMITADA ao codec deterministico — vp9/mp4 excluidos por declaracao no codigo",
+    "pergunta": "A emenda do contrato-w7 §6 pede que a exclusao do WebM vp9 e do MP4 final da comparacao byte a byte seja DECLARADA, nunca silenciosa. Onde e como a delimitacao vive no codigo?",
+    "por_que_aberto": "A delimitacao vive em src/render/pipeline/codificacoes.ts (CODIFICADORES_DA_COMPARACAO): png/qtrle permitidos com motivo; vp9/webm e mp4/h264 excluidos com AB-396/AB-397; codec sem declaracao PARA (ErroDeCodecIncomparavel). O comparador chama garantirCodecComparavel antes de comparar.",
+    "decisao_provisoria": "Manter a guarda e o teste que a exige (codificacoes.test.ts): exclusao declarada com o motivo, nunca comparacao silenciosa.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/render/pipeline/codificacoes.test.ts",
+      "espera": "testes verdes: vp9/mp4 lancam ErroDeCodecIncomparavel com AB-396/397 na mensagem",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem comparar bytes de mp4 por engano, o gate do pipeline nao roda a comparacao — a guarda lanca antes.",
+      "artefatos": [
+        "src/render/pipeline/codificacoes.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-683",
+    "titulo": "Base de RAM por arvore simultanea — conversao mais conservadora da formula do ADR-0032 (AB-988)",
+    "pergunta": "A formula do ADR-0032 (decisao 3) tem UMA base de 1,2 GiB, medida para uma arvore de render. Com N faixas em PARALELO o pipeline abre N arvores (cada renderFrames tem o proprio Chrome) — a base entra uma vez ou N vezes?",
+    "por_que_aberto": "AB-988 perguntava exatamente isto. Decisao deste card: base x arvores simultaneas + marginal x (workers - 1). No gate: 4 faixas x 2 workers = 4 x 1,2 + 7 x 0,138 + gate 3,904 = 9,67 GiB <= 23,2 GiB — folga grande, mas a conversao e declarada e mais conservadora que a formula original.",
+    "decisao_provisoria": "Manter base por arvore; re-medir o pico real da fase de faixas com o host ocioso (AB-980) e conferir a folga.",
+    "verificacao": {
+      "cmd": "python3 tools/medir-maquina.py rss --concurrency 8 --frames 0-239 && npx tsx tests/render/pipeline/render-fixture.ts | grep maquina",
+      "espera": "pico da arvore em c=8 dentro da tolerancia do I-03; orcamento do gate imprime workers 8 e RAM dentro do teto",
+      "ambiente": "host ocioso, worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o pico real da fase de faixas (4 arvores) exceder a estimativa, o orcamento subestima RAM — o teste de pico por arvore fecha a conta.",
+      "artefatos": [
+        "src/render/pipeline/orcamento.ts",
+        "docs/adr/0035-pipeline-de-render-por-faixas.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-684",
+    "titulo": "MemTotal lido em runtime difere da referencia do I-03 (31,0 vs 31,8 GiB) — AB-986 aplicado",
+    "pergunta": "O /proc/meminfo do host reporta ~31,0 GiB (31744 MiB) enquanto a referencia do ADR-0032 e 31,8 GiB. O orcamento le o valor em runtime e deriva o limite (memTotal - 7,7 GiB = 23,3 GiB) — a margem do host nunca e consumida.",
+    "por_que_aberto": "A conferencia curta do I-03 (medir-maquina --conferir) compara contra os numeros declarados com tolerancia; a leitura em runtime do pipeline e independente dessa tabela.",
+    "decisao_provisoria": "Manter a leitura em runtime como fonte do orcamento; o gate imprime os numeros a cada execucao (tripwire visivel).",
+    "verificacao": {
+      "cmd": "npx tsx tests/render/pipeline/render-fixture.ts | grep maquina",
+      "espera": "MemTotal ~31 GiB, limite ~23,2 GiB, RAM estimada 9,67 GiB, workers 8",
+      "ambiente": "maquina atual"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a maquina mudar (VM, upgrade), o orcamento reduz a concurrency automaticamente — o gate nunca estoura RAM por tabela desatualizada.",
+      "artefatos": [
+        "src/render/pipeline/orcamento.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-685",
+    "titulo": "Worker morto derruba o pipeline — sonda de composicao inexistente no gate",
+    "pergunta": "Pergunta adversarial 3 do card: um worker que morre deixa o pipeline VERDE? O executor PROPAGA qualquer rejeicao de render (ErroDeRender nomeando a faixa); o gate exercita a sonda negativa com composicao inexistente e exige exit nao-zero.",
+    "por_que_aberto": "A sonda do gate usa composicao inexistente (falha na selecao, antes de renderizar) — cobrir a morte NO MEIO de um render real exigiria matar um processo Chrome (frágil e não-determinístico em gate).",
+    "decisao_provisoria": "Manter a sonda por composicao inexistente no gate e o teste de unidade com renderer injetado que falha no meio (executar.test.ts) — as duas camadas juntas cobrem a pergunta.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/render/pipeline/executar.test.ts && npx tsx tests/render/pipeline/render-fixture.ts | grep 'worker morto'",
+      "espera": "teste verde (renderer injetado falha -> ErroDeRender) e gate verde com a sonda acusando",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um dia o executor engolir erro (try/catch silencioso), o teste de unidade fica vermelho antes do merge.",
+      "artefatos": [
+        "src/render/pipeline/executar.ts",
+        "tests/render/pipeline/executar.test.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "card",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-686",
+    "titulo": "Porta TCP 4501 do F5-01 em uso pelo gate (S-9)",
+    "pergunta": "O gate renderiza com a porta do card (docs/contrato-w7.md §11: F5-01 = 4501). A sonda do gate acusa qualquer outra porta.",
+    "por_que_aberto": "Studio e preview simultaneos colidem em porta; a faixa de render/entrega e 45xx.",
+    "decisao_provisoria": "Porta fixa 4501 declarada no gate e nos testes; o renderFrames a recebe explicitamente.",
+    "verificacao": {
+      "cmd": "grep -n 'PORTA' tests/render/pipeline/render-fixture.ts | head -3",
+      "espera": "PORTA = 4501",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se outro card usar 4501, o navegador do render colide em runtime — o gate da sonda de porta fica vermelho.",
+      "artefatos": [
+        "tests/render/pipeline/render-fixture.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-687",
+    "titulo": "Integridade referencial: mensagem de erro com assinatura (regra + caminho) — AB-631/AB-654",
+    "pergunta": "O ∅-crit novo (C2) exige que cena com no inexistente no manifesto resolvido fique VERMELHO com mensagem nomeando regra e caminho. A assinatura e 'cena \"c-005\": referencia no inexistente \"n-999\" (regra integridade-referencial, campo cena.nos)'.",
+    "por_que_aberto": "O schema Autoria.1 nao valida cena.nos (AB-654); o reparo da W6 rejeita por politica (AB-631); a ponte fecha o furo no ponto de consumo.",
+    "decisao_provisoria": "Manter a validacao em atravessarPonte (ponte.ts) com as tres regras nomeadas (integridade-referencial, hash-dos-bytes, licenca-de-procedencia); o gate e o teste de unidade exigem a assinatura inteira.",
+    "verificacao": {
+      "cmd": "npx tsx tests/render/pipeline/render-fixture.ts | grep 'no inexistente'",
+      "espera": "OK cena com no inexistente e VERMELHO, nomeando regra e caminho",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a mensagem perder a regra ou o campo, o gate acusa — a assinatura e o contrato de erro do F5-09/F5-07.",
+      "artefatos": [
+        "src/render/pipeline/ponte.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-688",
+    "titulo": "Presenca da fala de c-004 em [14,233..22,738] — o MESMO numero do contrato C1 nos dois consumidores",
+    "pergunta": "O F3-05 e o F5-01 derivam as MESMAS posicoes dos MESMOS inputs (timing canonico + envelope + cadencia). A assercao do gate e de PRESENCA (contrato-w7 §12): a fala de c-004 esta em [14,233..22,738] e a de c-005 em [18,233..23,588] — o MESMO numero nos dois lados, derivado da aritmetica frameInicial/fps.",
+    "por_que_aberto": "A proibicao de listas fechadas: o gate NAO assere 'a fixture tem exatamente N faixas de audio' — assere a presenca dos intervalos absolutos.",
+    "decisao_provisoria": "Manter a assercao de presenca com tolerancia 1e-3 s no gate e nos testes de unidade.",
+    "verificacao": {
+      "cmd": "npx tsx tests/render/pipeline/render-fixture.ts | grep -E 'c-004|c-005'",
+      "espera": "OK a fala de c-004 esta em [14,233..22,738] e c-005 em [18,233..23,588]",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o F3-05 posicionar por outra aritmetica, os dois gates divergem no MESMO numero — o merge do irmao acusa.",
+      "artefatos": [
+        "src/render/pipeline/audio.ts",
+        "tests/render/pipeline/audio.test.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-689",
+    "titulo": "Interface MixDeEmenda (C3) — hash NOVO por cena, nunca o da fonte",
+    "pergunta": "A cadencia (Ritmo.1) preserva audio = hash do audio-FONTE; os bytes EMENDADOS (F3-05) ganham hash NOVO (AB-617). O posicionamento do render consome o hash NOVO; cena sem emenda fica SEM faixa — nunca cai para o hash da fonte.",
+    "por_que_aberto": "A interface MixDeEmenda e o contrato de entrada do F3-05; os bytes do mix nao existem nesta base (AB-680).",
+    "decisao_provisoria": "Manter a interface documentada em src/render/pipeline/audio.ts com o teste de que o hash da faixa e o do mix (nunca o do timing).",
+    "verificacao": {
+      "cmd": "npx vitest run tests/render/pipeline/audio.test.ts",
+      "espera": "testes verdes: hash novo usado; mix vazio -> zero faixas",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o F3-05 publicar outra forma (ex.: hash por cena em documento separado), a adaptacao e local ao F5-07.",
+      "artefatos": [
+        "src/render/pipeline/audio.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-690",
+    "titulo": "Plano de faixas da fixture: 4 faixas de 182/182/182/181 — mesma regra para qualquer duracao",
+    "pergunta": "A fixture canonica tem 727 frames; o plano do gate usa 4 faixas (182/182/182/181, regra R12-09: mesmo tamanho exceto a ultima). O plano e uma funcao pura (planejarFaixas) — o numero de faixas e parametro, e o gate NUNCA assere 'sao 4 faixas' como lista fechada: assere a COBERTURA (nenhum frame de fora).",
+    "por_que_aberto": "O F5-07 (W9) pode re-planejar com outro numero de faixas para videos longos — o contrato e a cobertura + o teto de workers, nao o numero fixo.",
+    "decisao_provisoria": "Manter planejarFaixas puro com coberturaDasFaixas/violacoesDeTamanho como sondas (tests de unidade).",
+    "verificacao": {
+      "cmd": "npx vitest run tests/render/pipeline/faixas.test.ts",
+      "espera": "testes verdes: cobertura sem buracos, tamanhos conforme R12-09, determinismo",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o planejador regredir (faixa vazia, buraco), o teste acusa antes do render.",
+      "artefatos": [
+        "src/render/pipeline/faixas.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "card",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-691",
+    "titulo": "renderFrames com imageSequencePattern — nomes por frame ABSOLUTO habilitam a comparacao por indice",
+    "pergunta": "O renderFrames do Remotion nomeia os frames pelo frame ABSOLUTO (element-0427.png) quando nao ha everyNthFrame. O pipeline fixa imageSequencePattern 'frame-[frame].png' e compara por indice absoluto — robusto a qualquer padding entre faixas de tamanhos diferentes.",
+    "por_que_aberto": "A comparacao byte a byte por indice depende do casamento de nomes; o parser extrai o indice do nome (nunca assume padding fixo).",
+    "decisao_provisoria": "Manter o parser por indice no gate (pngsPorFrame) e o pattern explicito no rendererReal.",
+    "verificacao": {
+      "cmd": "npx tsx tests/render/pipeline/render-fixture.ts | grep 'byte a byte'",
+      "espera": "∅-crit: 727/727 frames — concatenacao bate byte a byte com o render inteiro",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o Remotion mudar o naming, o parser acusa frame ausente (verde vira vermelho) — nunca compara errado em silencio.",
+      "artefatos": [
+        "src/render/pipeline/executar.ts",
+        "tests/render/pipeline/render-fixture.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "plataforma",
+    "antecedencia": "card",
+    "status": "ABERTO"
+  }
+]
