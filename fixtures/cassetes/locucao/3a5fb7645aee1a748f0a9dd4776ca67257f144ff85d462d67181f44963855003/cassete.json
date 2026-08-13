@@ -1,0 +1,22 @@
+{
+  "chave": "3a5fb7645aee1a748f0a9dd4776ca67257f144ff85d462d67181f44963855003",
+  "componentes": {
+    "hashManifesto": "a0ae9cdd0e99d3f62bd8aecce8246e1dcfebfa56be0099854ea6fd479cb27158",
+    "nome": "locucao",
+    "parametros": {
+      "endpoint_base": "http://127.0.0.1:3203",
+      "formato_audio": "wav",
+      "idioma": "pt-BR",
+      "modelo_alinhamento": "whisper-1",
+      "modelo_tts": "tts-1",
+      "origem_do_timing": "transcricao",
+      "provedor": "sosia-local",
+      "velocidade": 1,
+      "voz": "alloy"
+    },
+    "versaoContrato": "1.0.0",
+    "versaoEstagio": "1.0.0"
+  },
+  "formato": "1.0.0",
+  "quantidadeChamadas": 4
+}

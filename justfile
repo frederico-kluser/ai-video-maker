@@ -420,3 +420,42 @@ res-grafico-gravar:
 res-grafico-conferir:
     npx tsx src/resolucao/grafico/gravar.ts --conferir
 # === fim F2-02 ===
+
+# === F2-03 ===
+# Resolucao — locucao: audio e timing por palavra.
+# Dono: card F2-03. Nao edite fora destes marcadores.
+#
+# A aceitacao do PROGRAMA pede `just res:locucao`; este arquivo usa hifen
+# (AB-284, just 1.42 nao aceita ':' em nome de receita). O conjunto que
+# fecha o card:
+#   - vitest dos testes do estagio (tests/resolucao/locucao.test.ts),
+#     com a REDE BLOQUEADA pelo guarda em processo;
+#   - res-offline --estagio locucao (namespace de kernel + guarda, schema,
+#     cobertura de cassete, chave de cache);
+#   - determinismo REAL do cassete: grava DUAS vezes com relogios
+#     diferentes contra o sosia local e diffa byte a byte, com sonda
+#     negativa (mutar o resultado TEM de deixar vermelho). O
+#     regravar-e-diffar compartilhado usa o manifesto de referencia, que
+#     nao tem cena com locucao — zero unidades e determinismo provado
+#     sobre nada (C2). A prova de verdade roda aqui;
+#   - ∅-crit da licenca na forma CORRETA: em ripgrep, `-L` e --follow,
+#     nao --files-without-match (docs/criterios-de-aceitacao-corrigidos.md).
+
+# O gate completo do estagio de locucao (audio + timing).
+res-locucao:
+    @echo "=== res-locucao: audio e timing por palavra ==="
+    npx tsc --noEmit
+    npx vitest run tests/resolucao/locucao.test.ts
+    bash tools/resolucao/offline.sh --estagio locucao
+    npx tsx tools/resolucao/chave.ts --estagio locucao
+    npx tsx src/resolucao/locucao/gravar.ts --determinismo
+    @echo "--- ∅-crit: todo procedencia.json declara licenca ---"
+    @test -n "$(ls fixtures/cassetes/locucao/*/procedencia.json 2>/dev/null)" || { echo "FALHOU: nenhum cassete de locucao gravado"; exit 1; }
+    @sem_licenca=$(rg --files-without-match '"licenca"' fixtures/cassetes/locucao/*/procedencia.json || true); \
+        if [ -n "$sem_licenca" ]; then echo "FALHOU: cassete sem licenca:"; echo "$sem_licenca"; exit 1; fi
+    @echo "res-locucao: VERDE"
+
+# So a prova de determinismo do cassete de locucao (sem vitest nem offline).
+res-locucao-determinismo:
+    npx tsx src/resolucao/locucao/gravar.ts --determinismo
+# === fim F2-03 ===

@@ -1,0 +1,77 @@
+[
+  {
+    "id": "AB-410",
+    "titulo": "Cassete de locucao gravado contra sosia local — bytes de voz de verdade pendentes",
+    "pergunta": "Quando o provedor de sintese tiver credito, quem regrava o cassete de locucao com voz de verdade, e o que o cassete de sosia esconde que o real nao esconderia?",
+    "por_que_aberto": "A chave de API disponivel no ambiente esta sem credito (credit_balance_exhausted, HTTP 429). Sem bytes do provedor real, as opcoes eram nao entregar cassete (card vermelho) ou forjar (proibido). A escolhida foi gravar contra um sosia local em 127.0.0.1:3203, com a URL verdadeira e a origem declarada em todo lugar (src/resolucao/locucao/sosia.ts). O sosia preserva o CODIGO do estagio, a chave de cache (endpoint_base nos parametros) e os defeitos da ferramenta de transcricao real (juncao ASCII, pontuacao nao-ASCII solta); o que ele nao preserva e a qualidade de voz e o comportamento real do provedor sob texto longo.",
+    "decisao_provisoria": "Cassete de sosia vale para a suite offline da W4 e para a W5 (F3-01). Regravar com credito e um passo de uma linha: trocar endpoint_base e provedor nos PARAMETROS_LOCUCAO e rodar 'npx tsx src/resolucao/locucao/gravar.ts --gravar'. A chave muda; o cassete de sosia nunca e servido no lugar do real por construcao.",
+    "verificacao": {
+      "cmd": "rg -n 'endpoint_base' src/resolucao/locucao/estagio.ts && ls fixtures/cassetes/locucao/*/cassete.json | head -1",
+      "espera": "endpoint_base apontando para 127.0.0.1:3203 (sosia) enquanto nao houver credito; depois, para o provedor real com chave nova",
+      "ambiente": "maquina com credencial valida do provedor de sintese"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem 'consertar' o cassete de sosia editando-o para parecer real, o cassete mente sobre a origem dos bytes — divida que passa em todos os gates para sempre. Se regravar com credito sem mudar a chave, o cassete velho continua sendo servido (C12).",
+      "artefatos": [
+        "src/resolucao/locucao/sosia.ts",
+        "src/resolucao/locucao/estagio.ts",
+        "fixtures/cassetes/locucao/**"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "provedor",
+    "responde": "F3-01",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-411",
+    "titulo": "Ninguem coloca os bytes dos assets no store de conteudo",
+    "pergunta": "Quem move os bytes gravados (corpos do cassete) para o store de conteudo enderecado por hash, ja que EntradaEstagio nao entrega store ao estagio?",
+    "por_que_aberto": "O contrato de estagio (F2-01) devolve ParcialResolvido com HASHES, e Orquestrador.persistirNoStore() faz store.get(hash) e desiste em silencio quando o conteudo nao esta la. Ou seja: os bytes produzidos na gravacao nunca chegam ao store hoje. src/resolucao/locucao/replay.ts contorna isso reexecutando resolver() com o fetch do cassete — os bytes viram funcao pura do cassete — mas o caminho do orquestrador (gravacao -> store -> consumo) fica pela metade.",
+    "decisao_provisoria": "F3-01 (W5) obtem os bytes via reproduzirLocucao()/replay, nao via store. Nao e invencao de F2-03 consertar contrato alheio; se o contrato evoluir (store na entrada), o replay continua sendo a prova de que os bytes batem.",
+    "verificacao": {
+      "cmd": "grep -rn 'persistirNoStore' src/resolucao/orquestrador.ts | head -3",
+      "espera": "O caminho de persistencia existe; o consumo da W5 usa o replay enquanto nao houver store",
+      "ambiente": "W5, quando F3-01 consumir os assets"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um consumidor que leia o store pelo hash sem o conteudo presente recebe null em silencio e produz video sem audio sem erro.",
+      "artefatos": [
+        "src/resolucao/orquestrador.ts",
+        "src/resolucao/locucao/replay.ts",
+        "src/resolucao/store/**"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "contrato",
+    "responde": "F3-01",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-412",
+    "titulo": "Escopo da locucao: manifesto diz CENA, ParcialResolvido diz NO",
+    "pergunta": "O manifesto declara locucao em Cena.audio_cena.texto_locucao (por CENA), mas ParcialResolvido.nos_locucao e tipado como Record<NodeId, Sha256> (por NO). Qual e a atribuicao canonica quando uma cena tem varios nos?",
+    "por_que_aberto": "Os dois contratos discordam, e F2-03 nao edita o arquivo do dono (contrato.ts e de F2-01). O estagio usa a chave que o manifesto oferece — o id da CENA — e declara isso em ESCOPO_DA_LOCUCAO='cena' e no proprio documento de timing (campo unidade). A reconciliacao cena->nos e de quem consome (F3-01) e precisa de decisoes que nao cabem neste card.",
+    "decisao_provisoria": "nos_locucao e chaveado por id de cena. F3-01 casa pelo campo 'unidade' do documento de timing. Se a W5 exigir granularidade por no, isso e um bump de contrato (F2-01), nao um ajuste de F2-03.",
+    "verificacao": {
+      "cmd": "python3 -c \"import json; m=json.load(open('fixtures/canonico/manifesto-valido.json')); print([c['id'] for c in m['cenas'] if c.get('audio_cena')])\"",
+      "espera": "As mesmas chaves aparecem em nos_locucao do resultado.json do cassete",
+      "ambiente": "qualquer"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se F3-01 assumir que as chaves sao de no, cenas com mais de um no apontam para o mesmo audio sem erro visivel, e a legenda de um no some.",
+      "artefatos": [
+        "src/resolucao/locucao/estagio.ts",
+        "src/resolucao/locucao/timing.ts",
+        "src/resolucao/contrato.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "contrato",
+    "responde": "F3-01",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]
