@@ -1,0 +1,141 @@
+[
+  {
+    "id": "AB-580",
+    "titulo": "Norma publica de legendagem em portugues brasileiro: CPL, linhas e velocidade de leitura",
+    "pergunta": "Existe norma ou guia publico de legendagem em portugues brasileiro que fixe caracteres por linha, numero de linhas e velocidade de leitura — e quais os numeros, a edicao e o ano? Os 42 CPL / 20 CPS herdados sao norma proprietaria (Netflix TTSG) calibrada para ingles; pt-BR e mais longo.",
+    "por_que_aberto": "Pesquisa obrigatoria do card F3-02 (PROGRAMA.html, tabela de pesquisas D). O search.sh do deep-orchestrator falhou na data de execucao em todas as tiers (surf-skill: ddg network error em todas as queries; Brave: HTTP 422; DDG: sem instant answers) — a pesquisa foi concluida por busca web direta + leitura do texto INTEGRAL da norma.",
+    "verificacao": {
+      "cmd": "cat ledger/evidencia/AB-580.txt && grep -c 'ABNT NBR 15290:2016' docs/adr/0027-*.md",
+      "espera": ">= 1 — a norma e citada no ADR-0027 com os numeros, a edicao (2a, 19/12/2016) e o placar (1-0, texto integral)",
+      "ambiente": "qualquer — evidencia commitada"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem a pesquisa, o 42 CPL / 20 CPS herdado continuaria sem saber que a norma brasileira NAO fixa CPS (NBR 15290:2016 §4.1.5: velocidade nao pode ser limitada) e que o padrao analogico brasileiro (EIA-608) fixa 32 CPL — a calibracao para pt-BR seria chute, nao decisao registrada.",
+      "artefatos": [
+        "docs/adr/0027-legendas-canonicas-invariante-em-segundos.md",
+        "ledger/evidencia/AB-580.txt"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "pesquisa",
+    "responde": "F3-02",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "ABNT NBR 15290:2016 (2a edicao, 19/12/2016): 2 linhas pop-on (max 3 quando a edicao exigir), exposicao 2 s (1 linha) a 5 s (3 linhas), velocidade NAO limitada, CPL remetida a NBR 15610-1 — nao existe norma publica brasileira que fixe CPS ou CPL. EIA-608: 32 CPL (padrao analogico usado no Brasil). DCMP: wpm (120-160), sem dados pt-BR. Ancine IN 128/2016: sem numeros. O contrato congelado (0,833-7 s; 20 CPS) permanece; a calibracao pt-BR do CPS fica em AB-581.",
+    "evidencia": {
+      "cmd": "cat ledger/evidencia/AB-580.txt",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-580.txt",
+      "sha256": "949ca3c479dcc51b489e79f17f84afc1d4636952c962fdea741c5b4061f8c23c"
+    },
+    "decisao_provisoria": "Manter o contrato (0,833-7 s; 20 CPS; 2 linhas — tokens S-5); registrar a norma brasileira no ADR-0027; a folga de 3 linhas da NBR 15290 e alvo de troca de token, nunca de codigo."
+  },
+  {
+    "id": "AB-581",
+    "titulo": "Calibracao pt-BR do CPS de legenda (20 herdado do ingles)",
+    "pergunta": "O 20 CPS do invariante vem do Netflix TTSG, calibrado para INGLES. pt-BR tem palavras mais longas (a propria skill audio-captions-sync nota 37-40 CPL como candidato). Existe medicao publica ou propria de velocidade de leitura de legenda em portugues brasileiro que justifique 20, ou outro numero?",
+    "por_que_aberto": "A pesquisa AB-580 mostrou que nenhuma norma publica brasileira fixa CPS (NBR 15290:2016 §4.1.5 nao limita velocidade; DCMP nao tem dados pt-BR). A calibracao honesta e medicao com leitores pt-BR, fora do escopo deste card (contrato congelado).",
+    "verificacao": {
+      "cmd": "grep -rn '20 CPS\\|maxCpsAdult' src/design/tokens.ts | head -3",
+      "espera": "O token maxCpsAdult = 20 com a fonte Netflix (ingles, 1-0) registrada ao lado — o numero e trocavel por edicao de tokens, nunca de codigo",
+      "ambiente": "pos-medicao com leitores pt-BR (decidir com o dono)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o pt-BR exigir menos de 20 CPS, legendas atuais podem ser rapidas demais para o publico brasileiro; se exigir mais, o piso atual e conservador. O custo de errar e legibilidade, nao quebra de pipeline — o invariante continua verificavel.",
+      "artefatos": [
+        "src/design/tokens.ts (S-5, nao editar sem dono)",
+        "src/sincronia/legendas/validar.ts",
+        "docs/adr/0027-legendas-canonicas-invariante-em-segundos.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-582",
+    "titulo": "∅-crit do F3-02: apagar a regra de caracteres-por-segundo fica VERMELHO",
+    "pergunta": "O criterio de aceitacao exige que APAGAR a regra de caracteres-por-segundo deixe o gate VERMELHO. A sonda existe (o teste exige a mensagem do piso de leitura), mas o ∅-crit so vale se a MUTACAO for executada e o resultado registrado.",
+    "por_que_aberto": "Aceitacao nominal do card — fechado por execucao da mutacao na data de resolucao.",
+    "verificacao": {
+      "cmd": "cat ledger/evidencia/AB-582.txt",
+      "espera": "A mutacao (piso = so o piso absoluto) derrubou 3 testes, incluindo o ∅-crit nominal e a sonda SEGUNDOS-NUNCA-FRAMES; restaurado, a suite volta a 22/22",
+      "ambiente": "worktree do F3-02, node 24, vitest 3.2.7"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem a mutacao executada, o ∅-crit seria declaracao sem prova — exatamente o falso verde que a disciplina de gates existe para matar.",
+      "artefatos": [
+        "tests/sincronia/legendas.test.ts",
+        "src/sincronia/legendas/validar.ts",
+        "ledger/evidencia/AB-582.txt"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "gate",
+    "responde": "F3-02",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Mutacao executada em 2026-08-13: removida a clausula `caracteres / maxCpsAdult` de validar.ts; `npx vitest run tests/sincronia/legendas.test.ts` derrubou 3 testes (o ∅-crit nominal, a sonda de 0,4 s e o piso absoluto); restaurado, 22/22 VERDE e `just legendas` VERDE.",
+    "evidencia": {
+      "cmd": "cat ledger/evidencia/AB-582.txt",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-582.txt",
+      "sha256": "e8c8c27568971f90f9f92ed4b61cd084fb26005d77f3ae0d1f5142a36660c919"
+    },
+    "decisao_provisoria": "O ∅-crit vive no teste que exige a MENSAGEM do piso de leitura (nao o exit code): apagar a regra muda a mensagem ou a aceitacao, e o teste cai."
+  },
+  {
+    "id": "AB-583",
+    "titulo": "Fixture canonica: janela visual de c-004 (4 s) mais curta que a fala (8,505 s); audios de c-004/c-005 sobrepostos em 4,505 s",
+    "pergunta": "A cena c-004 da fixture canonica tem janela visual de 4 s (nos visuais, F1-01) e audio de locucao de 8,505 s; os audios de c-004 [14,233..22,738] e c-005 [18,233..23,588] se sobrepoem em 4,505 s na timeline absoluta. Quem reconcilia janela visual x fala, e a duracao da cena passa a derivar do audio (AB-550)?",
+    "por_que_aberto": "F3-02 e o primeiro consumidor de tempo ABSOLUTO de audio: a incoerencia existia desde a F1-01/F2-03 mas nenhum oraculo anterior a ancorava (F3-01 limita palavras pelo duracao_s do audio; F1-12 e visual; ducking/ritmo consomem sem ancora absoluta). Decisao provisoria registrada no ADR-0027 (decisoes 2 e 3): a legenda descreve a fala e o limite e o fim do audio; a reconciliacao e da ponte AB-550 e do mix F3-05 (W7).",
+    "verificacao": {
+      "cmd": "cat ledger/evidencia/AB-583.txt",
+      "espera": "A medicao da timeline e das duracoes de audio, com os numeros exatos e os artefatos que tropecam",
+      "ambiente": "W7 — quando F3-05 (mix) e F5-01 (render) posicionarem audio real"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a W7 nao reconciliar, o mix soma duas locucoes simultaneas por 4,505 s (o ∅-crit do F3-03/05 dispara) e o render corta a fala de c-004 no meio — o video fica com narracao cortada sem erro nenhum.",
+      "artefatos": [
+        "fixtures/canonico/manifesto-valido.json",
+        "fixtures/canonico/timing-canono.json",
+        "fixtures/canonico/legendas-canono.json",
+        "src/composicao/tempo.ts (F1-01)",
+        "src/sincronia/legendas/construir.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "audio",
+    "responde": "PREP-w7",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-584",
+    "titulo": "Safe area vertical 9:16 provisional (AB-071) e o bloco de legenda",
+    "pergunta": "O invariante 'bloco teorico de maxLines linhas cabe na safe area' usa o retangulo util 9:16 provisional (AB-071: 12% topo, 20% base, 15% direita). Quando AB-071 fechar com fonte primaria por plataforma (F5-04, W7), o retangulo muda — o invariante de legenda precisa ser reconferido e o golden regenerado?",
+    "por_que_aberto": "A safe area 9:16 e provisional por decisao dos tokens (S-5); a legenda e um dos consumidores do retangulo. A mudanca cai sozinha no teste de invariante (altura do bloco x caixa util) — falta decidir se a legenda acompanha a caixa de cada plataforma ou uma caixa unica conservadora.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/sincronia/legendas.test.ts -t 'safe area'",
+      "espera": "VERDE com os tokens atuais; se safeRect 9:16 encolher abaixo do bloco de maxLines linhas, o teste fica VERMELHO sozinho — o aviso nao depende de ninguem lembrar",
+      "ambiente": "apos AB-071 fechar (F5-04, W7)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o retangulo util 9:16 encolher (ex.: TikTok 900x1492) e a legenda nao for reconferida, o texto queimado pode nascer fora da safe area da plataforma em silencio — o F5-04 cobre conteudo geral, nao o texto de legenda especificamente.",
+      "artefatos": [
+        "src/design/tokens.ts (S-5)",
+        "src/sincronia/legendas/validar.ts",
+        "tests/sincronia/legendas.test.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "design",
+    "responde": "F5-04",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]

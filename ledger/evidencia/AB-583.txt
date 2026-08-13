@@ -1,0 +1,32 @@
+AB-583 — Fixture canonica: janela visual de c-004 mais curta que a fala;
+audios de c-004 e c-005 sobrepostos (2026-08-13)
+
+MEDICAO (comando reproduzido):
+  npx tsx (calcularDuracao sobre fixtures/canonico/manifesto-valido.json)
+
+timeline da composicao (fps 30):
+  c-001 [0, 90)   = 3,000 s
+  c-002 [75, 285) = 7,000 s
+  c-003 [265, 445)= 6,000 s
+  c-004 [427, 547)= 4,000 s   <- janela VISUAL
+  c-005 [547, 727)= 6,000 s
+
+timing canonico (fixtures/canonico/timing-canono.json):
+  c-004 duracao_s = 8,505  (fala vai ate 14,233 + 8,505 = 22,738 s)
+  c-005 duracao_s = 5,355  (fala vai ate 18,233 + 5,355 = 23,588 s)
+
+DIVERGENCIAS:
+  1. c-004: fala de 8,505 s dentro de janela visual de 4,000 s — a fala
+     excede a cena em 4,505 s.
+  2. c-004 [14,233..22,738] e c-005 [18,233..23,588] se sobrepoem em
+     4,505 s na timeline absoluta — duas locucoes simultaneas no render.
+
+POR QUE NADA FICOU VERMELHO ANTES: o oraculo de F3-01 (C6) limita as
+palavras pelo duracao_s do AUDIO, nao pela janela visual; F1-12 (visual)
+nao renderiza audio; ducking/ritmo consomem o timing sem ancora absoluta.
+F3-02 e o primeiro consumidor de tempo ABSOLUTO — a incoerencia apareceu
+aqui e foi tratada como decisao de ADR (ADR-0027, decisoes 2 e 3): a
+legenda descreve a fala e o limite e o fim do audio; quem reconcilia
+janela visual x fala e a ponte AB-550 e o mix F3-05 (W7).
+
+QUEM TROPEÇA: PREP-w7 / F3-05 (mix) / F5-01 (render) / AB-550.

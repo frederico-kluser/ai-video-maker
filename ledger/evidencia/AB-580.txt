@@ -1,0 +1,59 @@
+AB-580 — Pesquisa: norma publica de legendagem em portugues brasileiro (2026-08-13)
+
+PERGUNTA: existe norma ou guia publico de legendagem em pt-BR que fixe
+caracteres por linha, numero de linhas e velocidade de leitura — e quais
+os numeros, a edicao e o ano?
+
+CAMINHO EXECUTADO:
+1. /home/ondokai/Projects/deep-orchestrator/scripts/search.sh (tier 1
+   surf-skill + tier 2 Brave + tier 3 DuckDuckGo) — FALHOU na data de
+   execucao em todas as tiers:
+     - tier 1: surf-ai "AllProvidersExhausted" (ddg network error em
+       todas as 6 queries; 0 sources; 48.7s)
+     - tier 2: Brave HTTP 422
+     - tier 3: DuckDuckGo "nao retornou instant answers"
+   (2 execucoes: "norma ABNT NBR 15290 legendagem caracteres por linha
+   velocidade de leitura" e "ABNT NBR 15290 acessibilidade legendas
+   televisao")
+2. Pesquisa web direta + leitura do texto INTEGRAL do PDF da norma
+   (ABNT NBR 15290:2016, 25 paginas, baixado de copia publica em
+   sinallink.com.br).
+
+RESULTADOS (fonte + data + placar):
+
+a) ABNT NBR 15290:2016 — "Acessibilidade em comunicacao na televisao",
+   2a edicao, publicada 19/12/2016, cancela/substitui a 15290:2005.
+   - §4.1.7 numero de linhas (pop-on): DUAS linhas, podendo ter tres
+     quando o trabalho de edicao nao permitir de outra forma.
+   - §4.2.8 tempo de exposicao: 1 linha completa = 2 s (max 3 s);
+     2 linhas = 3 s; 3 linhas = 4,5 s a 5 s; infantil 3-4 s por linha.
+   - §4.1.5 velocidade: "A velocidade nao pode ser limitada, de forma a
+     preservar o conteudo original" — a norma NAO fixa CPS.
+   - §4.1.6.4 tamanho/espaçamento/quantidade de caracteres remetem a
+     ABNT NBR 15610-1 (norma de codificacao de video; sem valor publico
+     de CPL).
+   Placar: (1-0), texto integral, publicador unico (ABNT). Data 2026-08-13.
+
+b) EIA-608/CEA-608 (Line 21) — padrao de closed caption analogico usado
+   pelo Brasil (a propria NBR 15290:2005 o referencia para a linha 21 do
+   VBI): maximo de 32 caracteres por linha. Placar (1-0) — Wikipedia,
+   "Line 21 captions". Data 2026-08-13.
+
+c) DCMP Captioning Key (dcmp.org, guia publico dos EUA, continuo):
+   velocidade em wpm (120-160 educacional; max 225 filmes culturais
+   adultos); duracao minima 40 frames (1 s + 10 frames = 1,333 s) e
+   maxima 6 s; SEM dados para portugues. Placar (1-0). Data 2026-08-13.
+
+d) Ancine IN n. 128/2016 (alterada pela IN n. 145/2018): define
+   "legendagem descritiva" considerando "numero de caracteres" e
+   "velocidade de leitura" — sem valores numericos. Placar (1-0). Data
+   2026-08-13.
+
+e) Netflix TTSG (herdado, registrado nos tokens em 2026-08-11): 42 CPL /
+   20 CPS / 2 linhas — norma proprietaria calibrada para INGLES.
+   Placar (1-0). partnerhelp.netflixstudios.com.
+
+CONCLUSAO: nao existe norma publica brasileira que fixe CPS ou CPL. A
+NBR 15290:2016 fixa LINHAS (2, max 3) e EXPOSICAO (2-5 s); o que o
+contrato congela (0,833-7 s; 20 CPS) permanece; calibracao pt-BR do CPS
+fica ABERTA em AB-581.

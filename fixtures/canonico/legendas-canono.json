@@ -1,0 +1,45 @@
+{
+  "legendas": [
+    {
+      "audio": "6b9ec331d006e5fd80db18acd52d003ef10f89d06249d8d9dd9eee65df61950c",
+      "caracteres": 76,
+      "cena": "c-004",
+      "fim_s": 19.798333333333332,
+      "inicio_s": 14.233333333333333,
+      "linhas": [
+        "Nesta seção, apresentamos os dados de",
+        "desempenho do pipeline. Cada tipo de nó"
+      ],
+      "texto": "Nesta seção, apresentamos os dados de\ndesempenho do pipeline. Cada tipo de nó",
+      "unidade": "segundos"
+    },
+    {
+      "audio": "6b9ec331d006e5fd80db18acd52d003ef10f89d06249d8d9dd9eee65df61950c",
+      "caracteres": 45,
+      "cena": "c-004",
+      "fim_s": 22.738333333333333,
+      "inicio_s": 19.888333333333332,
+      "linhas": [
+        "tem características de renderização",
+        "distintas."
+      ],
+      "texto": "tem características de renderização\ndistintas.",
+      "unidade": "segundos"
+    },
+    {
+      "audio": "2b8de8cb0a8e0acd586bc0e68ed2edb245ca7960be56454383714a26e118adeb",
+      "caracteres": 75,
+      "cena": "c-005",
+      "fim_s": 23.588333333333335,
+      "inicio_s": 18.233333333333334,
+      "linhas": [
+        "Concluindo, o manifesto é a peça central",
+        "do pipeline. Obrigado por assistir."
+      ],
+      "texto": "Concluindo, o manifesto é a peça central\ndo pipeline. Obrigado por assistir.",
+      "unidade": "segundos"
+    }
+  ],
+  "schema_version": "LegendasCanonicas.1",
+  "unidade": "segundos"
+}

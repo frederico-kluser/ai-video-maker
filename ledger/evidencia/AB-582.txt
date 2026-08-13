@@ -1,0 +1,23 @@
+AB-582 — ∅-crit do F3-02 provado por MUTACAO (2026-08-13)
+
+CRITERIO: "APAGAR A REGRA DE CARACTERES-POR-SEGUNDO TEM de ficar
+VERMELHO" (PROGRAMA.html, card F3-02).
+
+MUTACAO aplicada em src/sincronia/legendas/validar.ts:
+  -   const pisoDeLeitura = legenda.caracteres / maxCpsAdult;
+  -   const piso = Math.max(pisoAbsoluto, pisoDeLeitura);
+  +   const piso = pisoAbsoluto; // REGRA DE CARACTERES-POR-SEGUNDO APAGADA
+
+COMANDO: npx vitest run tests/sincronia/legendas.test.ts
+RESULTADO: 3 tests failed | 19 passed:
+  x "uma legenda que passa no piso absoluto mas falha em caracteres/20
+    e REJEITADA" (o ∅-crit nominal)
+  x "legenda de 0,4 s (que uma reescrita em frames a 60 fps aprovaria)
+    e REJEITADA" (a sonda SEGUNDOS-NUNCA-FRAMES)
+  x "legenda abaixo do piso absoluto e REJEITADA" (o piso inteiro caiu)
+
+RESTAURACAO: cp do backup; suite volta a 22/22 VERDE; `just legendas`
+VERDE.
+
+VEREDITO: apagar a regra de caracteres-por-segundo deixa o gate
+VERMELHO pelo motivo certo. ∅-crit ATENDIDO.

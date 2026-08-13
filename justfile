@@ -1323,3 +1323,57 @@ res-guarda-sonda camada="processo":
 res-guarda-cassetes *args:
     npx tsx tools/offline-guard.ts --verifica-cassetes {{args}}
 # === fim F2-07 ===
+
+# === F3-02 ===
+# =============================================================================
+# Legendas a partir do timing — o invariante e em SEGUNDOS, nunca em frames.
+# Dono: card F3-02 (W6). Nao edite fora destes marcadores.
+#
+# Contrato congelado em docs/contrato-w6.md §2: unidade SEGUNDOS, consumo
+# por CONTEUDO (campo audio), unidade orfa ignorada (AB-522), fonte dos
+# bytes = replay do cassete de locucao (AB-523).
+#
+# Porta TCP reservada para este card: 4302 (docs/contrato-w6.md §9).
+# Faixa de ledger: AB-580..AB-599 (ledger/inbox/F3-02.json).
+#
+# O invariante (R14-01·R14-11, 2-0):
+#   duracao >= max(0,833 s; caracteres/20)  e  duracao <= 7 s
+# em SEGUNDOS — 20 frames a 60 fps sao 0,333 s, QUATRO VEZES abaixo do
+# piso. O ∅-crit do card: APAGAR a regra de caracteres-por-segundo de
+# src/sincronia/legendas/validar.ts deixa o teste VERMELHO pelo motivo
+# certo (a sonda que casa um documento que passa no piso absoluto e
+# falha em caracteres/20).
+#
+# O conjunto que fecha o card:
+#   - typecheck ESCOPADO (tsconfig.legendas.json): reprova por causa
+#     DESTE card, nao por causa de outro;
+#   - vitest da suite (aceitacao + ∅-crit + segundos-nunca-frames +
+#     adversariais + sondas do oraculo);
+#   - golden: gerar.ts --conferir compara byte a byte com a fixture
+#     COMMITADA (fixtures/canonico/legendas-canono.json). Ausencia e
+#     VERMELHO, sempre (nunca se auto-grava).
+
+# O gate completo das legendas canonicas.
+legendas:
+    @echo "=== legendas: typecheck + suite + golden ==="
+    npx tsc --noEmit -p tsconfig.legendas.json
+    npx vitest run tests/sincronia/legendas.test.ts
+    npx tsx tools/legendas/gerar.ts --conferir
+    @git status --porcelain fixtures/canonico/legendas-canono.json | grep -q . && \
+        { echo "FALHOU: a fixture de legendas mudou no working tree (C3)"; exit 1; } || true
+    @echo "legendas: VERDE"
+
+# So a suite (para iterar rapido).
+legendas-testar:
+    @echo "=== legendas-testar: typecheck + suite ==="
+    npx tsc --noEmit -p tsconfig.legendas.json
+    npx vitest run tests/sincronia/legendas.test.ts
+    @echo "legendas-testar: OK"
+
+# Regenera a fixture golden a partir do manifesto + timing canonico
+# COMMITADOS. Ato explicito — este comando nao valida nada, ele grava o
+# que o codigo faz hoje.
+legendas-gravar:
+    npx tsx tools/legendas/gerar.ts --gravar
+    @echo "revise antes de commitar: git diff fixtures/canonico/legendas-canono.json"
+# === fim F3-02 ===

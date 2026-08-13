@@ -1,0 +1,12 @@
+{
+  "//": "Card F3-02. Type-check ESCOPADO em src/sincronia/legendas/ e nos seus testes.",
+  "//2": "Existe para o gate `just legendas` reprovar por causa DESTE card,",
+  "//3": "nao por causa de outro. O type-check do repo inteiro continua em",
+  "//4": "`just typecheck` / `just build` — este arquivo nao substitui aquele.",
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/sincronia/legendas/**/*.ts",
+    "tests/sincronia/**/*.ts",
+    "tools/legendas/**/*.ts"
+  ]
+}
