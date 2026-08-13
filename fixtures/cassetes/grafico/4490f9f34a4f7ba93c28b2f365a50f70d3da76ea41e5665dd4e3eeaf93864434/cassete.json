@@ -1,0 +1,18 @@
+{
+  "chave": "4490f9f34a4f7ba93c28b2f365a50f70d3da76ea41e5665dd4e3eeaf93864434",
+  "componentes": {
+    "hashManifesto": "ee8564897a17bacc30794ca80bc842e395255cd2b786a617f65d7f4e8e1facff",
+    "nome": "grafico",
+    "parametros": {
+      "formato": "mov",
+      "fundoTransparente": true,
+      "renderer": "cairo",
+      "versaoManim": "0.20.1",
+      "versaoMuxer": "Lavf62.12.102"
+    },
+    "versaoContrato": "1.0.0",
+    "versaoEstagio": "1.0.0"
+  },
+  "formato": "1.0.0",
+  "quantidadeChamadas": 0
+}

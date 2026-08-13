@@ -332,3 +332,91 @@ fontes-offline:
     fi
     @echo "fontes-offline: OK (sem resultado)"
 # === fim F1-03 ===
+
+# === F2-02 ===
+# =============================================================================
+# Resolucao: grafico (Manim headless) — F2-02
+# =============================================================================
+# Contrato: docs/contrato-estagio-resolucao.md. Quirks absorvidos do 3b1b com
+# citacao de origem: src/resolucao/grafico/manim/quirks.py. Decisoes:
+# docs/adr/0007-estagio-grafico-manim.md. Ledger: ledger/inbox/F2-02.json.
+#
+# NOME DAS RECEITAS: hifen, nunca ':'. `just` 1.42 le `a:b:` como "receita a
+# depende de b" e o erro de parse derruba o arquivo INTEIRO — nenhuma receita
+# roda, nem as dos outros cards. Ver docs/criterios-de-aceitacao-corrigidos.md.
+
+# ∅-crit do card: todo cassete de grafico declara licenca.
+#
+# O comando do PROGRAMA e `rg -L '"licenca"' ... -> vazio`. Em ripgrep, -L e
+# --follow (symlinks), NAO --files-without-match: o comando literal sai vazio
+# exatamente quando NENHUM procedencia.json declara licenca. Aqui usamos a
+# flag que exprime a intencao, E checamos o denominador — porque
+# --files-without-match tambem sai vazio quando nao existe arquivo nenhum.
+res-grafico-licenca:
+    @echo "=== res-grafico-licenca: ∅-crit de licenca (forma corrigida) ==="
+    @arquivos=$(ls fixtures/cassetes/grafico/*/procedencia.json 2>/dev/null || true); \
+        if [ -z "$arquivos" ]; then \
+            echo "FALHOU: denominador zero — nenhum fixtures/cassetes/grafico/*/procedencia.json."; \
+            echo "        Cassete ausente NAO e aprovacao: grave com 'just res-grafico-gravar'."; \
+            exit 1; \
+        fi; \
+        echo "  denominador: $(printf '%s\n' "$arquivos" | wc -l) procedencia.json"
+    @sem_chave=$(rg --files-without-match '"licenca"' fixtures/cassetes/grafico/*/procedencia.json || true); \
+        if [ -n "$sem_chave" ]; then \
+            echo "FALHOU: procedencia.json sem a chave \"licenca\":"; echo "$sem_chave"; exit 1; \
+        fi
+    @# Presenca da chave nao basta: `"licenca": ""` casaria no rg acima. A
+    @# checagem de valor nao-vazio EM CADA licenca (topo e cada asset) e
+    @# validarProcedencia(), exercitada em tests/resolucao/estagio-grafico.test.ts.
+    @sem_valor=$(rg --files-without-match '"licenca": *"[^"]+"' fixtures/cassetes/grafico/*/procedencia.json || true); \
+        if [ -n "$sem_valor" ]; then \
+            echo "FALHOU: procedencia.json com \"licenca\" vazia:"; echo "$sem_valor"; exit 1; \
+        fi
+    @echo "  toda procedencia.json de grafico declara licenca nao-vazia"
+    @echo "res-grafico-licenca: OK"
+
+# O alvo do card. Roda sem Manim instalado — e diz em voz alta o que, por
+# isso, NAO foi exercitado aqui.
+res-grafico: res-grafico-licenca
+    @echo ""
+    @echo "=== res-grafico: estagio de resolucao grafico ==="
+    @echo "--- [1/5] tipos ---"
+    npx tsc --noEmit
+    @echo "--- [2/5] vitest: tests/resolucao/estagio-grafico.test.ts ---"
+    @# C2: um alvo que nao casa nenhum teste sai verde. Exigimos o numerador.
+    @saida=$(npx vitest run tests/resolucao/estagio-grafico.test.ts 2>&1); \
+        echo "$saida" | tail -6; \
+        echo "$saida" | grep -qE "Tests +[1-9][0-9]* passed" || \
+            { echo "FALHOU: o vitest nao rodou nenhum teste deste card (falso verde)"; exit 1; }
+    @echo "--- [3/5] pytest: quirks absorvidos do 3b1b ---"
+    @saida=$(python3 -m pytest tests/resolucao/test_grafico_quirks.py -q 2>&1); \
+        echo "$saida" | tail -4; \
+        echo "$saida" | grep -qE "[1-9][0-9]* passed" || \
+            { echo "FALHOU: o pytest nao rodou nenhum teste dos quirks (falso verde)"; exit 1; }
+    @echo "--- [4/5] cobertura de cassete (∅-crit do contrato) ---"
+    npx tsx tools/resolucao/cobertura.ts --estagio grafico
+    @echo "--- [5/5] chave de cache: um componente por vez (C12) ---"
+    npx tsx tools/resolucao/chave.ts --estagio grafico
+    @echo ""
+    @if command -v manim >/dev/null 2>&1 || [ -n "${MANIM_BIN:-}" ] || [ -n "${PYTHON_BIN:-}" ]; then \
+        echo "  [MOTOR PRESENTE] 'just res-grafico-conferir' exercita o render de verdade"; \
+    else \
+        echo "  [NAO-EXERCITADA] o render real do Manim nao rodou nesta invocacao."; \
+        echo "                   O Manim CE esta declarado em pyproject.toml e nao esta"; \
+        echo "                   instalado neste ambiente. O cassete commitado FOI gravado"; \
+        echo "                   com manim 0.20.1 + Lavf62.12.102 (ADR-0007), e"; \
+        echo "                   'just res-grafico-conferir' reproduz a gravacao byte a byte."; \
+    fi
+    @echo "res-grafico: OK"
+
+# Gravacao do cassete. Roda A MAO, com o Manim disponivel — nunca em suite.
+#   just res-grafico-gravar
+#   PYTHON_BIN=/caminho/para/python-com-manim just res-grafico-gravar
+res-grafico-gravar:
+    npx tsx src/resolucao/grafico/gravar.ts
+
+# Regrava duas vezes com relogios diferentes, diffa, compara com o cassete
+# COMMITADO e roda a sonda negativa. Exige o Manim: sem ele, falha alto.
+res-grafico-conferir:
+    npx tsx src/resolucao/grafico/gravar.ts --conferir
+# === fim F2-02 ===
