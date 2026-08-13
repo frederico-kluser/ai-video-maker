@@ -2028,3 +2028,57 @@ pos:
     npx tsx tests/entrega/pos/gate.ts
     @echo "pos: VERDE"
 # === fim F5-03 ===
+
+# === F5-09 ===
+# =============================================================================
+# Cache de render e invalidacao POR CONTEUDO — card F5-09 (W8). ADR-0041.
+# =============================================================================
+# Dono: card F5-09 (onda W8). Nao edite fora destes marcadores.
+#
+# O PROGRAMA escreve a aceitacao como `just render:cache`; o `just` 1.42
+# NAO aceita ':' em nome de receita — vale o hifen (convencao da W7 §7):
+# `render-cache`.
+#
+# Porta TCP deste card: 4509 (docs/contrato-w8.md §5).
+# Faixa de ledger: AB-790..AB-799 (ledger/inbox/F5-09.json).
+# ADR: docs/adr/0041-cache-de-render-por-conteudo.md.
+#
+# ∅-crit do PROGRAMA: MUDAR UM TOKEN DE DESIGN TEM DE INVALIDAR o cache
+# de render (mutacao: token mudado com cache quente fica VERMELHO).
+#
+# ∅-crit da W8 (C2, AB-685): um ∅-crit com cache QUENTE nao prova render
+# — o gate FORCA o MISS (chave fria), re-renderiza e compara contra o
+# render sem cache; worker morto com cache quente fica VERMELHO.
+#
+# O que cada etapa prova:
+#   render-cache   o gate inteiro: tsc + suite vitest (chave C7,
+#                  fronteira de codec, frames AB-691, render com cache)
+#                  + o gate real (render sem cache -> frio -> quente ->
+#                  mutacao de token + sonda de worker morto). A chave C7
+#                  tem 5 componentes (manifesto, re-hash de assets,
+#                  tokens consumidos, versao compositor/navegador, pin
+#                  de ferramentas) e NUNCA data/memTotal/workers/faixas/
+#                  porta/env — por data e falso verde (AB-684).
+#   render-cache-testar  so a suite vitest (rapida, sem navegador).
+render-cache:
+    @echo "=== render-cache: gate do cache por conteudo (F5-09) ==="
+    @echo "--- [1/3] tipos (tsc do repositorio inteiro) ---"
+    npx tsc --noEmit
+    @echo "--- [2/3] vitest: tests/render/cache (chave C7, fronteira, frames, render-com-cache) ---"
+    @# C2: um alvo que nao casa nenhum teste sai verde. Exigimos o numerador.
+    @saida=$(npx vitest run tests/render/cache/ 2>&1); \
+        echo "$saida" | tail -6; \
+        echo "$saida" | grep -qE "Tests +[1-9][0-9]* passed" || \
+            { echo "FALHOU: o vitest nao rodou nenhum teste deste card (falso verde)"; exit 1; }
+    @echo "--- [3/3] gate real: render sem cache -> frio -> quente -> mutacao de token + sonda AB-685 ---"
+    npx tsx tests/render/cache/render-cache-gate.ts
+
+# So a suite vitest do cache (rapida, sem navegador) — para iterar.
+render-cache-testar:
+    @echo "=== render-cache-testar: suite vitest do cache ==="
+    @saida=$(npx vitest run tests/render/cache/ 2>&1 | sed -E 's/\x1b\[[0-9;]*m//g'); \
+        printf '%s\n' "$saida" | tail -6; \
+        printf '%s\n' "$saida" | grep -qE "Tests +[1-9][0-9]* passed" || \
+            { echo "FALHOU: nenhum teste selecionado (falso verde)"; exit 1; }
+    @echo "render-cache-testar: OK"
+# === fim F5-09 ===

@@ -162,3 +162,59 @@ re-renderizar mascara um worker morto (AB-685). O gate do F5-09:
 - **Cache por faixa em vez de frame** — a faixa e particionamento de
   execucao; o frame absoluto (AB-691) e a unidade que sobrevive a
   mudanca de particionamento entre execucoes.
+
+## Evidencia da implementacao (W8, F5-09)
+
+Aceite em 2026-08-13 com o gate `just render-cache` VERDE. A chave
+C7 foi implementada como esta neste ADR — nenhuma decisao abaixo muda
+a chave; registra onde cada decisao vive em codigo e o que o gate
+prova ao vivo:
+
+- **Componentes 1-5** — `src/render/cache/chave.ts` (`calcularChaveC7`),
+  com o snapshot de S-5 importado por leitura em
+  `tokensConsumidosReais()` (o agregado `tokens` de
+  `src/design/tokens.ts` — SUPERCONJUNTO dos consumidos, direcao
+  conservadora: invalida mais, nunca menos; registro AB-791).
+- **Versoes (componente 4)** — `src/render/cache/versoes.ts`: a versao
+  do compositor vem dos `package.json` instalados (remotion,
+  @remotion/renderer, @remotion/bundler, @remotion/compositor-linux-x64-gnu)
+  e a do navegador do VERSION file do chrome-headless-shell instalado
+  em `node_modules/.remotion/chrome-headless-shell/VERSION` (o arquivo
+  que o proprio BrowserFetcher do Remotion escreve — registro AB-792).
+- **Pin (componente 5)** — node (`process.versions.node`) e ffmpeg
+  (primeira linha de `ffmpeg -version`), o padrao de
+  `MixDocument.ferramentas` do F3-05.
+- **NUNCA na chave** — a assinatura de `EntradasDaChaveC7` nao aceita
+  data, memTotal, workers, plano de faixas, porta ou env; o gate imprime
+  o MemTotal lido em runtime a cada execucao (tripwire visivel do
+  AB-684) e o teste de unidade exige que o objeto de componentes nao
+  cite nenhuma dessas palavras (tripwire de regressao).
+- **Fronteira de codec** — `src/render/cache/delimitacao.ts` consome
+  `CODIFICADORES_DA_COMPARACAO` (F5-01) POR LEITURA: png/qtrle
+  cacheaveis; vp9/webm e mp4/h264 excluidos com o motivo (AB-396/397);
+  codec sem declaracao PARA. Perfis `deterministico: false` (NVENC)
+  recusados com o AB-700. Nenhuma lista fechada (contrato-w8 §7).
+- **Unidade frame absoluto** — `src/render/cache/frames.ts`:
+  `extrairIndiceDoFrame` extrai o indice do NOME (`frame-7.png`,
+  `frame-007.png`, `frame-000.png` do Remotion) — o parser sobrevive ao
+  padding que o Remotion deriva do ultimo frame da faixa; nome fora do
+  pattern e ERRO (verde vira vermelho, nunca compara errado).
+- **Armazem** — `src/render/cache/armazenar.ts`: um diretorio por
+  chave, frames por indice absoluto, escrita atomica (tmp + rename),
+  `meta.json` com os componentes da chave SEM data. Raiz default em
+  /tmp (ADR-0032 decisao 4), injetavel (registro AB-793).
+- **Render com cache** — `src/render/cache/renderizar.ts`: serve os
+  frames presentes e renderiza SOMENTE os faltantes (faixas contiguas);
+  renderer injetavel (o mesmo contrato `RendererDeFrames` do F5-01);
+  render parcial e rejeicao de worker PROPAGAM (AB-685).
+- **Gate `just render-cache`** — `tests/render/cache/render-cache-gate.ts`
+  sobre a fixture canonica integrada (727 frames): render sem cache
+  (linha de base) -> chave fria (miss forcado re-renderiza e compara
+  byte a byte) -> acerto quente (0 chamadas ao renderer, bytes
+  identicos — e por isso que cache quente nao prova render) -> token
+  de design MUTADO com cache quente (miss, re-render — o ∅-crit do
+  PROGRAMA) -> sonda de worker morto (a rejeicao PROPAGA).
+
+Evidencia executavel de cada afirmacao: `just render-cache` (exit 0) e
+a suite `tests/render/cache/*.test.ts` (42 testes de unidade). Faixa
+de ledger do card: AB-790..AB-799 (ledger/inbox/F5-09.json).

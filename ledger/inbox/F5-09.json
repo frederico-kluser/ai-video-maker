@@ -1,0 +1,142 @@
+[
+  {
+    "id": "AB-790",
+    "titulo": "Dependencia lateral do F5-03 (W8) registrada: o pos NAO mergeou nesta base",
+    "pergunta": "O F5-03 (pos, loudness/sidecar, mesma onda) ainda nao esta na base deste card. O contrato-w8 §4 fixa a ordem de merge F5-03 -> F5-09, e o F5-09 nao consome artefato nenhum do pos — mas os DOIS gates rodam sobre a MESMA familia de comandos (render) e o git pode mergear em silencio codigo que discorda.",
+    "por_que_aberto": "Registro obrigatorio do handoff (contrato-w8 §1: dependencia lateral proibida por construcao; §4: ordem de merge nomeia o F5-09 por ultimo porque a delimitacao de codec do F5-01 vira contrato consumido aqui).",
+    "decisao_provisoria": "O gate deste card renderiza a MESMA fixture canonica do F5-01 (composicao integrado, 727 frames) e consome CODIFICADORES_DA_COMPARACAO por LEITURA — nunca uma segunda lista. Se o merge do F5-03 trouxer mudanca na delimitacao, o vitest de fronteira acusa.",
+    "verificacao": {
+      "cmd": "just render-cache",
+      "espera": "VERDE com a fronteira de codec consumida do F5-01 por leitura",
+      "ambiente": "worktree do repo, W8"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o F5-03 mudar o justfile ou a delimitacao, o conflito aparece no merge — os blocos do justfile sao delimitados por marcador e o cache consome o modulo do F5-01, nao copias.",
+      "artefatos": [
+        "justfile",
+        "src/render/pipeline/codificacoes.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-791",
+    "titulo": "A chave hasheia o agregado `tokens` INTEIRO de S-5 (superconjunto), nao so os consumidos hoje",
+    "pergunta": "O contrato-w8 §3 manda hashear 'os valores de S-5 que o render consome por LEITURA'. O render consome background.primary etc. — mas enumerar 'os consumidos' e uma lista fechada que apodrece quando uma composicao nova passa a consumir outro token.",
+    "por_que_aberto": "Escolha de projeto registrada no ADR-0041 (componente 3): hashear o agregado `tokens` de src/design/tokens.ts e SUPERCONJUNTO dos consumidos — a direcao conservadora (invalida mais, nunca menos), robusta ao crescimento da composicao sem atualizar a lista. E o contrato-w8 §7: presenca, nunca lista fechada.",
+    "decisao_provisoria": "calcularChaveC7 hasheia serializarCanonico(tokens) — qualquer token de design mudado invalida o cache, inclusive os que hoje nao tocam pixel.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/render/cache/chave.test.ts",
+      "espera": "∅-crit (unidade): token mutado muda a chave",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a W9.5/W10 revisar os tokens (AB-720..723) sem tocar nos consumidos, o cache invalida em falso — custo de re-render, nunca de correcao.",
+      "artefatos": [
+        "src/render/cache/chave.ts",
+        "src/design/tokens.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-792",
+    "titulo": "Versao do navegador lida do VERSION file do chrome-headless-shell instalado (node_modules/.remotion)",
+    "pergunta": "O TESTED_VERSION do Remotion (149.0.7790.0) nao e exportado pela API publica do @remotion/renderer. A componente 4 da chave precisa da versao do NAVEGADOR QUE RENDERIZA — um numero digitado a mao apodreceria no bump do Remotion.",
+    "por_que_aberto": "Decisao registrada no ADR-0041 (componente 4) e implementada em src/render/cache/versoes.ts: ler node_modules/.remotion/chrome-headless-shell/VERSION (o arquivo que o proprio BrowserFetcher escreve). Se o navegador mudar, a chave muda; se sumir, 'nao-declarado' (miss — direcao segura).",
+    "decisao_provisoria": "Manter a leitura do VERSION file com fallback 'nao-declarado'. O F5-07 (W9) nao precisa conhecer o mecanismo: a chave C7 ja o contem.",
+    "verificacao": {
+      "cmd": "npx tsx tests/render/cache/render-cache-gate.ts | grep navegador",
+      "espera": "navegador 149.0.7790.0 impresso no gate",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um Remotion futuro mudar o caminho do VERSION file, o fallback 'nao-declarado' faz o cache missar em falso — nunca acertar em falso.",
+      "artefatos": [
+        "src/render/cache/versoes.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-793",
+    "titulo": "Raiz default do cache em /tmp: o cache NAO sobrevive a reboot — politica de persistencia e do F5-07",
+    "pergunta": "ADR-0032 decisao 4 manda saidas de render em /tmp (fora do filesystem do repo), e o ADR-0041 decisao 6 deixa 'onde o cache de bytes vive' como decisao do card. /tmp morre no reboot: o orquestrador (F5-07, W9) pode querer retomada entre sessoes.",
+    "por_que_aberto": "Decisao implementada: RAIZ_DEFAULT_DO_CACHE = /tmp/ai-video-maker/render-cache (injetavel por opcao raizDoCache). A persistencia entre reboots e operacao/estrategia do F5-07 — o ADR-0041 nao decide politica de evicao nem persistencia.",
+    "decisao_provisoria": "Manter /tmp com raiz injetavel; o F5-07 decide a raiz (ou a politica de retomada) quando orquestrar a ponta a ponta.",
+    "verificacao": {
+      "cmd": "grep -n RAIZ_DEFAULT_DO_CACHE src/render/cache/armazenar.ts",
+      "espera": "raiz em tmpdir()/ai-video-maker/render-cache, injetavel",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o F5-07 precisar de persistencia, injeta raizDoCache propria — a chave C7 nao muda (a raiz nao e conteudo).",
+      "artefatos": [
+        "src/render/cache/armazenar.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-794",
+    "titulo": "renderizarComCache renderiza faixas de MISS contiguas com o budget de workers do chamador",
+    "pergunta": "O cache renderiza SOMENTE os frames faltantes, agrupados em faixas contiguas de indices absolutos (AB-691). Quem decide workers/faixas e o chamador (o gate usa 8, o teto do ADR-0032). O particionamento final de execucao do orquestrador e decisao do F5-07.",
+    "por_que_aberto": "A unidade do cache (frame absoluto) sobrevive a re-divisao do plano de faixas do F5-07 (AB-691): o plano muda, os frames cacheados continuam servindo.",
+    "decisao_provisoria": "Manter a faixa de MISS como particionamento interno; o F5-07 pode passar contexto ja preparado (bundle unico) e renderer proprio.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/render/cache/renderizar.test.ts",
+      "espera": "miss parcial: so a faixa faltante e renderizada",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o F5-07 renderizar por plano proprio, o cache continua servindo por frame — nenhum frame e re-renderizado por causa de particionamento.",
+      "artefatos": [
+        "src/render/cache/renderizar.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-795",
+    "titulo": "O F5-07 precisa de 'ler o cache sem render' para a retomada por estagio",
+    "pergunta": "A pergunta adversarial 3 do F5-07 ('a retomada por estagio usa cache velho quando a entrada mudou?') e detectada pela comparacao de CHAVES C7, nunca por data (ADR-0041, consequencias). Para comparar, o orquestrador precisa computar a chave e inspecionar o cache SEM disparar render.",
+    "por_que_aberto": "O que este card expoe para isso: calcularChaveC7/componentesDaChaveC7 (chave), ArmazemDeCache.indicesPresentes/ler/meta (inspecao), tudo sem render. O fluxo de retomada em si e do F5-07.",
+    "decisao_provisoria": "Manter a API de inspecao; o F5-07 orquestra a decisao de retomada comparando a chave corrente com a do meta.json do cache.",
+    "verificacao": {
+      "cmd": "grep -n 'export' src/render/cache/index.ts",
+      "espera": "calcularChaveC7, ArmazemDeCache e renderizarComCache exportados",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a retomada precisar de mais (ex.: listar chaves existentes), e adicao no modulo do cache — a chave C7 congelada nao muda.",
+      "artefatos": [
+        "src/render/cache/index.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]
