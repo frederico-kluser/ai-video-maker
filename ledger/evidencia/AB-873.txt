@@ -1,0 +1,1 @@
+[saida vazia — exit 0] rg -q: runbook mapeia as fases da politica a privacyStatus (private/unlisted/public); o ADR-0046 decide o canal YouTube Data API v3 e referencia o AB-995

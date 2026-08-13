@@ -1,0 +1,1 @@
+[saida vazia — exit 0] rg -q: runbook registra o bucket dedicado de upload (1 unit, 100/dia) e a pool de 10.000 units/dia; o ADR-0046 registra a data da mudanca (2025-12-04, placar 1-0)

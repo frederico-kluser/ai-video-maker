@@ -1,0 +1,6 @@
+Ledger: 272 itens (42 arquivo(s) de inbox)
+Fechamento (categorias bloqueantes: infra, operacao, plataforma):
+  em escopo: 93 | abertos em escopo: 0 | permitidos: 1
+  allowlist: AB-950
+
+Fechamento: OK — zero itens ABERTO nas categorias bloqueantes

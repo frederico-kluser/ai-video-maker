@@ -1,0 +1,1 @@
+[saida vazia — exit 0] rg -q: runbook trata a verificacao do app Google, o prazo de 7 dias do modo Testing e o ADR-0046 registra a disputa com placar (1-0 vs 2-0)

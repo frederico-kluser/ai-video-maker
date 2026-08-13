@@ -1,0 +1,1 @@
+[saida vazia — exit 0] rg -q: runbook materializa ALAVANCA_MESTRA, o GATE P-1 a executa como primeira porta e referencia o AB-990

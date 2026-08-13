@@ -21,7 +21,14 @@
     "categoria": "ambiente",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -q \"1 unit\" docs/runbooks/publicacao.md && rg -q \"10.000 units\" docs/runbooks/publicacao.md && rg -q \"2025-12-04\" docs/adr/0046-*.md",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-870.txt",
+      "sha256": "d8b7385c2412c579835aff1f32f8ef467d56eaf66d11126082f37e26d4425f78"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-871",
@@ -45,7 +52,14 @@
     "categoria": "ambiente",
     "responde": "infra",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -q \"verificação\" docs/runbooks/publicacao.md && rg -q \"7 dias\" docs/runbooks/publicacao.md && rg -q \"1-0\" docs/adr/0046-*.md",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-871.txt",
+      "sha256": "1ebfb57dcd208b0f29be4b0b9effe4c41e79ca38254b8a1d81af164ff5f311ec"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-872",
@@ -93,7 +107,14 @@
     "categoria": "ambiente",
     "responde": "plataforma",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -q \"privacyStatus\" docs/runbooks/publicacao.md && rg -q \"YouTube Data API v3\" docs/adr/0046-*.md && rg -q \"AB-995\" docs/adr/0046-*.md",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-873.txt",
+      "sha256": "179d9908798749bc37b84e4612aff9f773c45f7633ae33e63418cb8d4ab56b1e"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-874",
@@ -117,7 +138,14 @@
     "categoria": "ambiente",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -q \"audit\" docs/runbooks/publicacao.md && rg -q \"2020-07-28\" docs/runbooks/publicacao.md && rg -q \"SLA\" docs/runbooks/publicacao.md",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-874.txt",
+      "sha256": "a7beebcaf4993b391ec994e20b6c2f5d73c5f59dc63c812623363286ff892cbb"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-875",
@@ -142,6 +170,13 @@
     "categoria": "ambiente",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -q \"ALAVANCA_MESTRA\" docs/runbooks/publicacao.md && rg -q \"GATE P-1\" docs/runbooks/publicacao.md && rg -q \"AB-990\" docs/runbooks/publicacao.md",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-875.txt",
+      "sha256": "5135fa3f8a18110469dcc0c6c3b8074a590164a12d079622a4d16d6cb811ac84"
+    },
+    "data_resolucao": "2026-08-13"
   }
 ]

@@ -22,6 +22,13 @@
     "categoria": "agentes-worktrees",
     "responde": "dono",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "python3 tools/validate-ledger.py --exigir-fechados --categoria plataforma,infra,operacao --permitir-aberto AB-950",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-930.txt",
+      "sha256": "9a447b516966f8e9453f1e2b6a3de8ce991991b89d4db7852beb7ac87e1db00b"
+    },
+    "data_resolucao": "2026-08-13"
   }
 ]

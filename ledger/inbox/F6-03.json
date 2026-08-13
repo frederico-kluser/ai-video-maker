@@ -48,7 +48,14 @@
     "categoria": "ambiente",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just gates-validar",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-891.txt",
+      "sha256": "aa2593ec0c48e6669b3f95d78d989eae147d327bd9d2ebf7dce60d85ea51d5b9"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-892",
@@ -100,7 +107,14 @@
     "categoria": "ambiente",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just gates-validar",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-893.txt",
+      "sha256": "aa2593ec0c48e6669b3f95d78d989eae147d327bd9d2ebf7dce60d85ea51d5b9"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-894",
@@ -128,7 +142,14 @@
     "categoria": "ambiente",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just gates-validar && npx tsx tools/gates/verificar-gates.ts; test $? -ne 0",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-894.txt",
+      "sha256": "bf76521287a3e86ce9db122c43cec3c178c46f45625e90c6c7ad19ec0098c28b"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-895",
@@ -152,7 +173,14 @@
     "categoria": "ambiente",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just gates-validar",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-895.txt",
+      "sha256": "aa2593ec0c48e6669b3f95d78d989eae147d327bd9d2ebf7dce60d85ea51d5b9"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-896",
@@ -175,7 +203,14 @@
     "categoria": "ambiente",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "grep -n 'revisar-bloqueia' docs/gates/P-1.md && just gates-validar",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-896.txt",
+      "sha256": "73f76ed9d8c9649b4ac46e4a14ddaf9cf62aeefa6cc20e4f083ed074a2974913"
+    },
+    "data_resolucao": "2026-08-13"
   },
   {
     "id": "AB-897",
@@ -227,6 +262,13 @@
     "categoria": "ambiente",
     "responde": "operacao",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just gates-validar",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-898.txt",
+      "sha256": "aa2593ec0c48e6669b3f95d78d989eae147d327bd9d2ebf7dce60d85ea51d5b9"
+    },
+    "data_resolucao": "2026-08-13"
   }
 ]

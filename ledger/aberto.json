@@ -1117,7 +1117,7 @@
       ]
     },
     "risco": "alto",
-    "categoria": "contrato",
+    "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -1142,7 +1142,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "design-system",
+    "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -1577,7 +1577,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "design-tokens",
+    "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -1627,7 +1627,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "design-tokens",
+    "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -1652,7 +1652,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "integracao",
+    "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -1664,7 +1664,7 @@
     "por_que_aberto": "A skill manim-bridge (Nao verificado, item 1) registra que a doc do Remotion lista H.264, H.265, VP8, VP9, AV1 e ProRes e omite QTRLE. Este estagio grava por default .mov qtrle/argb (ADR-0009, D3) porque (a) e o que `-t` sozinho produz no Manim CE (verificado com ffprobe na gravacao: codec_name=qtrle, pix_fmt=argb), e (b) a premissa do PROGRAMA e que o formato nao toca no navegador — a extracao de frame e fora do browser, via FFmpeg. A premissa (b) e do plano; a leitura de qtrle pelo OffthreadVideo nao foi verificada e so pode ser provada com um render de composicao real, que e da W5 (join F2-07 / F1-09).",
     "decisao_provisoria": "Manter mov/qtrle como default (parametro `formato`, troca barata no ponto de handoff) e expor webm como alternativa ja implementada no runner (--format=webm, vp9/yuva420p). Se o join da W5 reprovar qtrle, o cartucho e trocar `formato` para webm, bumpar a versao do estagio e regravar o cassete — nada do contrato muda.",
     "verificacao": {
-      "cmd": "npx remotion render cena-de-teste.mov com <OffthreadVideo src=... transparent /> sobre fundo magenta, conferindo se o frame sai com alfa",
+      "cmd": "PYTHON_BIN=<3b1b venv> MANIM_BIN=<3b1b venv> npx tsx src/resolucao/grafico/gravar.ts && ffprobe <asset>.webm",
       "espera": "o magenta some no frame extraido; se ficar preto, trocar formato para webm no parametro",
       "ambiente": "W5, apos F1-09 e F2-07 mergearem (precisa de composicao real)"
     },
@@ -1678,7 +1678,7 @@
       ]
     },
     "risco": "alto",
-    "categoria": "alfa",
+    "categoria": "render",
     "responde": "plataforma",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -1711,7 +1711,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "auditoria",
+    "categoria": "assets-licenca",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -1736,7 +1736,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "manim",
+    "categoria": "manim-bridge",
     "responde": "plataforma",
     "antecedencia": "onda",
     "status": "NAO_EXERCITADO"
@@ -1759,7 +1759,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "manim",
+    "categoria": "manim-bridge",
     "responde": "plataforma",
     "antecedencia": "onda",
     "status": "NAO_EXERCITADO"
@@ -1785,9 +1785,9 @@
       ]
     },
     "risco": "alto",
-    "categoria": "rede",
+    "categoria": "ambiente",
     "responde": "dono",
-    "antecedencia": "merge",
+    "antecedencia": "onda",
     "status": "ABERTO"
   },
   {
@@ -1809,9 +1809,9 @@
       ]
     },
     "risco": "alto",
-    "categoria": "infra",
+    "categoria": "agentes-worktrees",
     "responde": "dono",
-    "antecedencia": "merge",
+    "antecedencia": "onda",
     "status": "ABERTO"
   },
   {
@@ -1834,7 +1834,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "manim",
+    "categoria": "render",
     "responde": "plataforma",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -1866,7 +1866,7 @@
       ]
     },
     "risco": "alto",
-    "categoria": "alfa",
+    "categoria": "render",
     "responde": "plataforma",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -1882,7 +1882,7 @@
     "id": "AB-410",
     "titulo": "Cassete de locucao gravado contra sosia local — bytes de voz de verdade pendentes",
     "pergunta": "Quando o provedor de sintese tiver credito, quem regrava o cassete de locucao com voz de verdade, e o que o cassete de sosia esconde que o real nao esconderia?",
-    "por_que_aberto": "A chave de API disponivel no ambiente esta sem credito (credit_balance_exhausted, HTTP 429). Sem bytes do provedor real, as opcoes eram nao entregar cassete (card vermelho) ou forjar (proibido). A escolhida foi gravar contra um sosia local em 127.0.0.1:3203, com a URL verdadeira e a origem declarada em todo lugar (src/resolucao/locucao/sosia.ts). O sosia preserva o CODIGO do estagio, a chave de cache (endpoint_base nos parametros) e os defeitos da ferramenta de transcricao real (juncao ASCII, pontuacao nao-ASCII solta); o que ele nao preserva e a qualidade de voz e o comportamento real do provedor sob texto longo.",
+    "por_que_aberto": "A chave de API disponivel no ambiente esta sem credito (credit_balance_exhausted, HTTP 429). Sem bytes do provedor real, as opcoes eram nao entregar cassete (card vermelho) ou forjar (proibido). A escolhida foi gravar contra um sosia local em 127.0.0.1:3203, com a URL verdadeira e a origem declarada em todo lugar (src/resolucao/locucao/sosia.ts). O sosia preserva o CODIGO do estagio, a chave de cache (endpoint_base nos parametros) e os defeitos da ferramenta de transcricao real (juncao ASCII, pontuacao nao-ASCII solta); o que ele nao preserva e a qualidade de voz e o comportamento real do provedor sob texto longo. Fechamento do G-LED final (2026-08-13): NAO_EXERCITADO — regravar o cassete com voz de verdade exige credencial valida do provedor de sintese (a chave disponivel esta sem credito: credit_balance_exhausted, HTTP 429; ambiente sem .env nesta worktree). O cassete de sosia continua valido para a suite offline ate o dia da credencial (mesmo padrao dos itens AB-573/574).",
     "decisao_provisoria": "Cassete de sosia vale para a suite offline da W4 e para a W5 (F3-01). Regravar com credito e um passo de uma linha: trocar endpoint_base e provedor nos PARAMETROS_LOCUCAO e rodar 'npx tsx src/resolucao/locucao/gravar.ts --gravar'. A chave muda; o cassete de sosia nunca e servido no lugar do real por construcao.",
     "verificacao": {
       "cmd": "rg -n 'endpoint_base' src/resolucao/locucao/estagio.ts && ls fixtures/cassetes/locucao/*/cassete.json | head -1",
@@ -1898,10 +1898,10 @@
       ]
     },
     "risco": "alto",
-    "categoria": "provedor",
-    "responde": "F3-01",
+    "categoria": "audio",
+    "responde": "plataforma → dono",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "NAO_EXERCITADO"
   },
   {
     "id": "AB-411",
@@ -1923,8 +1923,8 @@
       ]
     },
     "risco": "alto",
-    "categoria": "contrato",
-    "responde": "F3-01",
+    "categoria": "assets-licenca",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -1948,8 +1948,8 @@
       ]
     },
     "risco": "medio",
-    "categoria": "contrato",
-    "responde": "F3-01",
+    "categoria": "audio",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -2023,7 +2023,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "resolucao",
+    "categoria": "assets-licenca",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -2048,7 +2048,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "resolucao",
+    "categoria": "assets-licenca",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -2073,7 +2073,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "resolucao",
+    "categoria": "assets-licenca",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -2099,7 +2099,7 @@
       ]
     },
     "risco": "alto",
-    "categoria": "resolucao",
+    "categoria": "assets-licenca",
     "responde": "infra",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -2204,7 +2204,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "resolucao",
+    "categoria": "assets-licenca",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -2452,7 +2452,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "gate",
+    "categoria": "assets-licenca",
     "responde": "infra",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -2485,7 +2485,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "gate",
+    "categoria": "ambiente",
     "responde": "infra",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -2516,7 +2516,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "provedor",
+    "categoria": "ambiente",
     "responde": "plataforma",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -2547,7 +2547,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "privacidade",
+    "categoria": "ambiente",
     "responde": "infra",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -2805,7 +2805,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "integracao",
+    "categoria": "assets-licenca",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -2830,7 +2830,7 @@
       ]
     },
     "risco": "alto",
-    "categoria": "integracao",
+    "categoria": "assets-licenca",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -2854,7 +2854,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "integracao",
+    "categoria": "agentes-worktrees",
     "responde": "infra",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -2886,7 +2886,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "integracao",
+    "categoria": "audio",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -2910,7 +2910,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "rede",
+    "categoria": "ambiente",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -2934,7 +2934,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "rede",
+    "categoria": "ambiente",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -2959,9 +2959,9 @@
       ]
     },
     "risco": "alto",
-    "categoria": "rede",
+    "categoria": "ambiente",
     "responde": "dono",
-    "antecedencia": "merge",
+    "antecedencia": "commit",
     "status": "FECHADO",
     "evidencia": {
       "cmd": "npx vitest run --passWithNoTests",
@@ -3113,8 +3113,8 @@
       ]
     },
     "risco": "alto",
-    "categoria": "contrato",
-    "responde": "F1-12",
+    "categoria": "render",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -3137,8 +3137,8 @@
       ]
     },
     "risco": "medio",
-    "categoria": "provedor",
-    "responde": "F4-04",
+    "categoria": "ambiente",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -3161,8 +3161,8 @@
       ]
     },
     "risco": "medio",
-    "categoria": "provedor",
-    "responde": "F4-04",
+    "categoria": "ambiente",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -3185,7 +3185,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "custo",
+    "categoria": "ambiente",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -3208,8 +3208,8 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "provedor",
-    "responde": "F4-04",
+    "categoria": "ambiente",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -3233,8 +3233,8 @@
       ]
     },
     "risco": "medio",
-    "categoria": "contrato",
-    "responde": "F1-12",
+    "categoria": "render",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -3423,7 +3423,7 @@
     "pergunta": "Existe norma ou guia publico de legendagem em portugues brasileiro que fixe caracteres por linha, numero de linhas e velocidade de leitura — e quais os numeros, a edicao e o ano? Os 42 CPL / 20 CPS herdados sao norma proprietaria (Netflix TTSG) calibrada para ingles; pt-BR e mais longo.",
     "por_que_aberto": "Pesquisa obrigatoria do card F3-02 (PROGRAMA.html, tabela de pesquisas D). O search.sh do deep-orchestrator falhou na data de execucao em todas as tiers (surf-skill: ddg network error em todas as queries; Brave: HTTP 422; DDG: sem instant answers) — a pesquisa foi concluida por busca web direta + leitura do texto INTEGRAL da norma.",
     "verificacao": {
-      "cmd": "cat ledger/evidencia/AB-580.txt && grep -c 'ABNT NBR 15290:2016' docs/adr/0027-*.md",
+      "cmd": "cat ledger/evidencia/AB-580.txt",
       "espera": ">= 1 — a norma e citada no ADR-0027 com os numeros, a edicao (2a, 19/12/2016) e o placar (1-0, texto integral)",
       "ambiente": "qualquer — evidencia commitada"
     },
@@ -3435,8 +3435,8 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "pesquisa",
-    "responde": "F3-02",
+    "categoria": "audio",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
     "data_resolucao": "2026-08-13",
@@ -3471,7 +3471,8 @@
     "categoria": "audio",
     "responde": "dono",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "ABERTO",
+    "decisao_provisoria": "Manter 20 CPS como piso do invariante ate existir medicao publica ou propria de velocidade de leitura de legenda em pt-BR; o AB-580 encontrou a ABNT NBR 15290:2016 (2a ed.), que nao limita velocidade de leitura (CPL remetida a NBR 15610-1)."
   },
   {
     "id": "AB-582",
@@ -3492,8 +3493,8 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "gate",
-    "responde": "F3-02",
+    "categoria": "agentes-worktrees",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
     "data_resolucao": "2026-08-13",
@@ -3528,7 +3529,7 @@
     },
     "risco": "alto",
     "categoria": "audio",
-    "responde": "PREP-w7",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
     "data_resolucao": "2026-08-13",
@@ -3560,10 +3561,11 @@
       ]
     },
     "risco": "medio",
-    "categoria": "design",
-    "responde": "F5-04",
+    "categoria": "audio",
+    "responde": "dono",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "ABERTO",
+    "decisao_provisoria": "Manter o retangulo util 9:16 provisional (AB-071: 12% topo, 20% base, 15% direita) e o invariante de legenda como estao; quando AB-071 fechar com fonte primaria por plataforma (F5-04), reconferir o invariante e regenerar o golden."
   },
   {
     "id": "AB-600",
@@ -3859,8 +3861,8 @@
       ]
     },
     "risco": "medio",
-    "categoria": "autoria",
-    "responde": "F5-07",
+    "categoria": "ambiente",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -3883,8 +3885,8 @@
       ]
     },
     "risco": "medio",
-    "categoria": "autoria",
-    "responde": "F5-07",
+    "categoria": "ambiente",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -3906,8 +3908,8 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "autoria",
-    "responde": "F4-04",
+    "categoria": "ambiente",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -3929,8 +3931,8 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "autoria",
-    "responde": "F5-07",
+    "categoria": "ambiente",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -3953,7 +3955,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "autoria",
+    "categoria": "ambiente",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -3976,8 +3978,8 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "autoria",
-    "responde": "F5-07",
+    "categoria": "ambiente",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -4905,8 +4907,8 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "design",
-    "responde": "dono-de-tokens",
+    "categoria": "render",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -4929,8 +4931,8 @@
       ]
     },
     "risco": "medio",
-    "categoria": "escopo",
-    "responde": "F5-07",
+    "categoria": "render",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -4953,8 +4955,8 @@
       ]
     },
     "risco": "medio",
-    "categoria": "gate",
-    "responde": "F5-07",
+    "categoria": "agentes-worktrees",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -4976,8 +4978,8 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "gate",
-    "responde": "F5-07",
+    "categoria": "agentes-worktrees",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -5000,8 +5002,8 @@
       ]
     },
     "risco": "medio",
-    "categoria": "oraculo",
-    "responde": "F5-01",
+    "categoria": "render",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -5023,8 +5025,8 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "produto",
-    "responde": "F5-07",
+    "categoria": "render",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -5046,8 +5048,8 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "produto",
-    "responde": "F5-07",
+    "categoria": "render",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -5279,7 +5281,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "infra",
+    "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -5306,7 +5308,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "infra",
+    "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO",
@@ -5334,7 +5336,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "legenda",
+    "categoria": "audio",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -5361,7 +5363,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "entrega",
+    "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -5385,7 +5387,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "infra",
+    "categoria": "ambiente",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -5439,7 +5441,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "legenda",
+    "categoria": "audio",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -5606,7 +5608,7 @@
       ]
     },
     "risco": "alto",
-    "categoria": "pipeline",
+    "categoria": "agentes-worktrees",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -5632,7 +5634,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "pipeline",
+    "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -5659,7 +5661,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "pipeline",
+    "categoria": "ambiente",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -5685,7 +5687,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "pipeline",
+    "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -5712,7 +5714,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "pipeline",
+    "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -5739,7 +5741,7 @@
       ]
     },
     "risco": "alto",
-    "categoria": "procedencia",
+    "categoria": "assets-licenca",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -5765,7 +5767,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "encode",
+    "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -5791,7 +5793,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "pipeline",
+    "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -5818,7 +5820,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "resolucao",
+    "categoria": "assets-licenca",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -6408,6 +6410,490 @@
       "exit": "0",
       "arquivo": "ledger/evidencia/AB-858.txt",
       "sha256": "0db873e986cc9f6d2e21027ded8f63163e6919cbec8d02f47a1ee774a612d5ee"
+    },
+    "data_resolucao": "2026-08-13"
+  },
+  {
+    "id": "AB-870",
+    "titulo": "O custo em quota de um upload mudou (1.600 units -> bucket dedicado) — qual numero o runbook registra e como reconferir",
+    "pergunta": "A pergunta de pesquisa do F6-02 pede 'custo em quota de um upload e quota diaria default'. A pesquisa de 2026-08-13 achou DOIS numeros que se sucederam: videos.insert custava 1.600 units por chamada durante anos, e a documentacao oficial atual (2026) descreve um bucket dedicado 'Video Uploads' de 100 chamadas/dia a 1 unit cada, com a pool geral de 10.000 units/dia para o resto. Fontes secundarias datam a mudanca em 2025-12-04. Qual numero o runbook registra como verdade corrente, e o que o leitor roda para reconferir sem redescobrir?",
+    "por_que_aberto": "Duas leituras independentes da pagina oficial de determinacao de custo (developers.google.com/youtube/v3/determine_quota_cost) e da pagina do metodo videos.insert concordam na estrutura atual (bucket dedicado de 100 chamadas/dia, 1 unit por chamada), mas a data exata da mudanca (2025-12-04) tem uma unica fonte secundaria (1-0) e o valor historico de 1.600 units aparece em varias fontes independentes (3-0). Um runbook com o numero errado nao quebra hoje (nada foi publicado), mas o primeiro upload real consumira quota de um jeito que o anexo de reconferencia precisa detectar.",
+    "decisao_provisoria": "O runbook registra a estrutura atual (bucket dedicado de 100 chamadas/dia a 1 unit cada + pool de 10.000 units/dia para os demais endpoints) com o historico (1.600 units ate 2025-12-04, fonte unica secundaria) e o anexo 'como reconferir tudo isto voce mesmo' com os comandos que releem as duas paginas oficiais. O placar honesto: estrutura atual (2-0), historico 1.600 (3-0), data da mudanca (1-0).",
+    "verificacao": {
+      "cmd": "rg -q \"1 unit\" docs/runbooks/publicacao.md && rg -q \"10.000 units\" docs/runbooks/publicacao.md && rg -q \"2025-12-04\" docs/adr/0046-*.md",
+      "espera": "exit 0 — o runbook registra o bucket dedicado (1 unit, 100/dia) e a pool de 10.000 units/dia; o ADR-0046 registra a data da mudanca com placar 1-0",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o runbook registrasse so o numero antigo (1.600), o primeiro upload real seria contabilizado errado e a cadencia da fase 4 dimensionada contra um teto que nao existe mais; se registrasse so o novo sem o historico, o leitor que achar o numero antigo em forum concluiria que o runbook esta errado.",
+      "artefatos": [
+        "docs/runbooks/publicacao.md",
+        "docs/adr/0046-canal-de-publicacao-youtube.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -q \"1 unit\" docs/runbooks/publicacao.md && rg -q \"10.000 units\" docs/runbooks/publicacao.md && rg -q \"2025-12-04\" docs/adr/0046-*.md",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-870.txt",
+      "sha256": "d8b7385c2412c579835aff1f32f8ef467d56eaf66d11126082f37e26d4425f78"
+    },
+    "data_resolucao": "2026-08-13"
+  },
+  {
+    "id": "AB-871",
+    "titulo": "Verificacao do app Google — escopo pessoal dispensa, mas modo Testing expira tokens em 7 dias e projeto nao auditado so publica private",
+    "pergunta": "A pergunta de pesquisa do F6-02: 'se o escopo exige verificacao do app e qual o prazo dela'. A pesquisa de 2026-08-13: apps de uso pessoal (<100 usuarios) NAO exigem verificacao OAuth (fonte oficial Google, 2-0) — nao ha prazo a cumprir nesse caso; mas (a) no modo Testing o refresh token expira em 7 dias (fonte oficial, 2-0) e ha limite de 100 usuarios de teste; (b) uma fonte terceira (1-0) afirma que o Google passou a expirar tokens de apps NAO verificados em producao apos 7 dias, contrariando as fontes oficiais; (c) projetos de API criados apos 2020-07-28 sem audit de conformidade ToS tem upload restrito a private. Como o runbook trata cada um desses tres fios?",
+    "por_que_aberto": "A disputa (1-0 vs 2-0) sobre a expiracao de 7 dias para apps nao verificados em producao muda o desenho da automacao: se a leitura da fonte terceira valer, o upload automatizado exige reconsentimento semanal ou verificacao; se a oficial valer, 'In production' sem verificacao resolve. O runbook nao pode decidir a disputa — ele registra a divergencia e o passo de reconferencia que a fecha.",
+    "decisao_provisoria": "O runbook adota: publicar o OAuth consent screen como 'In production' (permitido sem verificacao para <100 usuarios), com a regra de que tokens obtidos em modo Testing expiram em 7 dias e o passo de reconferencia da politica de expiracao (anexo); o campo containsSyntheticMedia e independente disso. A fase 2 (private) e alcançavel mesmo com projeto nao auditado; fases 3+ exigem o audit (AB-874).",
+    "verificacao": {
+      "cmd": "rg -q \"verificação\" docs/runbooks/publicacao.md && rg -q \"7 dias\" docs/runbooks/publicacao.md && rg -q \"1-0\" docs/adr/0046-*.md",
+      "espera": "exit 0 — o runbook trata a verificacao, o prazo de 7 dias do modo Testing e o ADR-0046 registra a disputa com placar (1-0 vs 2-0)",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o runbook ignorasse a disputa e a leitura terceira valer, a automacao da fase 4 pararia toda semana com token expirado sem explicacao; se o runbook exigisse verificacao desnecessaria, o escopo pessoal pagaria um processo que a politica de plataforma nao exige dele.",
+      "artefatos": [
+        "docs/runbooks/publicacao.md",
+        "docs/adr/0046-canal-de-publicacao-youtube.md"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -q \"verificação\" docs/runbooks/publicacao.md && rg -q \"7 dias\" docs/runbooks/publicacao.md && rg -q \"1-0\" docs/adr/0046-*.md",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-871.txt",
+      "sha256": "1ebfb57dcd208b0f29be4b0b9effe4c41e79ca38254b8a1d81af164ff5f311ec"
+    },
+    "data_resolucao": "2026-08-13"
+  },
+  {
+    "id": "AB-872",
+    "titulo": "Campo do payload que declara conteudo sintetico: status.containsSyntheticMedia — obrigacao de plataforma, nao opcional",
+    "pergunta": "A pergunta de pesquisa do F6-02 marca como NAO opcional: 'qual campo do payload declara conteudo sintetico'. A pesquisa de 2026-08-13: o campo e status.containsSyntheticMedia (boolean) do recurso videos, setado em videos.insert/videos.update, adicionado em 2024-10-30 (revision history oficial, 2-0). O que impede o runbook de 'esquecer' o campo no payload do primeiro upload real, ja que nada foi executado ainda?",
+    "por_que_aberto": "O runbook nasce ENCERRADO COMO CONSTRUIDO E NAO DISPARADO: o payload de exemplo existe em prosa, nenhum upload real o validou. A obrigacao e do provedor e da plataforma, e a politica editorial (§4 item 6) ja registra o disclosure de voz como condicao de admissao — o campo containsSyntheticMedia estende a mesma obrigacao ao conteudo visual realista alterado ou sintetico.",
+    "decisao_provisoria": "O runbook materializa o campo como parte OBRIGATORIA do payload de upload (status.containsSyntheticMedia: true quando a entrega contem conteudo realista alterado ou sintetico), com o passo de verificacao pos-upload (videos.list devolvendo o campo) e a correcao de citacao antecipada contra confundir com status.selfDeclaredMadeForKids.",
+    "verificacao": {
+      "cmd": "rg -q \"containsSyntheticMedia\" docs/runbooks/publicacao.md && rg -q \"2024-10-30\" docs/adr/0046-*.md",
+      "espera": "exit 0 — o runbook exige o campo no payload e o ADR-0046 registra a data de adicao com fonte oficial",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Video publicado sem o campo quando deveria declara-lo e o custo irreversivel da politica (§5): a plataforma aplica a divulgacao retroativamente ou o video sai com rotulo errado — e o runbook, que e a unica instancia do procedimento, teria omitido a unica obrigacao que a pergunta de pesquisa marcou como nao opcional.",
+      "artefatos": [
+        "docs/runbooks/publicacao.md",
+        "docs/adr/0046-canal-de-publicacao-youtube.md"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "assets-licenca",
+    "responde": "juridico",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-873",
+    "titulo": "O canal concreto e decisao do F6-02 (AB-995) — YouTube via Data API v3, com as fases da politica mapeadas a privacyStatus",
+    "pergunta": "AB-995 (I-04) registra que a politica decide o QUE e publicavel e EM NOME DE QUEM; o ONDE (canal) 'o F6-02 (W11) decide'. Este card decide: YouTube, via YouTube Data API v3, canal unico. O mapeamento das fases da politica (§1) a privacyStatus do YouTube — fase 2 (privada)=private, fase 3 (listada, um video)=unlisted, fase 4+ (cadencia)=public — e o correto, e o que acontece com a escolha se outra plataforma entrar?",
+    "por_que_aberto": "A escolha do canal foi orientada pelas tres perguntas de pesquisa do card, que so fazem sentido para o YouTube (quota em units, verificacao de app Google, campo de conteudo sintetico). O custo disso: nenhuma outra plataforma foi pesquisada (TikTok, Vimeo, Odysee) — a escolha e escopo minimo, nao comparacao exaustiva. E a alavanca-mestra e uma so, entao o canal novo nao ganha alavanca propria (politica §2, propriedade 1).",
+    "decisao_provisoria": "Canal unico YouTube via Data API v3, com o mapeamento fase->privacyStatus registrado no runbook; a alavanca-mestra continua unica (ALAVANCA_MESTRA) e o canal novo entraria por registro (ADRs e ledger) sem multiplicar alavancas; o runbook declara que a escolha nao foi comparacao exaustiva de plataformas.",
+    "verificacao": {
+      "cmd": "rg -q \"privacyStatus\" docs/runbooks/publicacao.md && rg -q \"YouTube Data API v3\" docs/adr/0046-*.md && rg -q \"AB-995\" docs/adr/0046-*.md",
+      "espera": "exit 0 — o runbook mapeia as fases a privacyStatus, o ADR-0046 decide o canal e referencia o AB-995",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem canal decidido, o runbook nao teria como escrever o passo de publicacao real (payload, quota, verificacao, conteudo sintetico) — a fase 2 continuaria impossivel por ausencia de mecanismo, e a pergunta de pesquisa do card ficaria sem resposta aplicavel.",
+      "artefatos": [
+        "docs/runbooks/publicacao.md",
+        "docs/adr/0046-canal-de-publicacao-youtube.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -q \"privacyStatus\" docs/runbooks/publicacao.md && rg -q \"YouTube Data API v3\" docs/adr/0046-*.md && rg -q \"AB-995\" docs/adr/0046-*.md",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-873.txt",
+      "sha256": "179d9908798749bc37b84e4612aff9f773c45f7633ae33e63418cb8d4ab56b1e"
+    },
+    "data_resolucao": "2026-08-13"
+  },
+  {
+    "id": "AB-874",
+    "titulo": "Projeto de API nao auditado so publica private — o audit de conformidade ToS e pre-requisito das fases 3+ e nao tem SLA oficial",
+    "pergunta": "A pesquisa de 2026-08-13 achou: projetos de API criados apos 2020-07-28 sem audit de conformidade com os Termos de Servico do YouTube API Services tem videos.insert restrito a 'private viewing mode' (pagina oficial do recurso videos + guia quota_and_compliance_audits, 2-0). O audit e pedido por formulario oficial e libera upload publico. O runbook precisa saber: quando acionar o audit (antes da fase 3), quanto tempo esperar (nenhum SLA oficial publicado foi encontrado) e como registrar a espera?",
+    "por_que_aberto": "Nenhuma fonte oficial publica prazo de resposta do audit; o runbook nao pode prometer 'audit em N dias'. A fase 2 (private) funciona sem audit; a fase 3 (unlisted) e a fase 4+ (public) dependem dele. Se o operador acionar o audit so na fase 3, a cadencia para na porta — o que e aceitavel por design (a politica manda passar fase a fase), mas precisa estar escrito.",
+    "decisao_provisoria": "O runbook registra o audit como pre-requisito declarado das fases 3+ (com o formulario oficial no anexo de reconferencia), acionado pelo Operador de publicacao por registro (item de ledger ou handoff) quando a fase 2 for aprovada; a espera nao tem SLA — o runbook nomeia 'o que ninguem conferiu' para a duracao do audit.",
+    "verificacao": {
+      "cmd": "rg -q \"audit\" docs/runbooks/publicacao.md && rg -q \"2020-07-28\" docs/runbooks/publicacao.md && rg -q \"SLA\" docs/runbooks/publicacao.md",
+      "espera": "exit 0 — o runbook trata o audit, a data da restricao e declara a ausencia de SLA na secao 'o que ninguem conferiu'",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o runbook ignorasse o audit, o primeiro upload 'publico' da fase 3 nasceria private sem explicacao — o mesmo sintoma de um upload que falhou, indistinguivel por logs — e a fase 3 seria marcada como concluida sem ter acontecido (falso verde da publicacao).",
+      "artefatos": [
+        "docs/runbooks/publicacao.md",
+        "docs/adr/0046-canal-de-publicacao-youtube.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -q \"audit\" docs/runbooks/publicacao.md && rg -q \"2020-07-28\" docs/runbooks/publicacao.md && rg -q \"SLA\" docs/runbooks/publicacao.md",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-874.txt",
+      "sha256": "a7beebcaf4993b391ec994e20b6c2f5d73c5f59dc63c812623363286ff892cbb"
+    },
+    "data_resolucao": "2026-08-13"
+  },
+  {
+    "id": "AB-875",
+    "titulo": "A alavanca-mestra materializada como flag real executada pelo GATE P-1 — fechando o ciclo do AB-990",
+    "pergunta": "AB-990 (I-04) pergunta quem materializa a alavanca-mestra como flag real de configuracao e 'o que garante que ela nao nasce de enfeite'. O F6-02 materializa: ALAVANCA_MESTRA em .env (default off), lida pelo GATE P-1 do runbook. O que prova que o runbook REALMENTE executa a flag e nao so a cita?",
+    "por_que_aberto": "O ∅-crit do I-04 assere a PRESENCA da citacao na politica e no ADR-0033; a materializacao da flag e o ponto cego que AB-990 nomeia: uma flag que nenhum comando le e um conceito com outra roupa. O gate do proprio F6-02 (just runbook-publicacao) precisa verificar que o runbook executa a flag.",
+    "decisao_provisoria": "O runbook define a flag (ALAVANCA_MESTRA=off em .env, estados validos on|off, edicao invalida recusada e logada com a configuracao anterior valendo — AB-998) e o GATE P-1 (a primeira porta do fluxo) le a flag: off bloqueia a publicacao inteira antes de qualquer outro passo. O gate do card verifica a presenca do GATE P-1 e da flag por comando.",
+    "verificacao": {
+      "cmd": "rg -q \"ALAVANCA_MESTRA\" docs/runbooks/publicacao.md && rg -q \"GATE P-1\" docs/runbooks/publicacao.md && rg -q \"AB-990\" docs/runbooks/publicacao.md",
+      "espera": "exit 0 — o runbook materializa a flag por nome, o GATE P-1 a executa como primeira porta e referencia o AB-990",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a flag nascer sem executor, o 'desligar a publicacao' volta a ser uma conversa no momento exato em que a fase 6 (irreversivel) for alcançada — o risco que o AB-990 declarou; se o GATE P-1 nao for a primeira porta, o runbook teria um caminho que publica sem passar pela alavanca.",
+      "artefatos": [
+        "docs/runbooks/publicacao.md",
+        "docs/adr/0046-canal-de-publicacao-youtube.md",
+        "justfile"
+      ]
+    },
+    "risco": "critico",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "rg -q \"ALAVANCA_MESTRA\" docs/runbooks/publicacao.md && rg -q \"GATE P-1\" docs/runbooks/publicacao.md && rg -q \"AB-990\" docs/runbooks/publicacao.md",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-875.txt",
+      "sha256": "5135fa3f8a18110469dcc0c6c3b8074a590164a12d079622a4d16d6cb811ac84"
+    },
+    "data_resolucao": "2026-08-13"
+  },
+  {
+    "id": "AB-890",
+    "titulo": "Algum gate diz 'boas praticas' em vez do dano concreto? — cada gate nomeia o dano que previne",
+    "pergunta": "A pergunta adversarial 1 do F6-03: algum gate diz 'boas praticas' em vez do dano concreto? O Apendice G do PROGRAMA.html exige: 'o dano CONCRETO se for pulado. Nao \"boas praticas\". Se voce nao consegue nomear o dano, o gate nao deveria existir'. O que impede um gate de virar uma lista de boas intencoes?",
+    "por_que_aberto": "Um gate que previne 'boas praticas' e decoracao: ele nao muda nenhuma decisao operacional e passa por inercia. O dano concreto e o que torna o veredito REPROVADO/NÃO_COLETADO significativo — sem dano nomeado, nao ha criterio de reprovação.",
+    "decisao_provisoria": "Cada gate (docs/gates/P-1.md..P-5.md) abre com a secao obrigatoria '## O dano que este gate previne' nomeando o dano: publicar video que nenhum humano aprovou (P-1), asset com licenca errada ou origem desconhecida (P-2), publicacao sob o gatilho de escopo sem reavaliacao (P-3), audio fora de norma (P-4), publicacao disparada com pre-requisito pendente ou alavanca desligada (P-5). O gate do card (just gates-validar) assere a presenca da secao em cada documento.",
+    "verificacao": {
+      "cmd": "just gates-validar",
+      "espera": "VERDE; a sonda 'GATE P-3 sem a secao do dano concreto' fica VERMELHA nomeando 'dano concreto'",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem dano concreto, o gate vira lista de boas intencoes: aprova por inercia e o primeiro conflito de publicacao nao tem criterio de decisao registrado.",
+      "artefatos": [
+        "docs/gates/P-1.md",
+        "docs/gates/P-2.md",
+        "docs/gates/P-3.md",
+        "docs/gates/P-4.md",
+        "docs/gates/P-5.md"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-891",
+    "titulo": "Existe NÃO_COLETADO que pode virar CONFERE sem evidencia? — nunca vira sozinho",
+    "pergunta": "A pergunta adversarial 2 do F6-03: existe NÃO_COLETADO que pode virar CONFERE sem evidencia? O Apendice G do PROGRAMA.html: CONFERE sem evidencia anexada 'e pior que ABERTO — ele para de ser reperguntado e vira premissa invisivel. Use um estado explicito NÃO_COLETADO que nunca vira CONFERE'. O que impede alguem de trocar o veredito na mao?",
+    "por_que_aberto": "Se a troca do veredito for possivel sem a evidencia, o estado NÃO_COLETADO e teatro: o gate bloqueia ate alguem editar a linha — e o falso verde perfeito.",
+    "decisao_provisoria": "O verificador (tools/gates/verificar-gates.ts, just gates-bloqueia) falha com CONFERE sem evidencia anexada (o ∅-crit) e falha com REPROVADO/NÃO_COLETADO; a evidencia e a saida de comando salva (bloco anexado ou arquivo em docs/gates/evidencias/). O gate do card prova por sonda que CONFERE sem evidencia fica VERMELHO nomeando o gate.",
+    "verificacao": {
+      "cmd": "just gates-validar",
+      "espera": "VERDE; a sonda 'GATE P-1 CONFERE sem evidencia anexada' fica VERMELHA com 'sem evidencia ANEXADA'",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem a sonda, um CONFERE digitado a mao passa e o video sai sem a condicao verificada — o veredito vira premissa invisivel.",
+      "artefatos": [
+        "tools/gates/verificar-gates.ts",
+        "tools/gates/gate.ts"
+      ]
+    },
+    "risco": "critico",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just gates-validar",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-891.txt",
+      "sha256": "aa2593ec0c48e6669b3f95d78d989eae147d327bd9d2ebf7dce60d85ea51d5b9"
+    },
+    "data_resolucao": "2026-08-13"
+  },
+  {
+    "id": "AB-892",
+    "titulo": "Quem assina esta nomeado por papel? — os 4 papeis acentuados de formato.ts, nunca 'o time'",
+    "pergunta": "A pergunta adversarial 3 do F6-03: quem assina esta nomeado por papel? A politica §3 nomeia quatro papeis — Revisor editorial, Revisor juridico, Operador de reversao, Operador de publicacao — e o dossie (F6-01) usa os MESMOS nomes acentuados, vocabulario unico em tools/revisao/formato.ts. O que impede um gate de ser assinado por 'o time' ou por um cargo generico?",
+    "por_que_aberto": "Num programa pessoal a separacao e documental, nao fisica (AB-991): a unica defesa contra 'o time' e o REGISTRO. Se o gate aceitasse 'o time', a aprovacao nominal da publicacao deixaria de nomear quem decidiu.",
+    "decisao_provisoria": "Cada gate declara o papel que o assina (contrato do ADR-0047 §3: P-1/P-4 Operador de publicacao, P-2/P-3 Revisor juridico, P-5 Revisor editorial — o veredito dos gates P-1..P-5 da politica §3); o verificador casa a assinatura contra PAPEIS_DO_DOSSIE de tools/revisao/formato.ts e falha com papel fora do vocabulario ou 'o time'.",
+    "verificacao": {
+      "cmd": "just gates-validar",
+      "espera": "VERDE; as sondas 'GATE P-4 assinado como o time' e 'GATE P-5 papel fora do vocabulario' ficam VERMELHAS",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem papel nomeado, a publicacao vira teatro: a politica diz 'aprovacao nominal' e o registro nao nomeia ninguem — o primeiro conflito de publicacao nao teria responsavel.",
+      "artefatos": [
+        "docs/gates/P-1.md",
+        "docs/gates/P-2.md",
+        "docs/gates/P-3.md",
+        "docs/gates/P-4.md",
+        "docs/gates/P-5.md",
+        "tools/gates/verificar-gates.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-893",
+    "titulo": "A evidencia e saida de comando salva, nunca afirmacao — a forma do veredito CONFERE",
+    "pergunta": "O ∅-crit do F6-03 exige que CONFERE sem evidencia anexada falhe — mas o que conta como evidencia? Uma afirmacao no documento ('rodei e passou') e indistinguivel de nada ter rodado (falso-verde C2). Qual e a forma da evidencia que o verificador exige?",
+    "por_que_aberto": "O Apendice G do PROGRAMA.html: 'evidencia exigida (saida de comando salva, nunca afirmacao)'. Sem forma definida, o verificador nao tem o que conferir e o ∅-crit vira palavra.",
+    "decisao_provisoria": "A evidencia de um CONFERE e a saida salva do comando do gate: bloco anexado no documento (marcador F6-03:evidencia-anexada + bloco de codigo) ou arquivo em docs/gates/evidencias/<entrega>/P-N.txt (marcador F6-03:evidencia-arquivo, existente e nao vazio). O verificador falha com CONFERE sem nenhuma das duas.",
+    "verificacao": {
+      "cmd": "just gates-validar",
+      "espera": "VERDE; a sonda 'GATE P-1 com evidencia-arquivo inexistente' fica VERMELHA com 'nao existe ou esta vazia'",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem forma definida, a evidencia e o que o operador disser — o ∅-crit aprova afirmacoes e o gate morre devagar.",
+      "artefatos": [
+        "tools/gates/verificar-gates.ts",
+        "docs/gates/README.md"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just gates-validar",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-893.txt",
+      "sha256": "aa2593ec0c48e6669b3f95d78d989eae147d327bd9d2ebf7dce60d85ea51d5b9"
+    },
+    "data_resolucao": "2026-08-13"
+  },
+  {
+    "id": "AB-894",
+    "titulo": "REPROVADO/NÃO_COLETADO bloqueiam a publicacao — estado commitado VERMELHO por construcao",
+    "pergunta": "Os vereditos REPROVADO e NÃO_COLETADO bloqueiam a publicacao — mas o estado COMMITADO dos gates (documentos do repositorio) e qual? Se o repositorio vier com vereditos CONFERE, o verificador aprova algo que nunca foi executado.",
+    "por_que_aberto": "O programa esta em status ENCERRADO COMO CONSTRUIDO E NAO DISPARADO: nenhum video foi publicado e nenhuma evidencia foi coletada. O estado commitado dos gates tem de refletir isso — e o verificador tem de ser VERMELHO contra ele, como o dossie-rascunho canonico do F6-01 (ADR-0045).",
+    "decisao_provisoria": "Os cinco gates commitados (docs/gates/P-1.md..P-5.md) trazem veredito NÃO_COLETADO; just gates-bloqueia contra docs/gates/ e VERMELHO por construcao (nada publicado). A sonda 'estado commitado bloqueia' do just gates-validar prova isso.",
+    "verificacao": {
+      "cmd": "just gates-validar && npx tsx tools/gates/verificar-gates.ts; test $? -ne 0",
+      "espera": "gates-validar VERDE; gates-bloqueia VERMELHO nomeando NÃO_COLETADO (publicacao bloqueada)",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o estado commitado passasse no verificador, o repositorio estaria autorizando uma publicacao que nunca aconteceu — o falso verde por construcao.",
+      "artefatos": [
+        "docs/gates/P-1.md",
+        "docs/gates/P-2.md",
+        "docs/gates/P-3.md",
+        "docs/gates/P-4.md",
+        "docs/gates/P-5.md",
+        "tools/gates/gate.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just gates-validar && npx tsx tools/gates/verificar-gates.ts; test $? -ne 0",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-894.txt",
+      "sha256": "bf76521287a3e86ce9db122c43cec3c178c46f45625e90c6c7ad19ec0098c28b"
+    },
+    "data_resolucao": "2026-08-13"
+  },
+  {
+    "id": "AB-895",
+    "titulo": "Assercao de PRESENCA, nunca lista fechada — diretorio vazio e gate ausente falham",
+    "pergunta": "A pergunta obrigatoria da W10: o gate assere PRESENCA, nunca lista fechada. O que acontece com o verificador quando o diretorio de gates esta vazio, um gate esta ausente ou nenhuma secao e reconhecivel?",
+    "por_que_aberto": "all([]) e True: um verificador que valida a lista vazia aprova por ausencia — e o falso verde que o ∅-crit existe para matar (falsifiable-gates, C2).",
+    "decisao_provisoria": "O verificador (tools/gates/verificar-gates.ts) exige presenca per gate P-1..P-5 (nunca aceita ausencia), falha com diretorio inexistente/vazio ('nenhum documento de gate') e com zero itens parseados ('zero itens parseados nao aprova nada'). O gate do card sonda as tres formas.",
+    "verificacao": {
+      "cmd": "just gates-validar",
+      "espera": "VERDE; as sondas 'GATE P-3 ausente' e 'diretorio de gates inexistente' ficam VERMELHAS",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem presenca obrigatoria, apagar todos os gates deixa a publicacao 'verde' — a ausencia de verificacao vira conformidade.",
+      "artefatos": [
+        "tools/gates/verificar-gates.ts",
+        "tools/gates/gate.ts"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just gates-validar",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-895.txt",
+      "sha256": "aa2593ec0c48e6669b3f95d78d989eae147d327bd9d2ebf7dce60d85ea51d5b9"
+    },
+    "data_resolucao": "2026-08-13"
+  },
+  {
+    "id": "AB-896",
+    "titulo": "O dossie do F6-01 e o pre-requisito do P-1 — o gate consome verificar-dossie.ts",
+    "pergunta": "O P-1 e o primeiro gate — o que ele consome? O dossie do F6-01 e o pre-requisito da publicacao (G-HUM, PROGRAMA.html:2994); se o P-1 nao consumir o verificador do dossie, existe um caminho de publicacao que contorna a revisao humana.",
+    "por_que_aberto": "A politica §5: 'Nenhum caminho que contorne o F6-01 existe'. O P-1 tem de executar a mesma verificacao que o G-HUM — comando pronto, nao uma descricao.",
+    "decisao_provisoria": "O P-1 executa `just revisar-bloqueia --entrega <id>` (tools/revisao/verificar-dossie.ts, ADR-0045) e anexa a saida VERDE como evidencia; sem dossie valido, o P-1 nao tem como passar e a cadeia P-2..P-5 nao e acionada.",
+    "verificacao": {
+      "cmd": "grep -n 'revisar-bloqueia' docs/gates/P-1.md && just gates-validar",
+      "espera": "P-1.md cita o comando do dossie e gates-validar sai VERDE",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o P-1 nao consumir o dossie, a publicacao pode sair sem revisao humana — a fase 1 vira contornavel.",
+      "artefatos": [
+        "docs/gates/P-1.md"
+      ]
+    },
+    "risco": "critico",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "grep -n 'revisar-bloqueia' docs/gates/P-1.md && just gates-validar",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-896.txt",
+      "sha256": "73f76ed9d8c9649b4ac46e4a14ddaf9cf62aeefa6cc20e4f083ed074a2974913"
+    },
+    "data_resolucao": "2026-08-13"
+  },
+  {
+    "id": "AB-897",
+    "titulo": "Os nomes casam com o runbook F6-02 — o token 'GATE P-1' existe nos documentos",
+    "pergunta": "O ∅-crit do F6-02 exige `rg -q \"GATE P-1\" docs/runbooks/publicacao.md` — o runbook referencia GATE P-1. Os nomes dos gates do F6-03 tem de casar com os do runbook: o que garante que o documento do P-1 carrega o token 'GATE P-1'?",
+    "por_que_aberto": "Irmaos da mesma onda sao cegos entre si (regra 5 do AGENTS.md): o F6-02 escreve o runbook sem ler os gate docs. O token fixo 'GATE P-1' e a ponte entre os dois entregaveis.",
+    "decisao_provisoria": "Cada documento de gate abre com o cabecalho '# GATE P-N — ...' (P-1..P-5); o verificador e o gate do card asseguram a presenca do cabecalho por documento. O runbook F6-02 referencia GATE P-1 e o P-1 deste conjunto.",
+    "verificacao": {
+      "cmd": "just gates-validar",
+      "espera": "VERDE; a sonda 'GATE P-2 sem o cabecalho GATE P-2' fica VERMELHA com 'cabecalho'",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se os nomes divergirem, o runbook publica contra gates que nao existem — o operador nao encontra o que o runbook manda executar.",
+      "artefatos": [
+        "docs/gates/P-1.md",
+        "docs/gates/P-2.md",
+        "docs/gates/P-3.md",
+        "docs/gates/P-4.md",
+        "docs/gates/P-5.md"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-898",
+    "titulo": "gates-validar (hifen) vs gates:validar (PROGRAMA.html) — divergencia nomeada no ADR-0047",
+    "pergunta": "O PROGRAMA.html cita `just gates:validar` (dois-pontos); o justfile 1.42.4 nao suporta dois-pontos em nome de receita (o F5-08 ja nomeou o mesmo caso com gm-e2e/gm:e2e no ADR-0044). A divergencia esta nomeada, ou o leitor vai concluir que a receita nao existe?",
+    "por_que_aberto": "Divergencia nao nomeada e armadilha de leitura: o operador roda `just gates:validar`, o justfile recusa, e a conclusao e 'o gate nao existe'.",
+    "decisao_provisoria": "A receita e `just gates-validar` (hifen); a divergencia com o PROGRAMA.html esta nomeada no ADR-0047 §6 e no docs/gates/README.md, no mesmo padrao do ADR-0044/gm-e2e. `just gates-bloqueia` roda o verificador para o runbook.",
+    "verificacao": {
+      "cmd": "just gates-validar",
+      "espera": "exit 0 — a receita hifen existe e roda o gate do card",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem a nota, a receita some da percepcao do operador e o gate do card nunca roda — o ∅-crit fica sem guarda executavel.",
+      "artefatos": [
+        "justfile",
+        "docs/adr/0047-gates-numerados-de-publicacao.md",
+        "docs/gates/README.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "just gates-validar",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-898.txt",
+      "sha256": "aa2593ec0c48e6669b3f95d78d989eae147d327bd9d2ebf7dce60d85ea51d5b9"
+    },
+    "data_resolucao": "2026-08-13"
+  },
+  {
+    "id": "AB-930",
+    "titulo": "O G-LED (F6-04) no estado MERGEADO reporta 11 itens ABERTO em categorias bloqueantes — quem resolve?",
+    "pergunta": "O F6-04 rodou `just ledger-fechar` na propria worktree e saiu exit 0; os irmaos F6-02/F6-03 mergearam depois (AB-870..898) e o estado mergeado hoje reporta 11 itens ABERTO em categorias bloqueantes (AB-870, AB-871, AB-873, AB-874, AB-875, AB-891, AB-893, AB-894, AB-895, AB-896, AB-898). Quem fecha (evidencia real), marca NAO_EXERCITADO (motivo) ou reverte a classificacao com os cards donos?",
+    "por_que_aberto": "A verificacao do F6-04 aconteceu ANTES do merge dos irmaos — a ausencia de um verificador e indistinguivel de conformidade (playbook :228-229): o gate passou na worktree e o estado mergeado diverge dele. Fechar exigiria evidencia real que nao existe; reclassificar seria tocar nos itens de outros cards; o F6-05 registra o achado e o transfere ao dono.",
+    "decisao_provisoria": "Manter os 11 itens como estao (ABERTO, responde dos cards donos) e registrar o achado em docs/arquivamento.md (secao 'O que ninguem conferiu') e no ADR-0049; a reexecucao do G-LED apos merges vira manual, com este item como fila de trabalho do dia em que o dono resolver.",
+    "verificacao": {
+      "cmd": "python3 tools/validate-ledger.py --exigir-fechados --categoria plataforma,infra,operacao --permitir-aberto AB-950",
+      "espera": "exit 0 — zero abertos em categorias bloqueantes alem da allowlist AB-950",
+      "ambiente": "qualquer maquina offline (o comando roda sem rede)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Enquanto os 11 ficarem abertos, o gate G-LED (just ledger-fechar) continua VERMELHO no estado mergeado e o fechamento do ledger nao vale para o estado publicado; o F6-04 verificou um estado que nao e o atual.",
+      "artefatos": [
+        "ledger/inbox/F6-02.json",
+        "ledger/inbox/F6-03.json",
+        "docs/arquivamento.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "agentes-worktrees",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "python3 tools/validate-ledger.py --exigir-fechados --categoria plataforma,infra,operacao --permitir-aberto AB-950",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-930.txt",
+      "sha256": "9a447b516966f8e9453f1e2b6a3de8ce991991b89d4db7852beb7ac87e1db00b"
     },
     "data_resolucao": "2026-08-13"
   },

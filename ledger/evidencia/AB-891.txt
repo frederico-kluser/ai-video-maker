@@ -1,0 +1,63 @@
+npx tsx tools/gates/gate.ts
+=== gates-validar — card F6-03 (W11), gates numerados de publicação ===
+
+--- [1/5] presenca dos artefatos do card (por nome, nunca por ausencia) ---
+  [OK]     docs/gates/README.md presente (o indice e o contrato de formato dos gates)
+  [OK]     docs/gates/evidencias/ presente (o diretorio das evidencias anexadas)
+  [OK]     tools/gates/verificar-gates.ts presente (o ∅-crit executavel (just gates-bloqueia))
+  [OK]     tools/gates/gate.ts presente (este gate)
+  [OK]     ledger/inbox/F6-03.json presente (os itens do ledger do card (faixa AB-890..AB-909))
+  [OK]     docs/gates/P-1.md presente
+  [OK]     docs/gates/P-2.md presente
+  [OK]     docs/gates/P-3.md presente
+  [OK]     docs/gates/P-4.md presente
+  [OK]     docs/gates/P-5.md presente
+  [OK]     docs/adr/0047-*.md presente (0047-gates-numerados-de-publicacao.md)
+  [OK]     bloco # === F6-03 === do justfile presente com marcador de fim
+  [OK]     receita `just gates-validar` presente
+  [OK]     receita `just gates-bloqueia` presente
+  [OK]     bloco F6-03 do justfile cita a alavanca-mestra
+  [OK]     ledger item AB-890 presente
+  [OK]     ledger item AB-891 presente
+  [OK]     ledger item AB-892 presente
+  [OK]     ledger item AB-893 presente
+  [OK]     ledger item AB-894 presente
+  [OK]     ledger item AB-895 presente
+  [OK]     ledger item AB-896 presente
+  [OK]     ledger item AB-897 presente
+  [OK]     ledger item AB-898 presente
+
+--- [2/5] estrutura dos documentos de gate (dano concreto, vereditos, papel) ---
+  [OK]     GATE P-1: papel nomeado Operador de publicação, vereditos possíveis e dano concreto presentes
+  [OK]     GATE P-2: papel nomeado Revisor jurídico, vereditos possíveis e dano concreto presentes
+  [OK]     GATE P-3: papel nomeado Revisor jurídico, vereditos possíveis e dano concreto presentes
+  [OK]     GATE P-4: papel nomeado Operador de publicação, vereditos possíveis e dano concreto presentes
+  [OK]     GATE P-5: papel nomeado Revisor editorial, vereditos possíveis e dano concreto presentes
+
+--- [3/5] ∅-crit — sondas negativas por alvo (cada mutacao tem de ficar VERMELHA) ---
+  [OK]     sonda positiva os cinco gates CONFERE com evidência anexada e papéis nomeados: VERDE
+  [OK]     sonda negativa estado commitado (todos NÃO_COLETADO) bloqueia a publicação: VERMELHO nomeando "NÃO_COLETADO"
+  [OK]     sonda negativa GATE P-1 CONFERE sem evidência anexada (∅-crit): VERMELHO nomeando "sem evidência ANEXADA"
+  [OK]     sonda negativa todos CONFERE sem evidência (veredito trocado, nada anexado): VERMELHO nomeando "sem evidência ANEXADA"
+  [OK]     sonda negativa GATE P-2 NÃO_COLETADO (volta ao estado bloqueante): VERMELHO nomeando "NÃO_COLETADO"
+  [OK]     sonda negativa GATE P-3 REPROVADO (condição reprovou): VERMELHO nomeando "REPROVADO"
+  [OK]     sonda negativa GATE P-4 assinado como 'o time' (coletivo, nunca papel nomeado): VERMELHO nomeando "nunca"
+  [OK]     sonda negativa GATE P-5 papel fora do vocabulário dos quatro: VERMELHO nomeando "papel válido"
+  [OK]     sonda negativa GATE P-5 CONFERE sem data de assinatura: VERMELHO nomeando "sem data"
+  [OK]     sonda negativa GATE P-5 CONFERE sem nome de quem assina: VERMELHO nomeando "sem nome"
+  [OK]     sonda negativa GATE P-1 com veredito inválido: VERMELHO nomeando "veredito inválido"
+  [OK]     sonda negativa GATE P-2 sem o cabeçalho GATE P-2: VERMELHO nomeando "cabeçalho"
+  [OK]     sonda negativa GATE P-3 sem a seção do dano concreto: VERMELHO nomeando "dano concreto"
+  [OK]     sonda negativa GATE P-1 com evidência-arquivo inexistente: VERMELHO nomeando "não existe ou está vazia"
+  [OK]     sonda negativa GATE P-1 sem nenhum marcador reconhecível: VERMELHO nomeando "sem veredito"
+  [OK]     sonda negativa GATE P-3 ausente (presença por gate): VERMELHO nomeando "P-3 AUSENTE"
+  [OK]     sonda negativa diretório de gates inexistente: VERMELHO nomeando "nenhum documento de gate"
+
+--- [4/5] a alavanca-mestra e citada nos documentos (politica §2.3) ---
+  [OK]     README.md cita a alavanca-mestra
+
+--- [5/5] o estado commitado de docs/gates/** e rejeitado (nada publicado) ---
+  [OK]     sonda negativa docs/gates/** commitados (todos NÃO_COLETADO) não liberam publicação: VERMELHO nomeando "NÃO_COLETADO"
+
+gates-validar: VERDE — os cinco gates P-1..P-5 existem, o ∅-crit morde
+(CONFERE sem evidência anexada = falha; REPROVADO/NÃO_COLETADO = publicação bloqueada)

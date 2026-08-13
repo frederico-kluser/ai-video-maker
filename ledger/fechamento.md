@@ -274,3 +274,81 @@ schema).
 - O arquivamento das regras mortas e do escopo negativo (F6-05).
 - O runbook de publicacao (F6-02) e os gates numerados (F6-03) — esta
   wave, em worktrees irmaas.
+
+---
+
+## Fechamento final (pós-merges W11/W12)
+
+**Data:** 2026-08-13 · **Agente:** fix-gled-final (onda 12.5) · **Comando:**
+
+```
+python3 tools/validate-ledger.py --exigir-fechados --categoria plataforma,infra,operacao --permitir-aberto AB-950
+```
+
+**Veredito:** exit 0 — zero itens ABERTO nas categorias bloqueantes no estado
+MERGEADO (depois dos merges do F6-02/F6-03 e da migração de vocabulário do
+F6-05). A allowlist permanece com exatamente 1 item (AB-950) — nada foi
+adicionado a ela.
+
+### Contexto
+
+O F6-04 fechou o ledger na base dele; os irmãos F6-02 (runbook) e F6-03
+(gates) mergearam depois (AB-870..898 novos), e a migração de vocabulário do
+F6-05 normalizou `responde` inválidos (ex.: `F3-01` -> `plataforma → dono`),
+expondo o AB-410 como bloqueante. O estado mergeado reportava 12 itens ABERTO
+em categorias bloqueantes — este fechamento resolve os 12.
+
+### Resumo
+
+| Métrica | Valor |
+|---|---|
+| FECHADO neste fechamento | 12 (AB-870, 871, 873, 874, 875, 891, 893, 894, 895, 896, 898, 930) |
+| NAO_EXERCITADO neste fechamento | 1 (AB-410) |
+| Transferidos de categoria | 0 |
+| Allowlist | inalterada — 1 item (AB-950) |
+
+Estado do ledger (272 itens): ABERTO 136 · FECHADO 130 · NAO_EXERCITADO 6 ·
+INVIAVEL 0.
+
+### Os 11 do F6-02/F6-03 — fechados com evidência real
+
+- **AB-870/871/873/874/875** (runbook de publicação): os `verificacao.cmd`
+  (rg sobre `docs/runbooks/publicacao.md` e `docs/adr/0046-*.md`) rodam hoje e
+  saem exit 0 — o runbook registra bucket dedicado de upload, disputa de
+  expiração de token, mapeamento fase->privacyStatus, audit de conformidade
+  sem SLA e a materialização da ALAVANCA_MESTRA pelo GATE P-1. Evidências em
+  `ledger/evidencia/AB-87N.txt`.
+- **AB-891/893/895/898** (gates): `just gates-validar` VERDE (18 sondas, o
+  ∅-crit morde: CONFERE sem evidência falha; REPROVADO/NÃO_COLETADO bloqueiam).
+- **AB-894**: `just gates-validar` VERDE **e** `gates-bloqueia` VERMELHO
+  (estado commitado NÃO_COLETADO bloqueia a publicação) — exit 0 como espera.
+- **AB-896**: `grep -n 'revisar-bloqueia' docs/gates/P-1.md` casa e
+  `gates-validar` VERDE — o P-1 consome o verificador do dossie.
+
+O único "comando quebrado" encontrado era de ambiente, não de receita:
+`node_modules` ausente na worktree (erro MODULE_NOT_FOUND no tsx) — resolvido
+pelo symlink de bootstrap do orquestrador para o node_modules do repo
+principal. Nenhum `verificacao.cmd` precisou ser alterado.
+
+### AB-410 — NAO_EXERCITADO (não transferido)
+
+O item é genuinamente `plataforma → dono` (o provedor responde o fato, o dono
+decide a regravação): regravar o cassete de locução com voz de verdade exige
+credencial válida do provedor de síntese, e a chave disponível está sem
+crédito (credit_balance_exhausted, HTTP 429; sem .env na worktree). Marcado
+NAO_EXERCITADO com o motivo no item — mesmo padrão dos AB-573/574. O cassete
+de sosia permanece válido para a suite offline até o dia da credencial.
+
+### AB-930 resolvido
+
+O item-ponte do F6-05 que documentava os 11 como fila de trabalho foi
+FECHADO com a própria verificação dele (o comando do G-LED com allowlist, que
+agora roda exit 0 — evidência em `ledger/evidencia/AB-930.txt`).
+
+### Transferências de categoria
+
+Zero. Nenhum item aberto bloqueante precisou de transferência de `responde`:
+11 fecharam com evidência real e 1 (AB-410) é NÃO_EXERCITADO honesto. Os
+candidatos citados no handoff (AB-274/AB-282) já estavam FECHADO no
+fechamento do F6-04, com o `responde` normalizado pela migração do F6-05 —
+nada a transferir. O vocabulário de `ledger/CATEGORIAS.md` não foi alterado.

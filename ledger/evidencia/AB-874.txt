@@ -1,0 +1,1 @@
+[saida vazia — exit 0] rg -q: runbook trata o audit de conformidade ToS, a data 2020-07-28 da restricao e declara a ausencia de SLA na secao o-que-ninguem-conferiu

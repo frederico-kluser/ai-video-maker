@@ -3,7 +3,7 @@
     "id": "AB-410",
     "titulo": "Cassete de locucao gravado contra sosia local — bytes de voz de verdade pendentes",
     "pergunta": "Quando o provedor de sintese tiver credito, quem regrava o cassete de locucao com voz de verdade, e o que o cassete de sosia esconde que o real nao esconderia?",
-    "por_que_aberto": "A chave de API disponivel no ambiente esta sem credito (credit_balance_exhausted, HTTP 429). Sem bytes do provedor real, as opcoes eram nao entregar cassete (card vermelho) ou forjar (proibido). A escolhida foi gravar contra um sosia local em 127.0.0.1:3203, com a URL verdadeira e a origem declarada em todo lugar (src/resolucao/locucao/sosia.ts). O sosia preserva o CODIGO do estagio, a chave de cache (endpoint_base nos parametros) e os defeitos da ferramenta de transcricao real (juncao ASCII, pontuacao nao-ASCII solta); o que ele nao preserva e a qualidade de voz e o comportamento real do provedor sob texto longo.",
+    "por_que_aberto": "A chave de API disponivel no ambiente esta sem credito (credit_balance_exhausted, HTTP 429). Sem bytes do provedor real, as opcoes eram nao entregar cassete (card vermelho) ou forjar (proibido). A escolhida foi gravar contra um sosia local em 127.0.0.1:3203, com a URL verdadeira e a origem declarada em todo lugar (src/resolucao/locucao/sosia.ts). O sosia preserva o CODIGO do estagio, a chave de cache (endpoint_base nos parametros) e os defeitos da ferramenta de transcricao real (juncao ASCII, pontuacao nao-ASCII solta); o que ele nao preserva e a qualidade de voz e o comportamento real do provedor sob texto longo. Fechamento do G-LED final (2026-08-13): NAO_EXERCITADO — regravar o cassete com voz de verdade exige credencial valida do provedor de sintese (a chave disponivel esta sem credito: credit_balance_exhausted, HTTP 429; ambiente sem .env nesta worktree). O cassete de sosia continua valido para a suite offline ate o dia da credencial (mesmo padrao dos itens AB-573/574).",
     "decisao_provisoria": "Cassete de sosia vale para a suite offline da W4 e para a W5 (F3-01). Regravar com credito e um passo de uma linha: trocar endpoint_base e provedor nos PARAMETROS_LOCUCAO e rodar 'npx tsx src/resolucao/locucao/gravar.ts --gravar'. A chave muda; o cassete de sosia nunca e servido no lugar do real por construcao.",
     "verificacao": {
       "cmd": "rg -n 'endpoint_base' src/resolucao/locucao/estagio.ts && ls fixtures/cassetes/locucao/*/cassete.json | head -1",
@@ -22,7 +22,7 @@
     "categoria": "audio",
     "responde": "plataforma → dono",
     "antecedencia": "onda",
-    "status": "ABERTO"
+    "status": "NAO_EXERCITADO"
   },
   {
     "id": "AB-411",
