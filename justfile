@@ -1492,3 +1492,148 @@ autoria-reparo:
     npx vitest run tests/autoria/reparo/
     @echo "autoria-reparo: VERDE"
 # === fim F4-03 ===
+
+# === F4-04 ===
+# =============================================================================
+# Cassete de autoria e a suite de REJEICAO — card F4-04 (W6)
+# =============================================================================
+# A suite offline da AUTORIA. O cassete (fixtures/cassetes/autoria/) so
+# testa alguma coisa porque o CAMINHO DE CHAMADA que o produz esta no
+# repositorio (src/autoria/executor/**): schemas podados por fornecedor,
+# cache do F4-01, e o gate (rejeitarSaidaInvalida) ANTES do pipeline.
+#
+# ∅-crit: "um manifesto invalido que passa tem de derrubar a suite". O
+# cassete TEM manifestos INVALIDOS gravados (invalidos.json — nao so os
+# bons) e a suite exige rejeicao de cada um em tres niveis (validacao,
+# gate, executor). Um validador que afrouxe deixa a suite VERMELHA.
+#
+# Rede bloqueada em DUAS camadas (mesmo desenho do F2-07): kernel
+# (unshare --net) + guarda em processo (tests/setup/rede-bloqueada.ts).
+# Sem unshare a camada de kernel e NAO-EXERCITADA — dita em voz alta.
+#
+# AB-551/552/554 (tetos reais, temperature, degradacao silenciosa) sao
+# EVIDENCIA com credencial, NUNCA gate: esta suite roda verde OFFLINE.
+# A medicao e: npx tsx src/autoria/executor/medir-limites.ts
+
+# A suite completa de autoria com a rede bloqueada em todas as camadas.
+autoria-offline:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ "${AUTORIA_OFFLINE_DENTRO:-0}" = "1" ]; then
+        FALHAS=0
+        echo "=== autoria-offline — cassete de autoria + suite de rejeicao (F4-04) ==="
+        echo "Camada externa: ${AUTORIA_OFFLINE_CAMADA:-desconhecida}"
+        echo ""
+
+        echo "--- [1/5] ∅-crit: o cassete de autoria existe com manifestos INVALIDOS gravados ---"
+        CASSETES=$(find fixtures/cassetes/autoria -mindepth 1 -maxdepth 1 -type d -name '[0-9a-f]*' 2>/dev/null | wc -l)
+        INVALIDOS=$(cat fixtures/cassetes/autoria/*/invalidos.json 2>/dev/null | grep -c '"motivo"' || echo 0)
+        if [ "$CASSETES" -lt 1 ] || [ "$INVALIDOS" -lt 3 ]; then
+            echo "[FALHOU] cassetes=$CASSETES invalidosGravados=$INVALIDOS — sem cassete ou sem invalidos gravados a suite estaria verde por vazio"
+            FALHAS=$((FALHAS + 1))
+        else
+            echo "[PASSOU] $CASSETES cassete(s), $INVALIDOS manifestos invalidos gravados"
+        fi
+        echo ""
+
+        echo "--- [2/5] sonda de kernel: chamada que TENTA sair ---"
+        if [ "${AUTORIA_OFFLINE_TEM_NAMESPACE:-0}" = "1" ]; then
+            if npx tsx tools/resolucao/sonda-rede.ts --camada kernel; then
+                echo "[PASSOU] sonda de kernel"
+            else
+                echo "[FALHOU] sonda de kernel"
+                FALHAS=$((FALHAS + 1))
+            fi
+        else
+            echo "[NAO-EXERCITADA] sonda de kernel — sem namespace de rede nesta maquina"
+        fi
+        echo ""
+
+        echo "--- [3/5] sonda em processo: o guarda instalado bloqueia ---"
+        if npx tsx tools/resolucao/sonda-rede.ts --camada processo; then
+            echo "[PASSOU] sonda em processo"
+        else
+            echo "[FALHOU] sonda em processo"
+            FALHAS=$((FALHAS + 1))
+        fi
+        echo ""
+
+        echo "--- [4/5] vitest: suite de autoria (cassete, rejeicao, executor, determinismo) ---"
+        if npx vitest run tests/autoria/; then
+            echo "[PASSOU] vitest tests/autoria/"
+        else
+            echo "[FALHOU] vitest tests/autoria/"
+            FALHAS=$((FALHAS + 1))
+        fi
+        echo ""
+
+        echo "--- [5/5] denominador: os arquivos de teste do F4-04 existem (anti-vacuidade C2) ---"
+        FALTANDO=""
+        for f in tests/autoria/cassete.test.ts tests/autoria/rejeicao.test.ts \
+                 tests/autoria/executor.test.ts tests/autoria/cassete-diff.test.ts \
+                 fixtures/cassetes/autoria/invalidos-fonte.json \
+                 fixtures/cassetes/autoria/brief-canonico.json; do
+            [ -f "$f" ] || FALTANDO="$FALTANDO $f"
+        done
+        if [ -n "$FALTANDO" ]; then
+            echo "[FALHOU] arquivos ausentes:$FALTANDO"
+            FALHAS=$((FALHAS + 1))
+        else
+            echo "[PASSOU] todos os arquivos do F4-04 presentes"
+        fi
+        echo ""
+
+        echo "---"
+        if [ "$FALHAS" -gt 0 ]; then
+            echo "=== VERMELHO: $FALHAS etapa(s) falharam com a rede bloqueada ==="
+            exit 1
+        fi
+        echo "=== VERDE: a suite de autoria passou com a rede bloqueada ==="
+        exit 0
+    fi
+
+    if command -v unshare >/dev/null 2>&1 &&
+        unshare --map-root-user --net -- true >/dev/null 2>&1; then
+        export AUTORIA_OFFLINE_DENTRO=1
+        export AUTORIA_OFFLINE_TEM_NAMESPACE=1
+        export AUTORIA_OFFLINE_CAMADA="namespace de rede do kernel (unshare --net)"
+        exec unshare --map-root-user --net -- bash -c '
+            ip link set lo up 2>/dev/null || true
+            exec bash "$0" "$@"
+        ' "$0"
+    fi
+
+    echo "=== autoria-offline ==="
+    echo ""
+    echo "AVISO: 'unshare --net' indisponivel nesta maquina."
+    echo "       A camada externa (kernel) NAO foi aplicada; a suite roda"
+    echo "       so com o guarda em processo. Resultado mais fraco, dito"
+    echo "       em voz alta de proposito."
+    echo ""
+    export AUTORIA_OFFLINE_DENTRO=1
+    export AUTORIA_OFFLINE_TEM_NAMESPACE=0
+    export AUTORIA_OFFLINE_CAMADA="AUSENTE (unshare indisponivel) — so o guarda em processo"
+    exec bash "$0"
+
+# So a suite vitest de autoria (sem o guarda de kernel).
+autoria-suite:
+    npx vitest run tests/autoria/
+
+# ∅-crit no nivel de suite: os manifestos invalidos GRAVADOS tem de ser
+# rejeitados — um invalido que passa derruba a suite.
+autoria-rejeicao:
+    npx vitest run tests/autoria/rejeicao.test.ts
+
+# Determinismo do cassete de autoria: regravar reproduz bytes identicos
+# exceto os volateis declarados (inclui sonda negativa).
+autoria-cassete:
+    npx vitest run tests/autoria/cassete-diff.test.ts
+
+# Cerimonia de gravacao (a mao, com rede e credencial — nunca em suite).
+autoria-gravar *args:
+    npx tsx src/autoria/executor/gravar-cassete.ts {{args}}
+
+# Medicao com credencial (AB-551/552/554) — EVIDENCIA, nunca gate.
+autoria-medir *args:
+    npx tsx src/autoria/executor/medir-limites.ts {{args}}
+# === fim F4-04 ===

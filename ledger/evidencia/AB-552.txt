@@ -1,0 +1,13 @@
+AB-552 — medicao com credencial (card F4-04, W6, 2026-08-13T17:12:30.497Z)
+===============================================================================
+
+Comando literal:
+  POST /v1/messages com output_config json_schema de schema com 6 niveis e 25 parametros opcionais, conferindo os campos do 6o nivel e o status (200 com todos os campos = sem degradacao silenciosa; 400 = limite real)
+
+Resultado:
+  ANTHROPIC_API_KEY ausente no ambiente — medicao nao executada
+
+Veredito: PENDENTE — sem credencial Anthropic no dia do card; nao bloqueia (gate permanece offline)
+
+Regra: AB-551/552/554 sao EVIDENCIA, NUNCA gate — o gate local
+(just autoria-offline) permanece verde OFFLINE, sem rede e sem chamada.

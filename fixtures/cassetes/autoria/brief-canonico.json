@@ -1,0 +1,11 @@
+{
+  "tema": "Editor de Vídeo IA — Pipeline Declarativo: da ideia ao frame final sem edição manual",
+  "publico": "desenvolvedores e criadores técnicos",
+  "duracao_alvo_segundos": 35,
+  "tom": "direto, didático",
+  "exclusoes": "comparação com editores de vídeo tradicionais",
+  "nos_obrigatorios": [
+    "codigo",
+    "grafico"
+  ]
+}

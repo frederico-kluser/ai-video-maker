@@ -1,0 +1,108 @@
+{
+  "cenas": [
+    {
+      "audio_cena": {
+        "texto_locucao": "Neste vídeo, vamos explorar como um editor de vídeo baseado em inteligência artificial pode transformar suas ideias em vídeos prontos para publicação, sem a necessidade de edição manual."
+      },
+      "id": "cena1",
+      "nos": [
+        "no1",
+        "no2"
+      ]
+    },
+    {
+      "audio_cena": {
+        "texto_locucao": "Vamos começar com um exemplo de código que ilustra como criar um vídeo a partir de uma ideia."
+      },
+      "id": "cena2",
+      "nos": [
+        "no3"
+      ]
+    },
+    {
+      "audio_cena": {
+        "texto_locucao": "Aqui está um gráfico que mostra a distribuição do pipeline de produção de vídeo."
+      },
+      "id": "cena3",
+      "nos": [
+        "no4"
+      ]
+    },
+    {
+      "audio_cena": {
+        "texto_locucao": "O pipeline declarativo permite que você defina etapas claras, desde a pré-produção até a pós-produção, garantindo que cada fase do processo seja otimizada."
+      },
+      "id": "cena4",
+      "nos": [
+        "no5"
+      ]
+    },
+    {
+      "audio_cena": {
+        "texto_locucao": "Com isso, você pode focar na criatividade, enquanto a IA cuida da execução técnica."
+      },
+      "id": "cena5",
+      "nos": [
+        "no6"
+      ]
+    }
+  ],
+  "nos": [
+    {
+      "id": "no1",
+      "schema": "Cabecalho.1",
+      "texto": "Editor de Vídeo IA — Pipeline Declarativo",
+      "type": "cabecalho"
+    },
+    {
+      "id": "no2",
+      "schema": "Texto.1",
+      "texto": "Neste vídeo, vamos explorar como um editor de vídeo baseado em inteligência artificial pode transformar suas ideias em vídeos prontos para publicação, sem a necessidade de edição manual.",
+      "type": "texto"
+    },
+    {
+      "codigo": "function criarVideo(ideia) {\n    // Lógica para criar vídeo a partir da ideia\n}",
+      "id": "no3",
+      "linguagem": "javascript",
+      "linhas_destaque": [
+        1
+      ],
+      "schema": "Codigo.1",
+      "type": "codigo"
+    },
+    {
+      "dados": [
+        {
+          "rotulo": "Pré-produção",
+          "valor": 30
+        },
+        {
+          "rotulo": "Produção",
+          "valor": 50
+        },
+        {
+          "rotulo": "Pós-produção",
+          "valor": 20
+        }
+      ],
+      "id": "no4",
+      "schema": "Grafico.1",
+      "tipo_grafico": "pizza",
+      "titulo": "Distribuição do Pipeline",
+      "type": "grafico"
+    },
+    {
+      "id": "no5",
+      "schema": "Texto.1",
+      "texto": "O pipeline declarativo permite que você defina etapas claras, desde a pré-produção até a pós-produção, garantindo que cada fase do processo seja otimizada.",
+      "type": "texto"
+    },
+    {
+      "id": "no6",
+      "schema": "Texto.1",
+      "texto": "Com isso, você pode focar na criatividade, enquanto a IA cuida da execução técnica.",
+      "type": "texto"
+    }
+  ],
+  "schema_version": "Autoria.1"
+}

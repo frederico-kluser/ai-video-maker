@@ -1,0 +1,20 @@
+AB-651 — teto do strict OpenAI (item de rastreio do F4-04; medicao original em AB-551.txt) — card F4-04, W6, 2026-08-13T17:12:47.671Z)
+===============================================================================
+
+Comando literal:
+  POST /v1/chat/completions com response_format json_schema strict de schema sintetico com 6 niveis de aninhamento e >100 propriedades, max_tokens 8 — ler status (200 = teto atual 10/5000/1000; 400 com mensagem de limite = ainda 5/100)
+
+Resultado:
+  status HTTP 200 — {
+  "id": "chatcmpl-ECTGxB3VoeKaGs3yoMpgW0UhgqnSk",
+  "object": "chat.completion",
+  "created": 1786641167,
+  "model": "gpt-4o-mini-2024-07-18",
+  "choices": [
+    {
+      "index": 0,
+      "message":
+
+Veredito: FECHADO — o teto atual da conta aceita 6 niveis e >100 propriedades (doc atual 10/5000/1000)
+
+Regra: AB-551/552/554 sao EVIDENCIA, NUNCA gate — o gate local

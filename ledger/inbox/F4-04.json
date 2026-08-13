@@ -1,0 +1,159 @@
+[
+  {
+    "id": "AB-650",
+    "titulo": "Schema OpenAI podado nao e strict-compativel: const sem type em 13 propriedades — 400 na chamada real",
+    "pergunta": "O schema podado da OpenAI (autoria.llm.openai.json) usa `const` SEM `type` em 13 propriedades (schema_version e schema/type dos seis nos). Isso e valido em JSON Schema 2020-12 e no subset da Anthropic, e INVALIDO no strict da OpenAI: a chamada real com response_format json_schema strict:true volta 400 com \"schema must have a 'type' key\" ANTES da inferencia. O schema do F4-01 passou na validacao JSON Schema (subset.test.ts) mas nunca foi enviado a API real — a armadilha do llm-authoring: \"verde aqui e 400 na API\". Quem corrige o schema (const pareada com type) para o strict voltar a valer?",
+    "por_que_aberto": "Medido neste card (F4-04) com credencial real: strict:true -> 400; strict:false -> 200 com documento valido. O executor decidiu (ADR-0031, decisao 6) enviar strict:false enquanto o schema nao for corrigido — o gate (rejeitarSaidaInvalida contra o schema completo) e a garantia do contrato, nao o strict. O schema e do F4-01 (W5, fechado) e src/autoria/contrato/** esta fora do mapa da W6.",
+    "decisao_provisoria": "O executor envia strict:false (documentado no codigo e no ADR-0031); quando o dono do schema corrigir o const sem type, o executor volta a strict:true sem outra mudanca. A chamada real esta gravada no cassete openai (sosia da resposta real).",
+    "verificacao": {
+      "cmd": "npx tsx src/autoria/executor/medir-limites.ts --provedor openai 2>&1 | grep -A2 AB-551; e: enviar o schema podado REAL com strict:true e max_tokens 8, lendo o status",
+      "espera": "400 com 'schema must have a 'type' key' (defeito presente); depois da correcao do schema: 200",
+      "ambiente": "maquina com OPENAI_API_KEY com credito (dia do acesso)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem voltar o executor a strict:true antes da correcao do schema, a chamada inteira cai com 400 em producao, antes da inferencia; se ninguem corrigir o schema, o caminho OpenAI permanece no modo nao-estrito (gate cobre).",
+      "artefatos": [
+        "src/autoria/contrato/schema/autoria.llm.openai.json",
+        "src/autoria/executor/chamada.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-651",
+    "titulo": "AB-551 medido: teto do strict OpenAI na conta em uso aceita 6 niveis e >100 propriedades",
+    "pergunta": "Qual teto vale na conta em uso — doc atual (10 niveis / 5000 propriedades / 1000 enums) ou docs de 2024 (5/100/500)?",
+    "por_que_aberto": "O item original (AB-551, responde F4-04) pedia a medicao com credencial. Executada no dia do card F4-04.",
+    "decisao_provisoria": "FECHADO por medicao (evidencia: ledger/evidencia/AB-551.txt): schema sintetico strict com 6 niveis de aninhamento e >100 propriedades (additionalProperties:false e required em todo objeto — sem isso o 400 e erro de formato, nao teto) -> status 200. O teto atual da conta aceita o schema (doc atual 10/5000/1000). O schema v1 (<=5 niveis) esta dentro dos dois.",
+    "verificacao": {
+      "cmd": "npx tsx src/autoria/executor/medir-limites.ts --provedor openai 2>&1 | grep -A3 AB-551",
+      "espera": "status HTTP 200 (teto atual)",
+      "ambiente": "maquina com OPENAI_API_KEY com credito (dia do acesso)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a conta mudar de teto no futuro, a chamada com schema maior cai com 400; o v1 (<=5 niveis) esta dentro dos dois tetos conhecidos.",
+      "artefatos": [
+        "ledger/evidencia/AB-551.txt"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "ambiente",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx tsx src/autoria/executor/medir-limites.ts --provedor openai 2>&1 | grep -A3 AB-551",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-651.txt",
+      "sha256": "f5abb360e5b530f51a51298ee1637ea55c59220cb8d8bc166299ffb752efe9d4"
+    },
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Medicao com credencial executada no dia do card (ver ledger/evidencia/AB-551.txt e AB-651.txt): schema sintetico strict com 6 niveis de aninhamento e >100 propriedades (additionalProperties:false e required em todo objeto) -> status HTTP 200. O teto atual da conta aceita o schema (doc atual 10/5000/1000); o schema v1 (<=5 niveis) esta dentro dos dois. A sonda com schema sem additionalProperties:false 400a por FORMATO (nao teto) — a medicao valida e a com o schema strict-compativel."
+  },
+  {
+    "id": "AB-652",
+    "titulo": "AB-552 pendente: limites da Anthropic (degradacao silenciosa >5 niveis, request limits 20/24/16) nao medidos — sem credencial",
+    "pergunta": "A doc da Anthropic nao publica tetos de profundidade/propriedades/enums; a degradacao silenciosa de schemas com recursao alem de 5 niveis e os request limits 20/24/16 nao foram confirmados na API real.",
+    "por_que_aberto": "Sem ANTHROPIC_API_KEY no ambiente no dia do card F4-04. A medicao esta registrada como PENDENTE em ledger/evidencia/AB-552.txt (comando literal) e NAO bloqueia: AB-551/552/554 sao evidencia com credencial, nunca gate (contrato-w6 §12).",
+    "decisao_provisoria": "Manter o schema v1 em <= 5 niveis (como o ADR-0023 ja decidiu); nao usar opcionais de union no podado Anthropic. O cassete anthropic foi gravado do SOSIA (envelope na forma da API real) — regravar com credencial quando houver.",
+    "verificacao": {
+      "cmd": "npx tsx src/autoria/executor/medir-limites.ts --provedor anthropic 2>&1 | grep -A3 AB-552",
+      "espera": "200 com todos os campos do 6o nivel presentes (sem degradacao); se 400, o limite e real",
+      "ambiente": "maquina com ANTHROPIC_API_KEY com credito (dia do acesso)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a degradacao silenciosa existir e alguem subir a profundidade do schema, o manifesto sai incompleto com exit 0 do provedor e o erro aparece como video errado, nao como chamada falha.",
+      "artefatos": [
+        "src/autoria/contrato/schema/autoria.llm.anthropic.json",
+        "ledger/evidencia/AB-552.txt"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-653",
+    "titulo": "AB-554 medido: temperature: 0 aceito no modelo alvo (200)",
+    "pergunta": "O parametro temperature e aceito (0.0-1.0) ou rejeitado com 400 no modelo alvo?",
+    "por_que_aberto": "O item original (AB-554, responde F4-04) pedia a medicao com credencial. Executada no dia do card F4-04.",
+    "decisao_provisoria": "FECHADO por medicao (evidencia: ledger/evidencia/AB-554.txt): chamada minima com temperature: 0 -> status 200. O executor pode (e envia) temperature: 0. Sem ANTHROPIC_API_KEY, o lado anthropic fica PENDENTE (AB-652). O cache continua sendo a garantia de reprodutibilidade — temperature nao entra na chave (ADR-0023 decisao 4; ADR-0031 decisao 3).",
+    "verificacao": {
+      "cmd": "npx tsx src/autoria/executor/medir-limites.ts --provedor openai 2>&1 | grep -A3 AB-554",
+      "espera": "status HTTP 200 (aceito)",
+      "ambiente": "maquina com OPENAI_API_KEY com credito (dia do acesso)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Nenhum impacto no contrato v1; se 400 num modelo futuro, o executor omite o parametro (decisao do ADR-0023).",
+      "artefatos": [
+        "ledger/evidencia/AB-554.txt"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "ambiente",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "FECHADO",
+    "evidencia": {
+      "cmd": "npx tsx src/autoria/executor/medir-limites.ts --provedor openai 2>&1 | grep -A3 AB-554",
+      "exit": "0",
+      "arquivo": "ledger/evidencia/AB-653.txt",
+      "sha256": "9bef1cdde61ca73119cd081b4eb0ca7c28f8956cbc8b9811b0ff06fa2f42b9d1"
+    },
+    "data_resolucao": "2026-08-13",
+    "resolucao": "Medicao com credencial executada no dia do card (ver ledger/evidencia/AB-554.txt e AB-653.txt): chamada minima com temperature: 0 -> status HTTP 200. O executor pode (e envia) temperature: 0. O lado anthropic fica pendente junto com AB-652 (sem credencial). O cache continua sendo a garantia de reprodutibilidade — temperature fora da chave (ADR-0023 decisao 4; ADR-0031 decisao 3)."
+  },
+  {
+    "id": "AB-654",
+    "titulo": "Autoria.1 nao valida referencia de cena.nos: cena com no inexistente PASSA na validacao",
+    "pergunta": "O schema Autoria.1 valida cena.nos como array de strings sem checar que o id existe em nos (sem referential integrity). Uma cena referenciando um no inexistente passa na validacao — quem valida a integridade referencial, e onde?",
+    "por_que_aberto": "Caracterizacao deste card: os manifestos invalidos gravados no cassete sao so os que o schema REALMENTE rejeita — uma cena com no inexistente NAO foi gravada como invalida porque passaria (a suite de rejeicao so assere rejeicao do que e rejeitado). A integridade referencial e invariante de negocio da NARRATIVA: o schema nao a carrega (como nao carrega outras invariantes — tetos, tamanhos — que vivem no schema completo); o ponto de aplicacao natural e a ponte AB-550 (F5-01, W7) quando o documento de autoria vira manifesto resolvido.",
+    "decisao_provisoria": "Nenhum consumidor da W6 valida referencias (ninguem consome cena.nos alem da ponte); a ponte (AB-550) valida. Registrado para o dono da ponte nao herdar o furo em silencio.",
+    "verificacao": {
+      "cmd": "python3 -c \"import json; s=json.load(open('src/autoria/contrato/schema/autoria.schema.json')); print(json.dumps(s['$defs']['Cena']))\"",
+      "espera": "cena.nos e array de strings, sem $ref a nos — a integridade referencial nao esta no schema",
+      "ambiente": "worktree do repo, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a ponte (F5-01) assumir que o schema ja validou as referencias, um documento com no orfao chega ao manifesto resolvido e o video renderiza com no faltante, sem erro.",
+      "artefatos": [
+        "src/autoria/contrato/schema/autoria.schema.json",
+        "src/autoria/executor/cassete.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "render",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-655",
+    "titulo": "Cassete anthropic gravado do SOSIA — regravar com credencial quando houver",
+    "pergunta": "O cassete do provedor anthropic foi gravado do sosia (envelope montado a mao na forma da API real, documento de referencia com a narrativa da fixture canonica) porque ANTHROPIC_API_KEY nao estava no ambiente. A resposta gravada representa a forma real da API, mas nao e uma resposta real. Quando houver credencial, regravar (just autoria-gravar --provedor anthropic) e comparar com a gravacao sosia.",
+    "por_que_aberto": "AB-552 (medicao anthropic) esta pendente pelo mesmo motivo. A gravacao sosia segue a convencao da W4 (sosia-local nos cassetes de locucao/midia); a procedencia.notas registra a origem.",
+    "decisao_provisoria": "O cassete sosia permanece commitado e o gate offline roda verde sobre ele; a regravacao com credencial e cerimonia a mao (nunca suite). O replay exercita o caminho anthropic inteiro (montagem, extracao do bloco output_json, gate) independentemente da origem da gravacao.",
+    "verificacao": {
+      "cmd": "npx tsx src/autoria/executor/gravar-cassete.ts --provedor anthropic (com ANTHROPIC_API_KEY no ambiente)",
+      "espera": "cassete regravado com chamada real, procedencia.notas atualizada, diff determinista (so volateis)",
+      "ambiente": "maquina com ANTHROPIC_API_KEY com credito (dia do acesso)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o formato real da resposta anthropic divergir do envelope sosia (ex.: bloco output_json com campo diferente), o replay offline quebra na EXTRACAO — que e o lugar certo, e a suite fica vermelha com o motivo certo.",
+      "artefatos": [
+        "fixtures/cassetes/autoria/91d0269d5e3461f81cbcaed6a0f2937d8e43d01896bfefd2a178174534ab7760"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "ambiente",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]

@@ -1,0 +1,20 @@
+AB-653 — temperature: 0 aceito (item de rastreio do F4-04; medicao original em AB-554.txt) — card F4-04, W6, 2026-08-13T17:12:47.670Z)
+===============================================================================
+
+Comando literal:
+  POST /v1/chat/completions {model: gpt-4o-mini, max_tokens: 8, temperature: 0} — ler status HTTP (200 = aceito; 400 = removido na linha)
+
+Resultado:
+  status HTTP 200 — {
+  "id": "chatcmpl-ECTGwpbU4HRXVfOUXHAlIxzp9oELj",
+  "object": "chat.completion",
+  "created": 1786641166,
+  "model": "gpt-4o-mini-2024-07-18",
+  "choices": [
+    {
+      "index": 0,
+      "message":
+
+Veredito: FECHADO — temperature: 0 aceito (o executor pode enviar temperature: 0)
+
+Regra: AB-551/552/554 sao EVIDENCIA, NUNCA gate — o gate local
