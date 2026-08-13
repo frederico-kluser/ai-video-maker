@@ -1,0 +1,18 @@
+{
+  "schema_version": "Autoria.1",
+  "nos": [
+    {
+      "id": "n-002",
+      "schema": "Texto.1",
+      "type": "texto",
+      "texto": "Tentativa de decidir cor",
+      "cor": "#ff0000"
+    }
+  ],
+  "cenas": [
+    {
+      "id": "cena-001",
+      "nos": ["n-002"]
+    }
+  ]
+}

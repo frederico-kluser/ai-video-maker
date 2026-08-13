@@ -1,0 +1,17 @@
+{
+  "schema_version": "Manifesto.1",
+  "nos": [
+    {
+      "id": "n-001",
+      "schema": "Cabecalho.1",
+      "type": "cabecalho",
+      "texto": "Versao errada do documento"
+    }
+  ],
+  "cenas": [
+    {
+      "id": "cena-001",
+      "nos": ["n-001"]
+    }
+  ]
+}

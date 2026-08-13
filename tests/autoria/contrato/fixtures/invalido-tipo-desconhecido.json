@@ -1,0 +1,17 @@
+{
+  "schema_version": "Autoria.1",
+  "nos": [
+    {
+      "id": "n-001",
+      "schema": "Slide.9",
+      "type": "slide",
+      "texto": "Tipo fora do vocabulario"
+    }
+  ],
+  "cenas": [
+    {
+      "id": "cena-001",
+      "nos": ["n-001"]
+    }
+  ]
+}

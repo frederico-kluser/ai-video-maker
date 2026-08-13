@@ -1,0 +1,19 @@
+{
+  "schema_version": "Autoria.1",
+  "nos": [
+    {
+      "id": "n-003",
+      "schema": "Texto.1",
+      "type": "texto",
+      "texto": "Tentativa de decidir coordenada",
+      "x": 100,
+      "y": 200
+    }
+  ],
+  "cenas": [
+    {
+      "id": "cena-001",
+      "nos": ["n-003"]
+    }
+  ]
+}

@@ -1,0 +1,147 @@
+[
+  {
+    "id": "AB-550",
+    "titulo": "Ponte autoria v1 -> manifesto S-4: quem preenche frames, layout, cor, hash e licenca",
+    "pergunta": "A saida da autoria v1 (Autoria.1) e narrativa apenas — sem duracao_frames, sem cor, sem layout, sem hash e sem licenca — mas o manifesto S-4 (schema/manifesto.schema.json) EXIGE duracao_frames em todo no e hash no no de midia. Quem deriva o manifesto completo do Documento de Autoria, e onde isso e declarado?",
+    "por_que_aberto": "O schema S-4 e singleton congelado (fase 0) e nao pode servir de schema de autoria: exigir duracao_frames seria o LLM decidindo frames (pergunta adversarial 1 do F4-01), exigir hash viola AB-432 e nao exigir texto_alternativo viola AB-433. A v1 do contrato de autoria define documento proprio; a ponte (autoria -> resolucao -> manifesto completo) e trabalho da fronteira de resolucao e da W6.",
+    "decisao_provisoria": "O Documento de Autoria v1 e o contrato de saida do estagio de AUTORIA. Quem consumir precisa completar frames/layout/cor na composicao e hash/licenca na resolucao, e a validacao contra o S-4 acontece no ponto de consumo do manifesto completo — nunca dentro do contrato de autoria.",
+    "verificacao": {
+      "cmd": "grep -rn 'Autoria.1' src/autoria/ src/contratos/ tests/autoria/ | head -5",
+      "espera": "O schema da autoria e o Autoria.1, distinto do Manifesto.1; nenhum teste afirma que um documento de autoria valido e um manifesto S-4 valido",
+      "ambiente": "worktree do repo, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem 'consertar' validando a saida da autoria contra o S-4, todo documento valido da autoria v1 e rejeitado (nao tem duracao/hash) e o estagio morre; se alguem reverter AB-432/AB-433 no schema da autoria, a ponte de resolucao volta a inventar termo de busca.",
+      "artefatos": [
+        "src/autoria/contrato/schema/autoria.schema.json",
+        "src/autoria/contrato/rejeitar.ts",
+        "schema/manifesto.schema.json"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "contrato",
+    "responde": "F1-12",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-551",
+    "titulo": "Teto real do strict OpenAI na conta em uso: doc atual (10/5000/1000) vs docs de 2024 (5/100/500)",
+    "pergunta": "A doc atual da OpenAI diz ate 10 niveis / 5000 propriedades / 1000 enums; as docs de 2024 e a API real diziam 5 niveis / 100 propriedades (erro literal: '103 parameters exceeds limit of 100'). Qual teto vale na conta em uso, e quando mudou?",
+    "por_que_aberto": "A pergunta de pesquisa do F4-01 (ADR-0023) fechou o desenho pela INTERSECAO (<= 5 niveis, dezenas de propriedades) — o schema v1 cabe nas duas eras. O numero vigente na conta so a API real responde, e isso exige credencial com credito.",
+    "decisao_provisoria": "Desenhar para a interseccao (5 niveis, poucas dezenas de propriedades). O schema v1 usa <= 5 niveis por construcao e nao precisa do teto novo.",
+    "verificacao": {
+      "cmd": "enviar schema com 6 niveis de aninhamento e >100 propriedades em response_format json_schema strict e ler o status",
+      "espera": "200 se o teto atual for 10/5000/1000; 400 com a mensagem de limite se ainda valer 5/100",
+      "ambiente": "maquina com credencial OpenAI com credito (dia do acesso)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um card da W6+ desenhar schema de 6+ niveis confiando na doc atual e a conta ainda aplicar o teto de 2024, a chamada inteira cai com 400 antes da inferencia, em producao.",
+      "artefatos": [
+        "src/autoria/contrato/schema/autoria.llm.openai.json",
+        "docs/adr/0023-contrato-de-autoria.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "provedor",
+    "responde": "F4-04",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-552",
+    "titulo": "Limites da Anthropic nao documentados: degradacao silenciosa >5 niveis e request limits 20/24/16 nao confirmados",
+    "pergunta": "A doc da Anthropic nao publica tetos de profundidade/propriedades/enums; um terceiro (Instructor) reporta degradacao SILENCIOSA de schemas com recursao alem de 5 niveis; os request limits 20 strict tools / 24 params opcionais / 16 unions foram reportados por resumo de busca, nao por fetch direto. Quais valem na API real?",
+    "por_que_aberto": "Degradacao silenciosa e o pior modo de falha possivel: a chamada devolve 200 com campos faltando, e o contrato a jusante valida contra o schema completo e rejeita — ou, pior, aceita o documento encurtado sem notar. O schema v1 fica em <= 5 niveis por desenho, mas o teto real da conta ainda nao foi medido.",
+    "decisao_provisoria": "Manter o schema v1 em <= 5 niveis; nao usar opcionais de union no podado Anthropic (opcionais reais, sem uniao null); a degradacao silenciosa nao e detectavel sem chamada real.",
+    "verificacao": {
+      "cmd": "chamada com schema de 6 niveis e com 25 parametros opcionais, conferindo os campos do 6o nivel e o status",
+      "espera": "200 com todos os campos do 6o nivel presentes (sem degradacao); se 400, o limite e real e a doc omitiu",
+      "ambiente": "maquina com credencial Anthropic com credito (dia do acesso)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a degradacao silenciosa existir e um card da W6+ subir a profundidade, o manifesto sai incompleto com exit 0 do provedor e o erro aparece como video errado, nao como chamada falha.",
+      "artefatos": [
+        "src/autoria/contrato/schema/autoria.llm.anthropic.json",
+        "docs/adr/0023-contrato-de-autoria.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "provedor",
+    "responde": "F4-04",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-553",
+    "titulo": "Custo por video nao medido: multiplicadores de prompt cache sao estimativa (1-0)",
+    "pergunta": "Quanto custa uma geracao completa de autoria (manifesto) nesta conta? Nenhum numero existe hoje — faltam AB-002, AB-023 e AB-073, e os multiplicadores de cache (escrita 1,25x/2x, leitura 0,1x) sao estimativa de fonte unica.",
+    "por_que_aberto": "A pergunta adversarial 3 do F4-01 ('o custo por video e medido ou estimado?') tem resposta: ESTIMADO, nao medido. O que da para medir hoje, por sessao, sao usage.input_tokens / cache_creation_input_tokens / cache_read_input_tokens.",
+    "decisao_provisoria": "Nenhum numero de 'custo por video' e apresentado como fato; o contrato de autoria nao cobra nada. Quando houver instrumentacao, somar total_cost_usd de todas as chamadas de uma geracao e persistir em metrics/ desde a primeira execucao.",
+    "verificacao": {
+      "cmd": "somar total_cost_usd de todas as chamadas de uma geracao completa e persistir em metrics/",
+      "espera": "arquivo em metrics/ com custo real por geracao, desde a primeira execucao com credencial",
+      "ambiente": "maquina com credencial com credito (dia do acesso)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um numero 'de custo por video' aparecer sem medicao, ele e invencao (lei do programa); se o cache de saida for apresentado como 'economia' sem os usage.*, a conta nao fecha.",
+      "artefatos": [
+        "src/autoria/contrato/cache.ts",
+        "docs/adr/0023-contrato-de-autoria.md"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "custo",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-554",
+    "titulo": "temperature aceito ou 400 no modelo alvo (disputa 1-1)",
+    "pergunta": "O parametro temperature e aceito (0.0-1.0, doc de referencia) ou rejeitado com 400 (guia de migracao trata sampling params como removidos na linha recente)?",
+    "por_que_aberto": "O contrato de autoria nao depende da resposta: o cache e a garantia de reprodutibilidade e temperature esta FORA da chave de proposito (ADR-0023, decisao 4). Mas a chamada real do F4-02/F4-04 vai precisar saber se pode enviar temperature: 0.",
+    "decisao_provisoria": "O cache nao depende de temperature; o cliente da chamada decide por chamada. Se 400, o parametro e omitido sem prejuizo de contrato.",
+    "verificacao": {
+      "cmd": "chamada com temperature: 0 conferindo o status HTTP",
+      "espera": "200 (aceito) ou 400 (removido na linha) — e a disputa fecha",
+      "ambiente": "maquina com credencial com credito (dia do acesso)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Nenhum impacto no contrato v1; impacto operacional no cliente da chamada (F4-02/F4-04), que teria que retirar o parametro se 400.",
+      "artefatos": [
+        "docs/adr/0023-contrato-de-autoria.md"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "provedor",
+    "responde": "F4-04",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-555",
+    "titulo": "Vocabulario de transicao: S-4 tem clockWipe/cube, o pacote instalado tem clock-wipe e nao tem cube",
+    "pergunta": "O enum do S-4 usa camelCase (clockWipe) e inclui cube; o pacote instalado @remotion/transitions 4.0.507 exporta kebab-case (clock-wipe) e nao tem cube (pagina na doc, pacote separado e pago). Quem decide o mapeamento de nomes no manifesto completo?",
+    "por_que_aberto": "A v1 do contrato de autoria congela a INTERSECAO segura (fade, slide, wipe, flip, none — testada contra o exports instalado em vocabulario.test.ts). clock-wipe (instalado) e clockWipe (S-4) sao o mesmo presentation com nomes diferentes: o mapeamento e decisao de ponte da W6, nao da autoria.",
+    "decisao_provisoria": "O vocabulario v1 nao inclui clockWipe nem cube; o enum do S-4 nao e tocado (S-4 e congelado).",
+    "verificacao": {
+      "cmd": "node -e \"console.log(Object.keys(require('@remotion/transitions/package.json').exports))\" | grep -c clock-wipe",
+      "espera": "1 (o presentation clock-wipe existe no pacote instalado); cube ausente da lista",
+      "ambiente": "worktree do repo, node 24"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem reaproveitar o enum do S-4 no schema de autoria, cube entra no vocabulario e o LLM emite uma transicao que o pacote instalado nao tem — build quebrado com exit 0 da geracao.",
+      "artefatos": [
+        "src/autoria/contrato/contrato.ts",
+        "src/autoria/contrato/schema/autoria.schema.json",
+        "tests/autoria/contrato/vocabulario.test.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "contrato",
+    "responde": "F1-12",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]

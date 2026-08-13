@@ -1107,3 +1107,48 @@ timing-gravar:
     npx tsx tools/timing/gerar.ts --gravar
     @echo "revise antes de commitar: git diff fixtures/canonico/timing-canono.json"
 # === fim F3-01 ===
+
+# === F4-01 ===
+# =============================================================================
+# Contrato de autoria v1 — saida estruturada do LLM (narrativa apenas) + cache.
+# O LLM decide NARRATIVA; o sistema decide frames, layout e cor: os campos
+# dessas decisoes NAO EXISTEM no schema (additionalProperties:false).
+# Regras duras: AB-432 (hash de midia ADVISORY) e AB-433 (texto_alternativo
+# OBRIGATORIO para no de midia).
+#
+# NOME DAS RECEITAS: hifen, nunca ':' (just 1.42 — armadilha 9.1).
+# Porta TCP reservada: 4401 (docs/contrato-w5.md §9). Faixa de ledger:
+# AB-550..AB-569 (ledger/inbox/F4-01.json). Dono: card F4-01 — nao edite
+# fora destes marcadores.
+#
+# ∅-crit do card: uma saida que NAO valida contra o schema TEM de ser
+# rejeitada ANTES de tocar o pipeline — prova em rejeitar.test.ts com stub
+# de pipeline que registra invocacao.
+#
+# C2 (falso verde): o vitest sai 0 quando um caminho listado nao existe mas
+# outro casa. Cada receita confere por `test -f` que OS ARQUIVOS existem
+# antes de rodar — apagar qualquer teste do contrato deixa a receita
+# VERMELHA por ausencia.
+# =============================================================================
+
+# Gate do contrato de autoria: schema + validacao + ∅-crit + regras duras
+# + pergunta adversarial 1 (frames/cor/coordenada impossiveis) + subsets
+# por fornecedor + vocabulario de transicao.
+autoria-contrato:
+    @echo "=== autoria-contrato: contrato de autoria v1 ==="
+    @for f in validar.test.ts rejeitar.test.ts adversarial.test.ts ab-432-ab-433.test.ts subset.test.ts vocabulario.test.ts; do \
+        test -f "tests/autoria/contrato/$f" || { echo "FALHOU: tests/autoria/contrato/$f ausente"; exit 1; }; \
+    done
+    npx vitest run tests/autoria/contrato/validar.test.ts tests/autoria/contrato/rejeitar.test.ts tests/autoria/contrato/adversarial.test.ts tests/autoria/contrato/ab-432-ab-433.test.ts tests/autoria/contrato/subset.test.ts tests/autoria/contrato/vocabulario.test.ts
+    @echo "autoria-contrato: VERDE"
+
+# Cache de autoria: a mesma entrada NAO chama a API duas vezes (HIT); mudar
+# QUALQUER componente da chave gera MISS (C12, um parametro por vez).
+autoria-cache:
+    @echo "=== autoria-cache: chave canonica + HIT/MISS ==="
+    @for f in cache.test.ts canonicalizar.test.ts; do \
+        test -f "tests/autoria/contrato/$f" || { echo "FALHOU: tests/autoria/contrato/$f ausente"; exit 1; }; \
+    done
+    npx vitest run tests/autoria/contrato/cache.test.ts tests/autoria/contrato/canonicalizar.test.ts
+    @echo "autoria-cache: VERDE"
+# === fim F4-01 ===

@@ -1,0 +1,18 @@
+{
+  "schema_version": "Autoria.1",
+  "nos": [
+    {
+      "id": "n-004",
+      "schema": "Midia.1",
+      "type": "midia",
+      "tipo_midia": "imagem",
+      "hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+  ],
+  "cenas": [
+    {
+      "id": "cena-001",
+      "nos": ["n-004"]
+    }
+  ]
+}

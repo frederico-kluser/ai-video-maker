@@ -1,0 +1,77 @@
+{
+  "schema_version": "Autoria.1",
+  "nos": [
+    {
+      "id": "n-001",
+      "schema": "Cabecalho.1",
+      "type": "cabecalho",
+      "texto": "Ritmo, narrativa e sistema",
+      "subtitulo": "O LLM decide o quê; o sistema decide o como"
+    },
+    {
+      "id": "n-002",
+      "schema": "Texto.1",
+      "type": "texto",
+      "texto": "Cada cena tem um texto narrativo e nenhum numero de frame.",
+      "destaque": true
+    },
+    {
+      "id": "n-003",
+      "schema": "Lista.1",
+      "type": "lista",
+      "itens": ["nos", "ordem", "texto"],
+      "ordenada": true
+    },
+    {
+      "id": "n-004",
+      "schema": "Midia.1",
+      "type": "midia",
+      "tipo_midia": "imagem",
+      "texto_alternativo": "Diagrama da fronteira de determinismo do pipeline"
+    },
+    {
+      "id": "n-005",
+      "schema": "Midia.1",
+      "type": "midia",
+      "tipo_midia": "video",
+      "texto_alternativo": "Video de demonstracao do render deterministico",
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "id": "n-006",
+      "schema": "Codigo.1",
+      "type": "codigo",
+      "codigo": "const d = manifesto.nos.filter((n) => n.type === 'midia');",
+      "linguagem": "typescript",
+      "linhas_destaque": [1]
+    },
+    {
+      "id": "n-007",
+      "schema": "Grafico.1",
+      "type": "grafico",
+      "tipo_grafico": "barras",
+      "titulo": "Custos por estagio",
+      "dados": [
+        { "rotulo": "autoria", "valor": 12 },
+        { "rotulo": "resolucao", "valor": 45 }
+      ]
+    }
+  ],
+  "cenas": [
+    {
+      "id": "cena-001",
+      "nos": ["n-001", "n-002"],
+      "transicao_saida": { "tipo": "fade" },
+      "audio_cena": { "texto_locucao": "Bem-vindo a demonstracao do contrato de autoria." }
+    },
+    {
+      "id": "cena-002",
+      "nos": ["n-003", "n-004", "n-005", "n-006", "n-007"],
+      "transicao_entrada": { "tipo": "slide" },
+      "transicao_saida": { "tipo": "none" }
+    }
+  ],
+  "audio": {
+    "trilha_sonora": "piano-suave"
+  }
+}

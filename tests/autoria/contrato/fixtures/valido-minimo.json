@@ -1,0 +1,17 @@
+{
+  "schema_version": "Autoria.1",
+  "nos": [
+    {
+      "id": "n-001",
+      "schema": "Cabecalho.1",
+      "type": "cabecalho",
+      "texto": "O que e o Editor de Video IA"
+    }
+  ],
+  "cenas": [
+    {
+      "id": "cena-001",
+      "nos": ["n-001"]
+    }
+  ]
+}

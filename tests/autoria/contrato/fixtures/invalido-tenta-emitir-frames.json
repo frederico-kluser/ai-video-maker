@@ -1,0 +1,18 @@
+{
+  "schema_version": "Autoria.1",
+  "nos": [
+    {
+      "id": "n-001",
+      "schema": "Cabecalho.1",
+      "type": "cabecalho",
+      "texto": "Tentativa de decidir duracao",
+      "duracao_frames": 120
+    }
+  ],
+  "cenas": [
+    {
+      "id": "cena-001",
+      "nos": ["n-001"]
+    }
+  ]
+}

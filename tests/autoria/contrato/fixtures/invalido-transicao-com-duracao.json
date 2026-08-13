@@ -1,0 +1,21 @@
+{
+  "schema_version": "Autoria.1",
+  "nos": [
+    {
+      "id": "n-001",
+      "schema": "Texto.1",
+      "type": "texto",
+      "texto": "Transicao com duracao nao existe no contrato"
+    }
+  ],
+  "cenas": [
+    {
+      "id": "cena-001",
+      "nos": ["n-001"],
+      "transicao_entrada": {
+        "tipo": "fade",
+        "duracao_frames": 30
+      }
+    }
+  ]
+}

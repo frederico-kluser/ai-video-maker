@@ -1,0 +1,333 @@
+{
+  "title": "Documento de Autoria v1 (subset Anthropic)",
+  "description": "Subset do schema de autoria v1 (autoria.schema.json) podado para o modo estrito da Anthropic (output_config.format, strict). So chaves aceitas pelo subset da Anthropic: tipos basicos, enum de escalares, const, anyOf, allOf sem $ref (nao usado), $ref/$defs internos, default, additionalProperties:false, minItems 0|1. Recusadas e AUSENTES aqui: minimum/maximum/multipleOf, minLength/maxLength, maxItems, recursao, $ref externo, oneOf. As invariantes de negocio (tetos e tamanhos) vivem apenas no schema completo (autoria.schema.json), contra o qual a resposta e validada.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "nos",
+    "cenas"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "Autoria.1"
+    },
+    "nos": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/No"
+      }
+    },
+    "cenas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/Cena"
+      }
+    },
+    "audio": {
+      "$ref": "#/$defs/Audio"
+    }
+  },
+  "$defs": {
+    "No": {
+      "description": "No narrativo — uniao discriminada por anyOf de objetos, cada um com type: const. Nenhum ramo carrega frame, cor, coordenada, layout ou duracao: o sistema decide.",
+      "anyOf": [
+        { "$ref": "#/$defs/NoCabecalho" },
+        { "$ref": "#/$defs/NoTexto" },
+        { "$ref": "#/$defs/NoLista" },
+        { "$ref": "#/$defs/NoMidia" },
+        { "$ref": "#/$defs/NoCodigo" },
+        { "$ref": "#/$defs/NoGrafico" }
+      ]
+    },
+    "NoCabecalho": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "schema",
+        "type",
+        "texto"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "schema": {
+          "const": "Cabecalho.1"
+        },
+        "type": {
+          "const": "cabecalho"
+        },
+        "texto": {
+          "type": "string"
+        },
+        "subtitulo": {
+          "type": "string"
+        }
+      }
+    },
+    "NoTexto": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "schema",
+        "type",
+        "texto"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "schema": {
+          "const": "Texto.1"
+        },
+        "type": {
+          "const": "texto"
+        },
+        "texto": {
+          "type": "string"
+        },
+        "destaque": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "NoLista": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "schema",
+        "type",
+        "itens"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "schema": {
+          "const": "Lista.1"
+        },
+        "type": {
+          "const": "lista"
+        },
+        "itens": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "ordenada": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "NoMidia": {
+      "description": "AB-432: hash e ADVISORY — ausencia do hash e valida (o hash e resolvido a jusante, na fronteira de resolucao). AB-433: texto_alternativo e OBRIGATORIO — um no de midia sem descricao e invalido, erro e nao aviso.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "schema",
+        "type",
+        "tipo_midia",
+        "texto_alternativo"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "schema": {
+          "const": "Midia.1"
+        },
+        "type": {
+          "const": "midia"
+        },
+        "tipo_midia": {
+          "type": "string",
+          "enum": [
+            "imagem",
+            "video",
+            "gif"
+          ]
+        },
+        "texto_alternativo": {
+          "type": "string"
+        },
+        "hash": {
+          "type": "string",
+          "description": "ADVISORY (AB-432): quando presente, o hash declarado e registrado; a ausencia nunca reprova o documento."
+        }
+      }
+    },
+    "NoCodigo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "schema",
+        "type",
+        "codigo"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "schema": {
+          "const": "Codigo.1"
+        },
+        "type": {
+          "const": "codigo"
+        },
+        "codigo": {
+          "type": "string"
+        },
+        "linguagem": {
+          "type": "string",
+          "default": "text"
+        },
+        "linhas_destaque": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "NoGrafico": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "schema",
+        "type",
+        "tipo_grafico",
+        "dados"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "schema": {
+          "const": "Grafico.1"
+        },
+        "type": {
+          "const": "grafico"
+        },
+        "tipo_grafico": {
+          "type": "string",
+          "enum": [
+            "barras",
+            "linha",
+            "pizza",
+            "area",
+            "dispersao"
+          ]
+        },
+        "titulo": {
+          "type": "string"
+        },
+        "dados": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "rotulo",
+              "valor"
+            ],
+            "properties": {
+              "rotulo": {
+                "type": "string"
+              },
+              "valor": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "Transicao": {
+      "description": "Vocabulario FECHADO de apresentacao de transicao. O tipo e decisao narrativa de ritmo; a DURACAO (frames) e a direcao sao decisao do sistema e nao existem aqui.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tipo"
+      ],
+      "properties": {
+        "tipo": {
+          "type": "string",
+          "enum": [
+            "fade",
+            "slide",
+            "wipe",
+            "flip",
+            "none"
+          ]
+        }
+      }
+    },
+    "AudioCena": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "texto_locucao"
+      ],
+      "properties": {
+        "texto_locucao": {
+          "type": "string"
+        }
+      }
+    },
+    "Cena": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "nos"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "nos": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "transicao_entrada": {
+          "$ref": "#/$defs/Transicao"
+        },
+        "transicao_saida": {
+          "$ref": "#/$defs/Transicao"
+        },
+        "audio_cena": {
+          "$ref": "#/$defs/AudioCena"
+        }
+      }
+    },
+    "Audio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trilha_sonora"
+      ],
+      "properties": {
+        "trilha_sonora": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
