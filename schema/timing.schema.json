@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-video-maker/schema/timing.schema.json",
+  "title": "Timing canonico",
+  "description": "O documento canonico de timing da composicao (card F3-01, contrato-w5 §2, CONGELADO). Unidade: SEGUNDOS, nunca frames. Chave por cena: mapa cena -> entrada, e cada entrada declara a propria `unidade` explicitamente. Semantica de silencio declarada: trecho sem locucao e `estado: \"silencio\"`, nunca a ausencia de entrada. Consumo por CONTEUDO: o campo `audio` de cada entrada de locucao e o SHA-256 dos bytes canonicos do audio — o casamento timing<->audio e por este campo (casarTimings), jamais por posicao. Regras semânticas que o JSON Schema nao expressa (fim >= inicio, monotonicidade, sem sobreposicao, invariante de cobertura) sao o oraculo de src/sincronia/timing/validar.ts — este schema e a forma; o oraculo e a geometria. Duas coisas sao IMPOSSIVEIS aqui, pelo schema e nao por convencao: (a) URL em qualquer profundidade, valor ou nome de propriedade -- ver $defs.SemURLProfundo; (b) tempo em frames -- o campo `unidade` so aceita \"segundos\".",
+  "type": "object",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "$ref": "#/$defs/SemURLProfundo",
+      "description": "Guarda C7: proibe URL em qualquer profundidade do documento, tanto em valores quanto em nomes de propriedade."
+    }
+  ],
+  "required": ["schema_version", "unidade", "cenas"],
+  "properties": {
+    "schema_version": {
+      "const": "TimingCanonico.1"
+    },
+    "unidade": {
+      "const": "segundos",
+      "description": "Unidade do documento inteiro: segundos, nunca frames."
+    },
+    "cenas": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Id da cena do manifesto. O mapa contem TODAS as cenas — as silenciosas sao `estado: \"silencio\"`, nunca ausentes."
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/EntradaDeCena"
+      },
+      "description": "Mapa cena -> entrada de timing."
+    }
+  },
+  "$defs": {
+    "Sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 em hexadecimal minusculo."
+    },
+    "EntradaDeCena": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unidade", "estado", "duracao_s"],
+      "properties": {
+        "unidade": {
+          "const": "segundos",
+          "description": "A unidade declarada por ESTA entrada — exigida explicitamente pelo contrato, nunca inferida de contexto."
+        },
+        "estado": {
+          "enum": ["locucao", "silencio"],
+          "description": "Com locucao ou silenciosa. A cena silenciosa e declarada por este estado, nunca pela ausencia de entrada."
+        },
+        "audio": {
+          "$ref": "#/$defs/Sha256",
+          "description": "SHA-256 do audio a que o timing se refere. So em `estado: \"locucao\"`. E a ligacao timing->audio por CONTEUDO."
+        },
+        "duracao_s": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Duracao da cena, em segundos."
+        },
+        "texto": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Texto falado, como enviado ao provedor. So em `estado: \"locucao\"`."
+        },
+        "palavras": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Palavra"
+          },
+          "description": "Palavras em ordem, monotonicas, sem sobreposicao (oraculo C5). So em `estado: \"locucao\"`."
+        },
+        "silencio": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/IntervaloDeSilencio"
+          },
+          "description": "Trechos de silencio dentro da cena: lacunas entre palavras e bordas. Juntos com as palavras cobrem [0, duracao_s] (oraculo C8). So em `estado: \"locucao\"`."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "estado": { "const": "locucao" } },
+            "required": ["estado"]
+          },
+          "then": {
+            "required": ["audio", "texto", "palavras", "silencio"]
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                { "required": ["audio"] },
+                { "required": ["texto"] },
+                { "required": ["palavras"] }
+              ]
+            },
+            "description": "Cena silenciosa nao carrega fala: nem audio, nem texto, nem palavras."
+          }
+        }
+      ]
+    },
+    "Palavra": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["texto", "inicio_s", "fim_s"],
+      "properties": {
+        "texto": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Texto da palavra, com a pontuacao anexada."
+        },
+        "inicio_s": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Inicio, em segundos, desde o byte zero do audio. `fim_s >= inicio_s` e regra do oraculo C5a, nao deste schema."
+        },
+        "fim_s": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Fim, em segundos."
+        }
+      }
+    },
+    "IntervaloDeSilencio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inicio_s", "fim_s"],
+      "properties": {
+        "inicio_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "fim_s": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "SemURLProfundo": {
+      "$comment": "Recursivo: para cada valor do documento, se for string proibe URL; se for array, aplica-se a cada item; se for objeto, aplica-se a cada valor E proibe URL nos nomes de propriedade. Assim nao existe caminho, por mais fundo, em que uma URL possa entrar.",
+      "if": { "type": "string" },
+      "then": { "not": { "type": "string", "pattern": "://|^//" } },
+      "else": {
+        "if": { "type": "array" },
+        "then": { "type": "array", "items": { "$ref": "#/$defs/SemURLProfundo" } },
+        "else": {
+          "if": { "type": "object" },
+          "then": {
+            "type": "object",
+            "propertyNames": { "not": { "type": "string", "pattern": "://|^//" } },
+            "additionalProperties": { "$ref": "#/$defs/SemURLProfundo" }
+          }
+        }
+      }
+    }
+  }
+}

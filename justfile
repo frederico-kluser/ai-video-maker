@@ -1061,3 +1061,49 @@ camadas-testar:
 camadas-capturar:
     bash tools/camadas/aprovar.sh
 # === fim F1-11 ===
+
+# === F3-01 ===
+# =============================================================================
+# Timing canonico — tres consumidores (legendas, ducking, ritmo), uma fonte.
+# Dono: card F3-01 (W5, caminho critico). Nao edite fora destes marcadores.
+#
+# Contrato congelado em docs/contrato-w5.md §2: unidade SEGUNDOS, chave por
+# cena com campo `unidade`, silencio declarado, consumo por CONTEUDO via
+# casarTimings() ligado pelo campo `audio`.
+#
+# Porta TCP reservada para este card: 4301 (docs/contrato-w5.md §9).
+# Faixa de ledger: AB-520..AB-549 (ledger/inbox/F3-01.json).
+#
+# A aceitacao do PROGRAMA pede `just timing:testar` e `just timing:determi-
+# nismo`; este arquivo usa hifen (AB-284, just 1.42 nao aceita ':' em nome
+# de receita). O conjunto que fecha o card:
+#   - typecheck ESCOPADO (tsconfig.timing.json): reprova por causa DESTE
+#     card, nao por causa de outro;
+#   - vitest da suite (oraculo + schema ajv + ∅-crit + adversariais);
+#   - pytest do schema com a implementacao python (jsonschema) — duas
+#     implementacoes sobre a mesma fixture;
+#   - golden: gerar.ts --conferir compara byte a byte com a fixture
+#     COMMITADA. Ausencia e VERMELHO, sempre (nunca se auto-grava).
+
+# O gate completo do timing canonico (schema + casarTimings + oraculo).
+timing-testar:
+    @echo "=== timing-testar: schema + casarTimings ==="
+    npx tsc --noEmit -p tsconfig.timing.json
+    npx vitest run tests/sincronia/timing.test.ts
+    python3 -m pytest tests/sincronia/test_schema_timing.py -q
+    npx tsx tools/timing/gerar.ts --conferir
+    @git status --porcelain fixtures/canonico/timing-canono.json | grep -q . && \
+        { echo "FALHOU: a fixture mudou no working tree (C3)"; exit 1; } || true
+    @echo "timing-testar: VERDE"
+
+# Determinismo: 2x em PROCESSOS separados, ambientes diferentes, sonda
+# negativa de mutacao e regressao contra o golden (tools/timing/determinismo.sh).
+timing-determinismo:
+    bash tools/timing/determinismo.sh
+
+# Regenera a fixture golden a partir do cassete COMMITADO. Ato explicito —
+# este comando nao valida nada, ele grava o que o codigo faz hoje.
+timing-gravar:
+    npx tsx tools/timing/gerar.ts --gravar
+    @echo "revise antes de commitar: git diff fixtures/canonico/timing-canono.json"
+# === fim F3-01 ===

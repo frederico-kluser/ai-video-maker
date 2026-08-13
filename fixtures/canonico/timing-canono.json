@@ -1,0 +1,305 @@
+{
+  "cenas": {
+    "c-001": {
+      "duracao_s": 3,
+      "estado": "silencio",
+      "unidade": "segundos"
+    },
+    "c-002": {
+      "duracao_s": 7,
+      "estado": "silencio",
+      "unidade": "segundos"
+    },
+    "c-003": {
+      "duracao_s": 6,
+      "estado": "silencio",
+      "unidade": "segundos"
+    },
+    "c-004": {
+      "audio": "6b9ec331d006e5fd80db18acd52d003ef10f89d06249d8d9dd9eee65df61950c",
+      "duracao_s": 8.505,
+      "estado": "locucao",
+      "palavras": [
+        {
+          "fim_s": 0.345,
+          "inicio_s": 0,
+          "texto": "Nesta"
+        },
+        {
+          "fim_s": 0.825,
+          "inicio_s": 0.435,
+          "texto": "seção,"
+        },
+        {
+          "fim_s": 1.575,
+          "inicio_s": 0.915,
+          "texto": "apresentamos"
+        },
+        {
+          "fim_s": 1.875,
+          "inicio_s": 1.665,
+          "texto": "os"
+        },
+        {
+          "fim_s": 2.31,
+          "inicio_s": 1.965,
+          "texto": "dados"
+        },
+        {
+          "fim_s": 2.61,
+          "inicio_s": 2.4,
+          "texto": "de"
+        },
+        {
+          "fim_s": 3.27,
+          "inicio_s": 2.7,
+          "texto": "desempenho"
+        },
+        {
+          "fim_s": 3.57,
+          "inicio_s": 3.36,
+          "texto": "do"
+        },
+        {
+          "fim_s": 4.185,
+          "inicio_s": 3.66,
+          "texto": "pipeline."
+        },
+        {
+          "fim_s": 4.575,
+          "inicio_s": 4.275,
+          "texto": "Cada"
+        },
+        {
+          "fim_s": 4.965,
+          "inicio_s": 4.665,
+          "texto": "tipo"
+        },
+        {
+          "fim_s": 5.265,
+          "inicio_s": 5.055,
+          "texto": "de"
+        },
+        {
+          "fim_s": 5.565,
+          "inicio_s": 5.355,
+          "texto": "nó"
+        },
+        {
+          "fim_s": 5.91,
+          "inicio_s": 5.655,
+          "texto": "tem"
+        },
+        {
+          "fim_s": 6.795,
+          "inicio_s": 6,
+          "texto": "características"
+        },
+        {
+          "fim_s": 7.095,
+          "inicio_s": 6.885,
+          "texto": "de"
+        },
+        {
+          "fim_s": 7.845,
+          "inicio_s": 7.185,
+          "texto": "renderização"
+        },
+        {
+          "fim_s": 8.505,
+          "inicio_s": 7.935,
+          "texto": "distintas."
+        }
+      ],
+      "silencio": [
+        {
+          "fim_s": 0.435,
+          "inicio_s": 0.345
+        },
+        {
+          "fim_s": 0.915,
+          "inicio_s": 0.825
+        },
+        {
+          "fim_s": 1.665,
+          "inicio_s": 1.575
+        },
+        {
+          "fim_s": 1.965,
+          "inicio_s": 1.875
+        },
+        {
+          "fim_s": 2.4,
+          "inicio_s": 2.31
+        },
+        {
+          "fim_s": 2.7,
+          "inicio_s": 2.61
+        },
+        {
+          "fim_s": 3.36,
+          "inicio_s": 3.27
+        },
+        {
+          "fim_s": 3.66,
+          "inicio_s": 3.57
+        },
+        {
+          "fim_s": 4.275,
+          "inicio_s": 4.185
+        },
+        {
+          "fim_s": 4.665,
+          "inicio_s": 4.575
+        },
+        {
+          "fim_s": 5.055,
+          "inicio_s": 4.965
+        },
+        {
+          "fim_s": 5.355,
+          "inicio_s": 5.265
+        },
+        {
+          "fim_s": 5.655,
+          "inicio_s": 5.565
+        },
+        {
+          "fim_s": 6,
+          "inicio_s": 5.91
+        },
+        {
+          "fim_s": 6.885,
+          "inicio_s": 6.795
+        },
+        {
+          "fim_s": 7.185,
+          "inicio_s": 7.095
+        },
+        {
+          "fim_s": 7.935,
+          "inicio_s": 7.845
+        }
+      ],
+      "texto": "Nesta seção, apresentamos os dados de desempenho do pipeline. Cada tipo de nó tem características de renderização distintas.",
+      "unidade": "segundos"
+    },
+    "c-005": {
+      "audio": "2b8de8cb0a8e0acd586bc0e68ed2edb245ca7960be56454383714a26e118adeb",
+      "duracao_s": 5.355,
+      "estado": "locucao",
+      "palavras": [
+        {
+          "fim_s": 0.615,
+          "inicio_s": 0,
+          "texto": "Concluindo,"
+        },
+        {
+          "fim_s": 0.87,
+          "inicio_s": 0.705,
+          "texto": "o"
+        },
+        {
+          "fim_s": 1.485,
+          "inicio_s": 0.96,
+          "texto": "manifesto"
+        },
+        {
+          "fim_s": 1.74,
+          "inicio_s": 1.575,
+          "texto": "é"
+        },
+        {
+          "fim_s": 1.995,
+          "inicio_s": 1.83,
+          "texto": "a"
+        },
+        {
+          "fim_s": 2.385,
+          "inicio_s": 2.085,
+          "texto": "peça"
+        },
+        {
+          "fim_s": 2.91,
+          "inicio_s": 2.475,
+          "texto": "central"
+        },
+        {
+          "fim_s": 3.21,
+          "inicio_s": 3,
+          "texto": "do"
+        },
+        {
+          "fim_s": 3.825,
+          "inicio_s": 3.3,
+          "texto": "pipeline."
+        },
+        {
+          "fim_s": 4.395,
+          "inicio_s": 3.915,
+          "texto": "Obrigado"
+        },
+        {
+          "fim_s": 4.74,
+          "inicio_s": 4.485,
+          "texto": "por"
+        },
+        {
+          "fim_s": 5.355,
+          "inicio_s": 4.83,
+          "texto": "assistir."
+        }
+      ],
+      "silencio": [
+        {
+          "fim_s": 0.705,
+          "inicio_s": 0.615
+        },
+        {
+          "fim_s": 0.96,
+          "inicio_s": 0.87
+        },
+        {
+          "fim_s": 1.575,
+          "inicio_s": 1.485
+        },
+        {
+          "fim_s": 1.83,
+          "inicio_s": 1.74
+        },
+        {
+          "fim_s": 2.085,
+          "inicio_s": 1.995
+        },
+        {
+          "fim_s": 2.475,
+          "inicio_s": 2.385
+        },
+        {
+          "fim_s": 3,
+          "inicio_s": 2.91
+        },
+        {
+          "fim_s": 3.3,
+          "inicio_s": 3.21
+        },
+        {
+          "fim_s": 3.915,
+          "inicio_s": 3.825
+        },
+        {
+          "fim_s": 4.485,
+          "inicio_s": 4.395
+        },
+        {
+          "fim_s": 4.83,
+          "inicio_s": 4.74
+        }
+      ],
+      "texto": "Concluindo, o manifesto é a peça central do pipeline. Obrigado por assistir.",
+      "unidade": "segundos"
+    }
+  },
+  "schema_version": "TimingCanonico.1",
+  "unidade": "segundos"
+}

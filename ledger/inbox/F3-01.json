@@ -1,0 +1,102 @@
+[
+  {
+    "id": "AB-520",
+    "titulo": "Duracao da cena silenciosa: a aritmetica da composicao e o silencio declarado podem divergir",
+    "pergunta": "A entrada de cena silenciosa no timing canonico usa `duracaoDaCena()/fps` (F1-01) para `duracao_s`. Se a composicao mudar a aritmetica de fronteiras (transicoes), a duracao que o timing declara para a cena silenciosa diverge da timeline real — quem reconcilia, e o timing canonico passa a carregar um campo de referencia (versao da aritmetica de tempo) ou a duracao passa a ser injetada por quem posiciona as cenas?",
+    "por_que_aberto": "F3-01 (W5) precisava de um numero HOJE e usou a unica aritmetica commitada (src/composicao/tempo.ts, F1-01). O contrato-w5 §2 congela a FORMA (mapa cena -> entrada, silencio declarado), nao a origem da duracao. O primeiro consumidor real (F1-12, integracao de composicao, W5) e quem pode medir a divergencia.",
+    "decisao_provisoria": "duracao_s da cena silenciosa = duracaoDaCena(cena, nos)/fps, calculada no construtor; o documento nao carrega referencia a versao da aritmetica de tempo. Se a composicao mudar a aritmetica, o golden do timing e regenerado (tools/timing/gerar.ts --gravar) e o diff mostra a divergencia.",
+    "verificacao": {
+      "cmd": "python3 -c \"import json; d=json.load(open('fixtures/canonico/timing-canono.json')); print(d['cenas']['c-001']['duracao_s'])\"",
+      "espera": "3.0 — bate com duracaoDaCena(c-001)/fps da fixture canonica; depois do merge de F1-12, conferir que segue batendo com a timeline da composicao",
+      "ambiente": "W6, quando F1-12 posicionar cenas contra o timing canonico"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um consumidor (ducking/ritmo) que use duracao_s da cena silenciosa para posicionar algo na timeline absoluta deslocaria o conteudo em relacao a composicao sem erro nenhum.",
+      "artefatos": [
+        "src/sincronia/timing/construir.ts",
+        "src/composicao/tempo.ts",
+        "fixtures/canonico/timing-canono.json"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-521",
+    "titulo": "O golden do timing canonico envelhece junto com o cassete de locucao",
+    "pergunta": "Quando o cassete de locucao for regravado com voz de verdade (AB-410, credito no provedor), os bytes do audio e do timing mudam — e com eles o golden fixtures/canonico/timing-canono.json e o hash do documento. Quem dispara a regeneracao do golden, e a mudanca de bytes tem de exigir revisao explicita ou pode ser automatica?",
+    "por_que_aberto": "O golden e a base do determinismo (timing-determinismo) e da regressao byte a byte (timing-testar). Ele e gerado do cassete COMMITADO, entao a regravacao de AB-410 o torna stale: o gate continua verde (o replay produz os bytes novos, o golden compara contra o que foi gravado) — e o golden passa a descrever o MUNDO VELHO sem nenhum sinal.",
+    "decisao_provisoria": "Regenerar e ato explicito (`npx tsx tools/timing/gerar.ts --gravar`) no MESMO commit que regrava o cassete; o determinismo (Fase 3) confere o golden contra o processo atual, entao um golden stale com cassete novo fica VERMELHO — o que nao fica vermelho e o contrario (cassete velho, golden novo), que nao ocorre porque o golden so muda por --gravar.",
+    "verificacao": {
+      "cmd": "bash tools/timing/determinismo.sh && npx tsx tools/timing/gerar.ts --conferir",
+      "espera": "VERDE com o cassete atual; apos AB-410, Fase 3 fica VERMELHA ate --gravar rodar no commit certo",
+      "ambiente": "maquina com credencial valida do provedor de sintese (momento de regravacao de AB-410)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Golden stale em silencio: o determinismo compara processo contra processo (verde) e a regressao contra um golden que descreve outro mundo (tambem verde se o cassete nao mudar) — o risco real e achar que o timing atual e o do golden quando os bytes do audio sao outros.",
+      "artefatos": [
+        "fixtures/canonico/timing-canono.json",
+        "tools/timing/gerar.ts",
+        "fixtures/cassetes/locucao/**"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-522",
+    "titulo": "Unidade de locucao orfa em nos_locucao e ignorada em silencio pelo construtor",
+    "pergunta": "O construtor rejeita cena com audio_cena no manifesto SEM entrada em nos_locucao (legenda nunca aparece). E o caso inverso: entrada em nos_locucao para cena sem audio_cena (ou sem a cena existir) — hoje o casamento por conteudo casa os documentos e o construtor itera as cenas do MANIFESTO, entao a unidade orfa nao entra no documento e ninguem fica vermelho. Unidade orfa deve ser erro, aviso ou ignorada?",
+    "por_que_aberto": "F2-03 usa a chave que o manifesto oferece (id de cena — AB-412) e a reconciliacao cena->no e de quem consome. Uma unidade orfa pode nascer de merge (manifesto mudou depois da parcial) ou de bug de um estagio — os dois sao invisiveis hoje. Este card optou por presenca (o documento so declara o que o manifesto tem), nao por lista completa.",
+    "decisao_provisoria": "Ignorar, com item de ledger aberto: o documento canonico e funcao do MANIFESTO, e uma sobra na parcial nao contamina as cenas que existem. Se o orquestrador comecar a produzir orfas, o item vira erro com um campo de diagnostico no construtor.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/sincronia/timing.test.ts -t 'SEM entrada na parcial'",
+      "espera": "O teste prova o lado VERMELHO (cena com locucao sem timing); o lado da sobra (unidade sem cena) e o vazio deste item",
+      "ambiente": "W6, quando F1-12/F2-07 exercitarem o pipeline inteiro com manifestos reais"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a sobra for sinal de bug (ex.: estagio gravou duas unidades para a mesma cena), o documento fica correto e o bug some em silencio; se a sobra for o MANIFESTO errado, o audio resolvido pode nao corresponder ao que o documento declara.",
+      "artefatos": [
+        "src/sincronia/timing/construir.ts",
+        "src/resolucao/locucao/timing.ts",
+        "src/resolucao/manifesto-resolvido.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "audio",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-523",
+    "titulo": "Consumidores do timing (W6) e o MIME do documento canonico",
+    "pergunta": "O contrato-w5 §2 congela o mimeType do asset de ORIGEM (application/vnd.editor-video-ia.timing-locucao+json) mas nao o do documento canonico. F3-01 define application/vnd.editor-video-ia.timing-canonico+json em src/sincronia/timing/formato.ts. Os consumidores F3-02 (legendas), F3-03 (ducking) e F3-04 (ritmo) vao identificar o documento por este MIME ou por tipo/conteudo — e o documento canonico precisa virar asset no store (AB-411) ou e passado em memoria pela composicao?",
+    "por_que_aberto": "O documento canonico vive abaixo da fronteira de determinismo e hoje e produzido pelo construtor sob demanda (fixture + funcao). Sem decisao, cada consumidor inventa um jeito de obte-lo e os tres divergem na identificacao — a pergunta da onda: merge limpo nao prova integracao.",
+    "decisao_provisoria": "Identificacao por MIME_TIMING_CANONICO; bytes canonicos compartilhados via serializarTimingCanonico()/lerTimingCanonico() — o formato e o oraculo sao a superficie unica. Enquanto o store nao existir (AB-411), o replay do cassete e a fonte dos bytes.",
+    "verificacao": {
+      "cmd": "grep -rn 'timing-canonico' src/ tests/ | wc -l",
+      "espera": ">= 1 (o MIME existe e os testes o exercitam); a W6 decide se vira asset",
+      "ambiente": "W6, quando F3-02/03/04 consumirem"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Dois consumidores identificando o documento de jeitos diferentes produzem dois timings diferentes para o mesmo video sem conflito de merge — exatamente o falso verde que a W5 existe para matar.",
+      "artefatos": [
+        "src/sincronia/timing/formato.ts",
+        "src/sincronia/timing/construir.ts",
+        "schema/timing.schema.json"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "audio",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]
