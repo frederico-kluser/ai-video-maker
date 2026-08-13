@@ -1,0 +1,101 @@
+[
+  {
+    "id": "AB-470",
+    "titulo": "O ∅-crit de licenca do card F2-06 usa a mesma armadilha de flag documentada em AB-270",
+    "pergunta": "O criterio `rg -L '\"licenca\"' fixtures/cassetes/musica/**/procedencia.json` -> vazio realmente verifica que TODO cassete declara licenca?",
+    "por_que_aberto": "Mesma armadilha de AB-270 (F1-03): em ripgrep, -L e --follow (seguir symlinks), nao --files-without-match. Com -L o comando imprime as linhas que CASAM — ele sairia vazio exatamente quando NENHUM cassete declarasse licenca, o inverso do que o criterio quer. O requisito do contrato (docs/contrato-estagio-resolucao.md §4) e que cassete sem licenca seja impossivel de gravar (ECasseteInvalido) e impossivel de passar no gate de disco.",
+    "decisao_provisoria": "O gate usa `rg --files-without-match '\"licenca\"' fixtures/cassetes/musica/**/procedencia.json` (saida vazia = nenhum arquivo sem licenca), o bloco F2-06 do justfile documenta a armadilha (como F1-03 fez), e o teste tests/resolucao/musica.test.ts assere 'toda licenca nao-vazia' em codigo.",
+    "verificacao": {
+      "cmd": "rg --files-without-match '\"licenca\"' fixtures/cassetes/musica/**/procedencia.json; test $? -eq 1",
+      "espera": "exit 1 e saida vazia: nenhum procedencia.json sem 'licenca'",
+      "ambiente": "ripgrep (Linux), worktree da W4"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Um gate copiado do enunciado literal do card passaria justamente quando o requisito nao foi cumprido — o falso verde que a W4 inteira existe para nao ter.",
+      "artefatos": [
+        "justfile",
+        "fixtures/cassetes/musica/**/procedencia.json",
+        "tests/resolucao/musica.test.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "gate",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-473",
+    "titulo": "res-cassete contra a rede real e refutado pelos headers volateis do fornecedor, nao pelo estagio",
+    "pergunta": "O determinismo de um estagio cujas respostas vao para chamadas.json deve ser medido contra a rede real (headers date/age/x-request-id mudam a cada requisicao) ou a partir do proprio cassete?",
+    "por_que_aberto": "`npx tsx tools/resolucao/regravar-e-diffar.ts --estagio musica` regrava duas vezes contra a rede real (fetchReal default). O fornecedor devolve date, age, x-request-id, server-timing e x-client-ip DIFERENTES a cada requisicao; eles entram em chamadas.json, que CAMPOS_VOLATEIS nao cobre. O diff refuta o determinismo por causa do relogio do fornecedor, nao do estagio. Nesta W4 o problema piorou: o bucket anonimo do IP devolveu 429 em duas tentativas de regravacao (ver AB-474), tornando a regravacao contra a rede real tambem FRAGIL. O oraculo do card (tools/musica/verificar.ts, fase 6) mede o determinismo regravando a partir do CASSETE com relogios diferentes: o que varia entre as duas passadas passa a ser so o estagio. O diff sai com zero refutacoes e a sonda negativa (mutar resultado.json) deixa o diff vermelho.",
+    "decisao_provisoria": "Determinismo do estagio de musica e medido a partir do cassete (fase 6 de res-musica), com denominador e sonda negativa. O regravar contra a rede real continua valendo para estagios sem fornecedor externo (referencia). Quem responde: dono de cassete/ (F2-01) ou F2-07 (W5) — decidir se headers volateis entram em CAMPOS_VOLATEIS ou se regravar-e-diffar ganha fetchReal injetavel.",
+    "verificacao": {
+      "cmd": "npx tsx tools/musica/verificar.ts",
+      "espera": "fase 6: zero refutacoes em duas gravacoes a partir do cassete com relogios diferentes; sonda negativa deixa o diff VERMELHO",
+      "ambiente": "worktree da W4, node 24, rede bloqueada em processo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o regravar contra a rede real virar gate obrigatorio da W4, todo estagio com provedor externo fica vermelho por volatilidade do fornecedor e o gate ensina todo mundo a ignorar o diff; se virar verde por acaso (headers identicos), o determinismo deixa de ser medido.",
+      "artefatos": [
+        "tools/resolucao/regravar-e-diffar.ts",
+        "src/resolucao/cassete/formato.ts",
+        "src/resolucao/cassete/diff.ts",
+        "tools/musica/verificar.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "gate",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-474",
+    "titulo": "Bucket anonimo do Wikimedia devolve 429 em rajada durante a W4; gravacao precisa de pausa entre downloads",
+    "pergunta": "A gravacao do cassete de musica deve ganhar retry com backoff no proprio estagio, ou a cortesia (pausa entre downloads) na ferramenta de gravacao e suficiente?",
+    "por_que_aberto": "O fornecedor devolveu 429 (rate limit) em tres momentos durante o desenvolvimento do card, inclusive com a pausa padrao de 1200 ms entre downloads. O x-ratelimit da resposta mostrava 9999/10000 restantes quando a gravacao ORIGINAL foi feita — o bucket anonimo e compartilhado por IP e os outros agentes da W4 batem no mesmo provedor. Retry no estagio mudaria resolver() (bump de versao + regravacao) e o cassete gravaria a tentativa bem-sucedida — defensavel, mas o replay do cassete nunca exercita o caminho do retry (sosia).",
+    "decisao_provisoria": "A ferramenta de gravacao (tools/musica/gravar.ts) ganhou a opcao --pausa <ms> (default PAUSA_PADRAO_MS = 1200) e a gravacao desta W4 usou 5000 ms. A pausa nao entra na chave de cache (nao muda o byte baixado). Retry com backoff fica como pergunta aberta para F3-05 ou quem tocar em resolver().",
+    "verificacao": {
+      "cmd": "npx tsx tools/musica/gravar.ts --pausa 5000",
+      "espera": "6 chamadas, todas 200, cassete gravado com a chave do estagio v1.0.1",
+      "ambiente": "rede liberada, worktree da W4"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem retry, uma rajada do bucket anonimo bloqueia a regravacao manual — recuperavel com pausa maior; com retry no estagio, resolver() muda e todo cassete precisa ser regravado sob a nova versao.",
+      "artefatos": [
+        "src/resolucao/musica/estagio.ts",
+        "tools/musica/gravar.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "provedor",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-475",
+    "titulo": "chamadas.json grava o header x-client-ip — o IP publico da maquina que gravou, versionado para sempre",
+    "pergunta": "O header de resposta x-client-ip (IP publico do operador, devolvido pelo CDN do fornecedor) deve entrar em HEADERS_SENSIVEIS do gravador, ou o cassete deve registrar apenas a presenca do header?",
+    "por_que_aberto": "Toda resposta do fornecedor traz x-client-ip com o IP publico da maquina que gravou o cassete — neste card, o mesmo IPv6 nas 6 chamadas. O cassete e versionado no git, e o git nao esquece: o IP fica publico para sempre no repositorio. NAO e credencial no sentido dos padroes atuais (nenhum padrao de PADROES_CREDENCIAL casa IP), mas e um dado da maquina do operador. HEADERS_SENSIVEIS (src/resolucao/cassete/formato.ts, F2-01) nao o cobre; o header nao esta na lista e o problema e do dono do cassete, nao do estagio.",
+    "decisao_provisoria": "Nenhuma: o cassete atual carrega o IP e o estagio nao pode redigir resposta (sosia, nao sucessor — a redacao e do gravador, acima do estagio). Registrar e deixar a decisao para F2-01/F2-07.",
+    "verificacao": {
+      "cmd": "python3 -c \"import json; c=json.load(open('fixtures/cassetes/musica/*/chamadas.json')); print([h['headersResposta'].get('x-client-ip') for h in c])\"",
+      "espera": "o IP publico da maquina gravadora aparece em todas as chamadas — o problema existe",
+      "ambiente": "worktree da W4, apos gravacao do cassete"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se nada mudar, todo cassete futuro grava o IP de quem gravou; se entrar na lista sensivel, o valor vira [REDIGIDO] sem mudar mais nada do formato.",
+      "artefatos": [
+        "src/resolucao/cassete/formato.ts",
+        "fixtures/cassetes/musica/**/chamadas.json"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "privacidade",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]

@@ -535,3 +535,49 @@ res-codigo-tudo: res-codigo
     bash tools/resolucao/offline.sh --estagio codigo
     @echo "res-codigo-tudo: VERDE"
 # === fim F2-05 ===
+
+# === F2-06 ===
+# =============================================================================
+# Resolucao de musica e efeitos — card F2-06
+# =============================================================================
+# Os efeitos do pacote do fornecedor sao URLs REMOTAS; este estagio as
+# transforma em hash no store (download -> sha256 -> store, F0-07). Nenhuma
+# URL atravessa a fronteira: ela vive em procedencia.assets[].origem (C7).
+#
+# NOME DAS RECEITAS: o card pediu `just res:musica`, mas `just` 1.42 nao
+# aceita ':' em nome de receita (ver bloco F2-01, AB-284). Usa-se hifen,
+# como design-gerar, fontes-testar e os demais.
+#
+# O ∅-crit do card e:
+#     rg -L '"licenca"' fixtures/cassetes/musica/**/procedencia.json -> vazio
+# ATENCAO a mesma armadilha de F1-03: em ripgrep `-L` e `--follow`
+# (symlinks), NAO `--files-without-match`. A flag que exprime a intencao
+# ("nenhum procedencia.json sem licenca") e esta:
+#     rg --files-without-match '"licenca"' fixtures/cassetes/musica/**/procedencia.json
+# O `licenca` no topo E em CADA asset e exigido pelo gravador antes de
+# qualquer byte chegar ao disco (ECasseteInvalido) — o ∅-crit de disco e a
+# segunda barreira, para cassete que entre por outro caminho.
+
+# `res:musica` do PROGRAMA. O oraculo do card: prova, COM A REDE BLOQUEADA
+# neste mesmo processo (primeira linha do verificar.ts), as sete fases —
+# denominador, C7 (URL nao desceu e nao sumiu), hash->store byte a byte,
+# cache quente sem chamar resolver(), sosia-nao-sucessor, determinismo por
+# regravacao a partir do cassete, e zero credencial. Exit 0 = VERDE.
+res-musica:
+    npx tsx tools/musica/verificar.ts
+
+# Grava o cassete de musica. A MAO, COM REDE, fora de qualquer suite.
+# `--pausa <ms>` aumenta a cortesia entre downloads (o fornecedor devolve
+# 429 quando o bucket anonimo do IP esta apertado — outros agentes da W4
+# batem no mesmo provedor). A pausa nao entra na chave de cache.
+res-musica-gravar *args:
+    npx tsx tools/musica/gravar.ts {{args}}
+
+# Determinismo do estagio — a fase 6 do oraculo acima. Medido a partir do
+# CASSETE (ver ledger AB-473): regravar contra a rede real devolve headers
+# volateis do fornecedor (date, age, x-request-id) que entram em
+# chamadas.json e refutam o diff sem nenhum defeito do estagio. A prova
+# correta regrava a partir do cassete e roda com a rede bloqueada.
+res-musica-determinismo:
+    npx tsx tools/musica/verificar.ts
+# === fim F2-06 ===

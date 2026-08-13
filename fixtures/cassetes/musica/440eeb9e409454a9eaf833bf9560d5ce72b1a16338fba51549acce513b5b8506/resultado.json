@@ -1,0 +1,77 @@
+{
+  "assets": {
+    "126e3d99f83e7aee719fe13806d837b68752c8878e9c4c48f198903773430255": {
+      "atribuicao": "\"Music Box Sound Effect\" por Big Daddy sob Public domain",
+      "atribuicaoObrigatoria": false,
+      "byteSize": 31035,
+      "duracaoSegundos": 2.136235827664399,
+      "hash": "126e3d99f83e7aee719fe13806d837b68752c8878e9c4c48f198903773430255",
+      "licenca": "Public domain",
+      "mimeType": "application/ogg",
+      "provedor": "wikimedia-commons",
+      "tipo": "audio"
+    },
+    "3a00855408e16a823176c25052bc801b2f70023c382e75fa11d7d913609daa80": {
+      "atribuicao": "\"Sound Effect - Door Bell\" por Amada44 sob CC0",
+      "atribuicaoObrigatoria": false,
+      "byteSize": 98867,
+      "duracaoSegundos": 3.6998639455782314,
+      "hash": "3a00855408e16a823176c25052bc801b2f70023c382e75fa11d7d913609daa80",
+      "licenca": "CC0",
+      "mimeType": "application/ogg",
+      "provedor": "wikimedia-commons",
+      "tipo": "audio"
+    },
+    "6ac2876495aa5f0a8d4558bc35aa3e05f6e88b667a097cd3b7f41f15874276bb": {
+      "atribuicao": "\"Kevin MacLeod - Lift Motif\" por Kevin MacLeod sob CC BY 3.0",
+      "atribuicaoObrigatoria": true,
+      "byteSize": 827184,
+      "duracaoSegundos": 44.38204081632653,
+      "hash": "6ac2876495aa5f0a8d4558bc35aa3e05f6e88b667a097cd3b7f41f15874276bb",
+      "licenca": "CC BY 3.0",
+      "mimeType": "application/ogg",
+      "provedor": "wikimedia-commons",
+      "tipo": "audio"
+    },
+    "cce5b73c814b7f8c501d0370ce27995c28fe2e6c2bed06547208cba00f285c2b": {
+      "atribuicao": "\"Airplane Chime Sound Effect\" por Sharelk sob CC0",
+      "atribuicaoObrigatoria": false,
+      "byteSize": 16225,
+      "duracaoSegundos": 2.9335,
+      "hash": "cce5b73c814b7f8c501d0370ce27995c28fe2e6c2bed06547208cba00f285c2b",
+      "licenca": "CC0",
+      "mimeType": "application/ogg",
+      "provedor": "wikimedia-commons",
+      "tipo": "audio"
+    },
+    "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988": {
+      "atribuicao": "\"Achievement unlocked sound effect video game\" por rhodesmas sob CC BY 3.0",
+      "atribuicaoObrigatoria": true,
+      "byteSize": 202702,
+      "duracaoSegundos": 1.1,
+      "hash": "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988",
+      "licenca": "CC BY 3.0",
+      "mimeType": "audio/wav",
+      "provedor": "wikimedia-commons",
+      "tipo": "audio"
+    }
+  },
+  "nos_musica": {
+    "n-001": "cce5b73c814b7f8c501d0370ce27995c28fe2e6c2bed06547208cba00f285c2b",
+    "n-002": "126e3d99f83e7aee719fe13806d837b68752c8878e9c4c48f198903773430255",
+    "n-003": "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988",
+    "n-004": "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988",
+    "n-005": "3a00855408e16a823176c25052bc801b2f70023c382e75fa11d7d913609daa80",
+    "n-006": "3a00855408e16a823176c25052bc801b2f70023c382e75fa11d7d913609daa80",
+    "n-007": "3a00855408e16a823176c25052bc801b2f70023c382e75fa11d7d913609daa80",
+    "n-008": "126e3d99f83e7aee719fe13806d837b68752c8878e9c4c48f198903773430255",
+    "n-009": "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988",
+    "n-010": "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988",
+    "n-011": "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988",
+    "n-012": "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988",
+    "n-013": "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988",
+    "n-014": "126e3d99f83e7aee719fe13806d837b68752c8878e9c4c48f198903773430255",
+    "n-015": "cce5b73c814b7f8c501d0370ce27995c28fe2e6c2bed06547208cba00f285c2b"
+  },
+  "trilha_sonora": "6ac2876495aa5f0a8d4558bc35aa3e05f6e88b667a097cd3b7f41f15874276bb"
+}
