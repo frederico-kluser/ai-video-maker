@@ -1889,3 +1889,45 @@ variantes-aprovar:
 variantes-studio:
     npx remotion studio fixtures/snapshots/variantes/entrada.tsx --port 4504
 # === fim F5-04 ===
+
+# === F5-05 ===
+# =============================================================================
+# Thumbnail — card F5-05 (W7)
+# =============================================================================
+# O thumbnail e gerado do MESMO manifesto que o video: o unico caminho
+# para o pixel e o pintor promovido (src/composicao/pintura, AB-493), o
+# frame e escolhido pelo modulo (o meio da janela do primeiro cabecalho,
+# pela MESMA aritmetica do render) e a escala de saida (1280x720) tambem.
+# Nada e digitado a parte — o texto do thumbnail so pode ter vindo do
+# manifesto.
+#
+# ∅-crit do card: "thumbnail com contraste abaixo do minimo tem de
+# falhar". O contraste e MEDIDO nos pixels renderizados (WCAG, formula
+# dos tokens) e o gate exerce o vermelho: repinta a tinta do titulo com
+# uma cor de 2.66:1 (abaixo do piso 3:1) nos pixels REAIS do thumbnail e
+# exige que a medicao falhe.
+#
+# Determinismo: o mesmo frame renderizado 2x tem de produzir bytes
+# identicos — um thumbnail preto tambem e deterministico, por isso o gate
+# mede conteudo (C1): o fundo tem de ser o dos tokens e as tintas do
+# titulo do manifesto tem de estar na tela.
+#
+# O entregavel sai em output/thumbnail.png, so depois do gate verde.
+
+# Gate do thumbnail: typecheck + suite (com guarda de C2) + render 2x +
+# conteudo + contraste + ∅-crit.
+thumb:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "=== thumb: typecheck ==="
+    npx tsc --noEmit
+    echo "=== thumb: suite do modulo ==="
+    saida=$(npx vitest run tests/entrega/thumbnail/ 2>&1 | sed -E 's/\x1b\[[0-9;]*m//g')
+    echo "$saida" | tail -6
+    # C2: um alvo que nao casa nenhum teste sai VERDE sem ter olhado nada.
+    echo "$saida" | grep -qE "Tests +[1-9][0-9]* passed" \
+        || { echo "FALHOU: nenhum teste selecionado (falso verde)"; exit 1; }
+    echo "=== thumb: gate (determinismo + conteudo + contraste + ∅-crit) ==="
+    npx tsx tests/entrega/thumbnail/gate.ts
+    echo "thumb: OK"
+# === fim F5-05 ===

@@ -1,0 +1,167 @@
+[
+  {
+    "id": "AB-735",
+    "titulo": "Escala de saida do thumbnail (1280x720) e piso de legibilidade (24px WCAG large) sao constantes do modulo, nao tokens de design",
+    "pergunta": "O thumbnail entrega em 2/3 do manifesto (1920x1080 -> 1280x720, padrao YouTube) e exige o titulo a pelo menos 24px no tamanho de saida (texto grande do WCAG). Os dois numeros vivem em src/entrega/thumbnail/ como constantes nomeadas e citadas. Sao decisao de design de produto — devem virar tokens em src/design/tokens.ts (S-5)?",
+    "por_que_aberto": "S-1/S-5 (tokens) tem dono unico e o card F5-05 foi proibido de edita-los. Escala de saida e piso de legibilidade nao existiam nos tokens e sao exatamente o tipo de numero que a Regra 2 do AGENTS.md quer ver tokenizado — mas a promocao e do dono dos tokens, nao deste card.",
+    "decisao_provisoria": "Constantes nomeadas e citadas no modulo (ESCALA_DO_THUMBNAIL com fonte YouTube; PISO_DE_LEGIBILIDADE_PX com fonte WCAG 2.2), cada uma com comentario apontando para este ledger. O gate e o F5-07 importam do modulo; quando o dono dos tokens decidir, e so mover a constante para tokens.ts e reimportar — o gate continua o mesmo.",
+    "verificacao": {
+      "cmd": "grep -n 'ESCALA_DO_THUMBNAIL\\|PISO_DE_LEGIBILIDADE_PX' src/entrega/thumbnail/*.ts",
+      "espera": "constantes nomeadas com citacao, sem nenhum px/numero literal espalhado (literal-scan verde)",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem mudar a escala ou o piso no modulo sem avisar o F5-07 (W9), o consumidor herda um thumbnail de tamanho inesperado; se mudar no tokens sem avisar o modulo, o gate continua verde e o produto muda (a divergencia silenciosa que a Regra 2 persegue).",
+      "artefatos": [
+        "src/entrega/thumbnail/especificacao.ts",
+        "src/entrega/thumbnail/legibilidade.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "design",
+    "responde": "dono-de-tokens",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-736",
+    "titulo": "Thumbnail vertical (9:16) nao coberto pelo F5-05 — o pintor recusa viewport diferente do manifesto",
+    "pergunta": "A pergunta adversarial (1) do card menciona 'tamanho pequeno — 16:9 e vertical'. O F5-05 entrega o thumbnail 16:9 do MESMO manifesto; o vertical (9:16) nao existe: o pintor promovido RECUSA viewport que nao case com o manifesto (regra viewport==manifesto), e o recorte/safe areas verticais sao das variantes (F5-04, W7). Quem entrega o thumbnail vertical e com que regra de legibilidade?",
+    "por_que_aberto": "O F5-04 (variantes 9:16) e o F5-07 (W9, consumidor do thumbnail) ainda nao existem; o F5-05 entregou o que da (16:9 do mesmo manifesto) e nomeia a diferenca, como manda o contrato-w7 §1 (dependencia lateral proibida).",
+    "decisao_provisoria": "O F5-05 entrega 16:9 (proporcao do manifesto) e registra aqui a ponte: o thumbnail vertical deve ser derivado da variante do F5-04 com a MESMA regra deste card (mesmo manifesto, frame escolhido pelo modulo, contraste medido no pixel) — o F5-07 consome a API src/entrega/thumbnail/**.",
+    "verificacao": {
+      "cmd": "grep -n 'vertical\\|9:16' src/entrega/thumbnail/*.ts docs/adr/0038-thumbnail-mesmo-manifesto.md",
+      "espera": "a fronteira do card declarada: vertical e das variantes/F5-07, nunca silencio",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o F5-07 assumir que o thumbnail vertical ja existe, a entrega vertical sai sem gate de contraste/legibilidade; se o F5-04 nao souber que o thumbnail consome a variante, o vertical nasce re-digitado (a armadilha que o card inteiro existe para evitar).",
+      "artefatos": [
+        "src/entrega/thumbnail/especificacao.ts",
+        "src/entrega/variantes/**"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "escopo",
+    "responde": "F5-07",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-737",
+    "titulo": "O ∅-crit de contraste do F5-05 e exercitado por mutacao de pixels reais (gray 600), porque o token (S-5) nao pode ser mutado pelo card",
+    "pergunta": "O ∅-crit do PROGRAMA — 'thumbnail com contraste abaixo do minimo tem de falhar' — exige que o gate reprove um thumbnail ruim. As cores do frame pintado vem dos tokens (S-5, dono unico) e dos componentes (pintura, PREP): nenhum card da W7 pode injetar uma cor de baixo contraste no caminho real. Como provar o vermelho sem violar a fronteira?",
+    "por_que_aberto": "A prova por mutacao do fixture nao funciona (cor nao vem do manifesto — vem dos tokens via componentes). A prova por mutacao do token violaria S-5. O que sobrou foi mutar os PIXELS do thumbnail real — que e exatamente o que um thumbnail de baixo contraste e.",
+    "decisao_provisoria": "O gate renderiza o thumbnail real, repinta a tinta mais frequente com gray 600 (razao 2.66:1, abaixo do piso 3.0:1) nos pixels decodificados e exige que a MESMA medicao que passou o thumbnail real FALHE o mutado. A suite cobre o mesmo no unitario (tests/entrega/thumbnail/contraste.test.ts). Se um dia o caminho de cor permitir injecao (ex.: cor vinda do manifesto), a prova deve migrar para a mutacao a montante — o enforcement point (conferirContraste) nao muda.",
+    "verificacao": {
+      "cmd": "npx tsx tests/entrega/thumbnail/gate.ts 2>&1 | grep '∅-crit'",
+      "espera": "linha do ∅-crit com a medicao FALHOU (mutacao gray 600)",
+      "ambiente": "worktree do repo, Chrome headless do render"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem substituir o ∅-crit por uma assercao fraca (ex.: so conferir os pares declarados nos tokens), o gate volta a verde sem medir a tela — o falso verde que a pergunta (3) do card persegue.",
+      "artefatos": [
+        "tests/entrega/thumbnail/gate.ts",
+        "src/entrega/thumbnail/contraste.ts"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "gate",
+    "responde": "F5-07",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-738",
+    "titulo": "PISO_DE_TINTA (200px) calibrado empiricamente contra o render real — recalibrar se fontes ou escala mudarem",
+    "pergunta": "A medicao de contraste ignora cores com menos de 200 pixels na regiao (ruido de anti-aliasing) a menos que sejam declaradas nos tokens. O numero foi calibrado contra o render real deste card: o maior nivel de mistura de borda medido no frame 45 em 1280x720 foi 172px. A calibracao continua valida se a escala de saida, as fontes ou o texto mudarem?",
+    "por_que_aberto": "O piso e metrologia do gate, nao design — nao tem lugar em tokens.ts, e o card nao pode re-renderizar em todas as combinacoes. E um numero empirico com folga de 14% sobre o pior caso medido.",
+    "decisao_provisoria": "PISO_DE_TINTA = 200 com o comentario de calibracao no proprio arquivo. O gate exercita a calibracao a cada execucao indiretamente (o thumbnail real passa; o mutado falha). Se um render futuro passar a medir rim acima do piso, o gate acusa FALSO VERMELHO na etapa de contraste — o sintoma e identificavel e a calibracao e um numero so.",
+    "verificacao": {
+      "cmd": "grep -n 'PISO_DE_TINTA' src/entrega/thumbnail/contraste.ts && npx tsx tests/entrega/thumbnail/gate.ts 2>&1 | grep 'contraste:'",
+      "espera": "constante com comentario de calibracao; gate verde com 3 tintas medidas",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Piso alto demais: tinta real pequena (ex.: texto curto) some da conta e o ∅-crit perde sensibilidade; piso baixo demais: rim de borda entra e derruba thumbnail saudavel (falso vermelho). Os dois lados sao diagnosticaveis pela saida do gate.",
+      "artefatos": [
+        "src/entrega/thumbnail/contraste.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "gate",
+    "responde": "F5-07",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-739",
+    "titulo": "O determinismo do thumbnail (2 renders, bytes identicos) nao tem snapshot aprovado commitado — a linha de base e o piso do render 2x",
+    "pergunta": "O gate renderiza o thumbnail 2x e exige bytes identicos, mas nao compara com uma linha de base commitada (como faz o provar do F1-12 com fixtures/snapshots). Um bump de Remotion/Chrome (que pina o rasterizador) muda os bytes e o gate continua verde — a divergencia visual nao e acusada. A linha de base deve existir?",
+    "por_que_aberto": "fixtures/snapshots/** esta fora do escopo do F5-05 (o contrato-w7 §1 lista os donos; snapshots de render sao do F5-01, o hub que mergeia por ultimo). O card entregou o piso possivel: determinismo byte-a-byte + oraculo de conteudo no pixel.",
+    "decisao_provisoria": "Determinismo 2x + conteudo (fundo dos tokens, tintas do manifesto presentes) como gate deste card. O snapshot aprovado do thumbnail vira linha de base com o F5-01 (render integrado) — este ledger item e o aviso para o hub nao herdar a lacuna em silencio.",
+    "verificacao": {
+      "cmd": "grep -n 'determinismo\\|snapshot' tests/entrega/thumbnail/gate.ts docs/adr/0038-thumbnail-mesmo-manifesto.md",
+      "espera": "determinismo 2x no gate; fronteira do snapshot declarada para o F5-01",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o F5-01 assumir que o thumbnail ja tem linha de base, um bump de Chrome muda o thumbnail em silencio; se o F5-05 tivesse criado fixtures/snapshots/thumb por conta propria, conflitaria com o mapa de donos da W7.",
+      "artefatos": [
+        "tests/entrega/thumbnail/gate.ts",
+        "src/render/pipeline/**"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "oraculo",
+    "responde": "F5-01",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-740",
+    "titulo": "Frame do thumbnail = meio da janela do primeiro cabecalho pressupoe janela longa o bastante para a mola acomodar",
+    "pergunta": "A escolha do frame (meio da janela do primeiro cabecalho) garante titulo inteiro na tela quando a janela e >= ~44 frames a 30fps (a mola 'suave' pousa em ~22 frames; o frame escolhido esta a duracao/2 do inicio). Uma janela de 20 frames escolheria o frame 10 — com o titulo ainda entrando. O F5-05 deve recalcular a escolha para janelas curtas?",
+    "por_que_aberto": "O F5-05 escolheu a regra mais simples e deterministico; a fixture canonica (90 frames) a satisfaz com folga. Janela curta demais e um caso de manifesto real possivel.",
+    "decisao_provisoria": "Regra v1: meio da janela do primeiro cabecalho, com a propriedade verificada em teste (mola acomodada no frame escolhido da fixture canonica). Se a regra precisar de sofisticacao (esperar a mola acomodar dentro da janela), e decisao de produto do F5-07 (W9) — o modulo e o ponto unico da mudanca.",
+    "verificacao": {
+      "cmd": "npx vitest run tests/entrega/thumbnail/frame.test.ts 2>&1 | grep -E 'mola|passed'",
+      "espera": "teste da mola acomodada no frame escolhido passa",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Manifesto com cabecalho de janela curta gera thumbnail com titulo entrando (opacidade < 1) — feio, nao errado; o contraste ainda e medido e passa (a cor e a mesma).",
+      "artefatos": [
+        "src/entrega/thumbnail/frame.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "produto",
+    "responde": "F5-07",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-741",
+    "titulo": "O piso de legibilidade (24px) vale para o TITULO; o subtitulo (18px no thumbnail) nao e coberto pela regra",
+    "pergunta": "No thumbnail 1280x720 da fixture canonica o titulo tem 36px (acima do piso WCAG large de 24px) mas o subtitulo tem 18px — abaixo do piso. A regra de legibilidade do F5-05 cobre so o titulo. O subtitulo ilegivel no tamanho pequeno deve bloquear a entrega?",
+    "por_que_aberto": "O subtitulo e decorativo no thumbnail (o que identifica o video e o titulo); bloquear a entrega por causa dele derrubaria thumbnails legitimamente compostos por titulo + subtitulo. E uma decisao de produto.",
+    "decisao_provisoria": "A regra cobre o titulo (o primeiro cabecalho) — o que o card pede ('o texto do thumbnail e legivel'). O subtitulo continua na conta de CONTRASTE (par declarado AA normal, medido no pixel) — legibilidade e contraste sao regras diferentes, e as duas rodam. O F5-07 decide se o subtitulo tambem ganha piso.",
+    "verificacao": {
+      "cmd": "grep -rn 'alturaDoTitulo\\|conferirLegibilidade' src/entrega/thumbnail/*.ts | head",
+      "espera": "legibilidade sobre o titulo; contraste sobre todas as tintas",
+      "ambiente": "worktree do repo"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o F5-07 extender o piso ao subtitulo, a fixture canonica atual ficaria VERMELHA (18px < 24px) — a mudanca de regra e visivel no gate, nao silenciosa.",
+      "artefatos": [
+        "src/entrega/thumbnail/legibilidade.ts"
+      ]
+    },
+    "risco": "baixo",
+    "categoria": "produto",
+    "responde": "F5-07",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]
