@@ -2223,6 +2223,67 @@ revisar-gate:
     npx tsx tools/revisao/gate.ts
 # === fim F6-01 ===
 
+# === F6-02 ===
+# =============================================================================
+# Runbook de publicacao — card F6-02 (W11, critico, pesquisa). ADR-0046.
+# =============================================================================
+# Dono: card F6-02 (onda W11). Nao edite fora destes marcadores.
+#
+# Entregas do card: docs/runbooks/publicacao.md (o diretorio docs/runbooks/
+# nasce com este card), docs/adr/0046-*.md, ledger/inbox/F6-02.json.
+# Faixa de ledger: AB-870..AB-889.
+#
+# O runbook nasce ENCERRADO COMO CONSTRUIDO E NAO DISPARADO (PROGRAMA.html:
+# 2244-2247): o procedimento e escrito e gateado, nenhum video foi publicado.
+# A alavanca-mestra da politica editorial (docs/politica-editorial.md §2) e
+# materializada como flag real de configuracao (ALAVANCA_MESTRA=off em .env —
+# AB-990) e o GATE P-1 do runbook e o ponto em que a flag entra: off bloqueia
+# a publicacao inteira antes de qualquer outro passo. Enquanto off, a fase 0
+# e o unico estado alcancavel (politica §2.4). O fluxo do runbook chama
+# `just revisar-bloqueia --entrega <id>` (gate G-HUM, F6-01/AB-852) e
+# referencia os gates P-1..P-5 do F6-03 pelos nomes, sem os implementar.
+#
+# ∅-crit CORRIGIDO (docs/criterios-de-aceitacao-corrigidos.md §1, armadilha
+# 9.2): o sweep usa `rg --files-without-match` (nunca `rg -L`, que e
+# --follow) COM guarda de denominador — docs/runbooks/ AGORA existe, entao o
+# sweep roda VIVO e denominador zero e VERMELHO (nao aprova por ausencia).
+# O sweep de subordinacao do I-04 (just politica-editorial) passou a rodar
+# vivo no mesmo momento: todo runbook cita a alavanca-mestra.
+#
+#   runbook-publicacao  o gate do proprio card: presenca das entregas,
+#                       ∅-crit do runbook (sweep vivo), GATE P-1 presente,
+#                       status NAO DISPARADO, alavanca-mestra citada,
+#                       ADR-0046 com a data da pesquisa e ledger valido.
+# =============================================================================
+
+# O gate do card F6-02: presenca, ∅-crit corrigido e materializacao da alavanca.
+runbook-publicacao:
+    @echo "=== runbook-publicacao: gate do card F6-02 (W11) ==="
+    @echo "--- [1/5] presenca das entregas do card (por nome, nunca por ausencia) ---"
+    @test -f docs/runbooks/publicacao.md
+    @ls docs/adr/0046-*.md >/dev/null
+    @test -f ledger/inbox/F6-02.json
+    @echo "--- [2/5] ∅-crit corrigido do runbook: sweep VIVO com guarda de denominador ---"
+    @test "$(ls docs/runbooks/*.md 2>/dev/null | wc -l)" -gt 0 || { echo "FALHOU: denominador zero em docs/runbooks/ — o diretorio nasce com o F6-02, zero e VERMELHO"; exit 1; }
+    @rg --files-without-match "## O que este documento NÃO cobre" docs/runbooks/*.md | tee /dev/stderr | grep -q . && { echo "FALHOU: runbook acima sem '## O que este documento NÃO cobre'"; exit 1; } || true
+    @echo "--- [3/5] ∅-crit do runbook: GATE P-1 presente e status NAO DISPARADO ---"
+    @rg -q "GATE P-1" docs/runbooks/publicacao.md || { echo "FALHOU: 'GATE P-1' ausente em docs/runbooks/publicacao.md"; exit 1; }
+    @rg -q "ENCERRADO COMO CONSTRUÍDO E NÃO DISPARADO" docs/runbooks/publicacao.md || { echo "FALHOU: status 'ENCERRADO COMO CONSTRUÍDO E NÃO DISPARADO' ausente"; exit 1; }
+    @echo "--- [4/5] alavanca-mestra citada no runbook (sweep de subordinacao do I-04, agora vivo) ---"
+    @rg -q "alavanca-mestra" docs/runbooks/publicacao.md || { echo "FALHOU: runbook sem a citacao da alavanca-mestra"; exit 1; }
+    @rg -q "just revisar-bloqueia --entrega <id>" docs/runbooks/publicacao.md || { echo "FALHOU: runbook sem o comando just revisar-bloqueia no fluxo (AB-852)"; exit 1; }
+    @echo "--- [5/5] ADR-0046 com a data da pesquisa e inbox do F6-02 valido ---"
+    @rg -q "2026-08-13" docs/adr/0046-*.md || { echo "FALHOU: ADR-0046 sem a data da pesquisa"; exit 1; }
+    @mkdir -p .tmp-inbox-f6-02 && cp ledger/inbox/F6-02.json .tmp-inbox-f6-02/ && if LEDGER_INBOX_OVERRIDE=.tmp-inbox-f6-02 python3 tools/validate-ledger.py; then \
+        rm -rf .tmp-inbox-f6-02; \
+    else \
+        rm -rf .tmp-inbox-f6-02; \
+        echo "FALHOU: ledger/inbox/F6-02.json fora do schema"; \
+        exit 1; \
+    fi
+    @echo "runbook-publicacao: VERDE"
+# === fim F6-02 ===
+
 # === F5-08 ===
 # =============================================================================
 # Golden master de ponta a ponta — card F5-08 (W10, critico). fixtures/gm/**.

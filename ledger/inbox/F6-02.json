@@ -1,0 +1,147 @@
+[
+  {
+    "id": "AB-870",
+    "titulo": "O custo em quota de um upload mudou (1.600 units -> bucket dedicado) — qual numero o runbook registra e como reconferir",
+    "pergunta": "A pergunta de pesquisa do F6-02 pede 'custo em quota de um upload e quota diaria default'. A pesquisa de 2026-08-13 achou DOIS numeros que se sucederam: videos.insert custava 1.600 units por chamada durante anos, e a documentacao oficial atual (2026) descreve um bucket dedicado 'Video Uploads' de 100 chamadas/dia a 1 unit cada, com a pool geral de 10.000 units/dia para o resto. Fontes secundarias datam a mudanca em 2025-12-04. Qual numero o runbook registra como verdade corrente, e o que o leitor roda para reconferir sem redescobrir?",
+    "por_que_aberto": "Duas leituras independentes da pagina oficial de determinacao de custo (developers.google.com/youtube/v3/determine_quota_cost) e da pagina do metodo videos.insert concordam na estrutura atual (bucket dedicado de 100 chamadas/dia, 1 unit por chamada), mas a data exata da mudanca (2025-12-04) tem uma unica fonte secundaria (1-0) e o valor historico de 1.600 units aparece em varias fontes independentes (3-0). Um runbook com o numero errado nao quebra hoje (nada foi publicado), mas o primeiro upload real consumira quota de um jeito que o anexo de reconferencia precisa detectar.",
+    "decisao_provisoria": "O runbook registra a estrutura atual (bucket dedicado de 100 chamadas/dia a 1 unit cada + pool de 10.000 units/dia para os demais endpoints) com o historico (1.600 units ate 2025-12-04, fonte unica secundaria) e o anexo 'como reconferir tudo isto voce mesmo' com os comandos que releem as duas paginas oficiais. O placar honesto: estrutura atual (2-0), historico 1.600 (3-0), data da mudanca (1-0).",
+    "verificacao": {
+      "cmd": "rg -q \"1 unit\" docs/runbooks/publicacao.md && rg -q \"10.000 units\" docs/runbooks/publicacao.md && rg -q \"2025-12-04\" docs/adr/0046-*.md",
+      "espera": "exit 0 — o runbook registra o bucket dedicado (1 unit, 100/dia) e a pool de 10.000 units/dia; o ADR-0046 registra a data da mudanca com placar 1-0",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o runbook registrasse so o numero antigo (1.600), o primeiro upload real seria contabilizado errado e a cadencia da fase 4 dimensionada contra um teto que nao existe mais; se registrasse so o novo sem o historico, o leitor que achar o numero antigo em forum concluiria que o runbook esta errado.",
+      "artefatos": [
+        "docs/runbooks/publicacao.md",
+        "docs/adr/0046-canal-de-publicacao-youtube.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-871",
+    "titulo": "Verificacao do app Google — escopo pessoal dispensa, mas modo Testing expira tokens em 7 dias e projeto nao auditado so publica private",
+    "pergunta": "A pergunta de pesquisa do F6-02: 'se o escopo exige verificacao do app e qual o prazo dela'. A pesquisa de 2026-08-13: apps de uso pessoal (<100 usuarios) NAO exigem verificacao OAuth (fonte oficial Google, 2-0) — nao ha prazo a cumprir nesse caso; mas (a) no modo Testing o refresh token expira em 7 dias (fonte oficial, 2-0) e ha limite de 100 usuarios de teste; (b) uma fonte terceira (1-0) afirma que o Google passou a expirar tokens de apps NAO verificados em producao apos 7 dias, contrariando as fontes oficiais; (c) projetos de API criados apos 2020-07-28 sem audit de conformidade ToS tem upload restrito a private. Como o runbook trata cada um desses tres fios?",
+    "por_que_aberto": "A disputa (1-0 vs 2-0) sobre a expiracao de 7 dias para apps nao verificados em producao muda o desenho da automacao: se a leitura da fonte terceira valer, o upload automatizado exige reconsentimento semanal ou verificacao; se a oficial valer, 'In production' sem verificacao resolve. O runbook nao pode decidir a disputa — ele registra a divergencia e o passo de reconferencia que a fecha.",
+    "decisao_provisoria": "O runbook adota: publicar o OAuth consent screen como 'In production' (permitido sem verificacao para <100 usuarios), com a regra de que tokens obtidos em modo Testing expiram em 7 dias e o passo de reconferencia da politica de expiracao (anexo); o campo containsSyntheticMedia e independente disso. A fase 2 (private) e alcançavel mesmo com projeto nao auditado; fases 3+ exigem o audit (AB-874).",
+    "verificacao": {
+      "cmd": "rg -q \"verificação\" docs/runbooks/publicacao.md && rg -q \"7 dias\" docs/runbooks/publicacao.md && rg -q \"1-0\" docs/adr/0046-*.md",
+      "espera": "exit 0 — o runbook trata a verificacao, o prazo de 7 dias do modo Testing e o ADR-0046 registra a disputa com placar (1-0 vs 2-0)",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o runbook ignorasse a disputa e a leitura terceira valer, a automacao da fase 4 pararia toda semana com token expirado sem explicacao; se o runbook exigisse verificacao desnecessaria, o escopo pessoal pagaria um processo que a politica de plataforma nao exige dele.",
+      "artefatos": [
+        "docs/runbooks/publicacao.md",
+        "docs/adr/0046-canal-de-publicacao-youtube.md"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "infra",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-872",
+    "titulo": "Campo do payload que declara conteudo sintetico: status.containsSyntheticMedia — obrigacao de plataforma, nao opcional",
+    "pergunta": "A pergunta de pesquisa do F6-02 marca como NAO opcional: 'qual campo do payload declara conteudo sintetico'. A pesquisa de 2026-08-13: o campo e status.containsSyntheticMedia (boolean) do recurso videos, setado em videos.insert/videos.update, adicionado em 2024-10-30 (revision history oficial, 2-0). O que impede o runbook de 'esquecer' o campo no payload do primeiro upload real, ja que nada foi executado ainda?",
+    "por_que_aberto": "O runbook nasce ENCERRADO COMO CONSTRUIDO E NAO DISPARADO: o payload de exemplo existe em prosa, nenhum upload real o validou. A obrigacao e do provedor e da plataforma, e a politica editorial (§4 item 6) ja registra o disclosure de voz como condicao de admissao — o campo containsSyntheticMedia estende a mesma obrigacao ao conteudo visual realista alterado ou sintetico.",
+    "decisao_provisoria": "O runbook materializa o campo como parte OBRIGATORIA do payload de upload (status.containsSyntheticMedia: true quando a entrega contem conteudo realista alterado ou sintetico), com o passo de verificacao pos-upload (videos.list devolvendo o campo) e a correcao de citacao antecipada contra confundir com status.selfDeclaredMadeForKids.",
+    "verificacao": {
+      "cmd": "rg -q \"containsSyntheticMedia\" docs/runbooks/publicacao.md && rg -q \"2024-10-30\" docs/adr/0046-*.md",
+      "espera": "exit 0 — o runbook exige o campo no payload e o ADR-0046 registra a data de adicao com fonte oficial",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Video publicado sem o campo quando deveria declara-lo e o custo irreversivel da politica (§5): a plataforma aplica a divulgacao retroativamente ou o video sai com rotulo errado — e o runbook, que e a unica instancia do procedimento, teria omitido a unica obrigacao que a pergunta de pesquisa marcou como nao opcional.",
+      "artefatos": [
+        "docs/runbooks/publicacao.md",
+        "docs/adr/0046-canal-de-publicacao-youtube.md"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "assets-licenca",
+    "responde": "juridico",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-873",
+    "titulo": "O canal concreto e decisao do F6-02 (AB-995) — YouTube via Data API v3, com as fases da politica mapeadas a privacyStatus",
+    "pergunta": "AB-995 (I-04) registra que a politica decide o QUE e publicavel e EM NOME DE QUEM; o ONDE (canal) 'o F6-02 (W11) decide'. Este card decide: YouTube, via YouTube Data API v3, canal unico. O mapeamento das fases da politica (§1) a privacyStatus do YouTube — fase 2 (privada)=private, fase 3 (listada, um video)=unlisted, fase 4+ (cadencia)=public — e o correto, e o que acontece com a escolha se outra plataforma entrar?",
+    "por_que_aberto": "A escolha do canal foi orientada pelas tres perguntas de pesquisa do card, que so fazem sentido para o YouTube (quota em units, verificacao de app Google, campo de conteudo sintetico). O custo disso: nenhuma outra plataforma foi pesquisada (TikTok, Vimeo, Odysee) — a escolha e escopo minimo, nao comparacao exaustiva. E a alavanca-mestra e uma so, entao o canal novo nao ganha alavanca propria (politica §2, propriedade 1).",
+    "decisao_provisoria": "Canal unico YouTube via Data API v3, com o mapeamento fase->privacyStatus registrado no runbook; a alavanca-mestra continua unica (ALAVANCA_MESTRA) e o canal novo entraria por registro (ADRs e ledger) sem multiplicar alavancas; o runbook declara que a escolha nao foi comparacao exaustiva de plataformas.",
+    "verificacao": {
+      "cmd": "rg -q \"privacyStatus\" docs/runbooks/publicacao.md && rg -q \"YouTube Data API v3\" docs/adr/0046-*.md && rg -q \"AB-995\" docs/adr/0046-*.md",
+      "espera": "exit 0 — o runbook mapeia as fases a privacyStatus, o ADR-0046 decide o canal e referencia o AB-995",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem canal decidido, o runbook nao teria como escrever o passo de publicacao real (payload, quota, verificacao, conteudo sintetico) — a fase 2 continuaria impossivel por ausencia de mecanismo, e a pergunta de pesquisa do card ficaria sem resposta aplicavel.",
+      "artefatos": [
+        "docs/runbooks/publicacao.md",
+        "docs/adr/0046-canal-de-publicacao-youtube.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-874",
+    "titulo": "Projeto de API nao auditado so publica private — o audit de conformidade ToS e pre-requisito das fases 3+ e nao tem SLA oficial",
+    "pergunta": "A pesquisa de 2026-08-13 achou: projetos de API criados apos 2020-07-28 sem audit de conformidade com os Termos de Servico do YouTube API Services tem videos.insert restrito a 'private viewing mode' (pagina oficial do recurso videos + guia quota_and_compliance_audits, 2-0). O audit e pedido por formulario oficial e libera upload publico. O runbook precisa saber: quando acionar o audit (antes da fase 3), quanto tempo esperar (nenhum SLA oficial publicado foi encontrado) e como registrar a espera?",
+    "por_que_aberto": "Nenhuma fonte oficial publica prazo de resposta do audit; o runbook nao pode prometer 'audit em N dias'. A fase 2 (private) funciona sem audit; a fase 3 (unlisted) e a fase 4+ (public) dependem dele. Se o operador acionar o audit so na fase 3, a cadencia para na porta — o que e aceitavel por design (a politica manda passar fase a fase), mas precisa estar escrito.",
+    "decisao_provisoria": "O runbook registra o audit como pre-requisito declarado das fases 3+ (com o formulario oficial no anexo de reconferencia), acionado pelo Operador de publicacao por registro (item de ledger ou handoff) quando a fase 2 for aprovada; a espera nao tem SLA — o runbook nomeia 'o que ninguem conferiu' para a duracao do audit.",
+    "verificacao": {
+      "cmd": "rg -q \"audit\" docs/runbooks/publicacao.md && rg -q \"2020-07-28\" docs/runbooks/publicacao.md && rg -q \"SLA\" docs/runbooks/publicacao.md",
+      "espera": "exit 0 — o runbook trata o audit, a data da restricao e declara a ausencia de SLA na secao 'o que ninguem conferiu'",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o runbook ignorasse o audit, o primeiro upload 'publico' da fase 3 nasceria private sem explicacao — o mesmo sintoma de um upload que falhou, indistinguivel por logs — e a fase 3 seria marcada como concluida sem ter acontecido (falso verde da publicacao).",
+      "artefatos": [
+        "docs/runbooks/publicacao.md",
+        "docs/adr/0046-canal-de-publicacao-youtube.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-875",
+    "titulo": "A alavanca-mestra materializada como flag real executada pelo GATE P-1 — fechando o ciclo do AB-990",
+    "pergunta": "AB-990 (I-04) pergunta quem materializa a alavanca-mestra como flag real de configuracao e 'o que garante que ela nao nasce de enfeite'. O F6-02 materializa: ALAVANCA_MESTRA em .env (default off), lida pelo GATE P-1 do runbook. O que prova que o runbook REALMENTE executa a flag e nao so a cita?",
+    "por_que_aberto": "O ∅-crit do I-04 assere a PRESENCA da citacao na politica e no ADR-0033; a materializacao da flag e o ponto cego que AB-990 nomeia: uma flag que nenhum comando le e um conceito com outra roupa. O gate do proprio F6-02 (just runbook-publicacao) precisa verificar que o runbook executa a flag.",
+    "decisao_provisoria": "O runbook define a flag (ALAVANCA_MESTRA=off em .env, estados validos on|off, edicao invalida recusada e logada com a configuracao anterior valendo — AB-998) e o GATE P-1 (a primeira porta do fluxo) le a flag: off bloqueia a publicacao inteira antes de qualquer outro passo. O gate do card verifica a presenca do GATE P-1 e da flag por comando.",
+    "verificacao": {
+      "cmd": "rg -q \"ALAVANCA_MESTRA\" docs/runbooks/publicacao.md && rg -q \"GATE P-1\" docs/runbooks/publicacao.md && rg -q \"AB-990\" docs/runbooks/publicacao.md",
+      "espera": "exit 0 — o runbook materializa a flag por nome, o GATE P-1 a executa como primeira porta e referencia o AB-990",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a flag nascer sem executor, o 'desligar a publicacao' volta a ser uma conversa no momento exato em que a fase 6 (irreversivel) for alcançada — o risco que o AB-990 declarou; se o GATE P-1 nao for a primeira porta, o runbook teria um caminho que publica sem passar pela alavanca.",
+      "artefatos": [
+        "docs/runbooks/publicacao.md",
+        "docs/adr/0046-canal-de-publicacao-youtube.md",
+        "justfile"
+      ]
+    },
+    "risco": "critico",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]
