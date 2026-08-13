@@ -1,0 +1,289 @@
+[
+  {
+    "id": "AB-950",
+    "titulo": "Materializacao do gatilho de reabertura do enquadramento de uso (I-01) — id pre-alocado, escrito pelo I-04",
+    "pergunta": "O ADR-0003 (I-01) pre-alocou AB-950 como o mecanismo de reabertura do enquadramento 'uso pessoal' e o ∅-crit do I-01 exige `python3 tools/validate-ledger.py --id AB-950 --exigir-gatilho`. O item nunca foi materializado em nenhum ledger/inbox/*.json (verificado no I-04: 'Item AB-950 nao encontrado no inbox', rc=1). A politica editorial (ADR-0033) referencia o gatilho como condicao de reabertura — um gatilho que o validador nao encontra e verificavel por prosa, nao por maquina.",
+    "por_que_aberto": "Id pre-alocado pelo I-01 (faixa AB-950..AB-969) que nunca foi escrito; o I-04 o materializa no seu inbox porque a politica editorial depende da verificabilidade do gatilho (pergunta adversarial 4 do I-04). Ids nunca sao reciclados: AB-950 nao e reciclagem, e o cumprimento da pre-alocacao do I-01. Na consolidacao o orquestrador pode mover o item para um inbox do I-01 sem mudar o id.",
+    "decisao_provisoria": "Item ABERTO permanente (padrao ADR-0003): nunca fechado, verificavel por estar sempre presente. Campo `gatilho` declara o evento que reabre ('organizacao com fins lucrativos e mais de 3 empregados'), a condicao de escopo (uso pessoal), o que dispara (reabertura do ADR-0003 e do ADR-0033 + reavaliacao da suficiencia juridica pelo Revisor juridico) e o que NAO dispara. Todo gate de publicacao, relatorio de procedencia e handoff declara 'AB-950 continua fechado' ou 'AB-950 disparou' — omissao e falha de gate.",
+    "verificacao": {
+      "cmd": "python3 tools/validate-ledger.py --id AB-950 --exigir-gatilho",
+      "espera": "exit 0 com 'Validacao: OK' — o item existe no inbox e declara o campo 'gatilho' nao-nulo (o mesmo ∅-crit da segunda metade do I-01, que falhava antes deste card)",
+      "ambiente": "qualquer maquina offline (docs e ledger, sem rede)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem o item, o ∅-crit do I-01 fica vermelho para sempre e o F6-04 (W11) nao consegue fazer --permitir-aberto AB-950 com justificativa exigida; pior, a mudanca de escopo de uso voltaria a ser invisivel (R01-05: nenhum sinal tecnico) — o proprio risco que o gatilho existe para manter visivel.",
+      "artefatos": [
+        "ledger/inbox/I-04.json",
+        "docs/adr/0033-canal-e-politica-editorial.md",
+        "docs/adr/0003-enquadramento-de-uso.md"
+      ]
+    },
+    "risco": "critico",
+    "categoria": "assets-licenca",
+    "responde": "juridico",
+    "antecedencia": "onda",
+    "status": "ABERTO",
+    "gatilho": {
+      "evento": "organizacao com fins lucrativos e mais de 3 empregados",
+      "condicao_de_escopo": "uso pessoal, por pessoa fisica, fora do escopo de trabalho, sem vinculo a organizacao com fins lucrativos com mais de 3 empregados (ADR-0003)",
+      "o_que_dispara": "reabertura do ADR-0003 (D1..D4 voltam a PROPOSTO) e do ADR-0033; reavaliacao por inteiro da politica editorial antes de qualquer publicacao nova; reavaliacao da suficiencia juridica do que ja foi publicado pelo papel nomeado Revisor juridico (AB-748), com dossier do F6-01 + relatorio de procedencia do F5-06 como base, sem re-renderizar",
+      "o_que_NAO_dispara": [
+        "abertura de CNPJ sem empregados ou com ate 3 empregados",
+        "monetizacao do video no YouTube (R01-06)",
+        "publicacao em qualquer plataforma",
+        "mudanca de provedor de TTS, GIF ou musica"
+      ],
+      "deteccao": "declaracao do dono (nao ha sinal tecnico, R01-05); todo gate de publicacao, relatorio de procedencia e handoff declara 'AB-950 continua fechado' ou 'AB-950 disparou' — a omissao e falha de gate"
+    }
+  },
+  {
+    "id": "AB-990",
+    "titulo": "A alavanca-mestra e um conceito ate a W11 — quem materializa a flag real e quando",
+    "pergunta": "O PROGRAMA.html:2279-2282 define a alavanca-mestra como 'a flag que desliga a publicacao inteira, citada em todos os runbooks subordinados'. O ∅-crit do I-04 (corrigido) assere a PRESENCA da citacao na politica e no ADR-0033 — mas nenhum gate hoje verifica que a FLAG REAL existe, porque o caminho de publicacao ainda nao existe. A materializacao (uma flag de configuracao que de fato desliga a publicacao) e de quem, e o que garante que ela nao nasce 'de enfeite'?",
+    "por_que_aberto": "O runbook de publicacao (docs/runbooks/publicacao.md) so nasce na W11 (F6-02); ate la a alavanca-mestra e conceito com guarda de presenca textual. A armadilha: uma flag que nenhum runbook executa e um conceito, nao uma alavanca — e o ∅-crit de citacao nao distingue os dois.",
+    "decisao_provisoria": "O F6-02 (W11) materializa a alavanca-mestra como flag real de configuracao no runbook e a cita na secao inicial (∅-crit do F6-02, criterios-de-aceitacao-corrigidos.md §1 item 3); ate la a fase 0 e o unico estado alcancavel — 'sem alavanca, nao ha publicacao' (politica-editorial.md §2). A politica registra a propriedade: edicao invalida da flag e recusada e logada, com a configuracao anterior valendo (AB-998).",
+    "verificacao": {
+      "cmd": "rg --files-without-match \"alavanca-mestra\" docs/politica-editorial.md docs/adr/0033-*.md",
+      "espera": "saida vazia (exit 1 do rg) — politica e ADR citam a alavanca-mestra; na W11 o mesmo sweep sobre docs/runbooks/*.md com guarda de denominador vira gate vivo",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a flag real nunca for materializada (ou nascer sem ser executada por nenhum runbook), a 'alavanca-mestra' vira palavra — e o desligamento de emergencia da publicacao deixa de existir exatamente no momento em que a fase 6 (irreversivel) for alcançada.",
+      "artefatos": [
+        "docs/politica-editorial.md",
+        "docs/runbooks/publicacao.md",
+        "docs/adr/0033-canal-e-politica-editorial.md"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-991",
+    "titulo": "Papeis nomeados num programa pessoal — a separacao e documental, nao fisica",
+    "pergunta": "A politica editorial nomeia quatro papeis (Revisor editorial, Operador de reversao, Operador de publicacao, Revisor juridico) e a regra 'quem reverte nao decide o que e valido'. Num programa operado por uma unica pessoa fisica, nenhum gate distingue quem decide de quem reverte — o que garante a separacao alem da prosa?",
+    "por_que_aberto": "A separacao de papeis nasceu do padrao de segregacao de funcoes, que pressupoe pessoas fisicas distintas. Aqui nao ha como exigir isso; a alternativa e registro por papel: nenhum ato e registrado em dois papeis ao mesmo tempo, e a assinatura do dossier (F6-01) e por papel nomeado, nunca por 'o time'.",
+    "decisao_provisoria": "A politica declara a separacao como documental: atos separados e registrados por papel; o dossier nunca e assinado como reversao e a reversao nunca e assinada como dossier. O F6-03 (W11) exige veredito CONFERE com evidencia anexada e o F6-01 (W10) exige assinatura nominal — os dois gates materializam a separacao por registro.",
+    "verificacao": {
+      "cmd": "python3 -c \"import pathlib; t=pathlib.Path('docs/politica-editorial.md').read_text(); assert all(p in t for p in ['Revisor editorial','Operador de reversão','Operador de publicação','Revisor jurídico'])\"",
+      "espera": "exit 0 — os quatro papeis nomeados existem na politica (a tabela de papeis da secao 3)",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um dia a separacao de papeis for exigida como separacao fisica (ou, no outro extremo, for esquecida como registro), a reversao de trafego passa a depender de julgamento editorial — o ato mais caro no momento de maior pressa — ou o dossier passa a ser assinado por qualquer um.",
+      "artefatos": [
+        "docs/politica-editorial.md",
+        "docs/adr/0033-canal-e-politica-editorial.md",
+        "docs/revisao/**"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-992",
+    "titulo": "Reversao e correcao de conteudo sao atos diferentes — quem executa cada um e como se registra",
+    "pergunta": "O I-04 define na politica (secao 6) e no ADR-0033 (D3/D5) que reverter trafego (despublicar, pausar cadencia, restaurar configuracao) e ato do Operador de reversao, enquanto corrigir conteudo exige novo dossier do Revisor editorial. O F6-01 (W10) executa a parte de revisao; quem executa e registra a REVERSAO, e onde o registro mora?",
+    "por_que_aberto": "Padrao AB-748 (rotacao do contrato-w9 §13): a politica define o papel; o card de execucao materializa o ato. A reversao ainda nao tem executor nem registro — o runbook do F6-02 (W11) e o lugar natural (edicao de configuracao da alavanca, logada).",
+    "decisao_provisoria": "A reversao mora no runbook do F6-02 (W11): edicao de configuracao da alavanca-mestra, sem redeploy, recusada-e-logada quando invalida, com a configuracao anterior valendo. Corrigir conteudo e outro ato: novo dossier do F6-01. Nenhum ato pode ser registrado nos dois papeis ao mesmo tempo.",
+    "verificacao": {
+      "cmd": "rg -q \"atos separados\" docs/politica-editorial.md && rg -q \"AB-748\" docs/politica-editorial.md && rg -q \"novo dossier\" docs/politica-editorial.md",
+      "espera": "exit 0 — a politica registra a separacao dos atos, o papel do AB-748 e a exigencia de novo dossier para correcao",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se reverter e corrigir virarem o mesmo ato, o 'conserto' de um video publicado passa a acontecer sem novo dossier (muda o que foi aprovado em silencio) ou a reversao de emergencia passa a exigir aprovacao editorial (publica errado por mais tempo).",
+      "artefatos": [
+        "docs/politica-editorial.md",
+        "docs/runbooks/publicacao.md",
+        "docs/adr/0033-canal-e-politica-editorial.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-993",
+    "titulo": "O caso em que ninguem pensou — a clausula de nao-previsto nao tem detector",
+    "pergunta": "A pergunta adversarial 2 do I-04 e respondida na politica (secao 7) com tres regras: enquadramento por registro, reversao nunca bloqueada, publicacao nova bloqueada ate o registro. A terceira regra e verificavel? 'Publicacao nova bloqueada' depende de alguem tentar publicar — e se ninguem registrar o bloqueio, nada fica vermelho.",
+    "por_que_aberto": "Ausencia de reclamação nao e sinal (armadilha do denominador, PROGRAMA.html:2284-2293): um caso nao previsto que ninguem registra e indistinguivel de um caso que nao existe. A regra so tem efeito se a omissao for falha — mesmo padrao do AB-950 (verificavel por declaracao, nunca por deteccao).",
+    "decisao_provisoria": "Toda publicacao nova exige, no registro do F6-03 (W11), a declaracao de enquadramento: o video passa pelos gates P-1..P-5 como caso previsto, ou o caso nao previsto foi registrado (item de ledger + decisao provisoria) antes da publicacao. A omissao da declaracao e falha de gate — o padrao 'declarado, nunca omitido' do AB-950.",
+    "verificacao": {
+      "cmd": "rg -q \"não está escrito não está decidido\" docs/politica-editorial.md && rg -q \"alavanca-mestra é puxada primeiro\" docs/politica-editorial.md && rg -q \"bloqueada até o enquadramento\" docs/politica-editorial.md",
+      "espera": "exit 0 — as tres regras do caso nao-previsto estao escritas na politica (secao 7)",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a declaracao de enquadramento nao virar exigencia de gate no F6-03, a clausula de nao-previsto vira prosa: o primeiro caso que ninguem pensou e resolvido por improviso, e a politica perde a funcao de contrato.",
+      "artefatos": [
+        "docs/politica-editorial.md",
+        "docs/gates/**",
+        "docs/adr/0033-canal-e-politica-editorial.md"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-994",
+    "titulo": "A janela entre as fases 5 e 6 nao e redonda — quem declara o ciclo de negocio completo",
+    "pergunta": "O PROGRAMA.html:2273-2277 exige que a janela minima entre o soak (fase 5) e a automacao sem revisao humana (fase 6) seja um ciclo de negocio COMPLETO, justificado — 'menos que isso nao cobre o caso raro'. Quem declara a janela, quando, e o que conta como 'ciclo de negocio completo' neste programa?",
+    "por_que_aberto": "Nenhum video foi publicado (fase 0), entao a janela ainda nao existe para declarar. Mas a politica precisa pre-alocar o papel: a passagem 5→6 e a primeira etapa irreversivel, e a janela nao pode ser escolhida no dia da passagem por quem quer publicar.",
+    "decisao_provisoria": "O dono declara a janela, datada e justificada, quando a fase 5 terminar (e nunca 'redonda' — ex.: 30 dias nao e justificativa; um ciclo de negocio completo e). A politica registra que a fase 6 so e alcancada com a declaracao registrada; a automacao sem revisao humana nao pode nascer de um ajuste de configuracao.",
+    "verificacao": {
+      "cmd": "rg -q \"não é redonda\" docs/politica-editorial.md && rg -q \"ciclo de negócio completo\" docs/politica-editorial.md && rg -q \"fase 6\" docs/adr/0033-*.md",
+      "espera": "exit 0 — a politica e o ADR registram a exigencia da janela declarada e nao-redonda",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se a janela for escolhida no dia da passagem (ou for 'redonda' por conveniencia), a fase 6 nasce sem cobrir o caso raro — o pipeline publica sozinho antes de alguem acordar, exatamente o risco que a exigencia existe para evitar.",
+      "artefatos": [
+        "docs/politica-editorial.md",
+        "docs/adr/0033-canal-e-politica-editorial.md",
+        "docs/runbooks/publicacao.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-995",
+    "titulo": "As plataformas de publicacao nao estao decididas — a politica decide o que e publicavel, nao onde",
+    "pergunta": "A politica editorial decide o QUE e publicavel e EM NOME DE QUEM; o ONDE (canal/plataforma) nao esta decidido em lugar nenhum. O F6-02 (W11) nasce com 'as obrigacoes de publicacao do canal' como pergunta — mas o canal ainda nao existe. Publicar antes do runbook (em qualquer plataforma) viola o que — um comando executavel, ou so a prosa?",
+    "por_que_aberto": "Nenhum canal existe e o runbook de publicacao so nasce na W11. A politica amarra a fase 0 como piso (saida em arquivo nao e publicacao), mas o 'nao publicar' e hoje uma ausencia de mecanismo, nao uma guarda ativa — a guarda ativa nasce com os gates do F6-03.",
+    "decisao_provisoria": "A politica declara: sem dossier do F6-01 e sem gates P-1..P-5 com evidencia, nao ha publicacao em lugar nenhum — a plataforma e irrelevante para a admissao. O F6-02 (W11) decide o canal concreto e as obrigacoes especificas dele; o F6-03 materializa a guarda executavel.",
+    "verificacao": {
+      "cmd": "rg -q \"Não decide o runbook nem o canal\" docs/adr/0033-*.md && rg -q \"fase 0\" docs/politica-editorial.md",
+      "espera": "exit 0 — o ADR declara que o canal e escopo do F6-02 e a politica registra a fase 0 como piso seguro",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se alguem publicar 'para testar' antes do runbook, o primeiro video sai sem dossier e sem gates — a fase 2 (publicacao privada) confundida com a fase 0. O custo de despublicar existe, e a politica perde a fronteira declarada.",
+      "artefatos": [
+        "docs/politica-editorial.md",
+        "docs/runbooks/publicacao.md",
+        "docs/adr/0033-canal-e-politica-editorial.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "plataforma",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-996",
+    "titulo": "AB-950 disparado: a reavaliacao juridica nao e reversao automatica — o que ja saiu se mantem ou sai por registro",
+    "pergunta": "Quando o gatilho AB-950 disparar (organizacao com fins lucrativos e mais de 3 empregados), o que ja foi publicado se mantem ou e despublicado? A reavaliacao da suficiencia juridica (AB-748) e obrigatoria antes de publicar NOVO — mas o ja-publicado exige decisao caso a caso com base em que evidencia, e quem decide?",
+    "por_que_aberto": "Reverter ≠ corrigir conteudo (ADR-0033 D5): o gatilho dispara REAVALIACAO, nao despublicacao automatica. A decisao de manter/despublicar depende do relatorio de procedencia (F5-06) regenerado a partir dos mesmos commitados — sem re-renderizar — e do dossier do F6-01; o papel e o Revisor juridico.",
+    "decisao_provisoria": "O Revisor juridico (papel nomeado da politica, secao 3) decide por registro, com o dossier do F6-01 + relatorio do F5-06 como base tecnica e a evidencia anexada (padrao do F6-03: veredito sem evidencia falha). A despublicacao, quando decidida, e executada pelo Operador de reversao — ato de configuracao, nunca de conteudo.",
+    "verificacao": {
+      "cmd": "python3 -c \"import json; d=json.load(open('ledger/inbox/I-04.json')); assert any(i['id']=='AB-950' and isinstance(i.get('gatilho'), dict) for i in d); print('gatilho OK')\"",
+      "espera": "exit 0 com 'gatilho OK' — o item AB-950 existe no ledger com o campo gatilho que declara a reavaliacao pelo papel nomeado",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se o gatilho virar 'despublica tudo' automatico, um video perfeitamente licenciado sob o novo enquadramento sai do ar sem registro; se virar 'nada muda', um video com licenca incompativel continua publicado. As duas leituras produzem o mesmo gate verde — so o registro distingue.",
+      "artefatos": [
+        "docs/politica-editorial.md",
+        "docs/adr/0033-canal-e-politica-editorial.md",
+        "ledger/inbox/I-04.json"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "assets-licenca",
+    "responde": "juridico",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-997",
+    "titulo": "G-HUM e P-1..P-5 existem como linhas do PROGRAMA ate a W11 — sem dossier nao ha publicacao, mas o dossier ainda nao existe",
+    "pergunta": "O gate G-HUM ('nenhuma publicacao sem dossier assinado', F6-01) e os gates P-1..P-5 (F6-03) existem hoje apenas como linhas do PROGRAMA.html:2994-2995. O F6-01 (W10) gera o dossier e o F6-02/F6-03 (W11) executam os gates — mas o que impede a publicacao no intervalo entre o merge desta politica (W9.5) e o nascimento dos gates (W11)?",
+    "por_que_aberto": "Entre a W9.5 e a W11, a unica guarda e textual (politica-editorial.md §4 e §5): a fase 0 e o piso seguro e nenhum caminho contorna o F6-01. Um mecanismo de publicacao que nascer nesse intervalo sem passar pela politica seria uma violacao silenciosa — nenhum gate atual detectaria.",
+    "decisao_provisoria": "A politica declara a fase 0 como unico estado alcancavel ate o dossier existir, e o F6-02 (W11) nasce ENCERRADO COMO CONSTRUIDO E NAO DISPARADO (PROGRAMA.html:2244-2247) — o primeiro video publicavel passa pelas fases 1..3 com dossier + runbook + gates. O intervalo W9.5→W11 e coberto por declaracao, nao por mecanismo.",
+    "verificacao": {
+      "cmd": "rg -q \"G-HUM\" docs/politica-editorial.md && rg -q \"não é publicável\" docs/politica-editorial.md && rg -q \"fase 0 é o único estado alcançável\" docs/politica-editorial.md",
+      "espera": "exit 0 — a politica amarra G-HUM, o nao-publicavel e a fase 0 como piso seguro",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Se um mecanismo de publicacao nascer no intervalo e alguem publicar 'para validar a politica', o primeiro video sai sem dossier — a politica vira retrospectiva, e o ∅-crit 'entrega sem dossier bloqueia a publicacao' (F6-01) nunca chegou a existir como gate.",
+      "artefatos": [
+        "docs/politica-editorial.md",
+        "docs/revisao/**",
+        "docs/runbooks/publicacao.md"
+      ]
+    },
+    "risco": "alto",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-998",
+    "titulo": "Edicao invalida da alavanca-mestra — quem implementa a recusa-e-log e a validade da configuracao anterior",
+    "pergunta": "O PROGRAMA.html:2280-2282 exige que edicao invalida da alavanca seja 'recusada e logada, e a configuracao anterior continua valendo'. Isso e uma propriedade de implementacao: quem implementa a validacao (o que torna uma edicao invalida?), o log e a preservacao da configuracao anterior? Nenhum card alem do F6-02/F6-03 (W11) pode tocar nisso — mas a politica precisa declarar a propriedade.",
+    "por_que_aberto": "A politica e o ADR-0033 registram a propriedade (D4); a implementacao e do runbook e dos gates de publicacao (W11). Sem a declaracao agora, o F6-02 pode materializar a flag sem validacao, log ou rollback — e 'desligar a publicacao' vira um script, nao uma alavanca.",
+    "decisao_provisoria": "A politica registra: reversao e edicao de configuracao, sem redeploy; edicao invalida e recusada e logada; a configuracao anterior continua valendo. O F6-02 (W11) implementa a validacao (estados validos da alavanca), o log e a preservacao — e o F6-03 exige a evidencia de cada estado na transicao (veredito sem evidencia falha).",
+    "verificacao": {
+      "cmd": "rg -q \"recusada e logada\" docs/politica-editorial.md && rg -q \"configuração anterior\" docs/politica-editorial.md && rg -q \"sem redeploy\" docs/politica-editorial.md",
+      "espera": "exit 0 — a propriedade de recusa-e-log com preservacao da configuracao anterior esta registrada na politica",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem validacao e log, uma edicao errada da alavanca desliga (ou religa) a publicacao em silencio — e o 'desligou por engano' nao tem rastro para reverter. A propriedade 'configuracao anterior continua valendo' e o que torna a alavanca uma alavanca e nao um botao.",
+      "artefatos": [
+        "docs/politica-editorial.md",
+        "docs/runbooks/publicacao.md",
+        "docs/gates/**"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "ambiente",
+    "responde": "operacao",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  },
+  {
+    "id": "AB-999",
+    "titulo": "Disclosure de voz sintetica — obrigacao do provedor, conferida onde",
+    "pergunta": "O ADR-0003 D4 registra que a obrigacao de disclosure da OpenAI (informar que a voz e IA) 'continua valendo independentemente do enquadramento'. A politica editorial lista o disclosure entre as condicoes de admissao (item 6). Quem CONFERE o disclosure no video publicado — o dossier do F6-01 deve ter o item, e o F5-06/relatorio de procedencia registra o provedor de voz com a obrigacao?",
+    "por_que_aberto": "A obrigacao e do provedor e nao depende do enquadramento; a conferencia no artefato final nao tem dono executavel ainda — o dossier (F6-01, W10) e o lugar natural, e o relatorio de procedencia (F5-06) ja registra o provedor de voz (ADR-0039).",
+    "decisao_provisoria": "O dossier do F6-01 (W10) inclui o item de disclosure de voz sintetica no checklist (origem: ADR-0003 D4 e politica-editorial.md §4 item 6); o relatorio do F5-06 ja da a base (provedor de voz do manifesto). A publicacao de video com voz sintetica sem disclosure e nao-publicavel — e nao depende do enquadramento de uso.",
+    "verificacao": {
+      "cmd": "rg -q \"disclosure\" docs/politica-editorial.md && rg -q \"voz sintética\" docs/politica-editorial.md && rg -q \"obrigação do provedor\" docs/politica-editorial.md",
+      "espera": "exit 0 — a politica registra o disclosure de voz sintetica como condicao de admissao, com origem no provedor",
+      "ambiente": "qualquer maquina offline"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Sem o item no dossier, um video com voz sintetica sem disclosure e publicado conforme — a obrigacao do provedor vira custo juridico do dono no dia em que alguem (ou um gate de plataforma) conferir. A condicao existe para o gate falhar antes, nao depois.",
+      "artefatos": [
+        "docs/politica-editorial.md",
+        "docs/revisao/**",
+        "docs/adr/0039-relatorio-de-procedencia-transitivo.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "assets-licenca",
+    "responde": "juridico",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]

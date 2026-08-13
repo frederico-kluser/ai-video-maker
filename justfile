@@ -2142,3 +2142,41 @@ e2e:
     npx tsx tests/e2e/produzir-gate.ts
     @echo "e2e: VERDE"
 # === fim F5-07 ===
+
+# === I-04 ===
+# =============================================================================
+# Canal de publicacao e politica editorial — card I-04 (W9.5, infra). ADR-0033.
+# =============================================================================
+# Dono: card I-04 (onda W9.5). Nao edite fora destes marcadores.
+#
+# Entregas exclusivas do card (contrato-w9 §1): docs/politica-editorial.md e
+# docs/adr/0033-*.md. Faixa de ledger: AB-990..AB-999 (+ AB-950 materializado,
+# id pre-alocado do I-01 que nunca foi escrito — ADR-0033 §Contexto).
+#
+# ∅-crit CORRIGIDO (docs/criterios-de-aceitacao-corrigidos.md §1, armadilha
+# 9.2): o gate da W9.5 assere PRESENÇA — nem a politica nem o ADR podem ficar
+# sem citar a alavanca-mestra. ATENCAO: `rg -L` e `--follow`, NAO e
+# `--files-without-match`; a forma com -L aprova exatamente quando a
+# propriedade esta ausente.
+#
+# O sweep sobre runbooks (docs/runbooks/*.md) ganha guarda de denominador: o
+# glob so existe a partir da W11 (F6-02) e --files-without-match sai vazio
+# tanto quando tudo casa quanto quando nao existe arquivo nenhum. Denominador
+# zero nao aprova nada: hoje o sweep fica INATIVO e nomeia o motivo; na W11 o
+# F6-02 herda o comando com a guarda e o zero passa a ser VERMELHO
+# (criterios-de-aceitacao-corrigidos.md §1, item 2 — ver handoff do I-04).
+politica-editorial:
+    @echo "=== politica-editorial: gate do card I-04 (W9.5) ==="
+    @echo "--- [1/3] presenca dos arquivos do card (por nome, nunca por ausencia) ---"
+    @test -f docs/politica-editorial.md
+    @ls docs/adr/0033-*.md >/dev/null
+    @echo "--- [2/3] ∅-crit corrigido: alavanca-mestra citada em docs/politica-editorial.md e docs/adr/0033-*.md ---"
+    @rg --files-without-match "alavanca-mestra" docs/politica-editorial.md docs/adr/0033-*.md | tee /dev/stderr | grep -q . && { echo "FALHOU: arquivo acima nao cita a alavanca-mestra"; exit 1; } || true
+    @echo "--- [3/3] sweep de subordinacao sobre runbooks (guarda de denominador; vivo so na W11/F6-02) ---"
+    @if ls docs/runbooks/*.md >/dev/null 2>&1; then \
+        rg --files-without-match "alavanca-mestra" docs/runbooks/*.md | tee /dev/stderr | grep -q . && { echo "FALHOU: runbook acima nao cita a alavanca-mestra"; exit 1; } || true; \
+    else \
+        echo "denominador zero: docs/runbooks/ nao existe ainda (nasce na W11/F6-02) — sweep inativo, nao aprovou nada"; \
+    fi
+    @echo "politica-editorial: VERDE"
+# === fim I-04 ===
