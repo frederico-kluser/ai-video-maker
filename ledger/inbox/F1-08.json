@@ -19,7 +19,7 @@
       ]
     },
     "risco": "alto",
-    "categoria": "contrato",
+    "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -44,7 +44,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "design-system",
+    "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"

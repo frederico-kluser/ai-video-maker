@@ -19,8 +19,8 @@
       ]
     },
     "risco": "alto",
-    "categoria": "provedor",
-    "responde": "F3-01",
+    "categoria": "audio",
+    "responde": "plataforma → dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -44,8 +44,8 @@
       ]
     },
     "risco": "alto",
-    "categoria": "contrato",
-    "responde": "F3-01",
+    "categoria": "assets-licenca",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -69,8 +69,8 @@
       ]
     },
     "risco": "medio",
-    "categoria": "contrato",
-    "responde": "F3-01",
+    "categoria": "audio",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   }

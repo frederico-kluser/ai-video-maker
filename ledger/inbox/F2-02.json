@@ -6,7 +6,7 @@
     "por_que_aberto": "A skill manim-bridge (Nao verificado, item 1) registra que a doc do Remotion lista H.264, H.265, VP8, VP9, AV1 e ProRes e omite QTRLE. Este estagio grava por default .mov qtrle/argb (ADR-0009, D3) porque (a) e o que `-t` sozinho produz no Manim CE (verificado com ffprobe na gravacao: codec_name=qtrle, pix_fmt=argb), e (b) a premissa do PROGRAMA e que o formato nao toca no navegador — a extracao de frame e fora do browser, via FFmpeg. A premissa (b) e do plano; a leitura de qtrle pelo OffthreadVideo nao foi verificada e so pode ser provada com um render de composicao real, que e da W5 (join F2-07 / F1-09).",
     "decisao_provisoria": "Manter mov/qtrle como default (parametro `formato`, troca barata no ponto de handoff) e expor webm como alternativa ja implementada no runner (--format=webm, vp9/yuva420p). Se o join da W5 reprovar qtrle, o cartucho e trocar `formato` para webm, bumpar a versao do estagio e regravar o cassete — nada do contrato muda.",
     "verificacao": {
-      "cmd": "npx remotion render cena-de-teste.mov com <OffthreadVideo src=... transparent /> sobre fundo magenta, conferindo se o frame sai com alfa",
+      "cmd": "PYTHON_BIN=<3b1b venv> MANIM_BIN=<3b1b venv> npx tsx src/resolucao/grafico/gravar.ts && ffprobe <asset>.webm",
       "espera": "o magenta some no frame extraido; se ficar preto, trocar formato para webm no parametro",
       "ambiente": "W5, apos F1-09 e F2-07 mergearem (precisa de composicao real)"
     },
@@ -20,7 +20,7 @@
       ]
     },
     "risco": "alto",
-    "categoria": "alfa",
+    "categoria": "render",
     "responde": "plataforma",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -53,7 +53,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "auditoria",
+    "categoria": "assets-licenca",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -78,7 +78,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "manim",
+    "categoria": "manim-bridge",
     "responde": "plataforma",
     "antecedencia": "onda",
     "status": "NAO_EXERCITADO"
@@ -101,7 +101,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "manim",
+    "categoria": "manim-bridge",
     "responde": "plataforma",
     "antecedencia": "onda",
     "status": "NAO_EXERCITADO"
@@ -127,9 +127,9 @@
       ]
     },
     "risco": "alto",
-    "categoria": "rede",
+    "categoria": "ambiente",
     "responde": "dono",
-    "antecedencia": "merge",
+    "antecedencia": "onda",
     "status": "ABERTO"
   },
   {
@@ -151,9 +151,9 @@
       ]
     },
     "risco": "alto",
-    "categoria": "infra",
+    "categoria": "agentes-worktrees",
     "responde": "dono",
-    "antecedencia": "merge",
+    "antecedencia": "onda",
     "status": "ABERTO"
   },
   {
@@ -176,7 +176,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "manim",
+    "categoria": "render",
     "responde": "plataforma",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -208,7 +208,7 @@
       ]
     },
     "risco": "alto",
-    "categoria": "alfa",
+    "categoria": "render",
     "responde": "plataforma",
     "antecedencia": "onda",
     "status": "FECHADO",

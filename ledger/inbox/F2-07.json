@@ -19,7 +19,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "integracao",
+    "categoria": "assets-licenca",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -44,7 +44,7 @@
       ]
     },
     "risco": "alto",
-    "categoria": "integracao",
+    "categoria": "assets-licenca",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -68,7 +68,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "integracao",
+    "categoria": "agentes-worktrees",
     "responde": "infra",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -100,7 +100,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "integracao",
+    "categoria": "audio",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -124,7 +124,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "rede",
+    "categoria": "ambiente",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -148,7 +148,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "rede",
+    "categoria": "ambiente",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -173,9 +173,9 @@
       ]
     },
     "risco": "alto",
-    "categoria": "rede",
+    "categoria": "ambiente",
     "responde": "dono",
-    "antecedencia": "merge",
+    "antecedencia": "commit",
     "status": "FECHADO",
     "evidencia": {
       "cmd": "npx vitest run --passWithNoTests",

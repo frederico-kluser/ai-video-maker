@@ -19,7 +19,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "gate",
+    "categoria": "assets-licenca",
     "responde": "infra",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -52,7 +52,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "gate",
+    "categoria": "ambiente",
     "responde": "infra",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -83,7 +83,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "provedor",
+    "categoria": "ambiente",
     "responde": "plataforma",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -114,7 +114,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "privacidade",
+    "categoria": "ambiente",
     "responde": "infra",
     "antecedencia": "onda",
     "status": "FECHADO",

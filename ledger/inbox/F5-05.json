@@ -18,8 +18,8 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "design",
-    "responde": "dono-de-tokens",
+    "categoria": "render",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -42,8 +42,8 @@
       ]
     },
     "risco": "medio",
-    "categoria": "escopo",
-    "responde": "F5-07",
+    "categoria": "render",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -66,8 +66,8 @@
       ]
     },
     "risco": "medio",
-    "categoria": "gate",
-    "responde": "F5-07",
+    "categoria": "agentes-worktrees",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -89,8 +89,8 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "gate",
-    "responde": "F5-07",
+    "categoria": "agentes-worktrees",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -113,8 +113,8 @@
       ]
     },
     "risco": "medio",
-    "categoria": "oraculo",
-    "responde": "F5-01",
+    "categoria": "render",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -136,8 +136,8 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "produto",
-    "responde": "F5-07",
+    "categoria": "render",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -159,8 +159,8 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "produto",
-    "responde": "F5-07",
+    "categoria": "render",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   }

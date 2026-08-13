@@ -18,8 +18,8 @@
       ]
     },
     "risco": "medio",
-    "categoria": "autoria",
-    "responde": "F5-07",
+    "categoria": "ambiente",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -42,8 +42,8 @@
       ]
     },
     "risco": "medio",
-    "categoria": "autoria",
-    "responde": "F5-07",
+    "categoria": "ambiente",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -65,8 +65,8 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "autoria",
-    "responde": "F4-04",
+    "categoria": "ambiente",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -88,8 +88,8 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "autoria",
-    "responde": "F5-07",
+    "categoria": "ambiente",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -112,7 +112,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "autoria",
+    "categoria": "ambiente",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -135,8 +135,8 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "autoria",
-    "responde": "F5-07",
+    "categoria": "ambiente",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   }

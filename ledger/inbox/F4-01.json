@@ -19,8 +19,8 @@
       ]
     },
     "risco": "alto",
-    "categoria": "contrato",
-    "responde": "F1-12",
+    "categoria": "render",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -43,8 +43,8 @@
       ]
     },
     "risco": "medio",
-    "categoria": "provedor",
-    "responde": "F4-04",
+    "categoria": "ambiente",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -67,8 +67,8 @@
       ]
     },
     "risco": "medio",
-    "categoria": "provedor",
-    "responde": "F4-04",
+    "categoria": "ambiente",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -91,7 +91,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "custo",
+    "categoria": "ambiente",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -114,8 +114,8 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "provedor",
-    "responde": "F4-04",
+    "categoria": "ambiente",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   },
@@ -139,8 +139,8 @@
       ]
     },
     "risco": "medio",
-    "categoria": "contrato",
-    "responde": "F1-12",
+    "categoria": "render",
+    "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
   }

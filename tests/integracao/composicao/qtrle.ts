@@ -1,37 +1,41 @@
 // =============================================================================
-// qtrle — a sonda do asset REAL do estagio grafico (.mov qtrle/argb)
+// qtrle — a sonda do cassete REAL do estagio grafico (webm v1.1.0)
 // =============================================================================
 // Card: F1-12 — Suite integrada de composicao (onda W5)
+// Corrigido: F6-05 (W12) — o nome e HISTORICO: a sonda nasceu na era do cassete
+// `.mov` qtrle/argb e o arquivo nao foi renomeado para nao tocar no bloco
+// F1-12 do justfile (dono do arquivo). O contrato que ela prova agora e o do
+// cassete REAL atual — o webm v1.1.0 (ADR-0009 D3, 2026-08-13).
 //
-// O criterio da revisao de plano (AB-390):
+// O que morreu (registrado em docs/arquivamento.md e ADR-0049):
+//   - o `.mov` qtrle/argb foi aposentado (ADR-0009 D3): o cartucho default do
+//     estagio grafico e o webm; a sonda antiga provava que o render integrado
+//     RECUSAVA o formato do cassete real com ErroDeGraficoOpaco nomeando o no
+//     (AB-390, AB-490) — esse caminho de ARVORE nao existe mais, porque o
+//     cassete real agora declara video/webm, que passa na guarda.
+//   - a expectativa provisoria "vp9/yuva420p" foi FALSIFICADA: o bitstream do
+//     webm v1.1.0 sai yuv420p, sem alfa (AB-397, medido) — a guarda do no
+//     checa o mimeType do DESCRITOR, nao o bitstream (gap documentado no
+//     proprio AB-397: o alfa declarado na tabela e o do descritor).
 //
-//   "o render integrado com o no grafico REAL (cassete do F2-02, .mov
-//    qtrle/argb) TEM de mostrar o grafico (nao sair deterministicamente
-//    preto — C1). Se o qtrle do F2-02 nao decodificar no navegador do
-//    render, REGISTRE no handoff com evidencia (o orquestrador executa o
-//    cartucho webm)."
+// O que a sonda prova HOJE com o cassete REAL (webm v1.1.0):
 //
-// Este arquivo E a evidencia: ele fia o no n-009 com o DESCRITOR REAL do
-// cassete de F2-02 (mimeType `video/quicktime`, lido do resultado.json do
-// proprio cassete) e tenta renderizar — nos DOIS caminhos:
+//   1. A GUARDA do no (F1-09) aceita o descritor do cassete real —
+//      `video/webm` esta na lista de permissao (alfa declarado: true). Nenhum
+//      ErroDeGraficoOpaco. Controle negativo na MESMA guarda: um descritor
+//      `video/quicktime` (o .mov morto) continua sendo RECUSADO nomeando o no
+//      — a recusa que a era qtrle provava na arvore inteira permanece valida
+//      na guarda (AB-490: "a recusa do video/quicktime pelo no continua
+//      valida"). Se o cassete voltar a declarar um formato fora da permissao,
+//      esta sonda fica VERMELHA — o formato quebra de proposito, nunca em
+//      silencio (C1/AB-363).
 //
-//   1. arvore pura (react-dom/server): o no de grafico RECUSA o formato
-//      antes de emitir um pixel — `ErroDeGraficoOpaco` nomeando o no. A
-//      recusa e o contrato do proprio no (F1-09, docs/adr/0019): o
-//      `.mov` qtrle/argb TEM alfa, mas o navegador do render nao o
-//      reproduz (`reproduzivelNoNavegador: false` na tabela de formatos).
-//
-//   2. render de verdade (Chrome headless via renderStill): o mesmo erro
-//      derruba o render — exit nao-zero com a mensagem do no.
-//
-// Conclusao registrada no handoff e no ADR-0025: com o cassete REAL de
-// F2-02 (video/quicktime) o render integrado NAO mostra o grafico — ele
-// PARA, de proposito, em vez de pintar um buraco ou um retangulo. O
-// cartucho de saida que o orquestrador executa e o WebM com alfa
-// (F2-02 --format=webm, vp9/yuva420p), que esta na lista de permissao do
-// no com `reproduzivelNoNavegador: true` — e o caminho que a fixture
-// integrada exercita com o PNG (provar.ts, composicao
-// integrado-grafico-asset).
+//   2. render de verdade (Chrome headless via renderStill): o render com o
+//      descritor do cassete real SAI e o quadro TEM conteudo (oraculo de
+//      entropia, C1) — o caminho de consumo da composicao e o asset resolvido
+//      (PNG RGBA, `resolvido-com-alfa.json` — a decisao do AB-397), nunca os
+//      bytes do webm. Um quadro preto renderizaria com exit 0; a entropia e a
+//      segunda barreira, nao a primeira (a mesma disciplina de provar.ts).
 //
 // Uso:  npx tsx tests/integracao/composicao/qtrle.ts
 // =============================================================================
@@ -51,6 +55,9 @@ import { tmpdir } from "node:os";
 import { bundle } from "@remotion/bundler";
 import { renderStill, selectComposition } from "@remotion/renderer";
 import type { FixtureIntegrada } from "./fiar";
+import { lerPngRgba } from "./png";
+import { conferirEntropiaDoQuadro } from "./oraculo";
+import { conferirAssetDeGrafico, ErroDeGraficoOpaco } from "../../../src/composicao/nos/grafico";
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const RAIZ = resolve(AQUI, "..", "..", "..");
@@ -66,45 +73,48 @@ const ENTRADA = resolve(RAIZ, "fixtures", "snapshots", "integrado", "entrada.tsx
 const DIR_RECEBIDO = resolve(RAIZ, "fixtures", "snapshots", "integrado", "recebido");
 const PORTA = Number.parseInt(process.env.INTEGRADO_PORTA ?? "4112", 10) || 4112;
 
-/** O erro que o no TEM de lancar: ErroDeGraficoOpaco nomeando o no. */
-const ERRO_ESPERADO = "no \"n-009\"";
+/** O mimeType do cassete REAL de F2-02: video/webm (ADR-0009 D3, v1.1.0). */
+const MIME_DO_CASSETE_REAL = "video/webm";
+
+/** O mimeType do formato aposentado: o .mov qtrle/argb (ADR-0009 D3). */
+const MIME_APOSENTADO = "video/quicktime";
 
 function lerFixture(): FixtureIntegrada {
   return JSON.parse(readFileSync(CAMINHO_FIXTURA, "utf8")) as FixtureIntegrada;
 }
 
 /**
- * Fia o no n-009 com o DESCRITOR REAL do cassete de F2-02 (video/quicktime).
+ * Fia o no n-009 com o DESCRITOR REAL do cassete de F2-02 (video/webm).
  *
- * A guarda do no (F1-09) recusa o formato pelo DESCRITOR — mimeType e
- * tipo — antes de qualquer byte ser carregado. A chave do asset em `assets`
- * fica a do PNG (para o resolvedor de fonte da fiacao continuar valendo);
- * o descritor sob a chave e o do cassete, com o hash re-chaveado. O arquivo
- * servido nunca e alcancado: a recusa acontece na guarda, e e exatamente
- * isso que a sonda prova.
+ * A guarda do no (F1-09) julga o formato pelo DESCRITOR — mimeType e tipo —
+ * antes de qualquer byte ser carregado. A chave do asset em `assets` fica a do
+ * PNG (para o resolvedor de fonte da fiacao continuar valendo: `fonte` deriva
+ * do hash pela fiacao); o descritor sob a chave e o do cassete, com o hash
+ * re-chaveado. O arquivo servido ao render e o PNG resolvido — o caminho de
+ * consumo da composicao na era webm (AB-397: PNG RGBA, `resolvido-com-alfa`).
  */
-function fiarQtrle(
+function fiarCasseteReal(
   fixture: FixtureIntegrada,
-  hashQtrle: string,
-  assetQtrle: Record<string, unknown>,
+  hashDoCassete: string,
+  assetDoCassete: Record<string, unknown>,
 ): FixtureIntegrada {
   const hashDoPng = fixture.nos_grafico["n-009"];
   if (hashDoPng === undefined) {
     throw new Error("qtrle: n-009 nao tem asset na fixture integrada");
   }
   fixture.assets[hashDoPng] = {
-    ...assetQtrle,
+    ...assetDoCassete,
     hash: hashDoPng,
   } as unknown as FixtureIntegrada["assets"][string];
   return fixture;
 }
 
 /**
- * Le o descritor do asset qtrle do cassete REAL de F2-02.
- * O cassete declara `mimeType: video/quicktime` nos dois assets — o formato
- * `.mov` qtrle/argb com alfa (docs/adr/0019, AB-390).
+ * Le o descritor do asset webm do cassete REAL de F2-02.
+ * O cassete declara `mimeType: video/webm` nos dois assets — o cartucho
+ * executado pelo orquestrador (ADR-0009 D3, AB-390/AB-397).
  */
-function descritorQtrleDoCassete(): { hash: string; asset: Record<string, unknown> } {
+function descritorDoCasseteReal(): { hash: string; asset: Record<string, unknown> } {
   const base = resolve(RAIZ, "fixtures", "cassetes", "grafico");
   let cassetes: string[] = [];
   try {
@@ -118,14 +128,19 @@ function descritorQtrleDoCassete(): { hash: string; asset: Record<string, unknow
       assets: Record<string, Record<string, unknown>>;
     };
     for (const [hash, asset] of Object.entries(resultado.assets ?? {})) {
-      if (asset["mimeType"] === "video/quicktime") {
+      if (asset["mimeType"] === MIME_DO_CASSETE_REAL) {
         return { hash, asset };
       }
     }
   }
   throw new Error(
-    "qtrle: nenhum cassete de grafico com asset video/quicktime em fixtures/cassetes/grafico/",
+    "qtrle: nenhum cassete de grafico com asset video/webm em fixtures/cassetes/grafico/",
   );
+}
+
+/** A guarda do no, no nivel da funcao: erros vazios = aceito. */
+function guardaDoNo(noId: string, asset: Record<string, unknown>): string[] {
+  return conferirAssetDeGrafico(noId, asset as never);
 }
 
 async function principal(): Promise<number> {
@@ -133,61 +148,60 @@ async function principal(): Promise<number> {
   mkdirSync(DIR_RECEBIDO, { recursive: true });
 
   const backup = readFileSync(CAMINHO_FIXTURA);
-  const { hash: hashQtrle, asset: assetQtrle } = descritorQtrleDoCassete();
+  const { hash: hashDoCassete, asset: assetDoCassete } = descritorDoCasseteReal();
   let falhas = 0;
 
-  process.stdout.write("=== integrado qtrle: a sonda do cassete REAL de F2-02 ===\n");
-  process.stdout.write(`  asset do cassete: ${hashQtrle} (mimeType video/quicktime)\n`);
+  process.stdout.write("=== integrado qtrle: a sonda do cassete REAL de F2-02 (webm v1.1.0) ===\n");
+  process.stdout.write(`  asset do cassete: ${hashDoCassete} (mimeType video/webm)\n`);
 
   // -------------------------------------------------------------------------
-  // Sonda 1 — arvore pura: o no recusa o formato antes de emitir pixel
+  // Sonda 1 — a GUARDA julga o descritor do cassete real + controle negativo
   // -------------------------------------------------------------------------
-  process.stdout.write("  sonda 1/2: arvore pura (react-dom/server)\n");
+  process.stdout.write("  sonda 1/2: a guarda do no vs o descritor do cassete real\n");
   try {
-    const { renderToStaticMarkup } = await import("react-dom/server");
-    const { createElement } = await import("react");
-    const { ArvoreIntegrada } = await import("./fiar");
-    const fixture = fiarQtrle(lerFixture(), hashQtrle, assetQtrle);
-    writeFileSync(CAMINHO_FIXTURA, `${JSON.stringify(fixture, null, 2)}\n`);
-
-    let erroCapturado: Error | null = null;
-    try {
-      renderToStaticMarkup(
-        createElement(ArvoreIntegrada, { fixture, frame: 460 }),
-      );
-    } catch (erro) {
-      erroCapturado = erro as Error;
-    }
-    if (erroCapturado === null) {
+    // 1a. O descritor REAL (video/webm) passa — o gap do AB-397, por desenho.
+    const errosDoReal = guardaDoNo("n-009", assetDoCassete);
+    if (errosDoReal.length > 0) {
       process.stdout.write(
-        "  FALHOU  sonda 1: o render integrado com o qtrle REAL NAO recusou o " +
-          "formato — o grafico entraria como buraco ou retangulo, e o gate de " +
-          "bytes nao saberia (AB-363)\n",
-      );
-      falhas++;
-    } else if (erroCapturado.name !== "ErroDeGraficoOpaco") {
-      process.stdout.write(
-        `  FALHOU  sonda 1: erro de outro tipo (${erroCapturado.name}): ${erroCapturado.message.slice(0, 200)}\n`,
-      );
-      falhas++;
-    } else if (!erroCapturado.message.includes(ERRO_ESPERADO)) {
-      process.stdout.write(
-        `  FALHOU  sonda 1: ErroDeGraficoOpaco sem nomear o no: ${erroCapturado.message.slice(0, 200)}\n`,
+        `  FALHOU  sonda 1: a guarda RECUSOU o cassete real: ${errosDoReal.join(" || ").slice(0, 200)}\n`,
       );
       falhas++;
     } else {
-      process.stdout.write(`    ok: ErroDeGraficoOpaco nomeando o no: ${erroCapturado.message.slice(0, 160)}\n`);
+      process.stdout.write(
+        "    ok: a guarda aceita o descritor do cassete real (video/webm — " +
+          "AB-397: guarda checa mimeType, nao bitstream; o alfa declarado e o " +
+          "do gap documentado)\n",
+      );
+    }
+
+    // 1b. Controle negativo: o .mov aposentado continua sendo RECUSADO pela
+    //     MESMA guarda, nomeando o no — a recusa que a era qtrle provava na
+    //     arvore inteira (AB-390/AB-490) permanece valida na guarda.
+    const assetMov = { ...assetDoCassete, mimeType: MIME_APOSENTADO };
+    const errosDoMov = guardaDoNo("n-009", assetMov);
+    const recusouNomeandoONo = errosDoMov.some((e) => e.includes('no "n-009"'));
+    if (errosDoMov.length === 0 || !recusouNomeandoONo) {
+      process.stdout.write(
+        "  FALHOU  sonda 1: o controle negativo nao morde — a guarda deixou " +
+          "passar video/quicktime sem nomear o no (a recusa do AB-490 morreu)\n",
+      );
+      falhas++;
+    } else {
+      process.stdout.write(
+        "    ok: controle negativo — a guarda continua recusando o .mov " +
+          "qtrle/argb aposentado, nomeando o no (AB-490)\n",
+      );
     }
   } finally {
-    writeFileSync(CAMINHO_FIXTURA, backup);
+    // sem estado em disco nesta sonda
   }
 
   // -------------------------------------------------------------------------
-  // Sonda 2 — render de verdade (Chrome headless): o erro derruba o render
+  // Sonda 2 — render de verdade (Chrome headless): sai com CONTEUDO (C1)
   // -------------------------------------------------------------------------
   process.stdout.write("  sonda 2/2: render de verdade (Chrome headless, swangle)\n");
   try {
-    const fixture = fiarQtrle(lerFixture(), hashQtrle, assetQtrle);
+    const fixture = fiarCasseteReal(lerFixture(), hashDoCassete, assetDoCassete);
     writeFileSync(CAMINHO_FIXTURA, `${JSON.stringify(fixture, null, 2)}\n`);
 
     const temporario = mkdtempSync(join(tmpdir(), "integrado-qtrle-"));
@@ -202,12 +216,13 @@ async function principal(): Promise<number> {
       logLevel: "error",
     });
 
+    const saida = join(temporario, "frame460.png");
     let erroDoRender: Error | null = null;
     try {
       await renderStill({
         composition: composicao,
         serveUrl: servidor,
-        output: join(temporario, "qtrle-frame460.png"),
+        output: saida,
         frame: 460,
         imageFormat: "png",
         port: PORTA,
@@ -218,29 +233,42 @@ async function principal(): Promise<number> {
     } catch (erro) {
       erroDoRender = erro as Error;
     }
-    rmSync(temporario, { recursive: true, force: true });
 
-    if (erroDoRender === null) {
+    if (erroDoRender !== null) {
       process.stdout.write(
-        "  FALHOU  sonda 2: o render de verdade com o qtrle REAL SAIU — " +
-          "o navegador aceitou o .mov (ou o render nao chegou ao no)\n",
-      );
-      falhas++;
-    } else if (!erroDoRender.message.includes(ERRO_ESPERADO)) {
-      process.stdout.write(
-        `  FALHOU  sonda 2: render caiu por outro motivo: ${erroDoRender.message.slice(0, 200)}\n`,
+        `  FALHOU  sonda 2: o render com o cassete real CAIU: ` +
+          `${erroDoRender.message.slice(0, 200)}\n`,
       );
       falhas++;
     } else {
-      process.stdout.write(
-        "    ok: o render de verdade recusou o qtrle nomeando o no — evidencia " +
-          "gravada em recebido/qtrle-evidencia.txt\n",
-      );
+      // O quadro preto renderiza com exit 0 (C1) — a entropia e a barreira.
+      const falhasDoOraculo = conferirEntropiaDoQuadro(lerPngRgba(readFileSync(saida)));
+      if (falhasDoOraculo.length > 0) {
+        for (const f of falhasDoOraculo) {
+          process.stdout.write(`  FALHOU  sonda 2: oraculo de conteudo: ${f.motivo}\n`);
+        }
+        falhas++;
+      } else {
+        process.stdout.write(
+          "    ok: o render com o cassete real SAIOU e o quadro tem conteudo — " +
+            "o caminho de consumo e o asset resolvido (PNG RGBA, decisao do " +
+            "AB-397); os bytes do webm nao entram na composicao\n",
+        );
+      }
       writeFileSync(
-        resolve(DIR_RECEBIDO, "qtrle-evidencia.txt"),
-        `${erroDoRender.message}\n`,
+        resolve(DIR_RECEBIDO, "webm-evidencia.txt"),
+        [
+          `cassete real do estagio grafico: ${hashDoCassete} (mimeType video/webm)`,
+          `guarda do no n-009 aceita o descritor real (AB-397: guarda checa mimeType, nao bitstream)`,
+          `controle negativo: video/quicktime (aposentado) recusado pela guarda nomeando o no (AB-490)`,
+          `render de verdade (Chrome headless, swangle) no frame 460: exit 0 + oraculo de entropia VERDE`,
+          `o .mov qtrle/argb morreu (ADR-0009 D3) — a recusa em ARVORE inteira morreu com ele;`,
+          `a recusa em nivel de guarda permanece e e sondada acima`,
+          "",
+        ].join("\n"),
       );
     }
+    rmSync(temporario, { recursive: true, force: true });
   } finally {
     writeFileSync(CAMINHO_FIXTURA, backup);
   }
@@ -259,11 +287,11 @@ async function principal(): Promise<number> {
   }
   // Verde: recebido e estado de DIAGNOSTICO, nunca commitado (a mesma
   // disciplina de provar.ts). A evidencia completa ja saiu no stdout e fica
-  // registrada no handoff e no ADR-0025 — o arquivo nao e o canal.
+  // registrada em docs/arquivamento.md e no ADR-0049 — o arquivo nao e o canal.
   rmSync(DIR_RECEBIDO, { recursive: true, force: true });
   process.stdout.write(
-    "\n=== VERDE: integrado qtrle — o qtrle REAL e recusado com evidencia; " +
-      "o cartucho webm e o caminho de producao (AB-390) ===\n",
+    "\n=== VERDE: integrado qtrle — o cassete REAL (webm v1.1.0) passa na guarda " +
+      "e o render sai com conteudo; o gap alfa/bitstream e o do AB-397 ===\n",
   );
   return 0;
 }

@@ -69,7 +69,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "resolucao",
+    "categoria": "assets-licenca",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -94,7 +94,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "resolucao",
+    "categoria": "assets-licenca",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -119,7 +119,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "resolucao",
+    "categoria": "assets-licenca",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -145,7 +145,7 @@
       ]
     },
     "risco": "alto",
-    "categoria": "resolucao",
+    "categoria": "assets-licenca",
     "responde": "infra",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -250,7 +250,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "resolucao",
+    "categoria": "assets-licenca",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"

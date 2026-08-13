@@ -2424,3 +2424,40 @@ ledger-schema:
     @echo "=== ledger-schema: modo schema (divida visivel, nao escondida) ==="
     @python3 tools/validate-ledger.py >/dev/null 2>&1 && echo "OK: schema valido — divida corrigida" || echo "VERMELHO (esperado ate F6-05): divida historica ainda presente"
 # === fim F6-04 ===
+
+# === F6-05 ===
+# =============================================================================
+# Arquivamento e escopo negativo — o corte (W12). docs/arquivamento.md.
+# Dono: card F6-05. Nao edite fora destes marcadores.
+#
+# Congela por escrito o que era vivo, o que morreu e o que VIRou MANUAL:
+#   - se o documento registra gate removido, ele TEM de conter "virou manual";
+#   - ARMADILHA 9.2: em ripgrep, `-L` e `--follow`, NAO "files without match" —
+#     a forma correta e `rg --files-without-match`, com o denominador.
+# Assere tambem a PRESENCA das quatro secoes obrigatorias (nunca lista fechada).
+# =============================================================================
+
+# `just arquivar` — o gate do card: presenca das secoes + ∅-crit "virou manual".
+arquivar:
+    @echo "=== arquivar: docs/arquivamento.md (F6-05, W12 — o corte) ==="
+    @test -f docs/arquivamento.md || { echo "FALHOU: docs/arquivamento.md ausente"; exit 1; }
+    @rg -q "^## O que era vivo" docs/arquivamento.md || { echo "FALHOU: secao 'O que era vivo' ausente"; exit 1; }
+    @rg -q "^## O que morreu" docs/arquivamento.md || { echo "FALHOU: secao 'O que morreu' ausente"; exit 1; }
+    @rg -q "^## O que virou manual" docs/arquivamento.md || { echo "FALHOU: secao 'O que virou manual' ausente"; exit 1; }
+    @rg -q "^## O que ninguem conferiu" docs/arquivamento.md || { echo "FALHOU: secao 'O que ninguem conferiu' ausente"; exit 1; }
+    @saida=$(rg --files-without-match "virou manual" docs/arquivamento.md || true); \
+        if [ -n "$saida" ]; then \
+            echo "FALHOU: existe gate removido e o documento nao registra 'virou manual' — a ausencia de verificador e indistinguivel de conformidade (armadilha 9.2: --files-without-match, nunca rg -L)"; \
+            printf '%s\n' "$saida"; exit 1; \
+        fi
+    @echo "arquivar: VERDE"
+
+# Sonda negativa do ∅-crit: um documento SEM "virou manual" tem de falhar.
+arquivar-sonda:
+    @echo "=== arquivar-sonda: documento sem 'virou manual' TEM de falhar (F6-05) ==="
+    @tmp=$(mktemp); echo "# teste" > "$tmp"; \
+        saida=$(rg --files-without-match "virou manual" "$tmp" || true); \
+        if [ -z "$saida" ]; then echo "FALHOU: sonda nao mordeu"; exit 1; fi; \
+        echo "OK: sonda morde (rg --files-without-match acusa o arquivo sem a frase)"; \
+        unlink "$tmp"
+# === fim F6-05 ===

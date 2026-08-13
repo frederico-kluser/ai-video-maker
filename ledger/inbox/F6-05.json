@@ -1,0 +1,27 @@
+[
+  {
+    "id": "AB-930",
+    "titulo": "O G-LED (F6-04) no estado MERGEADO reporta 11 itens ABERTO em categorias bloqueantes — quem resolve?",
+    "pergunta": "O F6-04 rodou `just ledger-fechar` na propria worktree e saiu exit 0; os irmaos F6-02/F6-03 mergearam depois (AB-870..898) e o estado mergeado hoje reporta 11 itens ABERTO em categorias bloqueantes (AB-870, AB-871, AB-873, AB-874, AB-875, AB-891, AB-893, AB-894, AB-895, AB-896, AB-898). Quem fecha (evidencia real), marca NAO_EXERCITADO (motivo) ou reverte a classificacao com os cards donos?",
+    "por_que_aberto": "A verificacao do F6-04 aconteceu ANTES do merge dos irmaos — a ausencia de um verificador e indistinguivel de conformidade (playbook :228-229): o gate passou na worktree e o estado mergeado diverge dele. Fechar exigiria evidencia real que nao existe; reclassificar seria tocar nos itens de outros cards; o F6-05 registra o achado e o transfere ao dono.",
+    "decisao_provisoria": "Manter os 11 itens como estao (ABERTO, responde dos cards donos) e registrar o achado em docs/arquivamento.md (secao 'O que ninguem conferiu') e no ADR-0049; a reexecucao do G-LED apos merges vira manual, com este item como fila de trabalho do dia em que o dono resolver.",
+    "verificacao": {
+      "cmd": "python3 tools/validate-ledger.py --exigir-fechados --categoria plataforma,infra,operacao --permitir-aberto AB-950",
+      "espera": "exit 0 — zero abertos em categorias bloqueantes alem da allowlist AB-950",
+      "ambiente": "qualquer maquina offline (o comando roda sem rede)"
+    },
+    "impacto_se_divergir": {
+      "resumo": "Enquanto os 11 ficarem abertos, o gate G-LED (just ledger-fechar) continua VERMELHO no estado mergeado e o fechamento do ledger nao vale para o estado publicado; o F6-04 verificou um estado que nao e o atual.",
+      "artefatos": [
+        "ledger/inbox/F6-02.json",
+        "ledger/inbox/F6-03.json",
+        "docs/arquivamento.md"
+      ]
+    },
+    "risco": "medio",
+    "categoria": "agentes-worktrees",
+    "responde": "dono",
+    "antecedencia": "onda",
+    "status": "ABERTO"
+  }
+]

@@ -99,7 +99,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "infra",
+    "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -126,7 +126,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "infra",
+    "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO",
@@ -154,7 +154,7 @@
       ]
     },
     "risco": "baixo",
-    "categoria": "legenda",
+    "categoria": "audio",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -181,7 +181,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "entrega",
+    "categoria": "render",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "ABERTO"
@@ -205,7 +205,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "infra",
+    "categoria": "ambiente",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
@@ -259,7 +259,7 @@
       ]
     },
     "risco": "medio",
-    "categoria": "legenda",
+    "categoria": "audio",
     "responde": "dono",
     "antecedencia": "onda",
     "status": "FECHADO",
