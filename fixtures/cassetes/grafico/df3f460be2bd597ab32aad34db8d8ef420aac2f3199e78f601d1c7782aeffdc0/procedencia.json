@@ -1,0 +1,22 @@
+{
+  "assets": [
+    {
+      "atribuicaoObrigatoria": false,
+      "hash": "fb3cdd25db03871dfbe1a217c7ec0c1e5337c5a35cd16cb15b333f8f89d57f34",
+      "idNoProvedor": "Cena_g_001_f061eb95",
+      "licenca": "CC0-1.0",
+      "provedor": "local"
+    },
+    {
+      "atribuicaoObrigatoria": false,
+      "hash": "62b514680e589cc4649c812746eb484b970cc778ef608a30ff681e42c0cde99e",
+      "idNoProvedor": "Cena_g_002_82f2bf7a",
+      "licenca": "CC0-1.0",
+      "provedor": "local"
+    }
+  ],
+  "ferramenta": "manim 0.20.1",
+  "licenca": "CC0-1.0",
+  "notas": "Render local com Manim CE headless (cairo, --write_to_movie), muxer Lavf62.12.102. Saida gerada a partir dos dados do manifesto; nenhum asset de terceiro. Correcoes de quirk aplicadas ao codigo da cena: g-001: cor: CYAN -> TEAL; g-001: cor: CYAN -> TEAL; g-001: cor: CYAN -> TEAL; g-001: cor: CYAN -> TEAL.",
+  "provedor": "local"
+}

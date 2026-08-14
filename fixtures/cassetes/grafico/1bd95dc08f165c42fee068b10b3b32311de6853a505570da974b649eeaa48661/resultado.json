@@ -1,0 +1,32 @@
+{
+  "assets": {
+    "70f29405e7450261c8c79fd771b73b52e852b188984dd188ad296adf8c6dac00": {
+      "altura": 270,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 30497,
+      "duracaoSegundos": 1,
+      "hash": "70f29405e7450261c8c79fd771b73b52e852b188984dd188ad296adf8c6dac00",
+      "largura": 480,
+      "licenca": "CC0-1.0",
+      "mimeType": "video/webm",
+      "provedor": "local",
+      "tipo": "video"
+    },
+    "efb9835b15d06c6adbdd68c4b5b8a6e11f3f7330bc63cb9aebe3069e016d7b37": {
+      "altura": 270,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 42814,
+      "duracaoSegundos": 1,
+      "hash": "efb9835b15d06c6adbdd68c4b5b8a6e11f3f7330bc63cb9aebe3069e016d7b37",
+      "largura": 480,
+      "licenca": "CC0-1.0",
+      "mimeType": "video/webm",
+      "provedor": "local",
+      "tipo": "video"
+    }
+  },
+  "nos_grafico": {
+    "g-001": "70f29405e7450261c8c79fd771b73b52e852b188984dd188ad296adf8c6dac00",
+    "g-002": "efb9835b15d06c6adbdd68c4b5b8a6e11f3f7330bc63cb9aebe3069e016d7b37"
+  }
+}

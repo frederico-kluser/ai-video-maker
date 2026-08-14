@@ -18,19 +18,25 @@
  * validada.
  */
 
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
+import type { Manifesto } from "../../contratos/manifesto.js";
 import {
   ARQUIVO_CABECALHO,
   ARQUIVO_PROCEDENCIA,
   ARQUIVO_RESULTADO,
+  DIRETORIO_CORPOS,
   RAIZ_CASSETES_PADRAO,
+  caminhoDoCorpo,
   diretorioDoCassete,
   serializarCanonico,
 } from "../cassete/formato.js";
 import { diffCassetes, formatarDiff } from "../cassete/diff.js";
 import { gravarCassete } from "../cassete/gravador.js";
+import { lerCassete } from "../cassete/reprodutor.js";
 import { chaveDoEstagio } from "../contrato.js";
 import estagio from "./estagio.js";
 import { MANIFESTO_DE_GRAVACAO } from "./manifesto-de-gravacao.js";
@@ -122,6 +128,108 @@ async function conferir(): Promise<number> {
   }
 }
 
+// ─── Manifesto da gravacao ──────────────────────────────────────────────────────
+
+/**
+ * O manifesto contra o qual gravar: `--manifesto <caminho.json>` ou, sem a
+ * flag, o `MANIFESTO_DE_GRAVACAO` (o cassete historico do F2-02).
+ *
+ * A chave do cassete e SHA-256 do manifesto: gravar contra a fixture canonica
+ * (`fixtures/canonico/manifesto-valido.json`) produz o cassete que o replay
+ * offline do pipeline procura para OS NOS do video real.
+ */
+async function manifestoDaGravacao(): Promise<Manifesto> {
+  const flag = process.argv.indexOf("--manifesto");
+  if (flag < 0) return MANIFESTO_DE_GRAVACAO;
+  const caminho = process.argv[flag + 1];
+  if (caminho === undefined) {
+    throw new Error("--manifesto precisa de um caminho de arquivo JSON");
+  }
+  const bruto = await readFile(caminho, "utf-8");
+  return JSON.parse(bruto) as Manifesto;
+}
+
+// ─── Bytes dos assets no cassete ────────────────────────────────────────────────
+
+/**
+ * Materializa os bytes dos webm renderizados em `corpos/<hash>` do cassete.
+ *
+ * O estagio e local (zero chamadas HTTP): o `gravarCassete` so grava
+ * metadados, e o replay offline nao tem como servir os bytes do video para o
+ * store. A convencao de `bytesDoAssetDoCassete` (src/pipeline/produzir.ts)
+ * le `corpos/<hash>` — e aqui que os bytes entram.
+ *
+ * Regra de sosia (D4/D5 do ADR-0009): o arquivo so e copiado se o SHA-256
+ * dele REPRODUZIR o hash declarado na procedencia. Bytes que nao rehasheiam
+ * sao erro, nunca copia.
+ *
+ * Exportada para teste (a suite referencia a materializacao: remover ou
+ * quebrar esta funcao tem de deixar o teste VERMELHO — Q7). `raizCassetes`
+ * e injetavel para a suite gravar num diretorio temporario.
+ */
+export async function materializarCorpos(
+  chave: string,
+  diretorioTrabalho: string,
+  raizCassetes: string = RAIZ_CASSETES_PADRAO,
+): Promise<number> {
+  const cassete = await lerCassete(raizCassetes, "grafico", chave);
+  const dirCassete = diretorioDoCassete(raizCassetes, "grafico", chave);
+  const media = join(diretorioTrabalho, "media");
+  let gravados = 0;
+  for (const asset of cassete.procedencia.assets) {
+    const idNoProvedor = asset.idNoProvedor;
+    if (idNoProvedor === undefined) {
+      throw new Error(
+        `asset ${asset.hash.slice(0, 12)}… sem idNoProvedor — nao da para ` +
+          "descobrir o webm que ele declara",
+      );
+    }
+    const caminho = await descobrirWebm(media, idNoProvedor);
+    if (caminho === null) {
+      throw new Error(
+        `asset ${asset.hash.slice(0, 12)}… (${idNoProvedor}): webm nao encontrado ` +
+          `em ${media} — o cassete nao pode servir os bytes que declara`,
+      );
+    }
+    const bytes = await readFile(caminho);
+    const hashDeFato = createHash("sha256").update(bytes).digest("hex");
+    if (hashDeFato !== asset.hash) {
+      throw new Error(
+        `asset ${asset.hash.slice(0, 12)}…: ${caminho} rehasheia para ` +
+          `${hashDeFato.slice(0, 12)}… — bytes divergentes nunca entram no cassete`,
+      );
+    }
+    await mkdir(join(dirCassete, DIRETORIO_CORPOS), { recursive: true });
+    await writeFile(caminhoDoCorpo(dirCassete, asset.hash), bytes);
+    gravados++;
+  }
+  return gravados;
+}
+
+/** Procura o webm da cena sob `media/videos/`, fora de partial_movie_files. */
+async function descobrirWebm(raiz: string, nomeCena: string): Promise<string | null> {
+  async function varrer(diretorio: string): Promise<string | null> {
+    let entradas: Array<import("node:fs").Dirent>;
+    try {
+      entradas = await readdir(diretorio, { withFileTypes: true });
+    } catch {
+      return null;
+    }
+    for (const entrada of entradas) {
+      const caminho = join(diretorio, entrada.name);
+      if (entrada.isDirectory()) {
+        if (entrada.name === "partial_movie_files") continue;
+        const achado = await varrer(caminho);
+        if (achado !== null) return achado;
+      } else if (entrada.name === `${nomeCena}.webm`) {
+        return caminho;
+      }
+    }
+    return null;
+  }
+  return varrer(raiz);
+}
+
 async function main(): Promise<number> {
   if (process.argv.includes("--conferir")) return conferir();
 
@@ -130,10 +238,11 @@ async function main(): Promise<number> {
     `Estagio: ${estagio.identidade.nome} v${estagio.identidade.versao}`,
   );
   console.log(`Parametros: ${JSON.stringify(estagio.parametros)}`);
+  const manifesto = await manifestoDaGravacao();
   console.log(
-    `Manifesto: ${MANIFESTO_DE_GRAVACAO.nos.length} no(s), ` +
-      `${MANIFESTO_DE_GRAVACAO.width}x${MANIFESTO_DE_GRAVACAO.height} @ ` +
-      `${MANIFESTO_DE_GRAVACAO.fps}fps`,
+    `Manifesto: ${manifesto.nos.length} no(s), ` +
+      `${manifesto.width}x${manifesto.height} @ ` +
+      `${manifesto.fps}fps`,
   );
   console.log("");
 
@@ -141,12 +250,14 @@ async function main(): Promise<number> {
   try {
     const resultado = await gravarCassete(estagio, {
       raiz: RAIZ_CASSETES_PADRAO,
-      manifesto: MANIFESTO_DE_GRAVACAO,
+      manifesto,
       diretorioTrabalho: trabalho,
     });
+    const corpos = await materializarCorpos(resultado.chave, trabalho);
     console.log(`chave:     ${resultado.chave}`);
     console.log(`diretorio: ${resultado.diretorio}`);
     console.log(`chamadas HTTP gravadas: ${resultado.quantidadeChamadas}`);
+    console.log(`assets materializados em corpos/: ${corpos}`);
     console.log("");
     console.log("=== VERDE: cassete gravado ===");
     return 0;
@@ -155,12 +266,17 @@ async function main(): Promise<number> {
   }
 }
 
-main().then(
-  (codigo) => process.exit(codigo),
-  (erro: unknown) => {
-    console.error("");
-    console.error("=== VERMELHO: a gravacao falhou ===");
-    console.error(erro instanceof Error ? erro.message : String(erro));
-    process.exit(1);
-  },
-);
+// A cerimonia roda so quando este arquivo e o PONTO DE ENTRADA: a suite
+// importa `materializarCorpos` deste modulo (Q7), e importar nao pode
+// disparar uma gravacao de cassete.
+if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
+  main().then(
+    (codigo) => process.exit(codigo),
+    (erro: unknown) => {
+      console.error("");
+      console.error("=== VERMELHO: a gravacao falhou ===");
+      console.error(erro instanceof Error ? erro.message : String(erro));
+      process.exit(1);
+    },
+  );
+}

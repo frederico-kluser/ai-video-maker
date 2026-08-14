@@ -1,0 +1,71 @@
+{
+  "assets": {
+    "61825a17e5dfc19b677a5cc5cd530ee9e898fdaf4cd560dd596b70fc30fe933c": {
+      "altura": 1080,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 175376,
+      "duracaoSegundos": 3,
+      "hash": "61825a17e5dfc19b677a5cc5cd530ee9e898fdaf4cd560dd596b70fc30fe933c",
+      "largura": 1920,
+      "licenca": "CC0-1.0",
+      "mimeType": "video/webm",
+      "provedor": "local",
+      "tipo": "video"
+    },
+    "70626e507f737454c7230a8e08cc3452a10b20bc800055444f77bfc47b68ccfc": {
+      "altura": 1080,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 193830,
+      "duracaoSegundos": 3,
+      "hash": "70626e507f737454c7230a8e08cc3452a10b20bc800055444f77bfc47b68ccfc",
+      "largura": 1920,
+      "licenca": "CC0-1.0",
+      "mimeType": "video/webm",
+      "provedor": "local",
+      "tipo": "video"
+    },
+    "84c36da87fe4863b3848518ba6edfa876acc9d3f1dc7cc18269da248bc5b0ede": {
+      "altura": 1080,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 314683,
+      "duracaoSegundos": 4,
+      "hash": "84c36da87fe4863b3848518ba6edfa876acc9d3f1dc7cc18269da248bc5b0ede",
+      "largura": 1920,
+      "licenca": "CC0-1.0",
+      "mimeType": "video/webm",
+      "provedor": "local",
+      "tipo": "video"
+    },
+    "9a2440c52c1e4211cfe363e388b1010e07ca7911104e0b57a2a01bb8d30b12b7": {
+      "altura": 1080,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 328401,
+      "duracaoSegundos": 3,
+      "hash": "9a2440c52c1e4211cfe363e388b1010e07ca7911104e0b57a2a01bb8d30b12b7",
+      "largura": 1920,
+      "licenca": "CC0-1.0",
+      "mimeType": "video/webm",
+      "provedor": "local",
+      "tipo": "video"
+    },
+    "c9c8cca5fb0d7b63468c52e53340c0184785a576dc761c0ed75e73bc1e860023": {
+      "altura": 1080,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 288013,
+      "duracaoSegundos": 3,
+      "hash": "c9c8cca5fb0d7b63468c52e53340c0184785a576dc761c0ed75e73bc1e860023",
+      "largura": 1920,
+      "licenca": "CC0-1.0",
+      "mimeType": "video/webm",
+      "provedor": "local",
+      "tipo": "video"
+    }
+  },
+  "nos_grafico": {
+    "n-009": "84c36da87fe4863b3848518ba6edfa876acc9d3f1dc7cc18269da248bc5b0ede",
+    "n-010": "c9c8cca5fb0d7b63468c52e53340c0184785a576dc761c0ed75e73bc1e860023",
+    "n-011": "9a2440c52c1e4211cfe363e388b1010e07ca7911104e0b57a2a01bb8d30b12b7",
+    "n-012": "61825a17e5dfc19b677a5cc5cd530ee9e898fdaf4cd560dd596b70fc30fe933c",
+    "n-013": "70626e507f737454c7230a8e08cc3452a10b20bc800055444f77bfc47b68ccfc"
+  }
+}

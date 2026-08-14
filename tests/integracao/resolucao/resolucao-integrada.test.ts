@@ -18,10 +18,11 @@
  *       formal: enderecamento por SHA-256. Para cada asset de cada
  *       cassete, os bytes TEM de existir no cassete (corpos/<hash> ou
  *       artefatos/<hash>.json), rehasheiar para o endereco, e entrar e
- *       sair do store (F0-07) byte a byte. O cassete de GRAFICO e a
- *       excecao medida: os bytes renderizados NAO foram commitados
- *       (metadata-only) — caracterizado aqui e registrado no ledger
- *       (AB-501), nao consertado (estagio e de outro card).
+ *       sair do store (F0-07) byte a byte. O cassete de GRAFICO foi a
+ *       excecao medida na W4 (metadata-only, AB-501) — superada pela
+ *       onda grafico-matematica (2026-08-14): a cerimonia de gravacao
+ *       agora materializa os webm renderizados em corpos/<hash> com
+ *       conferencia de SHA-256, e o teste abaixo exige os bytes 1:1.
  *
  * Assercoes per-item, nunca sobre listas fechadas (contrato-w5 §10): a
  * W4 gravou os cassetes contra TRES manifestos distintos (AB-500), e
@@ -385,10 +386,13 @@ describe("F2-07 — ponte cassete->store (AB-455)", () => {
     }
   });
 
-  it("o cassete de GRAFICO e metadata-only — bytes nao commitados (AB-501)", async () => {
-    // Caracterizacao, nao conserto (o estagio e de outro card): os
-    // hashes existem no resultado, mas os bytes renderizados morreram no
-    // diretorio de trabalho da gravacao.
+  it("o cassete de GRAFICO tem bytes commitados que rehasheiam 1:1 (AB-501 superado)", async () => {
+    // A caracterizacao "metadata-only" (AB-501) foi superada pela onda
+    // grafico-matematica (2026-08-14): `gravar.ts` agora materializa os
+    // webm renderizados em corpos/<hash> do cassete, conferindo o
+    // SHA-256 antes de copiar — bytes divergentes nunca entram (regra de
+    // sosia, D4/D5 do ADR-0009). Os bytes TEM de existir e rehasheiar
+    // para o endereco declarado, como em qualquer outro estagio.
     const estagio = ESTAGIOS.grafico;
     const chave = chaveDeCache(
       componentesDaChave(estagio, hashDoManifesto(manifestoDeGravacao("grafico"))),
@@ -398,7 +402,11 @@ describe("F2-07 — ponte cassete->store (AB-455)", () => {
 
     for (const hash of Object.keys(cassete.resultado.assets)) {
       const bytes = await bytesDoAsset("grafico", chave, hash);
-      expect(bytes, `grafico/${hash.slice(0, 12)}… NAO tem bytes (AB-501)`).toBeNull();
+      expect(
+        bytes,
+        `grafico/${hash.slice(0, 12)}… tem bytes no cassete (AB-501 superado)`,
+      ).not.toBeNull();
+      expect(sha256Hex(bytes as Buffer)).toBe(hash);
     }
   });
 });

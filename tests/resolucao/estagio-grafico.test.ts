@@ -15,10 +15,24 @@
  * card. Quatro irmaos estao entregando estagios em paralelo, cegos entre si:
  * um `toEqual(["grafico"])` seria verdade contra esta base e falso na
  * primeira hora depois do merge do vizinho.
+ *
+ * SECAO Q7 (revisao adversarial da onda grafico-matematica, 2026-08-14):
+ * o bug de `distribuirFrames` — com poucos frames o piso virava 0, as
+ * definicoes dos mobjects eram descartadas e o Python gerado referenciava
+ * variaveis nunca definidas (NameError dentro do subprocesso). As secoes
+ * "duracao pequena" validam o Python gerado com ast (sintaxe + definicoes
+ * antes de referencias) para as 5 cenas em duracoes 1/3/5/7/10; a secao
+ * "materializacao dos corpos" referencia a materializacao de gravar.ts
+ * (remover a funcao deixa o teste VERMELHO); e o replay do cassete da
+ * fixture canonica via orquestrador offline cobre o cassete que antes so
+ * era lido por fora do orquestrador.
  */
 
+import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync, statSync } from "node:fs";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -35,6 +49,7 @@ import {
   validarProcedencia,
 } from "../../src/resolucao/cassete/formato.js";
 import { lerCassete } from "../../src/resolucao/cassete/reprodutor.js";
+import { gravarCassete } from "../../src/resolucao/cassete/gravador.js";
 import { redeBloqueada, tentativasDeSaida } from "../../src/resolucao/rede/bloqueio.js";
 
 import estagioGrafico, {
@@ -43,6 +58,7 @@ import estagioGrafico, {
   nosDeGrafico,
 } from "../../src/resolucao/grafico/estagio.js";
 import { MANIFESTO_DE_GRAVACAO } from "../../src/resolucao/grafico/manifesto-de-gravacao.js";
+import { materializarCorpos } from "../../src/resolucao/grafico/gravar.js";
 import {
   expressaoDeCor,
   gerarCenaManim,
@@ -55,7 +71,7 @@ import type {
   JobDeRender,
   ResultadoDeRender,
 } from "../../src/resolucao/grafico/executor.js";
-import type { NoGrafico } from "../../src/contratos/manifesto.js";
+import type { Manifesto, NoGrafico, TipoGrafico } from "../../src/contratos/manifesto.js";
 
 // ─── Auxiliares ─────────────────────────────────────────────────────────────────
 
@@ -135,6 +151,135 @@ function python(codigo: string): string {
   }).trim();
 }
 
+/**
+ * Valida o Python gerado com `ast` — comportamento-pinado, nao
+ * artefato-pinado (Q7). Regras, no espirito da correcao de
+ * `distribuirFrames`:
+ *
+ *   1. sintaxe valida (`ast.parse`);
+ *   2. TODAS as atribuicoes da `construct` precedem o primeiro
+ *      `self.play` — os mobjects sao criados no inicio da cena;
+ *   3. todo nome em posicao de VALOR dentro de um `self.play` esta
+ *      definido antes, ou e constante MAIUSCULA do namespace do manim
+ *      (`CYAN`, `WHITE`, ...) — nenhum `NameError` possivel;
+ *   4. nenhuma definicao usa nome ainda nao definido (a ordem dos passos
+ *      do esboco e respeitada na emissao).
+ *
+ * Nomes em posicao de funcao (`Write`, `Indicate`, `MathTex`, ...) sao
+ * identificadores do `from manim import *` e nunca mobjects — nao sao
+ * checados. Parametros de `lambda` sao locais e nao pendencias.
+ */
+function validarPythonGerado(fonte: string): { ok: boolean; problemas: string[] } {
+  const script = [
+    "import ast, json",
+    "",
+    "fonte = " + JSON.stringify(fonte),
+    "arvore = ast.parse(fonte)",
+    "",
+    "construct = None",
+    "for no in ast.walk(arvore):",
+    "    if isinstance(no, ast.FunctionDef) and no.name == 'construct':",
+    "        construct = no",
+    "        break",
+    "if construct is None:",
+    "    print(json.dumps({'ok': False, 'problemas': ['sem def construct']}))",
+    "    raise SystemExit(0)",
+    "",
+    "def e_play(stmt):",
+    "    return (",
+    "        isinstance(stmt, ast.Expr)",
+    "        and isinstance(stmt.value, ast.Call)",
+    "        and isinstance(stmt.value.func, ast.Attribute)",
+    "        and isinstance(stmt.value.func.value, ast.Name)",
+    "        and stmt.value.func.value.id == 'self'",
+    "        and stmt.value.func.attr == 'play'",
+    "    )",
+    "",
+    "def alvos_de(stmt):",
+    "    if isinstance(stmt, ast.Assign):",
+    "        alvos = stmt.targets",
+    "    elif isinstance(stmt, ast.AnnAssign):",
+    "        alvos = [stmt.target]",
+    "    elif isinstance(stmt, ast.AugAssign):",
+    "        alvos = [stmt.target]",
+    "    else:",
+    "        alvos = []",
+    "    for alvo in alvos:",
+    "        for no in ast.walk(alvo):",
+    "            if isinstance(no, ast.Name) and isinstance(no.ctx, ast.Store):",
+    "                yield no.id",
+    "",
+    "def cargas_de(no, cargas, locais):",
+    "    if isinstance(no, ast.Name):",
+    "        if isinstance(no.ctx, ast.Load) and no.id != 'self' and no.id not in locais:",
+    "            cargas.add(no.id)",
+    "        return",
+    "    if isinstance(no, ast.Call):",
+    "        # Callee em posicao de funcao e do namespace do manim (Write,",
+    "        # Indicate, ...); a BASE de um Attribute (passo5 em",
+    "        # passo5.animate.set_color) e um mobject do cenario.",
+    "        if not isinstance(no.func, ast.Name):",
+    "            cargas_de(no.func, cargas, locais)",
+    "        for arg in no.args:",
+    "            cargas_de(arg, cargas, locais)",
+    "        for kw in no.keywords:",
+    "            cargas_de(kw.value, cargas, locais)",
+    "        return",
+    "    if isinstance(no, ast.Lambda):",
+    "        for a in no.args.args:",
+    "            locais.add(a.arg)",
+    "        cargas_de(no.body, cargas, locais)",
+    "        return",
+    "    for filho in ast.iter_child_nodes(no):",
+    "        cargas_de(filho, cargas, locais)",
+    "",
+    "problemas = []",
+    "definidos = set()",
+    "primeiro_play = None",
+    "for i, stmt in enumerate(construct.body):",
+    "    if e_play(stmt):",
+    "        primeiro_play = i",
+    "        break",
+    "    for alvo in alvos_de(stmt):",
+    "        definidos.add(alvo)",
+    "",
+    "if primeiro_play is None:",
+    "    problemas.append('sem self.play nenhum')",
+    "else:",
+    "    for stmt in construct.body[primeiro_play:]:",
+    "        for alvo in alvos_de(stmt):",
+    "            problemas.append('definicao de %r depois do primeiro play' % alvo)",
+    "    # Nomes usados em plays: definidos antes, ou constantes MAIUSCULAS.",
+    "    for stmt in construct.body:",
+    "        if not e_play(stmt):",
+    "            continue",
+    "        cargas = set()",
+    "        locais = set()",
+    "        for arg in stmt.value.args:",
+    "            cargas_de(arg, cargas, locais)",
+    "        cargas -= locais",
+    "        for nome in sorted(cargas):",
+    "            if nome not in definidos and not nome.isupper():",
+    "                problemas.append('%r usado em self.play sem definicao anterior' % nome)",
+    "    # Definicoes: ordem dos passos do esboco — nada usa nome pendente.",
+    "    vistos = set()",
+    "    for stmt in construct.body[:primeiro_play]:",
+    "        cargas = set()",
+    "        locais = set()",
+    "        corpo = stmt.value if isinstance(stmt, ast.Expr) else stmt",
+    "        cargas_de(corpo, cargas, locais)",
+    "        cargas -= locais",
+    "        for nome in sorted(cargas):",
+    "            if nome not in vistos and nome not in definidos and not nome.isupper():",
+    "                problemas.append('%r usado antes de ser definido' % nome)",
+    "        for alvo in alvos_de(stmt):",
+    "            vistos.add(alvo)",
+    "",
+    "print(json.dumps({'ok': not problemas, 'problemas': problemas}))",
+  ].join("\n");
+  return JSON.parse(python(script)) as { ok: boolean; problemas: string[] };
+}
+
 // ─── 1. Geracao de cena: pura e deterministica ──────────────────────────────────
 
 describe("F2-02 — geracao da cena Manim", () => {
@@ -167,6 +312,88 @@ describe("F2-02 — geracao da cena Manim", () => {
       const cena = gerarCenaManim({ ...NO_DE_TESTE, tipo_grafico: tipo }, OPCOES);
       expect(cena.fonte).toContain("class ");
       expect(cena.fonte).toContain("def construct(self)");
+    }
+  });
+});
+
+// ─── 1b. Q7: duracoes pequenas — Python valido e TOTAL ──────────────────────────
+
+describe("F2-02 — duracao pequena: Python valido para QUALQUER duracao >= 1 (Q7)", () => {
+  // Seis dados de proposito: o numero de termos da serie de Taylor e o de
+  // pontos do circulo saem de dados.length, e o bug original (piso 0 em
+  // `distribuirFrames`) descartava as definicoes quando o orcamento era
+  // menor que o numero de passos — a cena inteira colapsava no ultimo play.
+  const DADOS_DE_SERIE = [
+    { rotulo: "um", valor: 3, cor: "CYAN" },
+    { rotulo: "dois", valor: 7 },
+    { rotulo: "tres", valor: 2 },
+    { rotulo: "quatro", valor: 5 },
+    { rotulo: "cinco", valor: 4 },
+    { rotulo: "seis", valor: 6 },
+  ];
+  // 1 e o minimo do contrato (produzir.ts rejeita < 1); 3/5/7/10 sao as
+  // duracoes pequenas do achado do revisor (barras 3-6, linha 3-6, pizza 3,
+  // area 3-8, dispersao 3-5). O bug original explodia exatamente aqui.
+  const DURACOES = [1, 3, 5, 7, 10];
+
+  it("as 5 cenas em duracoes pequenas: ast valido e nenhuma referencia pendente", () => {
+    const tipos = ["barras", "linha", "pizza", "area", "dispersao"] as const;
+    for (const tipo of tipos) {
+      for (const duracao of DURACOES) {
+        const cena = gerarCenaManim(
+          {
+            ...NO_DE_TESTE,
+            tipo_grafico: tipo,
+            duracao_frames: duracao,
+            dados: DADOS_DE_SERIE,
+          },
+          OPCOES,
+        );
+        const v = validarPythonGerado(cena.fonte);
+        expect(v.problemas, `${tipo} @ ${duracao} frames`).toEqual([]);
+      }
+    }
+  });
+
+  it("nenhuma animacao e descartada: todo passo toca, anexado ou proprio (Q7)", () => {
+    // `distribuirFrames` com orcamento menor que o numero de passos anexa
+    // as animacoes ao play do grupo anterior — nunca as perde. Contar as
+    // animacoes emitidas contra as animacoes dos esbocos e o comportamento
+    // observavel: para 3 frames, todos os passos das 5 cenas tocam.
+    const animacoes = ["Write(", "Indicate(", "Create(", "FadeIn(", "TransformMatchingTex("];
+    for (const tipo of ["barras", "linha", "pizza", "area", "dispersao"] as const) {
+      const cena = gerarCenaManim(
+        { ...NO_DE_TESTE, tipo_grafico: tipo, duracao_frames: 3, dados: DADOS_DE_SERIE },
+        OPCOES,
+      );
+      const plays = cena.fonte.split("\n").filter((l) => l.includes("self.play"));
+      // Nenhum play vazio e nenhuma linha de definicao depois do primeiro play.
+      expect(plays.length, `${tipo}: ha play para tocar`).toBeGreaterThan(0);
+      for (const p of plays) {
+        const anims = animacoes.filter((a) => p.includes(a));
+        expect(anims.length, `${tipo}: play sem animacao: ${p}`).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("referencia o CATALOGO: cada tipo resolve para a cena do seu indice (Q7)", () => {
+    // Comportamento-pinado: estas assinaturas SAO o catalogo (CATALOGO +
+    // INDICE_POR_TIPO em cena.ts) expresso em comportamento. Remover
+    // "einstein" do catalogo desloca os indices e pelo menos uma destas
+    // assercoes deixa de bater — o teste fica VERMELHO nomeando o tipo.
+    const assinaturas: ReadonlyArray<readonly [TipoGrafico, string]> = [
+      ["barras", 'MathTex("E", "=", "m", "c^2")'], // einstein
+      ["linha", "get_riemann_rectangles"], // riemann
+      ["pizza", "TransformMatchingTex(passo1, passo2)"], // euler
+      ["area", 'r"\\frac{x^2}{2!}"'], // taylor
+      ["dispersao", 'r"\\cos^2\\theta + \\sin^2\\theta = 1"'], // circulo
+    ];
+    for (const [tipo, assinatura] of assinaturas) {
+      const cena = gerarCenaManim(
+        { ...NO_DE_TESTE, tipo_grafico: tipo, dados: DADOS_DE_SERIE },
+        OPCOES,
+      );
+      expect(cena.fonte, `cena do tipo ${tipo}`).toContain(assinatura);
     }
   });
 });
@@ -371,6 +598,48 @@ describe("F2-02 — cache quente com a rede bloqueada", () => {
     expect(Object.keys(resultado.resolvido.nos_grafico)).toContain("g-002");
   });
 
+  it("replay do cassete da fixture canonica (3cca1e09…) SEM executar resolver() (Q7)", async () => {
+    // Q7: o cassete NOVO (gravado contra a fixture canonica) so era lido
+    // por fora do orquestrador. O replay pelo orquestrador com um estagio
+    // que explode se resolver() for chamado cobre o caminho que o pipeline
+    // usa de verdade — resolver() nunca e chamado com o cache quente.
+    const canonico = JSON.parse(
+      readFileSync(
+        join(RAIZ_REPO, "fixtures", "canonico", "manifesto-valido.json"),
+        "utf-8",
+      ),
+    ) as Manifesto;
+    let chamou = false;
+    const estagioQueExplode: EstagioResolucao = {
+      identidade: estagioGrafico.identidade,
+      parametros: estagioGrafico.parametros,
+      resolver(): never {
+        chamou = true;
+        throw new Error("resolver() foi chamado com o cache quente");
+      },
+    };
+
+    const antes = tentativasDeSaida().length;
+    const orquestrador = new Orquestrador({
+      estagios: [estagioQueExplode],
+      raizCassetes: RAIZ_CASSETES_PADRAO,
+      modo: "offline",
+    });
+    const resultado = await orquestrador.resolverEstagio("grafico", canonico);
+    const depois = tentativasDeSaida().length;
+
+    expect(chamou).toBe(false);
+    expect(depois - antes).toBe(0);
+    expect(resultado.resolvido.estagios[0]?.origem).toBe("cassete");
+    expect(Object.keys(resultado.resolvido.nos_grafico).sort()).toEqual([
+      "n-009",
+      "n-010",
+      "n-011",
+      "n-012",
+      "n-013",
+    ]);
+  });
+
   it("o cassete gravado tem os quatro arquivos obrigatorios e licenca", async () => {
     const cassete = await lerCassete(RAIZ_CASSETES_PADRAO, "grafico", chave);
     expect(cassete.procedencia.licenca.trim().length).toBeGreaterThan(0);
@@ -378,6 +647,59 @@ describe("F2-02 — cache quente com a rede bloqueada", () => {
     // Estagio local: zero chamadas HTTP. O cassete e o retrato fiel disso.
     expect(cassete.chamadas.length).toBe(0);
     expect(cassete.cabecalho.quantidadeChamadas).toBe(0);
+  });
+
+  it("o cassete gravado contra a fixture canonica cobre os CINCO nos grafico do video real", async () => {
+    // O cassete novo foi gravado COM a fixture canonica como entrada
+    // (gravar.ts --manifesto): a chave deriva do hash dela, entao o replay
+    // offline do pipeline procura exatamente este diretorio. Os cinco nos
+    // grafico da fixture (n-009..n-013) tem de resolver para CINCO assets
+    // distintos, em 1920x1080 — nunca um PNG estatico compartilhado.
+    const canonico = JSON.parse(
+      readFileSync(
+        join(RAIZ_REPO, "fixtures", "canonico", "manifesto-valido.json"),
+        "utf-8",
+      ),
+    ) as Manifesto;
+    const chave = chaveDoEstagio(estagioGrafico, canonico);
+    const cassete = await lerCassete(RAIZ_CASSETES_PADRAO, "grafico", chave);
+
+    const nos = Object.keys(cassete.resultado.nos_grafico ?? {}).sort();
+    expect(nos).toEqual(["n-009", "n-010", "n-011", "n-012", "n-013"]);
+
+    const hashes = [...new Set(Object.values(cassete.resultado.nos_grafico ?? {}))];
+    expect(hashes.length).toBe(5); // um asset por no — nunca o mesmo video
+    for (const hash of hashes) {
+      const asset = cassete.resultado.assets?.[hash];
+      expect(asset, `asset ${hash.slice(0, 12)}…`).toBeDefined();
+      expect(asset?.mimeType).toBe("video/webm");
+      expect(asset?.largura).toBeGreaterThanOrEqual(1280);
+      expect(asset?.altura).toBeGreaterThanOrEqual(720);
+    }
+  });
+
+  it("os bytes dos assets do cassete canonico estao materializados em corpos/ (1:1)", async () => {
+    // O estagio e local: o cassete so carrega metadados. Sem os bytes em
+    // corpos/<hash> o replay offline nao tem como servir o video ao store
+    // (bytesDoAssetDoCassete em src/pipeline/produzir.ts). Cada byte
+    // materializado TEM de rehashear para o hash declarado — bytes que
+    // divergem nunca entram (regra de sosia, D4/D5 do ADR-0009).
+    const canonico = JSON.parse(
+      readFileSync(
+        join(RAIZ_REPO, "fixtures", "canonico", "manifesto-valido.json"),
+        "utf-8",
+      ),
+    ) as Manifesto;
+    const chave = chaveDoEstagio(estagioGrafico, canonico);
+    const dirCassete = diretorioDoCassete(RAIZ_CASSETES_PADRAO, "grafico", chave);
+    const cassete = await lerCassete(RAIZ_CASSETES_PADRAO, "grafico", chave);
+
+    const hashes = Object.keys(cassete.resultado.assets ?? {});
+    expect(hashes.length).toBe(5);
+    for (const hash of hashes) {
+      const bytes = readFileSync(join(dirCassete, "corpos", hash));
+      expect(createHash("sha256").update(bytes).digest("hex")).toBe(hash);
+    }
   });
 
   it("nenhum byte do cassete casa padrao de credencial", () => {
@@ -388,6 +710,77 @@ describe("F2-02 — cache quente com a rede bloqueada", () => {
     for (const arquivo of arquivos) {
       const achados = procurarCredencial(readFileSync(arquivo, "utf-8"));
       expect(achados, `credencial em ${arquivo}`).toEqual([]);
+    }
+  });
+});
+
+// ─── 5b. Q7: a materializacao dos corpos (gravar.ts) e referenciada ────────────
+
+describe("F2-02 — materializacao dos corpos do cassete (gravar.ts, Q7)", () => {
+  /** Executor de teste que devolve um hash REAL por job (bytes materializaveis). */
+  class ExecutorDeMaterializacao implements ExecutorManim {
+    readonly hashes: string[] = [];
+
+    async renderizar(job: JobDeRender): Promise<ResultadoDeRender> {
+      const bytes = Buffer.from(`webm falso ${this.hashes.length}`);
+      const hash = createHash("sha256").update(bytes).digest("hex");
+      this.hashes.push(hash);
+      return {
+        hash,
+        bytes: bytes.length,
+        largura: job.larguraPx,
+        altura: job.alturaPx,
+        framesDeclarados: 30,
+        framesInspecionados: 12,
+        framesChapados: 0,
+        nomeCena: `Cena_Sonda_${this.hashes.length}`,
+        correcoes: [],
+        ferramenta: `manim ${job.versaoManim}`,
+        muxer: job.versaoMuxer,
+      };
+    }
+  }
+
+  it("os webm renderizados entram em corpos/<hash> SO quando rehasheiam (Q7)", async () => {
+    // Remover ou quebrar `materializarCorpos` em gravar.ts deixa este
+    // teste VERMELHO: a suite referencia a materializacao, e nao apenas o
+    // resultado materializado que a cerimonia gravou.
+    const tmp = await mkdtemp(join(tmpdir(), "grafico-materializar-"));
+    try {
+      const raiz = join(tmp, "cassetes");
+      const trabalho = join(tmp, "trabalho");
+      const videos = join(trabalho, "media", "videos", "1080p15");
+      await mkdir(videos, { recursive: true });
+
+      const executor = new ExecutorDeMaterializacao();
+      const estagio = criarEstagioGrafico({ executor });
+      const { chave } = await gravarCassete(estagio, {
+        raiz,
+        manifesto: MANIFESTO_DE_GRAVACAO,
+        diretorioTrabalho: trabalho,
+      });
+      // Dois nos (g-001, g-002) -> dois assets -> dois webm no media dir.
+      for (let i = 0; i < executor.hashes.length; i++) {
+        const bytes = Buffer.from(`webm falso ${i}`);
+        await writeFile(join(videos, `Cena_Sonda_${i + 1}.webm`), bytes);
+      }
+
+      const gravados = await materializarCorpos(chave, trabalho, raiz);
+      expect(gravados).toBe(2);
+      for (let i = 0; i < executor.hashes.length; i++) {
+        const hash = executor.hashes[i] as string;
+        const bytes = await readFile(join(raiz, "grafico", chave, "corpos", hash));
+        expect(createHash("sha256").update(bytes).digest("hex")).toBe(hash);
+      }
+
+      // Sonda negativa (regra de sosia, D4/D5 do ADR-0009): bytes que NAO
+      // rehasheiam para o hash declarado sao erro — nunca copia.
+      await writeFile(join(videos, "Cena_Sonda_1.webm"), Buffer.from("bytes divergentes"));
+      await expect(materializarCorpos(chave, trabalho, raiz)).rejects.toThrow(
+        /divergentes/,
+      );
+    } finally {
+      await rm(tmp, { recursive: true, force: true });
     }
   });
 });

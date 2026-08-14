@@ -31,6 +31,22 @@
  *     injetavel, e ler `Date.now()` aqui poria uma fonte de nao-determinismo
  *     dentro do estagio para preencher um campo que a auditoria ja tem em
  *     `volatil.json`. Item de ledger AB-391.
+ *
+ * DEPENDENCIAS DO RENDER (so a GRAVACAO do cassete, nunca a suite):
+ *
+ *   - Manim CE 0.20.1 + PyAV, num interpretador Python. O executor aceita
+ *     `PYTHON_BIN` / `MANIM_BIN` (ver executor.ts e runner.py) e exige as
+ *     versoes declaradas em PARAMETROS_GRAFICO — divergencia e erro, nunca
+ *     aviso (C12: a versao do gerador e o muxer vao dentro dos bytes do
+ *     video e mudam o hash do asset em silencio).
+ *   - LaTeX/TinyTeX no PATH do subprocesso: as equacoes MathTex (todas as
+ *     cinco cenas de cena.ts) sao compiladas por `latex`/`dvipng`. Neste
+ *     ambiente de desenvolvimento, o venv do projeto 3blue1brown tem o
+ *     Manim (`/home/ondokai/Projects/3blue1brown/manim-api/venv/bin/python`)
+ *     e o TinyTeX vive em `~/.TinyTeX/bin/x86_64-linux` — e com esses dois
+ *     que o cassete e gravado (gravar.ts, `just res-grafico-gravar`).
+ *     Falta de LaTeX nao e "video sem equacao": o render falha e o cassete
+ *     anterior fica intacto.
  */
 
 import {
@@ -142,7 +158,7 @@ export function criarEstagioGrafico(
   const executor = opcoes.executor ?? new ExecutorManimSubprocesso();
 
   return {
-    identidade: { nome: "grafico", versao: opcoes.versao ?? "1.1.0" },
+    identidade: { nome: "grafico", versao: opcoes.versao ?? "1.2.1" },
     parametros: PARAMETROS_GRAFICO,
 
     async resolver(entrada: EntradaEstagio): Promise<SaidaEstagio> {
@@ -152,12 +168,23 @@ export function criarEstagioGrafico(
       const procedenciaAssets: ProcedenciaAsset[] = [];
       const correcoes: string[] = [];
 
+      // Dois nos com o MESMO tipo_grafico recebem cenas matematicas distintas:
+      // a lista e processada em ordem lexicografica de id (nosDeGrafico), e o
+      // ordinal do no entre os do mesmo tipo desloca a escolha no catalogo
+      // (cena.ts — cenaMatematicaDoNo). Deterministico por construcao.
+      const contagemPorTipo = new Map<string, number>();
       for (const no of nosDeGrafico(entrada.manifesto)) {
-        const cena = gerarCenaManim(no, {
-          fps: entrada.manifesto.fps,
-          larguraPx: entrada.manifesto.width,
-          alturaPx: entrada.manifesto.height,
-        });
+        const deslocamento = contagemPorTipo.get(no.tipo_grafico) ?? 0;
+        contagemPorTipo.set(no.tipo_grafico, deslocamento + 1);
+        const cena = gerarCenaManim(
+          no,
+          {
+            fps: entrada.manifesto.fps,
+            larguraPx: entrada.manifesto.width,
+            alturaPx: entrada.manifesto.height,
+          },
+          { deslocamentoEntreIguais: deslocamento },
+        );
 
         const render: ResultadoDeRender = await executor.renderizar({
           codigo: cena.fonte,
