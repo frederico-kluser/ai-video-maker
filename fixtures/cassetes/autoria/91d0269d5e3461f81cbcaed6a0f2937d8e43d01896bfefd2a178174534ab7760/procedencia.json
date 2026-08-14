@@ -1,7 +1,0 @@
-{
-  "assets": [],
-  "ferramenta": "executor-de-autoria 1.0.0",
-  "licenca": "Termos de uso do provedor de modelo de lingua (uso pessoal — ADR-0003; AB-950). Texto gerado por modelo; o projeto nao o redistribui.",
-  "notas": "Sem ANTHROPIC_API_KEY no dia do card: gravado do SOSIA (envelope montado a mao na forma da API real). AB-552 fica PENDENTE — evidencia com credencial, nunca gate.",
-  "provedor": "sosia-local"
-}

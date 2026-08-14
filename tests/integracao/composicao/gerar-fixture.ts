@@ -24,8 +24,8 @@
 // =============================================================================
 
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
@@ -33,6 +33,35 @@ const RAIZ = resolve(AQUI, "..", "..", "..");
 const CANONICO = resolve(RAIZ, "fixtures", "canonico", "manifesto-valido.json");
 const PNG = resolve(RAIZ, "fixtures", "snapshots", "integrado", "assets", "grafico-integrado.png");
 const DESTINO = resolve(RAIZ, "fixtures", "snapshots", "integrado", "manifesto-integrado.json");
+const DIR_ASSETS = resolve(RAIZ, "fixtures", "snapshots", "integrado", "assets");
+
+/**
+ * A chave do cassete canonico de MIDIA (Onda 3): o cassete foi regravado
+ * PARA a fixture canonica e os tres nos (n-005 imagem, n-006 video, n-007
+ * gif) resolvem — a suite integrada renderiza a midia REAL (o "nao vi
+ * nada" fechado). Os bytes sao copiados do cassete para assets/midia/
+ * (o publicDir do render integrado), enderecados por hash (C7).
+ */
+export const CHAVE_DO_CASSETE_MIDIA =
+  "6ff203f3b562b5cfd6b461beb943b80bcbd351f3fb17b3dad4ddea864ad91150";
+
+/** Extensao de arquivo por mimeType (a mesma tabela da fiacao). */
+function extensaoDeMime(mimeType: string): string {
+  const m = mimeType.split(";")[0]!.trim().toLowerCase();
+  const tabela: Record<string, string> = {
+    "video/webm": "webm",
+    "video/mp4": "mp4",
+    "image/png": "png",
+    "image/webp": "webp",
+    "image/gif": "gif",
+    "image/jpeg": "jpg",
+  };
+  const ext = tabela[m];
+  if (ext === undefined) {
+    throw new Error(`gerar-fixture: mimeType "${mimeType}" sem extensao mapeada`);
+  }
+  return ext;
+}
 
 /**
  * Quais nos de grafico recebem asset resolvido (fiacao) e quais ficam no
@@ -59,24 +88,79 @@ function principal(): void {
     nosGrafico[id] = hashDoPng;
   }
 
+  // MIDIA (Onda 3): le o cassete de midia, copia os bytes para
+  // assets/midia/ (o publicDir do render integrado) e declara os tres
+  // nos no fixture. Os descritores de asset vem do proprio cassete —
+  // nada digitado (C7).
+  const resultadoMidia = JSON.parse(
+    readFileSync(
+      join(
+        RAIZ,
+        "fixtures",
+        "cassetes",
+        "midia",
+        CHAVE_DO_CASSETE_MIDIA,
+        "resultado.json",
+      ),
+      "utf8",
+    ),
+  ) as {
+    assets: Record<string, Record<string, unknown>>;
+    nos_midia: Record<string, string>;
+  };
+  const assets = {
+    [hashDoPng]: {
+      hash: hashDoPng,
+      tipo: "imagem",
+      mimeType: "image/png",
+      largura: 480,
+      altura: 320,
+      byteSize: png.length,
+      licenca: "CC0-1.0",
+      atribuicaoObrigatoria: false,
+      provedor: "local",
+    },
+  } as Record<string, unknown>;
+  const dirMidia = join(DIR_ASSETS, "midia");
+  mkdirSync(dirMidia, { recursive: true });
+  for (const [hash, asset] of Object.entries(resultadoMidia.assets)) {
+    const descritor = asset as {
+      mimeType?: string;
+      byteSize?: number;
+    };
+    const bytes = readFileSync(
+      join(
+        RAIZ,
+        "fixtures",
+        "cassetes",
+        "midia",
+        CHAVE_DO_CASSETE_MIDIA,
+        "corpos",
+        hash,
+      ),
+    );
+    copyFileSync(
+      join(
+        RAIZ,
+        "fixtures",
+        "cassetes",
+        "midia",
+        CHAVE_DO_CASSETE_MIDIA,
+        "corpos",
+        hash,
+      ),
+      join(dirMidia, `${hash}.${extensaoDeMime(descritor.mimeType ?? "")}`),
+    );
+    assets[hash] = asset;
+  }
+
   const fixture = {
     schema_version: "ManifestoResolvido.1",
     hash_manifesto_original: hashDoManifesto,
     manifesto,
-    assets: {
-      [hashDoPng]: {
-        hash: hashDoPng,
-        tipo: "imagem",
-        mimeType: "image/png",
-        largura: 480,
-        altura: 320,
-        byteSize: png.length,
-        licenca: "CC0-1.0",
-        atribuicaoObrigatoria: false,
-        provedor: "local",
-      },
-    },
+    assets,
     nos_grafico: nosGrafico,
+    nos_midia: resultadoMidia.nos_midia,
   };
 
   writeFileSync(DESTINO, `${JSON.stringify(fixture, null, 2)}\n`);
@@ -84,7 +168,9 @@ function principal(): void {
     `gerar-fixture: ${DESTINO}\n` +
       `  hash_manifesto_original = ${hashDoManifesto}\n` +
       `  asset grafico-integrado.png sha256 = ${hashDoPng} (${String(png.length)} bytes)\n` +
-      `  nos com asset: ${NOS_COM_ASSET.join(", ")}\n`,
+      `  nos com asset: ${NOS_COM_ASSET.join(", ")}\n` +
+      `  midia: ${Object.keys(resultadoMidia.nos_midia).sort().join(", ")} ` +
+      `(assets copiados para assets/midia/)\n`,
   );
 }
 

@@ -39,6 +39,7 @@ import type { Manifesto, No } from "../../contratos/manifesto";
 import type { PlanoDeComposicao } from "../ManifestoRaiz";
 import { planoDeComposicao } from "../ManifestoRaiz";
 import type { GraficoResolvido, NoGraficoResolvido } from "../nos/grafico";
+import type { MidiaResolvida, NoMidiaResolvido } from "../nos/midia";
 import type { AssetResolvido } from "../../resolucao/manifesto-resolvido";
 
 // ---------------------------------------------------------------------------
@@ -52,6 +53,12 @@ export interface FixtureIntegrada {
   manifesto: Manifesto;
   assets: Record<string, AssetResolvido>;
   nos_grafico: Record<string, string>;
+  /**
+   * NodeId -> hash do asset de midia (Onda 3). Opcional para as fixtures
+   * pequenas da suite que ainda nao tem camada de midia; o pipeline e o
+   * cassete canonico preenchem.
+   */
+  nos_midia?: Record<string, string>;
 }
 
 /** A fixture ja fiada: manifestos e planos prontos para render. */
@@ -113,6 +120,15 @@ export function resolverPadrao(hash: string, asset: AssetResolvido): string {
   return staticFile(`grafico/${hash}.${extensaoDeMime(asset.mimeType)}`);
 }
 
+/**
+ * O resolvedor padrao do asset de MIDIA (Onda 3): o mesmo derivado
+ * hash+mime, no prefixo `midia/` do publicDir — o estagio de composicao
+ * do pipeline materializa os bytes sob `midia/<hash>.<ext>`.
+ */
+export function resolverPadraoDeMidia(hash: string, asset: AssetResolvido): string {
+  return staticFile(`midia/${hash}.${extensaoDeMime(asset.mimeType)}`);
+}
+
 // ---------------------------------------------------------------------------
 // A fiacao
 // ---------------------------------------------------------------------------
@@ -128,6 +144,8 @@ export function resolverPadrao(hash: string, asset: AssetResolvido): string {
 export function fiar(
   fixture: FixtureIntegrada,
   resolverFonte: (hash: string, asset: AssetResolvido) => string,
+  resolverFonteDeMidia: (hash: string, asset: AssetResolvido) => string =
+    resolverPadraoDeMidia,
 ): Fiado {
   const manifesto = JSON.parse(JSON.stringify(fixture.manifesto)) as Manifesto;
   const porId = new Map(manifesto.nos.map((no) => [no.id, no] as const));
@@ -150,6 +168,32 @@ export function fiar(
     // O tipo da W4 declara o campo readonly de proposito (a fiacao e o
     // unico lugar que o preenche). A anexacao e por cast de atribuicao.
     (no as NoGraficoResolvido & { grafico_resolvido?: GraficoResolvido }).grafico_resolvido =
+      resolvido;
+  }
+
+  // MIDIA (Onda 3): o mesmo contrato do grafico — a fiacao anexa ao no o
+  // descritor do asset que mora fora dele, `assets[nos_midia[no.id]]`,
+  // com `fonte` derivada do hash pelo resolvedor de midia (prefixo
+  // `midia/` no publicDir). Sem isso o no desenha o marcador em vez do
+  // asset que o estagio `midia` adquiriu, EM SILENCIO (mesma disciplina
+  // do AB-364 para o grafico).
+  const nosMidia = fixture.nos_midia ?? {};
+  for (const no of manifesto.nos) {
+    if (no.type !== "midia") continue;
+    const hash = nosMidia[no.id];
+    if (hash === undefined) continue;
+    const asset = fixture.assets[hash];
+    if (asset === undefined) {
+      throw new Error(
+        `fiar: nos_midia["${no.id}"] aponta para ${hash}, que nao existe ` +
+          `em assets — referencia pendurada nao vira midia`,
+      );
+    }
+    const resolvido: MidiaResolvida = {
+      asset,
+      fonte: resolverFonteDeMidia(hash, asset),
+    };
+    (no as NoMidiaResolvido & { midia_resolvida?: MidiaResolvida }).midia_resolvida =
       resolvido;
   }
 

@@ -41,7 +41,8 @@
  * A prova correta regrava a partir do cassete: `fetchReal` vira o
  * reprodutor do proprio cassete, e o que varia entre as duas passadas
  * passa a ser so o estagio — que e o que se quer medir. As chamadas
- * REAIS do cassete (2 buscas + 2 downloads de binario) rodam em cada
+ * REAIS do cassete (3 buscas + 3 downloads de binario — um par por no
+ * de midia da fixture canonica) rodam em cada
  * gravacao: a fase 6 conta e nomeia as chamadas regravadas, para a
  * prova nunca voltar a ser vacua (C2).
  *
@@ -254,8 +255,10 @@ async function main(): Promise<number> {
     `zero tentativas de saida durante a reproducao (antes=${antes}, depois=${depois})`,
   );
   exigir(
-    resolvido.resolvido.nos_midia["n-midia-01"] === nosMidiaGravado["n-midia-01"],
-    "o no n-midia-01 reproduzido e o mesmo do cassete",
+    resolvido.resolvido.nos_midia["n-005"] === nosMidiaGravado["n-005"] &&
+      resolvido.resolvido.nos_midia["n-006"] === nosMidiaGravado["n-006"] &&
+      resolvido.resolvido.nos_midia["n-007"] === nosMidiaGravado["n-007"],
+    "os nos n-005/n-006/n-007 reproduzidos sao os mesmos do cassete",
   );
   exigir(
     resolvido.resolvido.estagios[0]?.origem === "cassete",
@@ -282,9 +285,15 @@ async function main(): Promise<number> {
     // limpo saiu disso. Se o gravador tivesse "consertado", o corpo
     // estaria limpo e o normalizador nunca mais seria testado.
     const corpoBusca = await corpoDaChamadaDeBusca(dirCassete, cassete.chamadas);
+    // Onda 3: o cassete novo foi gravado para a fixture canonica e os
+    // tres assets adquiridos sao CC0/PDM — o corpo da PRIMEIRA busca
+    // ("code health checker") traz AttributionRequired como string
+    // "false" (os candidatos CC0), nao "true". O que se prova aqui e a
+    // STRING-nidade do campo (o provedor entrega texto, o estagio
+    // normaliza para booleano) — o valor exato depende do cassete.
     exigir(
-      /"AttributionRequired":\s*\{\s*"value":\s*"true"/.test(corpoBusca),
-      'o corpo gravado ainda traz AttributionRequired como STRING ("true")',
+      /"AttributionRequired":\s*\{\s*"value":\s*"(true|false)"/.test(corpoBusca),
+      'o corpo gravado ainda traz AttributionRequired como STRING ("true"/"false")',
     );
     exigir(
       /href=\\"\/\/commons\.wikimedia\.org/.test(corpoBusca),

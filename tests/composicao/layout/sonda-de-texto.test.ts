@@ -48,6 +48,9 @@ import type { ImgHTMLAttributes, VideoHTMLAttributes } from "react";
 // renderizam em react-dom/server (chamam useCurrentFrame) — viram elementos
 // puros, como no oraculo de presenca da suite integrada. O resto do modulo
 // (interpolate, spring, staticFile) continua o original.
+//
+// O <Gif> do @remotion/gif (Onda 3 — o no de midia renderiza o asset real)
+// tambem chama useCurrentFrame: vira um <img> puro com o src e o fit.
 // ---------------------------------------------------------------------------
 vi.mock("remotion", async (importOriginal) => {
   const original = await importOriginal<typeof import("remotion")>();
@@ -65,6 +68,13 @@ vi.mock("remotion", async (importOriginal) => {
   };
 });
 
+vi.mock("@remotion/gif", async () => {
+  return {
+    Gif: (props: { src?: string; fit?: string; style?: unknown }) =>
+      createElement("img", { src: props.src, "data-gif-fit": props.fit, style: props.style }),
+  };
+});
+
 import type { AssetResolvido } from "../../../src/resolucao/manifesto-resolvido";
 import type { FixtureIntegrada } from "../../../src/composicao/pintura/fiar";
 import { fiarApadrao, pintar } from "../../../src/composicao/pintura/index";
@@ -76,44 +86,62 @@ const RAIZ = resolve(AQUI, "..", "..", "..");
 // A chave do cassete canonico de grafico (onda 1, estagio v1.2.1): derivada
 // do manifesto canonico + parametros do estagio — se o cassete for
 // regravado com outra chave, esta leitura acha a nova (o cassete e a
-// verdade, C12).
+// verdade, C12). A Onda 3 mudou o CONTEUDO da fixture canonica
+// (texto_alternativo dos nos de midia) e o cassete foi re-chaveado para
+// o hash novo (conteudo preservado, so o cabecalho).
 const CHAVE_DO_CASSETE_GRAFICO =
-  "6d53c3865b6c1627eeafae927accf2cd316cf00b5351fe3d24753b773451fb47";
+  "0f10b3cabce5f5374e40bd46b22853231b517fd8bf4c62d460670e960e5af5e8";
+
+// A chave do cassete canonico de MIDIA (Onda 3, estagio v1.2.0): gravado
+// para a propria fixture canonica — n-005 imagem (CC0), n-006 video (CC0),
+// n-007 gif (PDM). A sonda precisa da camada de midia para exercitar as
+// legendas da cena c-005 no C1/C2.
+const CHAVE_DO_CASSETE_MIDIA =
+  "6ff203f3b562b5cfd6b461beb943b80bcbd351f3fb17b3dad4ddea864ad91150";
 
 interface AssetDoCassete extends AssetResolvido {
   duracaoSegundos?: number;
 }
 
-function fixtureDosWebmDeMatematica(): FixtureIntegrada {
+function lerAssetsDoCassete(
+  estagio: string,
+  chave: string,
+): { assets: Record<string, AssetResolvido>; nos: Record<string, string> } {
   const resultado = JSON.parse(
     readFileSync(
-      resolve(
-        RAIZ,
-        "fixtures",
-        "cassetes",
-        "grafico",
-        CHAVE_DO_CASSETE_GRAFICO,
-        "resultado.json",
-      ),
+      resolve(RAIZ, "fixtures", "cassetes", estagio, chave, "resultado.json"),
       "utf8",
     ),
-  ) as { assets: Record<string, AssetDoCassete>; nos_grafico: Record<string, string> };
-  const manifesto = JSON.parse(
-    readFileSync(resolve(RAIZ, "fixtures", "canonico", "manifesto-valido.json"), "utf8"),
-  ) as FixtureIntegrada["manifesto"];
-
+  ) as {
+    assets: Record<string, AssetDoCassete>;
+    nos_grafico: Record<string, string>;
+    nos_midia: Record<string, string>;
+  };
   const assets: Record<string, AssetResolvido> = {};
   for (const [hash, asset] of Object.entries(resultado.assets)) {
     const { duracaoSegundos: _duracao, ...semDuracao } = asset;
     assets[hash] = semDuracao;
   }
+  return {
+    assets,
+    nos: { ...resultado.nos_grafico, ...resultado.nos_midia },
+  };
+}
+
+function fixtureDosWebmDeMatematica(): FixtureIntegrada {
+  const grafico = lerAssetsDoCassete("grafico", CHAVE_DO_CASSETE_GRAFICO);
+  const midia = lerAssetsDoCassete("midia", CHAVE_DO_CASSETE_MIDIA);
+  const manifesto = JSON.parse(
+    readFileSync(resolve(RAIZ, "fixtures", "canonico", "manifesto-valido.json"), "utf8"),
+  ) as FixtureIntegrada["manifesto"];
 
   return {
     schema_version: "ManifestoResolvido.1",
     hash_manifesto_original: "a0ae9cdd0e99d3f62bd8aecce8246e1dcfebfa56be0099854ea6fd479cb27158",
     manifesto,
-    assets,
-    nos_grafico: { ...resultado.nos_grafico },
+    assets: { ...grafico.assets, ...midia.assets },
+    nos_grafico: { ...grafico.nos },
+    nos_midia: { ...midia.nos },
   };
 }
 
@@ -131,12 +159,14 @@ interface BlocoDeTexto {
   visibilidade: number;
 }
 
-const TIPOS_DE_TEXTO = new Set(["texto", "lista", "cabecalho", "codigo"]);
+// Onda 3: `midia` entra na sonda — a LEGENDA do no de midia (gif/video) e
+// texto legivel e participa do C1/C2 como qualquer bloco de texto.
+const TIPOS_DE_TEXTO = new Set(["texto", "lista", "cabecalho", "codigo", "midia"]);
 
 function parsearBlocos(html: string): BlocoDeTexto[] {
   const blocos: BlocoDeTexto[] = [];
   const re =
-    /<div data-no="([^"]+)" data-tipo="(texto|lista|cabecalho|codigo)"[^>]*?data-bbox="([^"]+)"[^>]*?data-visibilidade="([^"]+)"/g;
+    /<div data-no="([^"]+)" data-tipo="(texto|lista|cabecalho|codigo|midia)"[^>]*?data-bbox="([^"]+)"[^>]*?data-visibilidade="([^"]+)"/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(html)) !== null) {
     const [x, y, largura, altura] = m[3]!.split(",").map(Number);
@@ -153,6 +183,63 @@ function parsearBlocos(html: string): BlocoDeTexto[] {
   return blocos;
 }
 
+// ---------------------------------------------------------------------------
+// A MIDIA COMO OBSTACULO (fix da Onda 3, revisao adversarial da c-005)
+// ---------------------------------------------------------------------------
+// O revisor refutou a Onda 3 com evidencia de PIXEL: na c-005 a midia,
+// pintada DEPOIS do texto, cobria o bloco de texto n-014 e a legenda do
+// video n-006 (frame 580: zero pixels de texto na regiao declarada; a
+// regiao da legenda n-006 chapada de branco do globo). A sonda C1/C2
+// validava so os data-bbox DECLARADOS e deixou o falso-verde passar.
+//
+// Duas invariantes novas, cobradas em C4 e C5:
+//
+//   C4  geometria — a REGIAO da midia (data-regiao-da-midia, a banda do
+//       eixo onde o asset renderiza) de um gif/video NAO pode intersectar
+//       o bloco de texto visivel de OUTRO no da mesma cena. A imagem
+//       `cover` (n-005) e fundo de cena por design — fica de fora.
+//
+//   C5  ordem de pintura — no segmento DOM de cada cena, TODO no de
+//       midia precede TODO bloco de texto: midia e obstaculo opaco, quem
+//       pinta por ultimo fica por cima, e o texto nunca pode ficar sob a
+//       midia (o `sort` estavel de pintura/cena.ts garante isso).
+//
+// As duas funcoes de violacao sao PURAS e EXPORTADAS de proposito: os
+// testes de mutacao as chamam com os dados do BUG MEDIDO (regiao da
+// midia = quadro inteiro; ordem de manifesto com texto primeiro) e
+// exigem que acendam VERMELHO — sem isso elas poderiam ficar verdes por
+// vazio e o falso-verde voltaria.
+
+/** A regiao onde a midia de um no RENDERIZA (a banda do eixo). */
+interface MidiaNoFrame {
+  noId: string;
+  tipoMidia: string;
+  x: number;
+  y: number;
+  largura: number;
+  altura: number;
+}
+
+/** Extrai as midias do markup: raiz do no + container da regiao. */
+function parsearMidias(html: string): MidiaNoFrame[] {
+  const midias: MidiaNoFrame[] = [];
+  const re =
+    /<div data-no="([^"]+)" data-tipo="midia"[^>]*?><div data-regiao-da-midia="([^"]+)" data-tipo-midia="([^"]+)"/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    const [x, y, largura, altura] = m[2]!.split(",").map(Number);
+    midias.push({
+      noId: m[1]!,
+      tipoMidia: m[3]!,
+      x: x!,
+      y: y!,
+      largura: largura!,
+      altura: altura!,
+    });
+  }
+  return midias;
+}
+
 function seIntersectam(a: BlocoDeTexto, b: BlocoDeTexto): boolean {
   return (
     a.x < b.x + b.largura &&
@@ -160,6 +247,101 @@ function seIntersectam(a: BlocoDeTexto, b: BlocoDeTexto): boolean {
     a.y < b.y + b.altura &&
     b.y < a.y + a.altura
   );
+}
+
+function seIntersectamRegioes(
+  a: { x: number; y: number; largura: number; altura: number },
+  b: { x: number; y: number; largura: number; altura: number },
+): boolean {
+  return (
+    a.x < b.x + b.largura &&
+    b.x < a.x + a.largura &&
+    a.y < b.y + b.altura &&
+    b.y < a.y + a.altura
+  );
+}
+
+/**
+ * C4: a regiao da midia (gif/video — a imagem cover e fundo por design)
+ * NAO pode intersectar o bloco de texto visivel de outro no da MESMA
+ * cena. A legenda do proprio no (mesmo noId) fica sobre a propria midia
+ * por construcao — esta de fora.
+ */
+export function violacoesDeSobreposicaoDeMidia(
+  blocos: readonly BlocoDeTexto[],
+  midias: readonly MidiaNoFrame[],
+  cenaDoNo: ReadonlyMap<string, string>,
+): string[] {
+  const violacoes: string[] = [];
+  const visiveis = blocos.filter((b) => b.visibilidade > LIMIAR_DE_VISIBILIDADE);
+  for (const midia of midias) {
+    if (midia.tipoMidia === "imagem") continue;
+    const cenaDaMidia = cenaDoNo.get(midia.noId);
+    for (const bloco of visiveis) {
+      if (bloco.noId === midia.noId) continue;
+      if (cenaDoNo.get(bloco.noId) !== cenaDaMidia) continue;
+      if (seIntersectamRegioes(midia, bloco)) {
+        violacoes.push(
+          `midia ${midia.noId} (${midia.tipoMidia}, regiao ` +
+            `${JSON.stringify([midia.x, midia.y, midia.largura, midia.altura])}) ` +
+            `cobre o bloco de texto ${bloco.noId} (${bloco.tipo}, bbox ` +
+            `${JSON.stringify([bloco.x, bloco.y, bloco.largura, bloco.altura])}) ` +
+            `na cena ${cenaDaMidia ?? "?"}`,
+        );
+      }
+    }
+  }
+  return violacoes;
+}
+
+/**
+ * C5: no segmento DOM de UMA cena, todo no de midia precede todo bloco
+ * de texto. Recebe o segmento (html da cena) e devolve as violacoes.
+ * O primeiro `data-no` de cada no (a raiz) e o que conta: e a raiz que
+ * estabelece a ordem de pintura do bloco inteiro.
+ */
+export function violacoesDeOrdemDePinturaDoSegmento(segmento: string): string[] {
+  const primeiraPosicao = new Map<string, number>();
+  const tipo = new Map<string, string>();
+  const re = /data-no="([^"]+)" data-tipo="(midia|texto|lista|cabecalho|codigo)"/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(segmento)) !== null) {
+    const noId = m[1]!;
+    if (!primeiraPosicao.has(noId)) {
+      primeiraPosicao.set(noId, m.index);
+      tipo.set(noId, m[2]!);
+    }
+  }
+  const midias = [...primeiraPosicao.entries()]
+    .map(([noId, pos]) => [noId, pos, tipo.get(noId)] as const)
+    .filter(([, , t]) => t === "midia");
+  const textos = [...primeiraPosicao.entries()]
+    .map(([noId, pos]) => [noId, pos, tipo.get(noId)] as const)
+    .filter(([, , t]) => t !== "midia");
+  if (midias.length === 0 || textos.length === 0) return [];
+  const ultimaMidia = Math.max(...midias.map(([, pos]) => pos));
+  const primeiroTexto = Math.min(...textos.map(([, pos]) => pos));
+  if (ultimaMidia > primeiroTexto) {
+    const nomes = midias.map(([noId]) => noId).join(", ");
+    return [
+      `na cena, a midia (${nomes}) pinta DEPOIS de um bloco de texto — ` +
+        `ordem de pintura regrediu, a midia opaca pode esconder o texto`,
+    ];
+  }
+  return [];
+}
+
+/** Os segmentos de cena do markup (a sequencia + o pintor de cena). */
+function segmentosDeCena(html: string): string[] {
+  const segmentos: string[] = [];
+  const re = /data-cena="([^"]+)"/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    const inicio = m.index;
+    const fim = html.indexOf('data-cena="', m.index + m[0].length);
+    segmentos.push(html.slice(inicio, fim < 0 ? html.length : fim));
+  }
+  return segmentos;
 }
 
 const LIMIAR_DE_VISIBILIDADE = 0.05;
@@ -331,6 +513,199 @@ describe("montagem dos webm de grafico (C3) — um video por vez, na fatia certa
   it("o total da composicao continua 727 (a montagem nao mexe na aritmetica)", () => {
     const duracao = calcularDuracao(fixtureDosWebmDeMatematica().manifesto);
     expect(duracao.totalFrames).toBe(727);
+  });
+});
+
+describe("legendas de midia na cena c-005 (C1/C2, Onda 3) — gif e video com texto", () => {
+  // c-005: 547..727. n-006 video 547..607, n-007 gif 562..607 (entrada 15),
+  // n-014 texto 577..727, n-015 cabecalho 547..607. Bandas (4 nos de texto):
+  // topo=54 (graphicsSafePct=0.05), alturaDeBanda=(1080-108)/4=243 —
+  // n-014 banda 1 [54,297), n-006 banda 2 [297,540), n-007 banda 3
+  // [540,783), n-015 banda 4 [783,1026).
+  const BANDA_2 = { y: 297, altura: 243 };
+  const BANDA_3 = { y: 540, altura: 243 };
+
+  it("frame 560: a legenda do video esta presente, visivel e DENTRO da propria banda", () => {
+    const html = renderizarProducao(560);
+    const blocos = parsearBlocos(html);
+    const video = blocos.find((b) => b.noId === "n-006");
+    expect(video, "n-006 sem legenda no frame 560").toBeDefined();
+    expect(video!.tipo).toBe("midia");
+    expect(video!.visibilidade).toBeGreaterThan(LIMIAR_DE_VISIBILIDADE);
+    expect(video!.y).toBeGreaterThanOrEqual(BANDA_2.y);
+    expect(video!.y + video!.altura).toBeLessThanOrEqual(
+      BANDA_2.y + BANDA_2.altura,
+    );
+    expect(html).toContain('data-legenda="dvorak typing"');
+  });
+
+  it("a legenda renderiza ONDE o data-bbox declara (geometria honesta — o deslocamento de margem)", () => {
+    // n-006 e `contain`: a raiz do no comeca em `inset: margem` (54 px). O
+    // estilo da barra tem de ser a caixa ABSOLUTA menos a margem — sem
+    // isso a barra renderizaria (54,54) fora do bbox declarado e a sonda
+    // C1 aprovaria uma geometria que o pixel desmente (medido no master).
+    const html = renderizarProducao(590);
+    const bloco = /data-no="n-007"[^>]*?data-legenda="([^"]+)"[^>]*?data-bbox="([^"]+)"[^>]*?style="([^"]*)"/.exec(
+      html,
+    );
+    expect(bloco, "legenda do gif no frame 590").toBeDefined();
+    const [x, y] = (bloco![2] ?? "").split(",").map(Number);
+    expect(Number.isFinite(x) && Number.isFinite(y), "bbox mal formado").toBe(true);
+    const xBbox = x as number;
+    const yBbox = y as number;
+    const style = bloco![3]!;
+    const left = /left:(-?\d+)px/.exec(style)?.[1];
+    const top = /top:(-?\d+)px/.exec(style)?.[1];
+    const margem = 54; // 0.05 * 1080 — graphicsSafePct do menor lado
+    expect(Number(left)).toBe(xBbox - margem);
+    expect(Number(top)).toBe(yBbox - margem);
+  });
+
+  it("frame 590: as legendas do video E do gif estao presentes, em bandas distintas (gif abaixo)", () => {
+    const html = renderizarProducao(590);
+    const blocos = parsearBlocos(html);
+    const video = blocos.find((b) => b.noId === "n-006");
+    const gif = blocos.find((b) => b.noId === "n-007");
+    expect(video, "n-006 sem legenda").toBeDefined();
+    expect(gif, "n-007 sem legenda").toBeDefined();
+    expect(html).toContain('data-legenda="dvorak typing"');
+    expect(html).toContain('data-legenda="spinning globe map"');
+    // As duas legendas ficam nas proprias bandas: gif (banda 3) abaixo do
+    // video (banda 2), sem se tocar.
+    expect(gif!.y).toBeGreaterThan(video!.y + video!.altura);
+    expect(gif!.y).toBeGreaterThanOrEqual(BANDA_3.y);
+    expect(gif!.y + gif!.altura).toBeLessThanOrEqual(BANDA_3.y + BANDA_3.altura);
+    // O gif e asset real (fiado): o <Gif> do @remotion/gif esta no markup.
+    expect(html).toContain('data-asset-hash=');
+  });
+
+  it("frame 600: a legenda do gif continua visivel (janela 562..607) e a do video tambem", () => {
+    const blocos = parsearBlocos(renderizarProducao(600));
+    for (const noId of ["n-006", "n-007"]) {
+      const bloco = blocos.find((b) => b.noId === noId);
+      expect(bloco, `${noId} sem legenda no frame 600`).toBeDefined();
+      expect(bloco!.visibilidade).toBeGreaterThan(LIMIAR_DE_VISIBILIDADE);
+    }
+  });
+
+  it("frame 610: fora da janela do gif e do video, nenhuma legenda de midia resta", () => {
+    const blocos = parsearBlocos(renderizarProducao(610)).filter(
+      (b) => b.tipo === "midia",
+    );
+    expect(blocos).toHaveLength(0);
+  });
+
+  it("a imagem n-005 NAO renderiza legenda (decisao documentada da Onda 3)", () => {
+    const blocos = parsearBlocos(renderizarProducao(300)).filter(
+      (b) => b.noId === "n-005",
+    );
+    expect(blocos).toHaveLength(0);
+    expect(renderizarProducao(300)).not.toContain('data-legenda="code health checker"');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// C4 — a midia como obstaculo opaco (fix da Onda 3)
+// ---------------------------------------------------------------------------
+// O revisor refutou a Onda 3 com pixel: na c-005 a midia pintada depois
+// do texto cobria n-014 e a legenda de n-006 no frame 580. Esta sonda
+// modela a REGIAO RENDERIZADA da midia (a banda do eixo, que
+// data-regiao-da-midia declara) como obstaculo: gif/video confinado a
+// banda nao pode intersectar o bloco de texto visivel de outro no da
+// mesma cena.
+describe("midia como obstaculo opaco (C4) — a regiao da midia nao cobre bloco de texto de irmao", () => {
+  for (const [frame, onde] of [...FRAMES_DE_TRANSICAO, ...FRAMES_INTRA_CENA]) {
+    it(`frame ${String(frame)} (${onde}): nenhuma regiao de midia intersecta bloco de texto visivel`, () => {
+      const html = renderizarProducao(frame);
+      const violacoes = violacoesDeSobreposicaoDeMidia(
+        parsearBlocos(html),
+        parsearMidias(html),
+        noParaCena,
+      );
+      expect(violacoes, `frame ${String(frame)}`).toStrictEqual([]);
+    });
+  }
+
+  it("c-005 frame 580: a midia esta CONFINADA as proprias bandas (regiao declarada != quadro inteiro)", () => {
+    const midias = parsearMidias(renderizarProducao(580));
+    const video = midias.find((m) => m.noId === "n-006");
+    const gif = midias.find((m) => m.noId === "n-007");
+    expect(video, "n-006 com regiao").toBeDefined();
+    expect(gif, "n-007 com regiao").toBeDefined();
+    // Bandas de c-005 (4 nos de texto): video = banda 2 [297,540), gif =
+    // banda 3 [540,783). A regiao tem a ALTURA DA BANDA — nunca 1080.
+    expect(video!.altura).toBeLessThan(1080);
+    expect(gif!.altura).toBeLessThan(1080);
+    expect(video!.y).toBe(297);
+    expect(gif!.y).toBe(540);
+  });
+
+  it("MUTACAO (o bug medido): midia com regiao de QUADRO INTEIRO cobre o texto e acende VERMELHO", () => {
+    // O dado do revisor, medido no frame 580 ANTES da correcao: a midia
+    // ocupava o quadro inteiro (inset: margem) e a regiao declarada do
+    // texto n-014 era "1306,87,517,176" — zero pixels de texto. A funcao
+    // de violacao tem de acender com exatamente esta assinatura.
+    const blocos: BlocoDeTexto[] = [
+      { noId: "n-014", tipo: "texto", x: 1306, y: 87, largura: 517, altura: 176, visibilidade: 1 },
+      { noId: "n-006", tipo: "midia", x: 851, y: 438, largura: 218, altura: 78, visibilidade: 1 },
+    ];
+    const midias: MidiaNoFrame[] = [
+      { noId: "n-006", tipoMidia: "video", x: 0, y: 0, largura: 1920, altura: 1080 },
+      { noId: "n-007", tipoMidia: "gif", x: 0, y: 0, largura: 1920, altura: 1080 },
+    ];
+    const violacoes = violacoesDeSobreposicaoDeMidia(blocos, midias, noParaCena);
+    expect(violacoes.length).toBeGreaterThan(0);
+    expect(violacoes.join("\n")).toContain("n-014");
+  });
+
+  it("controle: com a midia na banda certa, a mesma funcao nao acusa (C2)", () => {
+    const blocos: BlocoDeTexto[] = [
+      { noId: "n-014", tipo: "texto", x: 1306, y: 87, largura: 517, altura: 176, visibilidade: 1 },
+      { noId: "n-006", tipo: "midia", x: 851, y: 438, largura: 218, altura: 78, visibilidade: 1 },
+    ];
+    const midias: MidiaNoFrame[] = [
+      { noId: "n-006", tipoMidia: "video", x: 0, y: 297, largura: 1920, altura: 243 },
+    ];
+    expect(violacoesDeSobreposicaoDeMidia(blocos, midias, noParaCena)).toStrictEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// C5 — a ordem de pintura (midia primeiro na pilha)
+// ---------------------------------------------------------------------------
+describe("ordem de pintura (C5) — midia pinta ANTES de qualquer bloco de texto", () => {
+  it("em toda cena do render, todo no de midia precede todo bloco de texto no DOM", () => {
+    for (const [frame] of [...FRAMES_DE_TRANSICAO, ...FRAMES_INTRA_CENA]) {
+      const html = renderizarProducao(frame);
+      for (const segmento of segmentosDeCena(html)) {
+        expect(
+          violacoesDeOrdemDePinturaDoSegmento(segmento),
+          `frame ${String(frame)}`,
+        ).toStrictEqual([]);
+      }
+    }
+  });
+
+  it("MUTACAO (a ordem declarada da c-005, sem o sort): texto antes da midia acende VERMELHO", () => {
+    // A c-005 declara [n-014, n-006, n-007, n-015] — exatamente a ordem
+    // que escondia o texto antes do fix. O segmento montado a mao e o
+    // que o pintor emitiria SEM o sort de pintura/cena.ts.
+    const segmentoDoBug =
+      '<div data-no="n-014" data-tipo="texto" data-bbox="1306,87,517,176" data-visibilidade="1"></div>' +
+      '<div data-no="n-006" data-tipo="midia" data-frame="33"><div data-regiao-da-midia="0,297,1920,243" data-tipo-midia="video"></div></div>' +
+      '<div data-no="n-007" data-tipo="midia" data-frame="18"><div data-regiao-da-midia="0,540,1920,243" data-tipo-midia="gif"></div></div>';
+    const violacoes = violacoesDeOrdemDePinturaDoSegmento(segmentoDoBug);
+    expect(violacoes.length).toBeGreaterThan(0);
+    expect(violacoes.join("\n")).toContain("midia");
+  });
+
+  it("controle: midia primeiro no segmento, a mesma funcao nao acusa (C2)", () => {
+    const segmentoCorreto =
+      '<div data-no="n-006" data-tipo="midia" data-frame="33"><div data-regiao-da-midia="0,297,1920,243" data-tipo-midia="video"></div></div>' +
+      '<div data-no="n-014" data-tipo="texto" data-bbox="1306,87,517,176" data-visibilidade="1"></div>';
+    expect(
+      violacoesDeOrdemDePinturaDoSegmento(segmentoCorreto),
+    ).toStrictEqual([]);
   });
 });
 

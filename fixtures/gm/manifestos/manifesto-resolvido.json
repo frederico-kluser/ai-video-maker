@@ -1,6 +1,6 @@
 {
   "schema_version": "ManifestoResolvido.1",
-  "hash_manifesto_original": "a0ae9cdd0e99d3f62bd8aecce8246e1dcfebfa56be0099854ea6fd479cb27158",
+  "hash_manifesto_original": "1895aef71eed7459958c8341bd1807c6aac3a448da7938d217de395f9d40c9bc",
   "manifesto": {
     "schema_version": "Manifesto.1",
     "fps": 30,
@@ -85,7 +85,7 @@
         "hash": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
         "tipo_midia": "imagem",
         "ajuste": "cover",
-        "texto_alternativo": "Diagrama do pipeline de renderização mostrando as etapas: manifesto → validação → timeline → Remotion → vídeo",
+        "texto_alternativo": "code health checker",
         "licenca": "CC-BY-4.0",
         "animacao": {
           "tipo": "fade",
@@ -100,7 +100,7 @@
         "hash": "b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3",
         "tipo_midia": "video",
         "ajuste": "contain",
-        "texto_alternativo": "Demonstração curta do editor em ação: uma cena com transição slide entre dois nós de texto",
+        "texto_alternativo": "dvorak typing",
         "licenca": "MIT",
         "animacao": {
           "tipo": "none"
@@ -113,7 +113,8 @@
         "duracao_frames": 45,
         "hash": "c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4",
         "tipo_midia": "gif",
-        "ajuste": "fill",
+        "ajuste": "contain",
+        "texto_alternativo": "spinning globe map",
         "licenca": "CC0-1.0",
         "entrada_frames": 15
       },
@@ -486,6 +487,17 @@
       "provedor": "local",
       "tipo": "video"
     },
+    "35647623a23da43c7040ac0bc5c923f7689eab00794077fd61ba6b8da8dfcad0": {
+      "altura": 178,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 401246,
+      "hash": "35647623a23da43c7040ac0bc5c923f7689eab00794077fd61ba6b8da8dfcad0",
+      "largura": 405,
+      "licenca": "PDM-1.0",
+      "mimeType": "image/gif",
+      "provedor": "wikimedia-commons",
+      "tipo": "gif"
+    },
     "3a00855408e16a823176c25052bc801b2f70023c382e75fa11d7d913609daa80": {
       "atribuicao": "\"Sound Effect - Door Bell\" por Amada44 sob CC0",
       "atribuicaoObrigatoria": false,
@@ -543,6 +555,17 @@
       "provedor": "local",
       "tipo": "video"
     },
+    "bbc9fe9db38e455523893f29d0df74272c1ae70eccafcd60996fea3d906313f0": {
+      "altura": 720,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 5534083,
+      "hash": "bbc9fe9db38e455523893f29d0df74272c1ae70eccafcd60996fea3d906313f0",
+      "largura": 1280,
+      "licenca": "CC0-1.0",
+      "mimeType": "video/webm",
+      "provedor": "wikimedia-commons",
+      "tipo": "video"
+    },
     "cce5b73c814b7f8c501d0370ce27995c28fe2e6c2bed06547208cba00f285c2b": {
       "atribuicao": "\"Airplane Chime Sound Effect\" por Sharelk sob CC0",
       "atribuicaoObrigatoria": false,
@@ -553,6 +576,17 @@
       "mimeType": "application/ogg",
       "provedor": "wikimedia-commons",
       "tipo": "audio"
+    },
+    "d8ec7d0ba759b7e43eaec6c7498ceb13e4fbb9fc441a3615b6bfe0251be70771": {
+      "altura": 905,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 38686,
+      "hash": "d8ec7d0ba759b7e43eaec6c7498ceb13e4fbb9fc441a3615b6bfe0251be70771",
+      "largura": 706,
+      "licenca": "CC0-1.0",
+      "mimeType": "image/png",
+      "provedor": "wikimedia-commons",
+      "tipo": "imagem"
     },
     "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988": {
       "atribuicao": "\"Achievement unlocked sound effect video game\" por rhodesmas sob CC BY 3.0",
@@ -566,7 +600,11 @@
       "tipo": "audio"
     }
   },
-  "nos_midia": {},
+  "nos_midia": {
+    "n-005": "d8ec7d0ba759b7e43eaec6c7498ceb13e4fbb9fc441a3615b6bfe0251be70771",
+    "n-006": "bbc9fe9db38e455523893f29d0df74272c1ae70eccafcd60996fea3d906313f0",
+    "n-007": "35647623a23da43c7040ac0bc5c923f7689eab00794077fd61ba6b8da8dfcad0"
+  },
   "nos_locucao": {
     "c-004": "6b9ec331d006e5fd80db18acd52d003ef10f89d06249d8d9dd9eee65df61950c",
     "c-005": "2b8de8cb0a8e0acd586bc0e68ed2edb245ca7960be56454383714a26e118adeb"
@@ -603,25 +641,31 @@
     {
       "estagio": "locucao",
       "versaoEstagio": "1.0.0",
-      "chave": "3a5fb7645aee1a748f0a9dd4776ca67257f144ff85d462d67181f44963855003",
+      "chave": "027cf73c343d1821f69353d66088fc26b57e5ea5d71efd44b0dfd5f720ba00fc",
       "origem": "cassete"
     },
     {
       "estagio": "grafico",
       "versaoEstagio": "1.2.1",
-      "chave": "6d53c3865b6c1627eeafae927accf2cd316cf00b5351fe3d24753b773451fb47",
+      "chave": "0f10b3cabce5f5374e40bd46b22853231b517fd8bf4c62d460670e960e5af5e8",
+      "origem": "cassete"
+    },
+    {
+      "estagio": "midia",
+      "versaoEstagio": "1.2.0",
+      "chave": "6ff203f3b562b5cfd6b461beb943b80bcbd351f3fb17b3dad4ddea864ad91150",
       "origem": "cassete"
     },
     {
       "estagio": "codigo",
       "versaoEstagio": "1.0.0",
-      "chave": "c274246ea5649da5ccf7f9811cb052c91b613beab268c515a9e264a0d564689b",
+      "chave": "b0dc1026850b6304b42cc00f34a4ab0018e259cf22d4f695c20a9e5955391b9e",
       "origem": "cassete"
     },
     {
       "estagio": "musica",
       "versaoEstagio": "1.0.1",
-      "chave": "440eeb9e409454a9eaf833bf9560d5ce72b1a16338fba51549acce513b5b8506",
+      "chave": "149336666445aa5d50833ff628731f7aec2820d554013f95bee2cd1ed9067cb6",
       "origem": "cassete"
     }
   ]

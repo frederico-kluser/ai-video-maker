@@ -28,6 +28,7 @@
  */
 
 import { describe, it, expect, beforeAll } from "vitest";
+import { readFileSync } from "node:fs";
 import { mkdtemp, readFile, readdir, stat } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { join } from "node:path";
@@ -74,7 +75,7 @@ import { Orquestrador } from "src/resolucao/orquestrador.js";
 import { descobrirEstagios, verificarCobertura } from "src/resolucao/descoberta.js";
 import { encontrarURLs } from "src/resolucao/manifesto-resolvido.js";
 import { redeBloqueada, tentativasDeSaida } from "src/resolucao/rede/bloqueio.js";
-import type { Manifesto } from "src/contratos/manifesto.js";
+import type { Manifesto, NoMidia } from "src/contratos/manifesto.js";
 import type { Cassete } from "src/resolucao/cassete/formato.js";
 
 const RAIZ_CASSETES = "fixtures/cassetes";
@@ -246,9 +247,14 @@ describe("cache quente com a rede fechada", () => {
     expect(depois - antes).toBe(0);
     expect(resolvido.estagios[0]?.origem).toBe("cassete");
     expect(resolvido.estagios[0]?.chave).toBe(chave);
+    // Onda 3: o cassete foi regravado PARA a fixture canonica — os tres
+    // nos de midia do manifesto (n-005 imagem, n-006 video, n-007 gif)
+    // resolvem, e o estagio `midia` agora participa do pipeline de ponta
+    // a ponta.
     expect(Object.keys(resolvido.nos_midia).sort()).toEqual([
-      "n-midia-01",
-      "n-midia-02",
+      "n-005",
+      "n-006",
+      "n-007",
     ]);
   });
 });
@@ -335,27 +341,33 @@ describe("credencial no cassete", () => {
 // ─── Pergunta 4: sosia, nao sucessor ────────────────────────────────────────────
 
 describe("sosia, nao sucessor: o conserto e do estagio e roda no replay", () => {
-  it("o corpo gravado guarda o defeito: string 'true', HTML e candidato sem licenca", async () => {
+  it("o corpo gravado guarda o defeito: string 'true'/'false', HTML e candidato sem licenca", async () => {
     const busca = cassete.chamadas.find((c) => c.url.includes("api.php"));
     expect(busca, "nenhuma chamada de busca gravada").toBeDefined();
     const bruto = await readFile(
       join(diretorio, "corpos", busca!.hashCorpo),
       "utf-8",
     );
-    // (a) booleano que veio como string
-    expect(bruto).toContain('"AttributionRequired":{"value":"true"');
+    // (a) booleano que veio como STRING — a primeira busca do cassete da
+    // Onda 3 ("code health checker") traz AttributionRequired "false"
+    // (os candidatos CC0/PDM), e a segunda ("dvorak typing") traz "true"
+    // (os CC-BY* descartados). O que se prova e a string-nidade do campo.
+    expect(bruto).toMatch(/"AttributionRequired":\s*\{\s*"value":\s*"(true|false)"/);
     // (b) atribuicao que veio como HTML, com href relativo a protocolo.
     // No corpo cru o JSON escapa a aspa: `href=\"//commons...`.
     expect(bruto).toContain('href=\\"//commons.wikimedia.org');
-    // (d) candidato SEM o campo License, que o estagio descarta no replay
+    // (d) candidatos que o estagio RECUSA no replay: a primeira busca do
+    // cassete da Onda 3 ("code health checker") devolve 3 TIFFs (mime
+    // fora da lista do adaptador) ao lado do PNG CC0 aceito — o corpo
+    // gravado e sujo, e a recusa roda no replay, nao na gravacao.
     const corpo = JSON.parse(bruto) as {
-      query: { pages: Array<{ imageinfo: Array<{ extmetadata: Record<string, unknown> }> }> };
+      query: { pages: Array<{ imageinfo: Array<{ mime?: string }> }> };
     };
-    const semLicenca = corpo.query.pages.filter(
-      (p) => p.imageinfo[0]?.extmetadata["License"] === undefined,
+    const recusados = corpo.query.pages.filter(
+      (p) => p.imageinfo[0]?.mime !== "image/png",
     );
     expect(
-      semLicenca.length,
+      recusados.length,
       "o cassete devia conter candidatos que o estagio recusa",
     ).toBeGreaterThan(0);
   });
@@ -388,16 +400,22 @@ describe("sosia, nao sucessor: o conserto e do estagio e roda no replay", () => 
   });
 
   it("o conserto aparece no resultado: booleano, licenca canonica, texto puro", () => {
-    const porLicenca = Object.values(cassete.resultado.assets);
-    const comAtribuicao = porLicenca.find((a) => a.atribuicaoObrigatoria === true);
-    const semAtribuicao = porLicenca.find((a) => a.atribuicaoObrigatoria === false);
-    // Os dois ramos exercitados: a string "true" e a string "false".
-    expect(comAtribuicao, "nenhum asset com atribuicao obrigatoria").toBeDefined();
-    expect(semAtribuicao, "nenhum asset sem atribuicao obrigatoria").toBeDefined();
-    expect(comAtribuicao?.licenca).toBe("CC-BY-SA-4.0");
-    expect(comAtribuicao?.atribuicao).toContain("via Wikimedia Commons");
-    expect(comAtribuicao?.atribuicao).not.toContain("<a ");
-    expect(semAtribuicao?.licenca).toBe("PDM-1.0");
+    // Onda 3: o cassete da fixture canonica adquiriu os tres assets sob
+    // CC0/PDM (a preferencia de licenca da escolha — handoff da onda) —
+    // entao TODOS chegam com atribuicaoObrigatoria false e o texto de
+    // atribuicao fica ausente. O ramo `true` continua exercitado no
+    // corpo BRUTO (a busca "dvorak typing" traz AttributionRequired
+    // "true" nos CC-BY* descartados), nunca no resultado.
+    const assets = Object.values(cassete.resultado.assets);
+    expect(assets.length).toBe(3);
+    for (const asset of assets) {
+      expect(asset.atribuicaoObrigatoria).toBe(false);
+      expect(asset.atribuicao).toBeUndefined();
+    }
+    const porLicenca = new Map(assets.map((a) => [a.tipo, a] as const));
+    expect(porLicenca.get("imagem")?.licenca).toBe("CC0-1.0");
+    expect(porLicenca.get("video")?.licenca).toBe("CC0-1.0");
+    expect(porLicenca.get("gif")?.licenca).toBe("PDM-1.0");
   });
 
   it("as funcoes de conserto, isoladas", () => {
@@ -418,7 +436,7 @@ describe("sosia, nao sucessor: o conserto e do estagio e roda no replay", () => 
   it("a URL de busca que o estagio monta e a que o cassete gravou", () => {
     const url = urlDeBusca({
       fetch: globalThis.fetch,
-      termoDeBusca: "flowchart diagram",
+      termoDeBusca: "code health checker",
       tipoMidia: "imagem",
       larguraAlvo: Number(estagio.parametros.larguraAlvo),
       limiteCandidatos: Number(estagio.parametros.limiteCandidatos),
@@ -474,16 +492,59 @@ describe("nenhuma URL atravessa a fronteira (C7)", () => {
 
 // ─── O que o estagio recusa ─────────────────────────────────────────────────────
 
+/**
+ * Um manifesto sintetico com UM no de midia — o recorte minimo para
+ * exercitar a recusa sem depender da fixture canonica (que, desde a
+ * Onda 3, RESOLVE os tres nos).
+ */
+function manifestoComUmNoDeMidia(no: Record<string, unknown>): Manifesto {
+  return {
+    schema_version: "Manifesto.1",
+    fps: 30,
+    width: 1920,
+    height: 1080,
+    duracao_total_frames: 30,
+    nos: [no as unknown as Manifesto["nos"][number]],
+    cenas: [{ id: "c-001", nos: [no.id as string] }],
+  };
+}
+
 describe("nos que este estagio nao resolve — erro nomeado, nunca skip", () => {
-  it("a fixture canonica tem nos irresolviveis, e o estagio diz quais, sem tocar a rede", async () => {
+  it("a fixture canonica RESOLVE os tres nos (Onda 3) — e o estagio diz quais, sem tocar a rede", async () => {
     const canonico = JSON.parse(
       await readFile("fixtures/canonico/manifesto-valido.json", "utf-8"),
     ) as Manifesto;
     const tentadas: string[] = [];
 
+    // O estagio roda contra o cassete (fetch de cassete) e TEM de
+    // resolver os tres nos de midia da fixture — a premissa da Onda 3.
+    const saida = await estagio.resolver({
+      manifesto: canonico,
+      parametros: estagio.parametros,
+      fetch: criarFetchDeCassete(cassete, diretorio),
+      diretorioTrabalho: await trabalho(),
+    });
+    expect(Object.keys(saida.parcial.nos_midia ?? {}).sort()).toEqual([
+      "n-005",
+      "n-006",
+      "n-007",
+    ]);
+    expect(tentadas).toEqual([]);
+  });
+
+  it("no sem texto_alternativo e recusado ANTES de qualquer rede, nomeando o no", async () => {
+    const noSemTexto = {
+      id: "n-999",
+      schema: "Midia.1",
+      type: "midia",
+      duracao_frames: 30,
+      hash: "a".repeat(64),
+      tipo_midia: "imagem",
+    };
+    const tentadas: string[] = [];
     const erro = await estagio
       .resolver({
-        manifesto: canonico,
+        manifesto: manifestoComUmNoDeMidia(noSemTexto),
         parametros: estagio.parametros,
         fetch: fetchQueReprova(tentadas),
         diretorioTrabalho: await trabalho(),
@@ -492,22 +553,25 @@ describe("nos que este estagio nao resolve — erro nomeado, nunca skip", () => 
         () => null,
         (e: unknown) => e as EMidiaNaoResolvivel,
       );
-
     expect(erro).toBeInstanceOf(EMidiaNaoResolvivel);
-    const problemas = (erro as EMidiaNaoResolvivel).problemas.join("\n");
-    expect(problemas).toContain("n-006"); // video: tipo nao suportado
-    expect(problemas).toContain("n-007"); // sem texto_alternativo
+    expect((erro as EMidiaNaoResolvivel).problemas.join("\n")).toContain(
+      "n-999",
+    );
     expect(tentadas).toEqual([]);
   });
 
-  it("o no de midia sem texto_alternativo nao ganha termo de busca inventado", async () => {
-    const canonico = JSON.parse(
-      await readFile("fixtures/canonico/manifesto-valido.json", "utf-8"),
-    ) as Manifesto;
-    const nos = nosDeMidia(canonico.nos);
-    const semTexto = nos.find((n) => n.id === "n-007");
-    expect(semTexto).toBeDefined();
-    expect(termoDeBuscaDoNo(semTexto!)).toBeUndefined();
+  it("o no de midia sem texto_alternativo nao ganha termo de busca inventado", () => {
+    const semTexto = {
+      id: "n-999",
+      schema: "Midia.1",
+      type: "midia",
+      duracao_frames: 30,
+      hash: "a".repeat(64),
+      tipo_midia: "imagem",
+    } as unknown as NoMidia;
+    expect(termoDeBuscaDoNo(semTexto)).toBeUndefined();
+    // Controle positivo: os nos da fixture canonica TEM termo (Onda 3).
+    expect(termoDeBuscaDoNo(noDeMidiaDaCanonica("n-007"))).toBe("spinning globe map");
   });
 
   it("nosDeMidia devolve so nos de midia, em ordem de id", async () => {
@@ -520,6 +584,16 @@ describe("nos que este estagio nao resolve — erro nomeado, nunca skip", () => 
     for (const no of nosDeMidia(canonico.nos)) expect(no.type).toBe("midia");
   });
 });
+
+/** Acha um no de midia da fixture canonica pelo id. */
+function noDeMidiaDaCanonica(id: string): NoMidia {
+  const canonico = JSON.parse(
+    readFileSync("fixtures/canonico/manifesto-valido.json", "utf-8"),
+  ) as Manifesto;
+  const no = nosDeMidia(canonico.nos).find((n) => n.id === id);
+  if (no === undefined) throw new Error(`no "${id}" ausente da fixture canonica`);
+  return no;
+}
 
 // ─── Ponte com o store ──────────────────────────────────────────────────────────
 

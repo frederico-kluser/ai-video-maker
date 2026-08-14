@@ -1,6 +1,6 @@
 {
   "schema_version": "ManifestoResolvido.1",
-  "hash_manifesto_original": "486506ec909415f256a024cd426dedf34ce2e770ce59ccbe6a504b61195e8179",
+  "hash_manifesto_original": "cf3a296e11aaf430a0f1b352d2ccf0b98db71b48856e5828ee840e4c1661a5c4",
   "manifesto": {
     "schema_version": "Manifesto.1",
     "fps": 30,
@@ -85,7 +85,7 @@
         "hash": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
         "tipo_midia": "imagem",
         "ajuste": "cover",
-        "texto_alternativo": "Diagrama do pipeline de renderização mostrando as etapas: manifesto → validação → timeline → Remotion → vídeo",
+        "texto_alternativo": "code health checker",
         "licenca": "CC-BY-4.0",
         "animacao": {
           "tipo": "fade",
@@ -100,7 +100,7 @@
         "hash": "b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3",
         "tipo_midia": "video",
         "ajuste": "contain",
-        "texto_alternativo": "Demonstração curta do editor em ação: uma cena com transição slide entre dois nós de texto",
+        "texto_alternativo": "dvorak typing",
         "licenca": "MIT",
         "animacao": {
           "tipo": "none"
@@ -113,7 +113,8 @@
         "duracao_frames": 45,
         "hash": "c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4",
         "tipo_midia": "gif",
-        "ajuste": "fill",
+        "ajuste": "contain",
+        "texto_alternativo": "spinning globe map",
         "licenca": "CC0-1.0",
         "entrada_frames": 15
       },
@@ -409,10 +410,48 @@
       "licenca": "CC0-1.0",
       "atribuicaoObrigatoria": false,
       "provedor": "local"
+    },
+    "35647623a23da43c7040ac0bc5c923f7689eab00794077fd61ba6b8da8dfcad0": {
+      "altura": 178,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 401246,
+      "hash": "35647623a23da43c7040ac0bc5c923f7689eab00794077fd61ba6b8da8dfcad0",
+      "largura": 405,
+      "licenca": "PDM-1.0",
+      "mimeType": "image/gif",
+      "provedor": "wikimedia-commons",
+      "tipo": "gif"
+    },
+    "bbc9fe9db38e455523893f29d0df74272c1ae70eccafcd60996fea3d906313f0": {
+      "altura": 720,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 5534083,
+      "hash": "bbc9fe9db38e455523893f29d0df74272c1ae70eccafcd60996fea3d906313f0",
+      "largura": 1280,
+      "licenca": "CC0-1.0",
+      "mimeType": "video/webm",
+      "provedor": "wikimedia-commons",
+      "tipo": "video"
+    },
+    "d8ec7d0ba759b7e43eaec6c7498ceb13e4fbb9fc441a3615b6bfe0251be70771": {
+      "altura": 905,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 38686,
+      "hash": "d8ec7d0ba759b7e43eaec6c7498ceb13e4fbb9fc441a3615b6bfe0251be70771",
+      "largura": 706,
+      "licenca": "CC0-1.0",
+      "mimeType": "image/png",
+      "provedor": "wikimedia-commons",
+      "tipo": "imagem"
     }
   },
   "nos_grafico": {
     "n-009": "4dd3497f7719e4aa541f1087413be1522e47f4ac75c44eaceefcc4a8e5c4878c",
     "n-011": "4dd3497f7719e4aa541f1087413be1522e47f4ac75c44eaceefcc4a8e5c4878c"
+  },
+  "nos_midia": {
+    "n-005": "d8ec7d0ba759b7e43eaec6c7498ceb13e4fbb9fc441a3615b6bfe0251be70771",
+    "n-006": "bbc9fe9db38e455523893f29d0df74272c1ae70eccafcd60996fea3d906313f0",
+    "n-007": "35647623a23da43c7040ac0bc5c923f7689eab00794077fd61ba6b8da8dfcad0"
   }
 }

@@ -1,0 +1,18 @@
+{
+  "chave": "0f10b3cabce5f5374e40bd46b22853231b517fd8bf4c62d460670e960e5af5e8",
+  "componentes": {
+    "hashManifesto": "1895aef71eed7459958c8341bd1807c6aac3a448da7938d217de395f9d40c9bc",
+    "nome": "grafico",
+    "parametros": {
+      "formato": "webm",
+      "fundoTransparente": true,
+      "renderer": "cairo",
+      "versaoManim": "0.20.1",
+      "versaoMuxer": "Lavf62.12.102"
+    },
+    "versaoContrato": "1.0.0",
+    "versaoEstagio": "1.2.1"
+  },
+  "formato": "1.0.0",
+  "quantidadeChamadas": 0
+}

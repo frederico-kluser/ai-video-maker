@@ -1,0 +1,19 @@
+{
+  "chave": "6ff203f3b562b5cfd6b461beb943b80bcbd351f3fb17b3dad4ddea864ad91150",
+  "componentes": {
+    "hashManifesto": "1895aef71eed7459958c8341bd1807c6aac3a448da7938d217de395f9d40c9bc",
+    "nome": "midia",
+    "parametros": {
+      "larguraAlvo": 1920,
+      "licencasAceitas": "CC-BY-4.0,CC-BY-SA-4.0,CC0-1.0,PDM-1.0",
+      "limiteCandidatos": 5,
+      "modoDeAquisicao": "baixar-e-rehospedar",
+      "provedor": "wikimedia-commons",
+      "versaoApiProvedor": "mediawiki-action-api-2026-08"
+    },
+    "versaoContrato": "1.0.0",
+    "versaoEstagio": "1.2.0"
+  },
+  "formato": "1.0.0",
+  "quantidadeChamadas": 6
+}

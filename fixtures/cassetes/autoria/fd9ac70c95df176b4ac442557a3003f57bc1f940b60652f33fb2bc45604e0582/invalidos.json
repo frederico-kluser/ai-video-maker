@@ -1,0 +1,205 @@
+[
+  {
+    "documento": {
+      "cenas": [
+        {
+          "id": "c-001",
+          "nos": [
+            "n-001"
+          ]
+        }
+      ],
+      "nos": [
+        {
+          "id": "n-001",
+          "schema": "Cabecalho.1",
+          "texto": "Título de exemplo",
+          "type": "cabecalho"
+        }
+      ],
+      "schema_version": "Manifesto.1"
+    },
+    "id": "invalido-01-schema-version-errado",
+    "motivo": "schema_version fora do contrato: o documento usa o cabecalho do Manifesto.1 (S-4) em vez do Autoria.1 — o LLM que copiou o cabecalho do manifesto completo. REJEICAO por const no schema (o documento de autoria e narrativa pura; AB-550)."
+  },
+  {
+    "documento": {
+      "cenas": [
+        {
+          "id": "c-001",
+          "nos": [
+            "n-001",
+            "n-002"
+          ]
+        }
+      ],
+      "nos": [
+        {
+          "id": "n-001",
+          "schema": "Cabecalho.1",
+          "texto": "Cena de exemplo",
+          "type": "cabecalho"
+        },
+        {
+          "id": "n-002",
+          "schema": "Timeline.1",
+          "texto": "Linha do tempo inventada",
+          "type": "timeline"
+        }
+      ],
+      "schema_version": "Autoria.1"
+    },
+    "id": "invalido-02-tipo-de-no-desconhecido",
+    "motivo": "tipo de no fora dos 6 do contrato: \"timeline\" nao existe no anyOf discriminado (NoCabecalho/NoTexto/NoLista/NoMidia/NoCodigo/NoGrafico). REJEICAO DEFINITIVA (contrato-w6 §3)."
+  },
+  {
+    "documento": {
+      "cenas": [
+        {
+          "id": "c-001",
+          "nos": [
+            "n-001",
+            "n-002"
+          ]
+        }
+      ],
+      "nos": [
+        {
+          "id": "n-001",
+          "schema": "Cabecalho.1",
+          "texto": "Cena com imagem",
+          "type": "cabecalho"
+        },
+        {
+          "id": "n-002",
+          "schema": "Midia.1",
+          "tipo_midia": "imagem",
+          "type": "midia"
+        }
+      ],
+      "schema_version": "Autoria.1"
+    },
+    "id": "invalido-03-midia-sem-texto-alternativo",
+    "motivo": "texto_alternativo AUSENTE em no de midia — AB-433: obrigatorio, ausencia e erro (nao aviso). O no de midia sem descricao nao tem como alimentar a busca de asset na resolucao."
+  },
+  {
+    "documento": {
+      "cenas": [
+        {
+          "id": "c-001",
+          "nos": [
+            "n-001"
+          ],
+          "transicao_saida": {
+            "tipo": "clockWipe"
+          }
+        }
+      ],
+      "nos": [
+        {
+          "id": "n-001",
+          "schema": "Cabecalho.1",
+          "texto": "Transição proibida",
+          "type": "cabecalho"
+        }
+      ],
+      "schema_version": "Autoria.1"
+    },
+    "id": "invalido-04-transicao-fora-do-vocabulario-v1",
+    "motivo": "transicao \"clockWipe\" fora do vocabulario v1 (fade/slide/wipe/flip/none) — AB-555: o S-4 tem clockWipe, o pacote instalado tem clock-wipe; o vocabulario da autoria e a INTERSECAO segura. Emissao fora dele e REJEICAO DEFINITIVA (contrato-w6 §13)."
+  },
+  {
+    "documento": {
+      "cenas": [
+        {
+          "id": "c-001",
+          "nos": [
+            "n-001"
+          ]
+        }
+      ],
+      "nos": [
+        {
+          "duracao_frames": 90,
+          "id": "n-001",
+          "schema": "Cabecalho.1",
+          "texto": "Título",
+          "type": "cabecalho"
+        }
+      ],
+      "schema_version": "Autoria.1"
+    },
+    "id": "invalido-05-emitindo-duracao-em-frames",
+    "motivo": "decisao do SISTEMA emitida pelo LLM: duracao_frames nao existe no Autoria.1 (narrativa pura) — additionalProperties:false torna a emissao impossivel, nao apenas desencorajada. O sistema resolve frames na fronteira de resolucao (AB-550)."
+  },
+  {
+    "documento": {
+      "cenas": [
+        {
+          "id": "c-001",
+          "nos": [
+            "n-001",
+            "n-002"
+          ]
+        }
+      ],
+      "nos": [
+        {
+          "id": "n-001",
+          "schema": "Cabecalho.1",
+          "texto": "Gráfico de exemplo",
+          "type": "cabecalho"
+        },
+        {
+          "dados": [
+            {
+              "cor": "#3B82F6",
+              "rotulo": "Autoria",
+              "valor": 45
+            }
+          ],
+          "id": "n-002",
+          "schema": "Grafico.1",
+          "tipo_grafico": "barras",
+          "titulo": "Tempo por etapa",
+          "type": "grafico"
+        }
+      ],
+      "schema_version": "Autoria.1"
+    },
+    "id": "invalido-06-emitindo-cor-em-grafico",
+    "motivo": "decisao do SISTEMA emitida pelo LLM: cor em dado de grafico nao existe no Autoria.1 (layout e cor sao do sistema, nao da narrativa) — additionalProperties:false no DadoGrafico (rotulo/valor apenas)."
+  },
+  {
+    "documento": {
+      "cenas": [
+        {
+          "id": "c-001",
+          "nos": [
+            "n-001",
+            "n-002"
+          ]
+        }
+      ],
+      "nos": [
+        {
+          "id": "n-001",
+          "schema": "Cabecalho.1",
+          "texto": "Cena com midia",
+          "type": "cabecalho"
+        },
+        {
+          "hash": 123456,
+          "id": "n-002",
+          "schema": "Midia.1",
+          "texto_alternativo": "Descrição da imagem",
+          "tipo_midia": "imagem",
+          "type": "midia"
+        }
+      ],
+      "schema_version": "Autoria.1"
+    },
+    "id": "invalido-07-hash-de-midia-com-tipo-errado",
+    "motivo": "hash de midia com tipo errado: quando PRESENTE tem de ser string (AB-432 — advisory, mas o tipo e parte do contrato); numero nao e hash de conteudo."
+  }
+]

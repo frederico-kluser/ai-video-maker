@@ -16,12 +16,15 @@
  *   - `verificarCobertura` so enxerga diretorios com nome de 64 hex, e
  *     um arquivo solto ali e ignorado por construcao.
  *
- * Por que este manifesto e nao `fixtures/canonico/manifesto-valido.json`:
- * a fixture canonica tem tres nos de midia, e dois deles este estagio
- * NAO resolve — `n-006` e video (fora dos tipos suportados) e `n-007`
- * nao tem `texto_alternativo` (sem termo de busca). Isso nao e um
- * contorno: e uma assercao do teste offline, que exige o erro nomeado
- * `EMidiaNaoResolvivel` com os dois nos citados. Ver ledger AB-433/434.
+ * Por que o manifesto da gravacao e a PROPRIA fixture canonica (Onda 3,
+ * onda3-midia-gif-texto): o cassete passa a servir o pipeline de ponta a
+ * ponta — o orquestrador offline resolve a fixture canonica (n-005
+ * imagem, n-006 video, n-007 gif) e os tres nos tem `texto_alternativo`
+ * (o termo de busca). O cassete antigo foi gravado contra outro
+ * manifesto (n-midia-01/02, ledger AB-500) e os nos da fixture canonica
+ * ficavam sem resolucao — o "nao vi nada" do usuario. A chave do
+ * cassete e funcao do hash do manifesto; com a fixture canonica como
+ * manifesto de gravacao, a reproducao offline casa a chave.
  */
 
 import { mkdtemp, readFile } from "node:fs/promises";
@@ -32,11 +35,15 @@ import { RAIZ_CASSETES_PADRAO } from "../cassete/formato.js";
 import type { Manifesto } from "../../contratos/manifesto.js";
 import estagio from "./estagio.js";
 
-/** Manifesto usado na gravacao. Fica ao lado do cassete. */
+/**
+ * Manifesto usado na gravacao: a PROPRIA fixture canonica (Onda 3).
+ * A chave do cassete deriva do hash deste manifesto; gravando contra a
+ * fixture, o orquestrador offline da pipeline resolve os mesmos nos.
+ */
 export const CAMINHO_MANIFESTO = join(
-  RAIZ_CASSETES_PADRAO,
-  "midia",
-  "manifesto-de-gravacao.json",
+  "fixtures",
+  "canonico",
+  "manifesto-valido.json",
 );
 
 /** Le o manifesto de gravacao do disco. */

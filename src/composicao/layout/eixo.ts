@@ -58,12 +58,20 @@ export interface Regiao {
  * centralizado no quadro inteiro enquanto a lista ganha uma banda
  * reproduziria a sobreposicao com outro nome. (A sonda do oraculo cobre
  * texto/lista/cabecalho; o codigo entra no eixo pelo mesmo contrato.)
+ *
+ * Inclui `midia` (Onda 3): a LEGENDA do no de midia (gif/video) e texto
+ * legivel — sem banda e fator, a legenda da cena c-005 colidiria com o
+ * texto dos irmaos e quebraria o C2 da sonda na transicao. A IMAGEM nao
+ * participa (eDeTexto refina por tipo_midia): o n-005 e `cover` e nao
+ * renderiza legenda (decisao documentada no handoff da Onda 3), entao
+ * nao deve roubar banda dos irmaos na cena c-003.
  */
 export const TIPOS_DE_TEXTO: readonly string[] = [
   "cabecalho",
   "texto",
   "lista",
   "codigo",
+  "midia",
 ];
 
 /** O eixo anexado ao no pelo ponto de fiacao da cena. */
@@ -100,6 +108,11 @@ export type NoComEixo = No & {
 
 /** O no participa do eixo de texto? */
 export function eDeTexto(no: No): boolean {
+  if (no.type === "midia") {
+    // Onda 3: so gif/video renderizam legenda (temLegenda em nos/midia.tsx)
+    // e participam do eixo; imagem cover nao tem legenda e nao rouba banda.
+    return no.tipo_midia === "gif" || no.tipo_midia === "video";
+  }
   return TIPOS_DE_TEXTO.includes(no.type);
 }
 

@@ -15,6 +15,7 @@
   "dependencies": {
     "@remotion/captions": "4.0.507",
     "@remotion/fonts": "4.0.507",
+    "@remotion/gif": "4.0.507",
     "@remotion/paths": "4.0.507",
     "@remotion/player": "4.0.507",
     "@remotion/renderer": "4.0.507",

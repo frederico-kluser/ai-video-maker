@@ -91,6 +91,17 @@ const LICENCAS_CANONICAS: Readonly<Record<string, string>> = {
 /** Licencas cujo default e exigir credito, quando o provedor nao diz. */
 const FAMILIA_COM_ATRIBUICAO = /^CC-BY/;
 
+/**
+ * Faixa de preferencia de licenca na escolha do asset: 0 = CC0/PDM
+ * (sem atribuicao obrigatoria), 1 = CC-BY* (atribuicao exigida). A
+ * preferencia e da DECISAO da Onda 3 (handoff onda3-midia-gif-texto,
+ * decisao 6): o video final nao mostra creditos em tela (P-17 aberto),
+ * entao entre candidatos aceitos ganha o que nao exige atribuicao.
+ */
+export function faixaDePreferenciaDeLicenca(licenca: string): number {
+  return licenca === "CC0-1.0" || licenca === "PDM-1.0" ? 0 : 1;
+}
+
 /** Filtro de busca por tipo de midia, no dialeto do CirrusSearch. */
 const FILTRO_POR_TIPO: Readonly<Record<TipoMidia, string>> = {
   imagem: "filetype:bitmap",
@@ -210,6 +221,9 @@ interface ImageInfoCommons {
   readonly thumburl?: string;
   readonly thumbwidth?: number;
   readonly thumbheight?: number;
+  /** Dimensoes do ARQUIVO ORIGINAL (prop `size`). Para video, o que vale. */
+  readonly width?: number;
+  readonly height?: number;
   readonly mime?: string;
   readonly extmetadata?: Readonly<Record<string, CampoExtmetadata>>;
 }
@@ -273,10 +287,23 @@ function lerCandidato(
   const info = pagina.imageinfo?.[0];
   if (info === undefined) return { descarte: `${titulo}: sem imageinfo` };
 
-  const urlArquivo = info.thumburl ?? info.url;
+  // VIDEO: o arquivo a baixar e o ORIGINAL (`info.url`), nunca o
+  // `thumburl` — para video o Commons devolve um still JPEG do quadro
+  // (nome termina em `.webm.jpg`), e baixar o still entregaria uma
+  // IMAGEM no lugar do webm. As dimensoes a declarar sao as do ORIGINAL
+  // (`info.width/height`, do prop `size`) — o `thumbwidth/thumbheight`
+  // sao as do still. Medido ao vivo contra o provedor na Onda 3.
+  const usarOriginal = ctx.tipoMidia === "video";
+  const urlArquivo = usarOriginal ? info.url : (info.thumburl ?? info.url);
   if (urlArquivo === undefined) {
     return { descarte: `${titulo}: sem thumburl nem url` };
   }
+  const largura = usarOriginal
+    ? (info.width ?? info.thumbwidth ?? 0)
+    : (info.thumbwidth ?? 0);
+  const altura = usarOriginal
+    ? (info.height ?? info.thumbheight ?? 0)
+    : (info.thumbheight ?? 0);
 
   const mime = info.mime ?? "";
   if (!MIMES_POR_TIPO[ctx.tipoMidia].includes(mime)) {
@@ -327,8 +354,8 @@ function lerCandidato(
       urlArquivo,
       urlDescricao: info.descriptionurl ?? "",
       mimeTypeDeclarado: mime,
-      largura: info.thumbwidth ?? 0,
-      altura: info.thumbheight ?? 0,
+      largura,
+      altura,
       licenca,
       licencaBruta: bruta,
       atribuicaoObrigatoria,
@@ -341,10 +368,14 @@ function lerCandidato(
 export const adaptadorCommons: AdaptadorProvedor = {
   provedor: "wikimedia-commons",
 
-  // `video` fica de fora com todas as letras. O caminho existiria, mas
-  // nao foi exercitado contra o provedor, e "suportado mas nunca rodado"
-  // e a forma mais cara de mentira nesta base. Ledger AB-434.
-  tiposSuportados: ["imagem", "gif"],
+  // `video` entrou na Onda 3 (onda3-midia-gif-texto): o caminho foi
+  // exercitado contra o provedor na regravacao do cassete para o
+  // manifesto canonico (n-006, webm VP8 1280x720 CC0 — "Speed typing
+  // with dvorak.webm"). O ledger AB-434 (que mantinha `video` fora por
+  // "suportado mas nunca rodado") esta fechado para o Commons: a busca
+  // usa `filetype:video` e o download do arquivo ORIGINAL (`info.url` —
+  // o `thumburl` de video e um still JPEG, ver `lerCandidato`).
+  tiposSuportados: ["imagem", "gif", "video"],
 
   versaoApi: VERSAO_API_COMMONS,
 
@@ -380,6 +411,21 @@ export const adaptadorCommons: AdaptadorProvedor = {
 
     // Ordenacao explicita (AGENTS.md Regra 1). A ordem em que o motor de
     // busca devolveu e ranking, nao dado: ela muda sem o conteudo mudar.
-    return aceitos.sort((a, b) => (a.titulo < b.titulo ? -1 : a.titulo > b.titulo ? 1 : 0));
+    //
+    // FAixa de preferencia de licenca PRIMEIRO (Onda 3): CC0/PDM antes de
+    // CC-BY*, e dentro da faixa, titulo. O video final nao mostra credito
+    // em tela (P-17 em aberto), entao um asset CC-BY* exigiria atribuicao
+    // que ninguem renderiza — preferir CC0/PDM na aquisicao e a decisao
+    // registrada no handoff da onda3-midia-gif-texto (decisao 6 do
+    // replan). A faixa muda a ESCOLHA deterministica: com o termo
+    // "globe spinning", o PD "Spinning globe map.gif" ganha do
+    // CC-BY-SA-4.0 "Spinning Globe SPINNER.gif" (medido na gravacao).
+    return aceitos.sort((a, b) => {
+      const porPreferencia =
+        faixaDePreferenciaDeLicenca(a.licenca ?? "") -
+        faixaDePreferenciaDeLicenca(b.licenca ?? "");
+      if (porPreferencia !== 0) return porPreferencia;
+      return a.titulo < b.titulo ? -1 : a.titulo > b.titulo ? 1 : 0;
+    });
   },
 };

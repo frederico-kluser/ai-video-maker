@@ -31,7 +31,7 @@
 // ORFA: o no esperado nao aparece no render, e a falha NOMEIA O NO.
 // =============================================================================
 
-import { createElement, type ImgHTMLAttributes } from "react";
+import { createElement, type ImgHTMLAttributes, type VideoHTMLAttributes } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import manifestoCanonicoJson from "../../../fixtures/canonico/manifesto-valido.json";
@@ -52,6 +52,23 @@ vi.mock("remotion", async (importOriginal) => {
   return {
     ...original,
     Img: (props: ImgHTMLAttributes<HTMLImageElement>) => createElement("img", props),
+    OffthreadVideo: (props: VideoHTMLAttributes<HTMLVideoElement>) =>
+      createElement("video", props),
+    Sequence: (props: { from: number; children?: unknown }) =>
+      createElement(
+        "div",
+        { "data-sequence-from": String(props.from) },
+        props.children as never,
+      ),
+  };
+});
+
+// Onda 3: o no de midia renderiza o asset REAL — o <Gif> do @remotion/gif
+// tambem chama useCurrentFrame em react-dom/server; vira um <img> puro.
+vi.mock("@remotion/gif", async () => {
+  return {
+    Gif: (props: { src?: string; fit?: string; style?: unknown }) =>
+      createElement("img", { src: props.src, "data-gif-fit": props.fit, style: props.style }),
   };
 });
 

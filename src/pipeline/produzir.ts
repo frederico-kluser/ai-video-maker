@@ -68,6 +68,7 @@ import { reproduzirLocucao } from "../resolucao/locucao/replay.js";
 import estagioLocucao from "../resolucao/locucao/estagio.js";
 import estagioCodigo from "../resolucao/codigo/estagio.js";
 import estagioGrafico from "../resolucao/grafico/estagio.js";
+import estagioMidia from "../resolucao/midia/estagio.js";
 import estagioMusica from "../resolucao/musica/estagio.js";
 import { Store } from "../store/store.js";
 import type { Procedencia } from "../store/procedencia.js";
@@ -517,31 +518,39 @@ export function validarManifestoDaFixture(manifesto: Manifesto): readonly string
  *   locucao + codigo + grafico + musica — reproducao REAL dos cassetes
  *       commitados contra a fixture canonica (o caminho que o F2-07
  *       provou). O cassete de grafico (onda 1, estagio v1.2.1, chave
- *       6d53c386…) e o cartucho webm de matematica estilo 3blue1brown:
+ *       0f10b3cabce5… — re-chaveada na Onda 3 quando o conteudo da
+ *       fixture canonica mudou) e o cartucho webm de matematica estilo
+ *       3blue1brown:
  *       cinco nos (n-009..n-013) -> cinco webm vp9 1920x1080, com os
  *       CORPOS commitados em fixtures/cassetes/grafico/<chave>/corpos/ —
  *       e e essa a camada que o video consome, nunca mais o PNG
  *       grafico-integrado.png da fixture canonica (a camada offline
  *       AB-501, que a onda 2 substituiu);
- *   midia — a fixture canonica NAO tem camada de midia commitada (o
- *       cassete de midia foi gravado contra outro manifesto, AB-500); os
- *       nos de midia pintam o fallback do manifesto, exatamente como o
- *       golden de 727 frames das ondas W7/W8.
+ *   midia — desde a Onda 3 (onda3-midia-gif-texto) a fixture canonica
+ *       TEM camada de midia commitada: o cassete foi regravado PARA a
+ *       propria fixture (n-005 imagem, n-006 video, n-007 gif; todos
+ *       CC0/PDM) e os nos de midia pintam o asset REAL com a legenda —
+ *       o "nao vi nada do giphy" do usuario fechado.
  *
  * Todos os assets dos cassetes entram no store enderecado por SHA-256
  * (a ponte cassete->store do F2-07, AB-455), com a procedencia do
  * cassete traduzida pelo contrato (paraProcedenciaDoStore). O estagio
- * `grafico` e o `midia` ficaram FORA do orquestrador nas ondas W7/W8
- * porque os bytes nao existiam (metadata-only, AB-501); com os corpos
- * commitados na onda 1, o grafico entra na reproducao como qualquer
- * outro estagio.
+ * `grafico` ficou FORA do orquestrador nas ondas W7/W8 porque os bytes
+ * nao existiam (metadata-only, AB-501); com os corpos commitados, cada
+ * estagio entra na reproducao como qualquer outro.
  */
 async function estagioResolucaoOffline(ctx: ContextoDaProducao): Promise<void> {
   const manifesto = ctx.manifesto;
   const hash = hashDoManifesto(manifesto);
 
   const orquestrador = new Orquestrador({
-    estagios: [estagioLocucao, estagioCodigo, estagioGrafico, estagioMusica],
+    estagios: [
+      estagioLocucao,
+      estagioCodigo,
+      estagioGrafico,
+      estagioMidia,
+      estagioMusica,
+    ],
     raizCassetes: ctx.raizCassetes,
     modo: "offline",
   });
@@ -636,6 +645,7 @@ async function estagioComposicao(ctx: ContextoDaProducao): Promise<void> {
     manifesto: resolvido.manifesto,
     assets: resolvido.assets,
     nos_grafico: resolvido.nos_grafico,
+    nos_midia: resolvido.nos_midia,
   };
 
   // publicDir: os bytes que o pintor consome + as fontes locais. O
@@ -666,6 +676,30 @@ async function estagioComposicao(ctx: ContextoDaProducao): Promise<void> {
       );
     }
     const nome = `grafico/${hash}.${extensaoDeMime(asset.mimeType)}`;
+    await escreverAtomico(join(publicDir, nome), bytes);
+  }
+  // MIDIA (Onda 3): os bytes de midia no publicDir sob `midia/<hash>.<ext>`
+  // — o resolvedor de midia da fiacao (fiar.ts) deriva o nome do hash e do
+  // mimeType, e o render nunca 404a por nome errado.
+  const hashesDaMidia = [...new Set(Object.values(resolvido.nos_midia))].sort();
+  for (const hash of hashesDaMidia) {
+    const asset = resolvido.assets[hash];
+    if (asset === undefined) {
+      throw new ErroDoPipeline(
+        `nos_midia cita ${hash.slice(0, 12)}…, que nao existe em assets — ` +
+          "referencia pendurada nao vira arquivo no publicDir",
+        "composicao",
+      );
+    }
+    const bytes = await ctx.store.get(hash);
+    if (bytes === null) {
+      throw new ErroDoPipeline(
+        `asset de midia ${hash.slice(0, 12)}… ausente do store — o pintor ` +
+          "nao pode desenhar do nada",
+        "composicao",
+      );
+    }
+    const nome = `midia/${hash}.${extensaoDeMime(asset.mimeType)}`;
     await escreverAtomico(join(publicDir, nome), bytes);
   }
   // fontes locais (C6): symlink para os bytes canonicos de assets/fontes.
@@ -819,7 +853,10 @@ async function estagioRender(ctx: ContextoDaProducao): Promise<void> {
   // reimplementa (AB-792).
   const manifestoResolvidoBytes = serializarResolvido(resolvido);
   const assetsDaChave = new Map<string, Buffer>();
-  for (const hash of Object.values(resolvido.nos_grafico).sort()) {
+  for (const hash of [
+    ...Object.values(resolvido.nos_grafico),
+    ...Object.values(resolvido.nos_midia),
+  ].sort()) {
     const bytes = await ctx.store.get(hash);
     if (bytes === null) continue;
     assetsDaChave.set(hash, bytes);
@@ -899,6 +936,7 @@ function totalDeFramesDe(resolvido: ManifestoResolvido): number {
     manifesto: resolvido.manifesto,
     assets: resolvido.assets,
     nos_grafico: resolvido.nos_grafico,
+    nos_midia: resolvido.nos_midia,
   };
   // O resolvedor aqui so precisa de existir: a duracao vem do plano, e o
   // caminho do arquivo nao entra na aritmetica.

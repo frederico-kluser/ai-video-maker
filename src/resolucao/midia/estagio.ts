@@ -119,6 +119,58 @@ function sha256Hex(bytes: Uint8Array): string {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
+/**
+ * Dimensoes reais de um asset de IMAGEM, lidas dos BYTES baixados.
+ *
+ * Por que os bytes e nao o que o provedor declarou: o Commons declara as
+ * dimensoes do THUMBNAIL pedido (`iiurlwidth`), mas para GIFs pequenos a
+ * thumb pode ser o arquivo ORIGINAL inalterado (`thumbnail_unscaled`) —
+ * medido na Onda 3: "Spinning globe map.gif" veio 405x178 com o provedor
+ * declarando 1920x844. A declaracao mentirosa iria para o manifesto
+ * resolvido. O byte e a verdade (mesma disciplina do hash).
+ *
+ * Suporta GIF, PNG e JPEG (os MIMEs de imagem aceitos pelo adaptador).
+ * `undefined` = formato nao reconhecido — quem chama cai no declarado.
+ */
+export function dimensoesDoByte(
+  bytes: Uint8Array,
+  mimeType: string,
+): { largura: number; altura: number } | undefined {
+  const mime = mimeType.split(";")[0]!.trim().toLowerCase();
+  const u16 = (o: number): number => bytes[o]! | (bytes[o + 1]! << 8);
+  const u32 = (o: number): number =>
+    (bytes[o]! << 24) | (bytes[o + 1]! << 16) | (bytes[o + 2]! << 8) | bytes[o + 3]!;
+
+  if (mime === "image/gif" && bytes.length >= 10) {
+    const magic = String.fromCharCode(bytes[0]!, bytes[1]!, bytes[2]!);
+    if (magic === "GIF") return { largura: u16(6), altura: u16(8) };
+  }
+  if (mime === "image/png" && bytes.length >= 24) {
+    const sig = [137, 80, 78, 71, 13, 10, 26, 10];
+    if (sig.every((b, i) => bytes[i] === b) && bytes[12] === 0x49) {
+      // IHDR: width BE em 16, height BE em 20.
+      return { largura: u32(16), altura: u32(20) };
+    }
+  }
+  if (mime === "image/jpeg" && bytes.length >= 4 && bytes[0] === 0xff && bytes[1] === 0xd8) {
+    // Varre os marcadores ate um SOF (0xC0..0xCF, exceto C4/C8/CC):
+    // altura BE em i+5, largura BE em i+7.
+    let i = 2;
+    while (i + 9 < bytes.length) {
+      if (bytes[i] !== 0xff) {
+        i++;
+        continue;
+      }
+      const marcador = bytes[i + 1]!;
+      if (marcador >= 0xc0 && marcador <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marcador)) {
+        return { largura: u16(i + 7), altura: u16(i + 5) };
+      }
+      i += 2 + u16(i + 2);
+    }
+  }
+  return undefined;
+}
+
 /** Nos de midia do manifesto, em ordem lexicografica de id (Regra 1). */
 export function nosDeMidia(nos: readonly unknown[]): NoMidia[] {
   return (nos as Parameters<typeof isNoMidia>[0][])
@@ -144,7 +196,10 @@ export function termoDeBuscaDoNo(no: NoMidia): string | undefined {
 
 const estagio: EstagioResolucao = {
   // ── 1. Identidade ────────────────────────────────────────────────────────
-  identidade: { nome: "midia", versao: "1.0.1" },
+  // 1.2.0 (Onda 3): `larguraAlvo` 200 -> 1920 (o canvas 16:9) e o
+  // adaptador passou a aceitar `video`. Os dois mudam a saida — bump
+  // obrigatorio (contrato, secao 3); o cassete velho vira cache miss.
+  identidade: { nome: "midia", versao: "1.2.0" },
 
   // ── 2. Parametros ────────────────────────────────────────────────────────
   // Tudo que muda a saida e nao esta no manifesto. Escalares apenas.
@@ -166,7 +221,12 @@ const estagio: EstagioResolucao = {
     versaoApiProvedor: VERSAO_API_COMMONS,
 
     // Muda a URL do arquivo baixado e portanto os BYTES e o hash.
-    larguraAlvo: 200,
+    // 1920 = a largura do canvas 16:9 da fixture canonica: a Onda 3
+    // regravou o cassete para que o asset chegue na resolucao do quadro
+    // (o antigo 200px subia 7.7x ate 1920 — o "nao vi nada" do usuario).
+    // Para video o alvo nao se aplica ao download (vai o ORIGINAL, ver
+    // commons.ts), mas continua na chave e na URL da busca.
+    larguraAlvo: 1920,
 
     // Muda o conjunto de candidatos e portanto a escolha.
     limiteCandidatos: 5,
@@ -240,13 +300,23 @@ const estagio: EstagioResolucao = {
       await writeFile(join(entrada.diretorioTrabalho, hash), bytes);
 
       const licenca = escolhido.licenca as string;
+      // Dimensoes: para imagem/gif, a verdade dos BYTES baixados (o
+      // provedor declara as do thumbnail pedido, que pode ser o original
+      // inalterado — Onda 3); para video valem as do arquivo original.
+      const reais =
+        no.tipo_midia === "video"
+          ? { largura: escolhido.largura, altura: escolhido.altura }
+          : (dimensoesDoByte(bytes, mimeType) ?? {
+              largura: escolhido.largura,
+              altura: escolhido.altura,
+            });
       assets[hash] = {
         hash,
         tipo: TIPO_DE_ASSET[no.tipo_midia],
         mimeType,
         byteSize: bytes.length,
-        largura: escolhido.largura,
-        altura: escolhido.altura,
+        largura: reais.largura,
+        altura: reais.altura,
         licenca,
         atribuicaoObrigatoria: escolhido.atribuicaoObrigatoria,
         ...(escolhido.atribuicao !== undefined

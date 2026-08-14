@@ -52,12 +52,19 @@ import {
   conferirEntropiaDoQuadro,
   conferirRegiaoDaMidia,
   conferirRegiaoDoGrafico,
+  conferirTintaDeTexto,
+  type BlocoDeclarado,
   type FalhaDoOraculo,
 } from "./oraculo";
 import {
+  FIXTURA_INTEGRADA,
   regiaoDoGrafico,
   regiaoInternaDaMidia,
 } from "./fiar";
+import { regioesDeTextoDaCena } from "../../../src/composicao/layout/eixo";
+import { caixaDoTexto } from "../../../src/composicao/nos/texto";
+import { caixaDaLegenda } from "../../../src/composicao/nos/midia";
+import type { No, NoMidia, NoTexto } from "../../../src/contratos/manifesto";
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const RAIZ = resolve(AQUI, "..", "..", "..");
@@ -92,6 +99,67 @@ interface Spec {
 const LARGURA = 1920;
 const ALTURA = 1080;
 
+// ---------------------------------------------------------------------------
+// TINTA DE TEXTO DA C-005 (fix da Onda 3) — o oraculo de pixel do texto
+// ---------------------------------------------------------------------------
+// O revisor refutou a Onda 3 medindo o frame 580 real: o texto n-014
+// (bbox "1306,87,517,176", visibilidade 1) com ZERO pixels de texto e a
+// legenda do video n-006 ("851,438,218,78") chapada de branco do globo —
+// a midia, pintada depois do texto, cobria ambos. Este oraculo exige
+// tinta de texto nas regioes declaradas do render REAL (conferirTintaDeTexto
+// em ./oraculo.ts).
+//
+// A geometria vem das MESMAS funcoes puras que os componentes usam
+// (regioesDeTextoDaCena + caixaDoTexto + caixaDaLegenda) — o bloco e o
+// que o no declara (data-bbox), e o pixel do render de verdade tem de
+// conter tinta de texto ali.
+function blocosDeTextoDaCena005(): BlocoDeclarado[] {
+  const manifesto = FIXTURA_INTEGRADA.manifesto;
+  const cena = manifesto.cenas.find((c) => c.id === "c-005");
+  if (cena === undefined) throw new Error("provar: cena c-005 ausente da fixture");
+  const porId = new Map(manifesto.nos.map((no) => [no.id, no] as const));
+  const regioes = regioesDeTextoDaCena(cena, porId, LARGURA, ALTURA);
+
+  const bloco = (noId: string, rotulo: string): BlocoDeclarado => {
+    const regiao = regioes.get(noId);
+    const no = porId.get(noId);
+    if (regiao === undefined || no === undefined) {
+      throw new Error(`provar: bloco "${noId}" sem banda no frame 580 da c-005`);
+    }
+    const caixa =
+      no.type === "texto"
+        ? caixaDoTexto(no as NoTexto, regiao, LARGURA, ALTURA)
+        : caixaDaLegenda(
+            (no as NoMidia).texto_alternativo ?? "",
+            regiao,
+            ALTURA,
+          );
+    return {
+      noId,
+      rotulo,
+      x: Math.round(caixa.x),
+      y: Math.round(caixa.y),
+      largura: Math.round(caixa.largura),
+      altura: Math.round(caixa.altura),
+    };
+  };
+
+  // Janelas no frame 590 (c-005 = 547..727, transicao_entrada none):
+  // n-014 [577,727), n-006 [547,607), n-007 [562,607) — os tres blocos
+  // que o revisor mediu, com o fade de entrada do texto JÁ concluido
+  // (n-014 entra em 577 com fade de 9 frames: so a partir de 586 o texto
+  // fica 100% opaco e o branco puro #F9FAFB aparece — no frame 580 da
+  // refutacao o texto esta a 33% de opacidade e o "branco" nao existe
+  // nem com a correcao; por isso a sonda de pixel roda aqui, em 590, no
+  // meio exato da janela 577-607 que o revisor mediu). (n-015 cabecalho
+  // tambem esta, mas ficou sempre por cima da midia — nao e a evidencia.)
+  return [
+    bloco("n-014", "texto n-014 (banda 1)"),
+    bloco("n-006", "legenda do video n-006 (banda 2)"),
+    bloco("n-007", "legenda do gif n-007 (banda 3)"),
+  ];
+}
+
 const SPECS: readonly Spec[] = [
   {
     composicao: "integrado",
@@ -125,6 +193,15 @@ const SPECS: readonly Spec[] = [
     frame: 580,
     arquivo: "integrado-c005-frame580.png",
     oraculo: (png) => conferirEntropiaDoQuadro(png),
+  },
+  {
+    composicao: "integrado",
+    frame: 590,
+    arquivo: "integrado-c005-frame590.png",
+    oraculo: (png) => [
+      ...conferirEntropiaDoQuadro(png),
+      ...conferirTintaDeTexto(png, blocosDeTextoDaCena005()),
+    ],
   },
   {
     composicao: "integrado",

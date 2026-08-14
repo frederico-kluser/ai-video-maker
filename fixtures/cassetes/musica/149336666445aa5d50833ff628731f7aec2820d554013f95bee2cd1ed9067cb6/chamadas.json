@@ -1,0 +1,183 @@
+[
+  {
+    "bytesCorpo": 10369,
+    "hashCorpo": "82964bcb08cf83d8a8f1a75303d301347bfda8bd042ce303529db200495a4bb6",
+    "headersRequisicao": {
+      "accept": "application/json",
+      "user-agent": "ai-video-maker/0.1 (projeto pessoal; estagio de resolucao musica)"
+    },
+    "headersResposta": {
+      "cache-control": "private, must-revalidate, max-age=0",
+      "content-disposition": "inline; filename=api-result.json",
+      "content-encoding": "gzip",
+      "content-security-policy": "default-src 'self'; script-src 'none'; object-src 'none'",
+      "content-type": "application/json; charset=utf-8",
+      "nel": "{ \"report_to\": \"wm_nel\", \"max_age\": 604800, \"failure_fraction\": 0.05, \"success_fraction\": 0.0}",
+      "report-to": "{ \"group\": \"wm_nel\", \"max_age\": 604800, \"endpoints\": [{ \"url\": \"https://intake-logging.wikimedia.org/v1/events?stream=w3c.reportingapi.network_error&schema_uri=/w3c/reportingapi/network_error/1.0.0\" }] }",
+      "set-cookie": "[REDIGIDO]",
+      "strict-transport-security": "max-age=106384710; includeSubDomains; preload",
+      "vary": "Accept-Encoding,X-Subdomain,Treat-as-Untrusted,X-Forwarded-Proto,Cookie,Authorization,User-Agent",
+      "x-analytics": "",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "indice": 0,
+    "metodo": "GET",
+    "status": 200,
+    "url": "https://commons.wikimedia.org/w/api.php?action=query&format=json&formatversion=2&prop=imageinfo&iiprop=url%7Cmime%7Csize%7Csha1%7Cextmetadata&titles=File%3AAchievement+unlocked+sound+effect+video+game.wav%7CFile%3AAirplane+Chime+Sound+Effect.ogg%7CFile%3AKevin+MacLeod+-+Lift+Motif.ogg%7CFile%3AMusic+Box+Sound+Effect.ogg%7CFile%3ASound+Effect+-+Door+Bell.ogg"
+  },
+  {
+    "bytesCorpo": 202702,
+    "hashCorpo": "d9b8d3b5e4ae0a6ed336e769301546735ff34f29c14be6e1232da6b7096c0988",
+    "headersRequisicao": {
+      "user-agent": "ai-video-maker/0.1 (projeto pessoal; estagio de resolucao musica)"
+    },
+    "headersResposta": {
+      "accept-ranges": "bytes",
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "Age, Date, Content-Length, Content-Range, X-Content-Duration, X-Cache",
+      "content-security-policy-report-only": "default-src 'none'; script-src 'none'; style-src 'unsafe-inline' data:; font-src data:; img-src data: https://upload.wikimedia.org/favicon.ico; connect-src https://upload.wikimedia.org/favicon.ico; media-src data: 'self'; object-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; report-uri https://commons.wikimedia.org/w/api.php?reportonly=1&source=image&action=cspreport&format=json; report-to csp_endpoint",
+      "content-type": "audio/x-wav",
+      "etag": "d5a884f20ade826001ea9fd93be86345",
+      "last-modified": "Mon, 20 Jan 2025 01:22:54 GMT",
+      "nel": "{ \"report_to\": \"wm_nel\", \"max_age\": 604800, \"failure_fraction\": 0.05, \"success_fraction\": 0.0}",
+      "report-to": "{ \"group\": \"wm_nel\", \"max_age\": 604800, \"endpoints\": [{ \"url\": \"https://intake-logging.wikimedia.org/v1/events?stream=w3c.reportingapi.network_error&schema_uri=/w3c/reportingapi/network_error/1.0.0\" }] }",
+      "reporting-endpoints": "csp_endpoint=\"https://commons.wikimedia.org/w/api.php?reportonly=1&source=image&action=cspreport&format=json\"",
+      "set-cookie": "[REDIGIDO]",
+      "strict-transport-security": "max-age=106384710; includeSubDomains; preload",
+      "timing-allow-origin": "*",
+      "x-analytics": "",
+      "x-content-type-options": "nosniff",
+      "x-object-meta-sha1base36": "phkb41jftv1mkucxrzjk72thyd3ed0j",
+      "x-ratelimit-limit": "10000, 10000;w=1"
+    },
+    "indice": 1,
+    "metodo": "GET",
+    "status": 200,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/8/85/Achievement_unlocked_sound_effect_video_game.wav?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original"
+  },
+  {
+    "bytesCorpo": 16225,
+    "hashCorpo": "cce5b73c814b7f8c501d0370ce27995c28fe2e6c2bed06547208cba00f285c2b",
+    "headersRequisicao": {
+      "user-agent": "ai-video-maker/0.1 (projeto pessoal; estagio de resolucao musica)"
+    },
+    "headersResposta": {
+      "accept-ranges": "bytes",
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "Age, Date, Content-Length, Content-Range, X-Content-Duration, X-Cache",
+      "content-security-policy-report-only": "default-src 'none'; script-src 'none'; style-src 'unsafe-inline' data:; font-src data:; img-src data: https://upload.wikimedia.org/favicon.ico; connect-src https://upload.wikimedia.org/favicon.ico; media-src data: 'self'; object-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; report-uri https://commons.wikimedia.org/w/api.php?reportonly=1&source=image&action=cspreport&format=json; report-to csp_endpoint",
+      "content-type": "application/ogg",
+      "etag": "c8e875b686475a3d0498623e97a4af97",
+      "last-modified": "Sat, 04 Apr 2026 06:59:15 GMT",
+      "nel": "{ \"report_to\": \"wm_nel\", \"max_age\": 604800, \"failure_fraction\": 0.05, \"success_fraction\": 0.0}",
+      "report-to": "{ \"group\": \"wm_nel\", \"max_age\": 604800, \"endpoints\": [{ \"url\": \"https://intake-logging.wikimedia.org/v1/events?stream=w3c.reportingapi.network_error&schema_uri=/w3c/reportingapi/network_error/1.0.0\" }] }",
+      "reporting-endpoints": "csp_endpoint=\"https://commons.wikimedia.org/w/api.php?reportonly=1&source=image&action=cspreport&format=json\"",
+      "set-cookie": "[REDIGIDO]",
+      "strict-transport-security": "max-age=106384710; includeSubDomains; preload",
+      "timing-allow-origin": "*",
+      "x-analytics": "",
+      "x-content-duration": "2.9335",
+      "x-content-type-options": "nosniff",
+      "x-object-meta-sha1base36": "59p2ii7810y4y0vxyk9c1x51qwfksso",
+      "x-ratelimit-limit": "10000, 10000;w=1"
+    },
+    "indice": 2,
+    "metodo": "GET",
+    "status": 200,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/c/ce/Airplane_Chime_Sound_Effect.ogg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original"
+  },
+  {
+    "bytesCorpo": 827184,
+    "hashCorpo": "6ac2876495aa5f0a8d4558bc35aa3e05f6e88b667a097cd3b7f41f15874276bb",
+    "headersRequisicao": {
+      "user-agent": "ai-video-maker/0.1 (projeto pessoal; estagio de resolucao musica)"
+    },
+    "headersResposta": {
+      "accept-ranges": "bytes",
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "Age, Date, Content-Length, Content-Range, X-Content-Duration, X-Cache",
+      "content-security-policy-report-only": "default-src 'none'; script-src 'none'; style-src 'unsafe-inline' data:; font-src data:; img-src data: https://upload.wikimedia.org/favicon.ico; connect-src https://upload.wikimedia.org/favicon.ico; media-src data: 'self'; object-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; report-uri https://commons.wikimedia.org/w/api.php?reportonly=1&source=image&action=cspreport&format=json; report-to csp_endpoint",
+      "content-type": "application/ogg",
+      "etag": "a5f2e12b026bc20295bb01850fb5e5f5",
+      "last-modified": "Wed, 08 Apr 2020 17:32:55 GMT",
+      "nel": "{ \"report_to\": \"wm_nel\", \"max_age\": 604800, \"failure_fraction\": 0.05, \"success_fraction\": 0.0}",
+      "report-to": "{ \"group\": \"wm_nel\", \"max_age\": 604800, \"endpoints\": [{ \"url\": \"https://intake-logging.wikimedia.org/v1/events?stream=w3c.reportingapi.network_error&schema_uri=/w3c/reportingapi/network_error/1.0.0\" }] }",
+      "reporting-endpoints": "csp_endpoint=\"https://commons.wikimedia.org/w/api.php?reportonly=1&source=image&action=cspreport&format=json\"",
+      "set-cookie": "[REDIGIDO]",
+      "strict-transport-security": "max-age=106384710; includeSubDomains; preload",
+      "timing-allow-origin": "*",
+      "x-analytics": "",
+      "x-content-duration": "44.382040816327",
+      "x-content-type-options": "nosniff",
+      "x-object-meta-sha1base36": "2w6g04zb2t5fde6cq05uaupxx80pbt0",
+      "x-ratelimit-limit": "10000, 10000;w=1"
+    },
+    "indice": 3,
+    "metodo": "GET",
+    "status": 200,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Kevin_MacLeod_-_Lift_Motif.ogg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original"
+  },
+  {
+    "bytesCorpo": 31035,
+    "hashCorpo": "126e3d99f83e7aee719fe13806d837b68752c8878e9c4c48f198903773430255",
+    "headersRequisicao": {
+      "user-agent": "ai-video-maker/0.1 (projeto pessoal; estagio de resolucao musica)"
+    },
+    "headersResposta": {
+      "accept-ranges": "bytes",
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "Age, Date, Content-Length, Content-Range, X-Content-Duration, X-Cache",
+      "content-security-policy-report-only": "default-src 'none'; script-src 'none'; style-src 'unsafe-inline' data:; font-src data:; img-src data: https://upload.wikimedia.org/favicon.ico; connect-src https://upload.wikimedia.org/favicon.ico; media-src data: 'self'; object-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; report-uri https://commons.wikimedia.org/w/api.php?reportonly=1&source=image&action=cspreport&format=json; report-to csp_endpoint",
+      "content-type": "application/ogg",
+      "etag": "d484cfba64710636d8d053a08a03559b",
+      "last-modified": "Sun, 18 Sep 2016 17:31:26 GMT",
+      "nel": "{ \"report_to\": \"wm_nel\", \"max_age\": 604800, \"failure_fraction\": 0.05, \"success_fraction\": 0.0}",
+      "report-to": "{ \"group\": \"wm_nel\", \"max_age\": 604800, \"endpoints\": [{ \"url\": \"https://intake-logging.wikimedia.org/v1/events?stream=w3c.reportingapi.network_error&schema_uri=/w3c/reportingapi/network_error/1.0.0\" }] }",
+      "reporting-endpoints": "csp_endpoint=\"https://commons.wikimedia.org/w/api.php?reportonly=1&source=image&action=cspreport&format=json\"",
+      "set-cookie": "[REDIGIDO]",
+      "strict-transport-security": "max-age=106384710; includeSubDomains; preload",
+      "timing-allow-origin": "*",
+      "x-analytics": "",
+      "x-content-duration": "2.1362358276644",
+      "x-content-type-options": "nosniff",
+      "x-object-meta-sha1base36": "hkkqvx6beitlrbro4t8ecxtj0q3p5bz",
+      "x-ratelimit-limit": "10000, 10000;w=1"
+    },
+    "indice": 4,
+    "metodo": "GET",
+    "status": 200,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/9/9a/Music_Box_Sound_Effect.ogg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original"
+  },
+  {
+    "bytesCorpo": 98867,
+    "hashCorpo": "3a00855408e16a823176c25052bc801b2f70023c382e75fa11d7d913609daa80",
+    "headersRequisicao": {
+      "user-agent": "ai-video-maker/0.1 (projeto pessoal; estagio de resolucao musica)"
+    },
+    "headersResposta": {
+      "accept-ranges": "bytes",
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "Age, Date, Content-Length, Content-Range, X-Content-Duration, X-Cache",
+      "content-security-policy-report-only": "default-src 'none'; script-src 'none'; style-src 'unsafe-inline' data:; font-src data:; img-src data: https://upload.wikimedia.org/favicon.ico; connect-src https://upload.wikimedia.org/favicon.ico; media-src data: 'self'; object-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; report-uri https://commons.wikimedia.org/w/api.php?reportonly=1&source=image&action=cspreport&format=json; report-to csp_endpoint",
+      "content-type": "application/ogg",
+      "etag": "697224d22361df70037a513baa17c0da",
+      "last-modified": "Thu, 09 Oct 2014 23:25:01 GMT",
+      "nel": "{ \"report_to\": \"wm_nel\", \"max_age\": 604800, \"failure_fraction\": 0.05, \"success_fraction\": 0.0}",
+      "report-to": "{ \"group\": \"wm_nel\", \"max_age\": 604800, \"endpoints\": [{ \"url\": \"https://intake-logging.wikimedia.org/v1/events?stream=w3c.reportingapi.network_error&schema_uri=/w3c/reportingapi/network_error/1.0.0\" }] }",
+      "reporting-endpoints": "csp_endpoint=\"https://commons.wikimedia.org/w/api.php?reportonly=1&source=image&action=cspreport&format=json\"",
+      "set-cookie": "[REDIGIDO]",
+      "strict-transport-security": "max-age=106384710; includeSubDomains; preload",
+      "timing-allow-origin": "*",
+      "x-analytics": "",
+      "x-content-duration": "3.6998639455782",
+      "x-content-type-options": "nosniff",
+      "x-object-meta-sha1base36": "kf6ngikx50jilws0rd2x31oenge8blv",
+      "x-ratelimit-limit": "10000, 10000;w=1"
+    },
+    "indice": 5,
+    "metodo": "GET",
+    "status": 200,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/3/34/Sound_Effect_-_Door_Bell.ogg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original"
+  }
+]

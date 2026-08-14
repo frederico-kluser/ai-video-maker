@@ -1,0 +1,18 @@
+{
+  "chave": "149336666445aa5d50833ff628731f7aec2820d554013f95bee2cd1ed9067cb6",
+  "componentes": {
+    "hashManifesto": "1895aef71eed7459958c8341bd1807c6aac3a448da7938d217de395f9d40c9bc",
+    "nome": "musica",
+    "parametros": {
+      "duracaoMinimaTrilhaSegundos": 30,
+      "pacote": "commons-efeitos-base",
+      "provedor": "wikimedia-commons",
+      "versaoApiExterna": "mediawiki-action-api-formatversion-2",
+      "versaoPacote": "1.0.0"
+    },
+    "versaoContrato": "1.0.0",
+    "versaoEstagio": "1.0.1"
+  },
+  "formato": "1.0.0",
+  "quantidadeChamadas": 6
+}

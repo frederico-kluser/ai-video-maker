@@ -1,0 +1,16 @@
+{
+  "assets": {
+    "0c4a9057a1b8199a9621e08e99c76cb403dc8f20d7b89d1f4ddea82abe6ddef2": {
+      "atribuicaoObrigatoria": false,
+      "byteSize": 12669,
+      "hash": "0c4a9057a1b8199a9621e08e99c76cb403dc8f20d7b89d1f4ddea82abe6ddef2",
+      "licenca": "CC0-1.0",
+      "mimeType": "application/json",
+      "provedor": "local",
+      "tipo": "dados"
+    }
+  },
+  "nos_codigo": {
+    "n-008": "0c4a9057a1b8199a9621e08e99c76cb403dc8f20d7b89d1f4ddea82abe6ddef2"
+  }
+}

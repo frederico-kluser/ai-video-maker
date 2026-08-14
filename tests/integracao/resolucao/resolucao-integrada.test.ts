@@ -62,6 +62,7 @@ import estagioMusica from "src/resolucao/musica/estagio.js";
 import {
   CAMINHO_MANIFESTO_CANONICO,
   RAIZ,
+  manifestoCanonico,
   manifestoDeGravacao,
   raizCassetesRelativa,
 } from "./helpers.js";
@@ -153,12 +154,19 @@ describe("F2-07 — denominador: estagios descobertos e cobertos", () => {
     expect(relatorio.descobertos.length).toBeGreaterThan(0);
   });
 
-  it("a W4 gravou contra tres manifestos distintos — documentado em AB-500", () => {
+  it("desde a Onda 3, midia grava contra a MESMA fixture canonica (AB-500 fechado)", () => {
     const hashes = NOMES.map((nome) => hashDoManifesto(manifestoDeGravacao(nome)));
-    expect(new Set(hashes).size).toBeGreaterThan(1);
-    expect(hashes).toContain(hashDoManifesto(manifestoDeGravacao("locucao")));
+    // O grafico mantem o manifesto DELE no codigo; os demais (locucao,
+    // codigo, musica, midia) gravam contra a fixture canonica.
     expect(hashes).toContain(hashDoManifesto(manifestoDeGravacao("grafico")));
-    expect(hashes).toContain(hashDoManifesto(manifestoDeGravacao("midia")));
+    expect(hashDoManifesto(manifestoDeGravacao("midia"))).toBe(
+      hashDoManifesto(manifestoCanonico()),
+    );
+    expect(hashDoManifesto(manifestoDeGravacao("locucao"))).toBe(
+      hashDoManifesto(manifestoCanonico()),
+    );
+    expect(hashes.filter((h) => h === hashDoManifesto(manifestoCanonico())).length)
+      .toBeGreaterThanOrEqual(4);
   });
 });
 
@@ -217,7 +225,7 @@ describe("F2-07 — orquestrador offline com os estagios reais", () => {
     expect(resolvido.nos_grafico["g-002"]).toMatch(/^[0-9a-f]{64}$/);
   });
 
-  it("midia resolve sozinho contra o manifesto DELE (AB-500)", async () => {
+  it("midia resolve sozinho contra a fixture canonica (Onda 3 — AB-500 fechado)", async () => {
     const manifesto = manifestoDeGravacao("midia");
     const orquestrador = new Orquestrador({
       estagios: [ESTAGIOS.midia],
@@ -227,12 +235,16 @@ describe("F2-07 — orquestrador offline com os estagios reais", () => {
     const { resolvido } = await orquestrador.resolverEstagio("midia", manifesto);
 
     expect(resolvido.estagios[0]?.origem).toBe("cassete");
-    expect(Object.keys(resolvido.nos_midia).length).toBeGreaterThan(0);
-    expect(Object.keys(resolvido.assets).length).toBeGreaterThan(0);
+    expect(Object.keys(resolvido.nos_midia).sort()).toEqual([
+      "n-005",
+      "n-006",
+      "n-007",
+    ]);
+    expect(Object.keys(resolvido.assets).length).toBe(3);
   });
 
   it("manifesto errado e cache miss barulhento, nunca resultado velho (C12)", async () => {
-    const manifesto = manifestoDeGravacao("locucao"); // valido, mas nao o do midia
+    const manifesto = manifestoDeGravacao("grafico"); // valido, mas nao o do midia
     const orquestrador = new Orquestrador({
       estagios: [ESTAGIOS.midia],
       raizCassetes: raizCassetesRelativa(),

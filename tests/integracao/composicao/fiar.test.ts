@@ -22,12 +22,39 @@
 //   6. AB-313: a entrada do render integrado registra as fontes locais.
 // =============================================================================
 
-import { createElement } from "react";
+import { createElement, type ImgHTMLAttributes, type VideoHTMLAttributes } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+// Onda 3: a fixture integrada carrega a midia REAL — <Img>/<OffthreadVideo>/
+// <Sequence> do remotion e <Gif> do @remotion/gif chamam useCurrentFrame/
+// useVideoConfig, que nao existem em react-dom/server. Viram elementos
+// puros; o pixel e prova do render de verdade (provar.ts).
+vi.mock("remotion", async (importOriginal) => {
+  const original = await importOriginal<typeof import("remotion")>();
+  return {
+    ...original,
+    Img: (props: ImgHTMLAttributes<HTMLImageElement>) => createElement("img", props),
+    OffthreadVideo: (props: VideoHTMLAttributes<HTMLVideoElement>) =>
+      createElement("video", props),
+    Sequence: (props: { from: number; children?: unknown }) =>
+      createElement(
+        "div",
+        { "data-sequence-from": String(props.from) },
+        props.children as never,
+      ),
+  };
+});
+
+vi.mock("@remotion/gif", async () => {
+  return {
+    Gif: (props: { src?: string; fit?: string; style?: unknown }) =>
+      createElement("img", { src: props.src, "data-gif-fit": props.fit, style: props.style }),
+  };
+});
 
 import { calcularDuracao, validarTimeline } from "../../../src/composicao/tempo";
 import { ErroDeGraficoOpaco } from "../../../src/composicao/nos/grafico";

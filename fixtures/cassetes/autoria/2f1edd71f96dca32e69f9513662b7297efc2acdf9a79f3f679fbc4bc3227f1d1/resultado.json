@@ -1,0 +1,117 @@
+{
+  "cenas": [
+    {
+      "audio_cena": {
+        "texto_locucao": "Neste vídeo, vamos explorar como um editor de vídeo baseado em inteligência artificial pode transformar suas ideias em um vídeo finalizado, sem a necessidade de edição manual."
+      },
+      "id": "cena1",
+      "nos": [
+        "no1",
+        "no2"
+      ]
+    },
+    {
+      "audio_cena": {
+        "texto_locucao": "O foco será em um pipeline declarativo, onde você descreve o que deseja e a IA cuida do resto."
+      },
+      "id": "cena2",
+      "nos": [
+        "no3"
+      ]
+    },
+    {
+      "audio_cena": {
+        "texto_locucao": "Aqui está um exemplo de como um pipeline pode ser estruturado."
+      },
+      "id": "cena3",
+      "nos": [
+        "no4"
+      ]
+    },
+    {
+      "audio_cena": {
+        "texto_locucao": "Observe a evolução do pipeline de edição, desde a ideia até o vídeo final."
+      },
+      "id": "cena4",
+      "nos": [
+        "no5"
+      ]
+    },
+    {
+      "audio_cena": {
+        "texto_locucao": "Vamos ver como cada etapa do pipeline funciona e como a IA pode otimizar o processo."
+      },
+      "id": "cena5",
+      "nos": [
+        "no6",
+        "no7"
+      ]
+    }
+  ],
+  "nos": [
+    {
+      "id": "no1",
+      "schema": "Cabecalho.1",
+      "texto": "Editor de Vídeo IA — Pipeline Declarativo",
+      "type": "cabecalho"
+    },
+    {
+      "id": "no2",
+      "schema": "Texto.1",
+      "texto": "Neste vídeo, vamos explorar como um editor de vídeo baseado em inteligência artificial pode transformar suas ideias em um vídeo finalizado, sem a necessidade de edição manual.",
+      "type": "texto"
+    },
+    {
+      "id": "no3",
+      "schema": "Texto.1",
+      "texto": "O foco será em um pipeline declarativo, onde você descreve o que deseja e a IA cuida do resto.",
+      "type": "texto"
+    },
+    {
+      "codigo": "pipeline = {\n  'input': 'sua ideia',\n  'process': 'edição automática',\n  'output': 'vídeo final'\n}",
+      "id": "no4",
+      "linguagem": "python",
+      "linhas_destaque": [
+        1,
+        2,
+        3
+      ],
+      "schema": "Codigo.1",
+      "type": "codigo"
+    },
+    {
+      "dados": [
+        {
+          "rotulo": "Ideia",
+          "valor": 1
+        },
+        {
+          "rotulo": "Processamento",
+          "valor": 2
+        },
+        {
+          "rotulo": "Vídeo Final",
+          "valor": 3
+        }
+      ],
+      "id": "no5",
+      "schema": "Grafico.1",
+      "tipo_grafico": "linha",
+      "titulo": "Evolução do Pipeline de Edição",
+      "type": "grafico"
+    },
+    {
+      "id": "no6",
+      "schema": "Texto.1",
+      "texto": "Vamos ver como cada etapa do pipeline funciona e como a IA pode otimizar o processo.",
+      "type": "texto"
+    },
+    {
+      "id": "no7",
+      "schema": "Texto.1",
+      "texto": "Prepare-se para entender como a tecnologia pode facilitar a criação de vídeos.",
+      "type": "texto"
+    }
+  ],
+  "schema_version": "Autoria.1"
+}

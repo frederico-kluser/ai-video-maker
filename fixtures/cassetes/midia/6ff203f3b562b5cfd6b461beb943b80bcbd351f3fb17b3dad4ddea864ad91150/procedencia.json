@@ -1,0 +1,35 @@
+{
+  "assets": [
+    {
+      "atribuicaoObrigatoria": false,
+      "hash": "d8ec7d0ba759b7e43eaec6c7498ceb13e4fbb9fc441a3615b6bfe0251be70771",
+      "idNoProvedor": "179779056",
+      "licenca": "CC0-1.0",
+      "origem": "https://commons.wikimedia.org/wiki/File:Flowchart_of_a_code_health_checker_program.png",
+      "provedor": "wikimedia-commons",
+      "termoDeBusca": "code health checker"
+    },
+    {
+      "atribuicaoObrigatoria": false,
+      "hash": "bbc9fe9db38e455523893f29d0df74272c1ae70eccafcd60996fea3d906313f0",
+      "idNoProvedor": "196662509",
+      "licenca": "CC0-1.0",
+      "origem": "https://commons.wikimedia.org/wiki/File:Speed_typing_with_dvorak.webm",
+      "provedor": "wikimedia-commons",
+      "termoDeBusca": "dvorak typing"
+    },
+    {
+      "atribuicaoObrigatoria": false,
+      "hash": "35647623a23da43c7040ac0bc5c923f7689eab00794077fd61ba6b8da8dfcad0",
+      "idNoProvedor": "3255557",
+      "licenca": "PDM-1.0",
+      "origem": "https://commons.wikimedia.org/wiki/File:Spinning_globe_map.gif",
+      "provedor": "wikimedia-commons",
+      "termoDeBusca": "spinning globe map"
+    }
+  ],
+  "ferramenta": "wikimedia-commons mediawiki-action-api-2026-08",
+  "licenca": "CC0-1.0; PDM-1.0",
+  "notas": "hotlink nao utilizado: bytes baixados e re-hospedados por hash (docs/adr/0013-hotlink-e-midia-externa.md) | AB-950 continua fechado (enquadramento de uso pessoal, ADR-0003) | n-005: hash declarado a1b2c3d4e5f6… != adquirido d8ec7d0ba759… | n-006: hash declarado b2c3d4e5f6a7… != adquirido bbc9fe9db38e… | n-007: hash declarado c3d4e5f6a7b8… != adquirido 35647623a23d…",
+  "provedor": "wikimedia-commons"
+}

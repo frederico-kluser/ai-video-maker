@@ -1,0 +1,20 @@
+{
+  "chave": "fd9ac70c95df176b4ac442557a3003f57bc1f940b60652f33fb2bc45604e0582",
+  "chaveCacheEntrada": "1e48fb4114047d661c99a31616cf25658a03f515e3f0addc7d883c246ec77bb8",
+  "componentes": {
+    "hashManifesto": "1895aef71eed7459958c8341bd1807c6aac3a448da7938d217de395f9d40c9bc",
+    "nome": "autoria",
+    "parametros": {
+      "briefSha256": "1cf2ef63e04aa75269ae77825c3207c1404804975e87cea4531a1a9f9afad87d",
+      "maxTokens": 4096,
+      "modelo": "claude-sonnet-4-5",
+      "promptSha256": "d579330c413b6e93066b496af1fc70c14b683ced6291631026dab80228569b09",
+      "provedor": "anthropic",
+      "tentativa": 1
+    },
+    "versaoContrato": "1.0.0",
+    "versaoEstagio": "1.0.0"
+  },
+  "formato": "1.0.0",
+  "quantidadeChamadas": 1
+}

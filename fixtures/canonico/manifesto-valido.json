@@ -82,7 +82,7 @@
       "hash": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
       "tipo_midia": "imagem",
       "ajuste": "cover",
-      "texto_alternativo": "Diagrama do pipeline de renderização mostrando as etapas: manifesto → validação → timeline → Remotion → vídeo",
+      "texto_alternativo": "code health checker",
       "licenca": "CC-BY-4.0",
       "animacao": {
         "tipo": "fade",
@@ -97,7 +97,7 @@
       "hash": "b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3",
       "tipo_midia": "video",
       "ajuste": "contain",
-      "texto_alternativo": "Demonstração curta do editor em ação: uma cena com transição slide entre dois nós de texto",
+      "texto_alternativo": "dvorak typing",
       "licenca": "MIT",
       "animacao": {
         "tipo": "none"
@@ -110,7 +110,8 @@
       "duracao_frames": 45,
       "hash": "c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4",
       "tipo_midia": "gif",
-      "ajuste": "fill",
+      "ajuste": "contain",
+      "texto_alternativo": "spinning globe map",
       "licenca": "CC0-1.0",
       "entrada_frames": 15
     },

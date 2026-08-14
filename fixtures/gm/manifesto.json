@@ -3,7 +3,7 @@
   "fixture": "canonico",
   "estrito": true,
   "captura": {
-    "commit": "593761bebdc6e1e4c18ced909790c83b4d8da97d",
+    "commit": "f9f0b0437965e0caa3347cb914d9a2984319d455",
     "maquina": "pop-os / linux / x64",
     "em": "2026-08-13",
     "pipeline": "just produzir --fixture canonico --estrito (API do F5-07)"
@@ -23,9 +23,9 @@
       "ffmpeg": "6.1.1-3ubuntu5"
     }
   },
-  "chaveC7": "dd604594bb00a119eec02705820915c355a3a5d6fda0d958a6ff67a699efd504",
+  "chaveC7": "8d8d5ff804a7c2df613fc93f1674996e30e8b4213ae988df7920cec0b2301a29",
   "componentesC7": {
-    "manifesto": "14d4815a10d58e98e2700f565415a5470d5456620bedb1f01479d10a8d5661fc",
+    "manifesto": "ea1946ae8628264a0c33854f126932ff52dfdb9e870dfdae113e79f93aefd299",
     "assets": "721cdcd92cce12ecfe2e315d2173dc202ff4851bdb4ea25039a082d9ce157848",
     "tokens": "7425513c101218d094dacf466f47e126946db9053eee65e8512b520e69f01c32",
     "versoes": "4679b7b877c0a34cfe4d9dcb268189aaf7ea2c970852dc4dba8d1f605efe1ce9",
@@ -72,13 +72,13 @@
       "frame": 547,
       "arquivo": "frames/frame-0547.png",
       "motivo": "primeira moldura da cena c-005 — fronteira de transicao com a cena anterior (interpolacao exercida)",
-      "sha256": "cb20a507a8eb7f39a9c96679c2db444efb7666cd5dbb2040889afbc7776e181b"
+      "sha256": "50a217c44022ca7feda5802d8563b6100d8f2d9f8f50da50dcacaa0be1d88599"
     },
     {
       "frame": 726,
       "arquivo": "frames/frame-0726.png",
       "motivo": "ultima moldura do video (fim)",
-      "sha256": "1fbebf13ba98dc6dc65e75f67adfbf068c1dfddf3ebc8673965db8da5f377724"
+      "sha256": "37bc20d43c9f7e8d78e5de91d78350b0dc7ad54b50bb898f8a563009dee21b4a"
     }
   ],
   "itens": [
@@ -119,18 +119,18 @@
     },
     {
       "arquivo": "frames/frame-0547.png",
-      "sha256": "cb20a507a8eb7f39a9c96679c2db444efb7666cd5dbb2040889afbc7776e181b",
-      "tamanho": 21510
+      "sha256": "50a217c44022ca7feda5802d8563b6100d8f2d9f8f50da50dcacaa0be1d88599",
+      "tamanho": 219413
     },
     {
       "arquivo": "frames/frame-0726.png",
-      "sha256": "1fbebf13ba98dc6dc65e75f67adfbf068c1dfddf3ebc8673965db8da5f377724",
-      "tamanho": 42193
+      "sha256": "37bc20d43c9f7e8d78e5de91d78350b0dc7ad54b50bb898f8a563009dee21b4a",
+      "tamanho": 42201
     },
     {
       "arquivo": "manifestos/manifesto-resolvido.json",
-      "sha256": "14d4815a10d58e98e2700f565415a5470d5456620bedb1f01479d10a8d5661fc",
-      "tamanho": 19976
+      "sha256": "ea1946ae8628264a0c33854f126932ff52dfdb9e870dfdae113e79f93aefd299",
+      "tamanho": 21439
     },
     {
       "arquivo": "manifestos/mix-documento.json",
@@ -144,7 +144,7 @@
     },
     {
       "arquivo": "manifestos/relatorio-final.json",
-      "sha256": "7c259db2cf2d5f12afe582f474ded84ff3b7c0ce20d8a4a1fa3a07c7353556ac",
+      "sha256": "3c3ac15c627d8d1848f78f6314e498b8e3ca609380b4d268285fe7f4587bdef9",
       "tamanho": 2976
     }
   ],

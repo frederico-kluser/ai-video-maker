@@ -73,17 +73,25 @@ export const FIXTURA_INTEGRADA = fixtureIntegrado as unknown as FixtureIntegrada
  * gerar-assets.ts) — derivado da propria fixture, nunca digitado: a onda 2
  * removeu o HASH_DO_GRAFICO hardcoded da camada de pintura (o resolvedor
  * agora e data-driven) e esta suite continua precisando do identificador
- * do SEU asset para as assercoes de fiacao.
+ * do SEU asset para as assercoes de fiacao. Desde a Onda 3 a fixture
+ * integrada carrega TAMBEM os tres assets de midia (o cassete de midia
+ * gravado para a fixture canonica) — o asset de grafico e o apontado por
+ * nos_grafico, nao o unico do arquivo.
  */
 export const HASH_DO_GRAFICO: string = (() => {
-  const hashes = Object.keys(FIXTURA_INTEGRADA.assets);
-  if (hashes.length !== 1) {
+  const hashes = new Set(Object.values(FIXTURA_INTEGRADA.nos_grafico));
+  if (hashes.size !== 1) {
     throw new Error(
-      `fiar.tsx: a fixture integrada tem ${String(hashes.length)} asset(s) — ` +
-        "a suite assume exatamente um (o PNG de grafico)",
+      `fiar.tsx: nos_grafico da fixture integrada aponta para ${String(
+        hashes.size,
+      )} asset(s) — a suite assume exatamente um (o PNG de grafico)`,
     );
   }
-  return hashes[0]!;
+  const hash = [...hashes][0]!;
+  if (FIXTURA_INTEGRADA.assets[hash] === undefined) {
+    throw new Error("fiar.tsx: o asset de grafico apontado por nos_grafico nao existe");
+  }
+  return hash;
 })();
 
 /** O manifesto canonico — a lista de presenca que o gate exige. */

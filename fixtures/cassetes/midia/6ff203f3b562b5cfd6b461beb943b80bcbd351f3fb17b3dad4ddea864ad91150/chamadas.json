@@ -1,0 +1,174 @@
+[
+  {
+    "bytesCorpo": 16880,
+    "hashCorpo": "ba4f0549efdf133174b893648229d5c7cc06331d4e1bc5a9ba0d8f82d18ced9b",
+    "headersRequisicao": {
+      "accept": "application/json",
+      "user-agent": "editor-video-ia/0.1 (resolucao de midia; card F2-04)"
+    },
+    "headersResposta": {
+      "cache-control": "private, must-revalidate, max-age=0",
+      "content-disposition": "inline; filename=api-result.json",
+      "content-encoding": "gzip",
+      "content-security-policy": "default-src 'self'; script-src 'none'; object-src 'none'",
+      "content-type": "application/json; charset=utf-8",
+      "nel": "{ \"report_to\": \"wm_nel\", \"max_age\": 604800, \"failure_fraction\": 0.05, \"success_fraction\": 0.0}",
+      "report-to": "{ \"group\": \"wm_nel\", \"max_age\": 604800, \"endpoints\": [{ \"url\": \"https://intake-logging.wikimedia.org/v1/events?stream=w3c.reportingapi.network_error&schema_uri=/w3c/reportingapi/network_error/1.0.0\" }] }",
+      "set-cookie": "[REDIGIDO]",
+      "strict-transport-security": "max-age=106384710; includeSubDomains; preload",
+      "vary": "Accept-Encoding,X-Subdomain,Treat-as-Untrusted,X-Forwarded-Proto,Cookie,Authorization,User-Agent",
+      "x-analytics": "",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "indice": 0,
+    "metodo": "GET",
+    "status": 200,
+    "url": "https://commons.wikimedia.org/w/api.php?action=query&format=json&formatversion=2&generator=search&gsrsearch=code+health+checker+filetype%3Abitmap&gsrnamespace=6&gsrlimit=5&prop=imageinfo&iiprop=url%7Csize%7Cmime%7Csha1%7Cextmetadata&iiurlwidth=1920"
+  },
+  {
+    "bytesCorpo": 38686,
+    "hashCorpo": "d8ec7d0ba759b7e43eaec6c7498ceb13e4fbb9fc441a3615b6bfe0251be70771",
+    "headersRequisicao": {
+      "user-agent": "editor-video-ia/0.1 (resolucao de midia; card F2-04)"
+    },
+    "headersResposta": {
+      "accept-ranges": "bytes",
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "Age, Date, Content-Length, Content-Range, X-Content-Duration, X-Cache",
+      "content-security-policy-report-only": "default-src 'none'; script-src 'none'; style-src 'unsafe-inline' data:; font-src data:; img-src data: https://upload.wikimedia.org/favicon.ico; connect-src https://upload.wikimedia.org/favicon.ico; media-src data: 'self'; object-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; report-uri https://commons.wikimedia.org/w/api.php?reportonly=1&source=image&action=cspreport&format=json; report-to csp_endpoint",
+      "content-type": "image/png",
+      "etag": "3cf74c4459e6a47c0b1cce6f03f53b14",
+      "last-modified": "Fri, 12 Dec 2025 18:34:33 GMT",
+      "nel": "{ \"report_to\": \"wm_nel\", \"max_age\": 604800, \"failure_fraction\": 0.05, \"success_fraction\": 0.0}",
+      "report-to": "{ \"group\": \"wm_nel\", \"max_age\": 604800, \"endpoints\": [{ \"url\": \"https://intake-logging.wikimedia.org/v1/events?stream=w3c.reportingapi.network_error&schema_uri=/w3c/reportingapi/network_error/1.0.0\" }] }",
+      "reporting-endpoints": "csp_endpoint=\"https://commons.wikimedia.org/w/api.php?reportonly=1&source=image&action=cspreport&format=json\"",
+      "set-cookie": "[REDIGIDO]",
+      "strict-transport-security": "max-age=106384710; includeSubDomains; preload",
+      "timing-allow-origin": "*",
+      "x-analytics": "",
+      "x-content-type-options": "nosniff",
+      "x-object-meta-sha1base36": "53t0rz9juxjduodl604lswqqe44jl4h",
+      "x-ratelimit-limit": "600000, 600000;w=60"
+    },
+    "indice": 1,
+    "metodo": "GET",
+    "status": 200,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/1/1c/Flowchart_of_a_code_health_checker_program.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
+  },
+  {
+    "bytesCorpo": 16448,
+    "hashCorpo": "e76eb14cc35e44b39831f2ba412bf8a6d5d8a5045738a7c0d98c554ea0d2cdfa",
+    "headersRequisicao": {
+      "accept": "application/json",
+      "user-agent": "editor-video-ia/0.1 (resolucao de midia; card F2-04)"
+    },
+    "headersResposta": {
+      "cache-control": "private, must-revalidate, max-age=0",
+      "content-disposition": "inline; filename=api-result.json",
+      "content-encoding": "gzip",
+      "content-security-policy": "default-src 'self'; script-src 'none'; object-src 'none'",
+      "content-type": "application/json; charset=utf-8",
+      "nel": "{ \"report_to\": \"wm_nel\", \"max_age\": 604800, \"failure_fraction\": 0.05, \"success_fraction\": 0.0}",
+      "report-to": "{ \"group\": \"wm_nel\", \"max_age\": 604800, \"endpoints\": [{ \"url\": \"https://intake-logging.wikimedia.org/v1/events?stream=w3c.reportingapi.network_error&schema_uri=/w3c/reportingapi/network_error/1.0.0\" }] }",
+      "set-cookie": "[REDIGIDO]",
+      "strict-transport-security": "max-age=106384710; includeSubDomains; preload",
+      "vary": "Accept-Encoding,X-Subdomain,Treat-as-Untrusted,X-Forwarded-Proto,Cookie,Authorization,User-Agent",
+      "x-analytics": "",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "indice": 2,
+    "metodo": "GET",
+    "status": 200,
+    "url": "https://commons.wikimedia.org/w/api.php?action=query&format=json&formatversion=2&generator=search&gsrsearch=dvorak+typing+filetype%3Avideo&gsrnamespace=6&gsrlimit=5&prop=imageinfo&iiprop=url%7Csize%7Cmime%7Csha1%7Cextmetadata&iiurlwidth=1920"
+  },
+  {
+    "bytesCorpo": 5534083,
+    "hashCorpo": "bbc9fe9db38e455523893f29d0df74272c1ae70eccafcd60996fea3d906313f0",
+    "headersRequisicao": {
+      "user-agent": "editor-video-ia/0.1 (resolucao de midia; card F2-04)"
+    },
+    "headersResposta": {
+      "accept-ranges": "bytes",
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "Age, Date, Content-Length, Content-Range, X-Content-Duration, X-Cache",
+      "content-security-policy-report-only": "default-src 'none'; script-src 'none'; style-src 'unsafe-inline' data:; font-src data:; img-src data: https://upload.wikimedia.org/favicon.ico; connect-src https://upload.wikimedia.org/favicon.ico; media-src data: 'self'; object-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; report-uri https://commons.wikimedia.org/w/api.php?reportonly=1&source=image&action=cspreport&format=json; report-to csp_endpoint",
+      "content-type": "video/webm",
+      "etag": "11deceebd5498f9bfdeb7cc30c440a97",
+      "last-modified": "Sun, 02 Aug 2026 06:32:42 GMT",
+      "nel": "{ \"report_to\": \"wm_nel\", \"max_age\": 604800, \"failure_fraction\": 0.05, \"success_fraction\": 0.0}",
+      "report-to": "{ \"group\": \"wm_nel\", \"max_age\": 604800, \"endpoints\": [{ \"url\": \"https://intake-logging.wikimedia.org/v1/events?stream=w3c.reportingapi.network_error&schema_uri=/w3c/reportingapi/network_error/1.0.0\" }] }",
+      "reporting-endpoints": "csp_endpoint=\"https://commons.wikimedia.org/w/api.php?reportonly=1&source=image&action=cspreport&format=json\"",
+      "set-cookie": "[REDIGIDO]",
+      "strict-transport-security": "max-age=106384710; includeSubDomains; preload",
+      "timing-allow-origin": "*",
+      "x-analytics": "",
+      "x-content-type-options": "nosniff",
+      "x-object-meta-sha1base36": "t5lzvdn0zxztajl5c8x126c4bdwyurh",
+      "x-ratelimit-limit": "600000, 600000;w=60"
+    },
+    "indice": 3,
+    "metodo": "GET",
+    "status": 200,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Speed_typing_with_dvorak.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original"
+  },
+  {
+    "bytesCorpo": 15525,
+    "hashCorpo": "ff4cbc399a44fb1778104a71006bca4103586b58222b9395166f7613bb967fd4",
+    "headersRequisicao": {
+      "accept": "application/json",
+      "user-agent": "editor-video-ia/0.1 (resolucao de midia; card F2-04)"
+    },
+    "headersResposta": {
+      "accept-ranges": "bytes",
+      "cache-control": "private, must-revalidate, max-age=0",
+      "content-disposition": "inline; filename=api-result.json",
+      "content-encoding": "gzip",
+      "content-security-policy": "default-src 'self'; script-src 'none'; object-src 'none'",
+      "content-type": "application/json; charset=utf-8",
+      "nel": "{ \"report_to\": \"wm_nel\", \"max_age\": 604800, \"failure_fraction\": 0.05, \"success_fraction\": 0.0}",
+      "report-to": "{ \"group\": \"wm_nel\", \"max_age\": 604800, \"endpoints\": [{ \"url\": \"https://intake-logging.wikimedia.org/v1/events?stream=w3c.reportingapi.network_error&schema_uri=/w3c/reportingapi/network_error/1.0.0\" }] }",
+      "set-cookie": "[REDIGIDO]",
+      "strict-transport-security": "max-age=106384710; includeSubDomains; preload",
+      "vary": "Accept-Encoding,X-Subdomain,Treat-as-Untrusted,X-Forwarded-Proto,Cookie,Authorization,User-Agent",
+      "x-analytics": "",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "indice": 4,
+    "metodo": "GET",
+    "status": 200,
+    "url": "https://commons.wikimedia.org/w/api.php?action=query&format=json&formatversion=2&generator=search&gsrsearch=spinning+globe+map+filetype%3Abitmap&gsrnamespace=6&gsrlimit=5&prop=imageinfo&iiprop=url%7Csize%7Cmime%7Csha1%7Cextmetadata&iiurlwidth=1920"
+  },
+  {
+    "bytesCorpo": 401246,
+    "hashCorpo": "35647623a23da43c7040ac0bc5c923f7689eab00794077fd61ba6b8da8dfcad0",
+    "headersRequisicao": {
+      "user-agent": "editor-video-ia/0.1 (resolucao de midia; card F2-04)"
+    },
+    "headersResposta": {
+      "accept-ranges": "bytes",
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "Age, Date, Content-Length, Content-Range, X-Content-Duration, X-Cache",
+      "content-security-policy-report-only": "default-src 'none'; script-src 'none'; style-src 'unsafe-inline' data:; font-src data:; img-src data: https://upload.wikimedia.org/favicon.ico; connect-src https://upload.wikimedia.org/favicon.ico; media-src data: 'self'; object-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; report-uri https://commons.wikimedia.org/w/api.php?reportonly=1&source=image&action=cspreport&format=json; report-to csp_endpoint",
+      "content-type": "image/gif",
+      "etag": "b2eb63f6dc673700d97195c5d2414590",
+      "last-modified": "Sat, 11 Oct 2014 00:03:05 GMT",
+      "nel": "{ \"report_to\": \"wm_nel\", \"max_age\": 604800, \"failure_fraction\": 0.05, \"success_fraction\": 0.0}",
+      "report-to": "{ \"group\": \"wm_nel\", \"max_age\": 604800, \"endpoints\": [{ \"url\": \"https://intake-logging.wikimedia.org/v1/events?stream=w3c.reportingapi.network_error&schema_uri=/w3c/reportingapi/network_error/1.0.0\" }] }",
+      "reporting-endpoints": "csp_endpoint=\"https://commons.wikimedia.org/w/api.php?reportonly=1&source=image&action=cspreport&format=json\"",
+      "set-cookie": "[REDIGIDO]",
+      "strict-transport-security": "max-age=106384710; includeSubDomains; preload",
+      "timing-allow-origin": "*",
+      "x-analytics": "",
+      "x-content-type-options": "nosniff",
+      "x-object-meta-sha1base36": "q3hj761fj8hjeptgg2ieky225tsgt1j",
+      "x-ratelimit-limit": "600000, 600000;w=60"
+    },
+    "indice": 5,
+    "metodo": "GET",
+    "status": 200,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/7/7c/Spinning_globe_map.gif?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
+  }
+]

@@ -1,0 +1,43 @@
+{
+  "assets": [
+    {
+      "atribuicaoObrigatoria": false,
+      "hash": "84c36da87fe4863b3848518ba6edfa876acc9d3f1dc7cc18269da248bc5b0ede",
+      "idNoProvedor": "Cena_n_009_5c3dc757",
+      "licenca": "CC0-1.0",
+      "provedor": "local"
+    },
+    {
+      "atribuicaoObrigatoria": false,
+      "hash": "c9c8cca5fb0d7b63468c52e53340c0184785a576dc761c0ed75e73bc1e860023",
+      "idNoProvedor": "Cena_n_010_664a2b95",
+      "licenca": "CC0-1.0",
+      "provedor": "local"
+    },
+    {
+      "atribuicaoObrigatoria": false,
+      "hash": "9a2440c52c1e4211cfe363e388b1010e07ca7911104e0b57a2a01bb8d30b12b7",
+      "idNoProvedor": "Cena_n_011_c62a1337",
+      "licenca": "CC0-1.0",
+      "provedor": "local"
+    },
+    {
+      "atribuicaoObrigatoria": false,
+      "hash": "61825a17e5dfc19b677a5cc5cd530ee9e898fdaf4cd560dd596b70fc30fe933c",
+      "idNoProvedor": "Cena_n_012_44198371",
+      "licenca": "CC0-1.0",
+      "provedor": "local"
+    },
+    {
+      "atribuicaoObrigatoria": false,
+      "hash": "70626e507f737454c7230a8e08cc3452a10b20bc800055444f77bfc47b68ccfc",
+      "idNoProvedor": "Cena_n_013_04246e69",
+      "licenca": "CC0-1.0",
+      "provedor": "local"
+    }
+  ],
+  "ferramenta": "manim 0.20.1",
+  "licenca": "CC0-1.0",
+  "notas": "Render local com Manim CE headless (cairo, --write_to_movie), muxer Lavf62.12.102. Saida gerada a partir dos dados do manifesto; nenhum asset de terceiro. Nenhuma correcao de quirk foi necessaria.",
+  "provedor": "local"
+}

@@ -1,0 +1,20 @@
+{
+  "chave": "2f1edd71f96dca32e69f9513662b7297efc2acdf9a79f3f679fbc4bc3227f1d1",
+  "chaveCacheEntrada": "c8e12f2b226515f71ff6c516d38832bbfd1f50782f8243b2512437900e970017",
+  "componentes": {
+    "hashManifesto": "1895aef71eed7459958c8341bd1807c6aac3a448da7938d217de395f9d40c9bc",
+    "nome": "autoria",
+    "parametros": {
+      "briefSha256": "1cf2ef63e04aa75269ae77825c3207c1404804975e87cea4531a1a9f9afad87d",
+      "maxTokens": 4096,
+      "modelo": "gpt-4o-mini",
+      "promptSha256": "d579330c413b6e93066b496af1fc70c14b683ced6291631026dab80228569b09",
+      "provedor": "openai",
+      "tentativa": 1
+    },
+    "versaoContrato": "1.0.0",
+    "versaoEstagio": "1.0.0"
+  },
+  "formato": "1.0.0",
+  "quantidadeChamadas": 1
+}

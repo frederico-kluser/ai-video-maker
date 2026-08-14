@@ -14,8 +14,10 @@
 // emitido — os proprios nos ja recusam (contrato de F1-01), e esta dupla
 // guarda e o que a pergunta adversarial 4 da W4 cobrou.
 //
-// A ordem de pintura e a ordem declarada em `cena.nos` — a mesma do plano
-// da raiz (ManifestoRaiz). Quem pinta por ultimo fica por cima.
+// A ordem de pintura: nos de `midia` PRIMEIRO (o fix da Onda 3 — midia e
+// obstaculo opaco e pintada por ultimo cobriria o texto dos irmaos em
+// silencio), depois os demais na ordem declarada em `cena.nos` (a mesma do
+// plano da raiz, ManifestoRaiz). Quem pinta por ultimo fica por cima.
 //
 // O EIXO DE TEXTO (onda 2): este e o ponto de fiacao da cena. O pintor
 // anexa a cada no de texto a sua BANDA (regiao) e o FATOR DE TRANSICAO
@@ -41,6 +43,7 @@ import {
   type EixoDoNo,
 } from "../layout/eixo";
 import type { NoGraficoResolvido } from "../nos/grafico";
+import type { NoMidiaResolvido } from "../nos/midia";
 import type { Fiado } from "./fiar";
 
 /**
@@ -74,10 +77,26 @@ export function pintorDeCena(estado: Fiado): PintorDeCena {
     const fatias = new Map(montagem.map((f) => [f.noId, f] as const));
     const inicioAbsolutoDaCena = frameAbsoluto - frame;
 
+    // ORDEM DE PINTURA (fix da Onda 3, revisao adversarial da c-005): quem
+    // pinta por ultimo fica por cima. A midia e OBSTACULO OPACO — pintada
+    // depois de um bloco de texto, cobre o texto em silencio (medido na
+    // c-005: n-014 e a legenda n-006 invisiveis no frame 580, zero pixels
+    // de texto). Por isso os nos de `midia` pintam PRIMEIRO, e os demais
+    // depois, na ordem declarada. O sort e ESTAVEL (ECMAScript 2019+): a
+    // ordem do manifesto se preserva dentro de cada grupo. Com a midia
+    // confinada a propria banda (nos/midia.tsx) a sobreposicao ja nao
+    // existe — esta ordenacao e a garantia deterministica de que texto e
+    // legenda de QUALQUER no ficam por cima da midia.
+    const ordemDePintura = [...cena.nos].sort((a, b) => {
+      const aMidia = porId.get(a)?.type === "midia" ? 0 : 1;
+      const bMidia = porId.get(b)?.type === "midia" ? 0 : 1;
+      return aMidia - bMidia;
+    });
+
     return createElement(
       "div",
       { "data-cena": cenaId, "data-frame": String(frame), style: { position: "absolute", inset: 0 } },
-      cena.nos.map((noId) => {
+      ordemDePintura.map((noId) => {
         const no = porId.get(noId);
         if (no === undefined) {
           throw new Error(
@@ -97,11 +116,16 @@ export function pintorDeCena(estado: Fiado): PintorDeCena {
           }
           local = frame - entrada - fatia.inicio;
           eixo.videoInicioAbsoluto = inicioAbsolutoDaCena + entrada + fatia.inicio;
-        } else if (no.type === "grafico") {
-          const resolvido = (no as NoGraficoResolvido).grafico_resolvido;
+        } else if (no.type === "grafico" || no.type === "midia") {
+          // Video de grafico ou de MIDIA (Onda 3) sem montagem: o relogio
+          // comeca no inicio da propria janela do no — sem `<Sequence>` o
+          // OffthreadVideo veria o frame absoluto da composicao e pediria
+          // ao webm um frame alem do fim (preto).
+          const resolvido =
+            no.type === "grafico"
+              ? (no as NoGraficoResolvido).grafico_resolvido
+              : (no as NoMidiaResolvido).midia_resolvida;
           if (resolvido !== undefined && resolvido.asset.tipo === "video") {
-            // Video de grafico sem montagem: o relogio comeca no inicio da
-            // propria janela do no.
             eixo.videoInicioAbsoluto = inicioAbsolutoDaCena + entrada;
           }
         }

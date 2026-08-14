@@ -1,0 +1,20 @@
+{
+  "chave": "b0dc1026850b6304b42cc00f34a4ab0018e259cf22d4f695c20a9e5955391b9e",
+  "componentes": {
+    "hashManifesto": "1895aef71eed7459958c8341bd1807c6aac3a448da7938d217de395f9d40c9bc",
+    "nome": "codigo",
+    "parametros": {
+      "fonte": "JetBrains Mono, Fira Code, monospace",
+      "hashDoTema": "c97755a547ee6e08562383272337bbd2ec396c32912c9d07749966130a6ee3ac",
+      "larguraDaTabulacao": 4,
+      "tema": "editor-escuro",
+      "versaoDasGramaticas": "1.0.0",
+      "versaoDoDestacador": "1.0.0",
+      "versaoDoTema": "1.0.0"
+    },
+    "versaoContrato": "1.0.0",
+    "versaoEstagio": "1.0.0"
+  },
+  "formato": "1.0.0",
+  "quantidadeChamadas": 0
+}

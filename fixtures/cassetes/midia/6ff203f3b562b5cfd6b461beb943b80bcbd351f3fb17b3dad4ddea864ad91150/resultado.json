@@ -1,0 +1,42 @@
+{
+  "assets": {
+    "35647623a23da43c7040ac0bc5c923f7689eab00794077fd61ba6b8da8dfcad0": {
+      "altura": 178,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 401246,
+      "hash": "35647623a23da43c7040ac0bc5c923f7689eab00794077fd61ba6b8da8dfcad0",
+      "largura": 405,
+      "licenca": "PDM-1.0",
+      "mimeType": "image/gif",
+      "provedor": "wikimedia-commons",
+      "tipo": "gif"
+    },
+    "bbc9fe9db38e455523893f29d0df74272c1ae70eccafcd60996fea3d906313f0": {
+      "altura": 720,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 5534083,
+      "hash": "bbc9fe9db38e455523893f29d0df74272c1ae70eccafcd60996fea3d906313f0",
+      "largura": 1280,
+      "licenca": "CC0-1.0",
+      "mimeType": "video/webm",
+      "provedor": "wikimedia-commons",
+      "tipo": "video"
+    },
+    "d8ec7d0ba759b7e43eaec6c7498ceb13e4fbb9fc441a3615b6bfe0251be70771": {
+      "altura": 905,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 38686,
+      "hash": "d8ec7d0ba759b7e43eaec6c7498ceb13e4fbb9fc441a3615b6bfe0251be70771",
+      "largura": 706,
+      "licenca": "CC0-1.0",
+      "mimeType": "image/png",
+      "provedor": "wikimedia-commons",
+      "tipo": "imagem"
+    }
+  },
+  "nos_midia": {
+    "n-005": "d8ec7d0ba759b7e43eaec6c7498ceb13e4fbb9fc441a3615b6bfe0251be70771",
+    "n-006": "bbc9fe9db38e455523893f29d0df74272c1ae70eccafcd60996fea3d906313f0",
+    "n-007": "35647623a23da43c7040ac0bc5c923f7689eab00794077fd61ba6b8da8dfcad0"
+  }
+}

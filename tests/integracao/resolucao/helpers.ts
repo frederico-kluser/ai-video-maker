@@ -41,14 +41,6 @@ export const CAMINHO_MANIFESTO_CANONICO = resolve(
   "manifesto-valido.json",
 );
 
-/** O manifesto de gravacao do estagio de midia (fica ao lado do cassete). */
-export const CAMINHO_MANIFESTO_MIDIA = resolve(
-  RAIZ,
-  RAIZ_CASSETES_PADRAO,
-  "midia",
-  "manifesto-de-gravacao.json",
-);
-
 /** Le um manifesto JSON do disco. */
 export function lerManifesto(caminho: string): Manifesto {
   return JSON.parse(readFileSync(caminho, "utf-8")) as Manifesto;
@@ -59,9 +51,16 @@ export function manifestoCanonico(): Manifesto {
   return lerManifesto(CAMINHO_MANIFESTO_CANONICO);
 }
 
-/** O manifesto de gravacao de midia, tipado. */
+/**
+ * O manifesto de gravacao de midia, tipado.
+ *
+ * Onda 3: o cassete de midia foi regravado PARA A PROPRIA fixture
+ * canonica (src/resolucao/midia/gravar.ts le o canonical) — o manifesto
+ * solto manifesto-de-gravacao.json ao lado do cassete foi removido. O
+ * AB-500 ("cassete gravado contra outro manifesto") esta fechado.
+ */
 export function manifestoMidia(): Manifesto {
-  return lerManifesto(CAMINHO_MANIFESTO_MIDIA);
+  return manifestoCanonico();
 }
 
 /**

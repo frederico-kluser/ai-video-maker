@@ -1,7 +1,0 @@
-{
-  "assets": [],
-  "ferramenta": "executor-de-autoria 1.0.0",
-  "licenca": "Termos de uso do provedor de modelo de lingua (uso pessoal — ADR-0003; AB-950). Texto gerado por modelo; o projeto nao o redistribui.",
-  "notas": "Gravado com chamada REAL ao provedor (OPENAI_API_KEY, dia do card F4-04). A resposta foi gravada como veio (sosia, nao sucessor).",
-  "provedor": "openai"
-}
