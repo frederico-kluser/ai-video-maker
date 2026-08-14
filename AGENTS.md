@@ -147,6 +147,18 @@ silencio, com sinal positivo.
 | S-11 | A arvore de cards | So o orquestrador escreve, em `PREP-*` |
 | S-12 | `.agents/skills/catalog.md` | Gerado, nunca redigitado |
 
+## Skills — todo trabalho passa pelo roteador
+
+- Toda tarefa de escrita ou execução passa por `.agents/skills/project-router/SKILL.md` antes
+  da primeira escrita: o questionário de desambiguação (em português) vem antes do código, e o
+  `TASK_PLAN.md` acordado é apagado ao concluir (gitignored).
+- Catálogo navegável: `.agents/skills/catalog.md` — GERADO, nunca redigitado (S-12,
+  `just skills-catalogo`). Mapa e justificativa do recorte: `.agents/skills/skill-map.md`.
+- O arquivo de skill **é** a memória: não existe arquivo de aprendizados (nem `LEARNINGS.md` nem
+  buffer). Atualizar `SKILL.md` é bloqueado por hook sem token de eval verde (PreToolUse) — e o
+  fechamento de card roda o pipeline de evolução (ver `meta-skill-evolution`).
+- Aprovação de frame e baseline: só de render, nunca do Studio (C5).
+
 ## Antes de escrever qualquer codigo
 
 1. Leia `PROGRAMA.html` -- o contrato de execucao.
