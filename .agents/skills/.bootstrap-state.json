@@ -31,11 +31,11 @@
     {
       "id": 5,
       "name": "Validation",
-      "done": false,
-      "gate_passed": false,
+      "done": true,
+      "gate_passed": true,
       "artifact": "validation-report.md"
     }
   ],
   "stop_hook_active": false,
-  "updated_by": "phase4-commit"
+  "updated_by": "phase5-commit"
 }
