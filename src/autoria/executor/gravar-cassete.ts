@@ -22,10 +22,13 @@
  *
  * Provedor:
  *   --provedor openai    (default) usa OPENAI_API_KEY do ambiente.
- *   --provedor anthropic sem credencial grava do SOSIA (resposta
- *                        canonica montada a mao, registrada em
- *                        procedencia.notas) — o mesmo papel do
- *                        sosia-local dos cassetes da W4.
+ *   --provedor anthropic usa ANTHROPIC_AUTH_TOKEN (fallback
+ *                        ANTHROPIC_API_KEY — P3); sem credencial grava
+ *                        do SOSIA (resposta canonica montada a mao,
+ *                        registrada em procedencia.notas) — o mesmo
+ *                        papel do sosia-local dos cassetes da W4 — com
+ *                        AVISO RUIDOSO no stderr (P3: antes o SOSIA
+ *                        rodava em silencio e escondia o problema).
  *
  * Uso:
  *   npx tsx src/autoria/executor/gravar-cassete.ts [--provedor openai|anthropic]
@@ -312,10 +315,56 @@ function argumento(nome: string): boolean {
   return process.argv.includes(nome);
 }
 
+/**
+ * Resolve a chave de API por provedor (P3 do fix da autoria viva).
+ *
+ * Anthropic: ANTHROPIC_AUTH_TOKEN primeiro, com fallback para
+ * ANTHROPIC_API_KEY (o token de auth e a variavel que o ambiente
+ * provisiona; a API key antiga segue aceita). OpenAI: OPENAI_API_KEY.
+ *
+ * Exportado para teste: a resolucao da env e decisao de cerimonia e
+ * precisa de prova, nao de leitura.
+ */
+export function resolverChaveDeApi(
+  provedor: ProvedorAutoria,
+  env: NodeJS.ProcessEnv = process.env,
+): string | undefined {
+  return provedor === "openai"
+    ? env.OPENAI_API_KEY
+    : (env.ANTHROPIC_AUTH_TOKEN ?? env.ANTHROPIC_API_KEY);
+}
+
+/**
+ * O AVISO RUIDOSO do SOSIA anthropic (P3): `--provedor anthropic`
+ * explicito sem credencial grava do SOSIA, nao da API real — e isso
+ * tem de ser dito no stderr (antes era silencioso e escondia o
+ * problema). Sem aviso, devolve undefined e nao imprime nada.
+ */
+export function avisarSosiaSemCredencial(
+  provedor: ProvedorAutoria,
+  provedorExplicito: boolean,
+  chaveDeApi: string | undefined,
+): string | undefined {
+  if (provedor === "anthropic" && provedorExplicito && !chaveDeApi) {
+    const aviso =
+      "[AVISO] --provedor anthropic SEM credencial (ANTHROPIC_AUTH_TOKEN e " +
+      "ANTHROPIC_API_KEY ausentes): gravando do SOSIA (resposta canonica local), " +
+      "NAO da API real. Para a chamada real, exporte ANTHROPIC_AUTH_TOKEN.";
+    console.error(aviso);
+    return aviso;
+  }
+  return undefined;
+}
+
 async function principal(): Promise<void> {
   const sosiaOpenAI = argumento("--sosia-openai");
-  const provedorArg = process.argv[process.argv.indexOf("--provedor") + 1];
-  const provedor: ProvedorAutoria = (provedorArg as ProvedorAutoria) ?? "openai";
+  // Default documentado e "openai"; `--provedor` so vale com valor valido
+  // (o default antigo caia em process.argv[0] — o binario do node — e o
+  // provedor virava lixo em silencio).
+  const indiceProvedor = process.argv.indexOf("--provedor");
+  const provedorArg = indiceProvedor >= 0 ? process.argv[indiceProvedor + 1] : undefined;
+  const provedor: ProvedorAutoria =
+    provedorArg === "openai" || provedorArg === "anthropic" ? provedorArg : "openai";
 
   const gravador = new GravadorDeChamadas(
     provedor === "anthropic" || sosiaOpenAI
@@ -323,8 +372,10 @@ async function principal(): Promise<void> {
       : globalThis.fetch,
   );
 
-  const chaveDeApi =
-    provedor === "openai" ? process.env.OPENAI_API_KEY : process.env.ANTHROPIC_API_KEY;
+  const chaveDeApi = resolverChaveDeApi(provedor);
+
+  // P3: SOSIA anthropic explicito sem credencial — aviso ruidoso no stderr.
+  avisarSosiaSemCredencial(provedor, indiceProvedor >= 0, chaveDeApi);
 
   const resultado = await chamarAutoria(provedor, BRIEF_CANONICO, {
     fetch: gravador.fetch,
@@ -336,7 +387,7 @@ async function principal(): Promise<void> {
       ? sosiaOpenAI
         ? "Gravado do SOSIA (sem credencial utilizavel no dia) — documento de referencia montado a mao com a narrativa da fixture canonica. Regravar com OPENAI_API_KEY grava a resposta real."
         : "Gravado com chamada REAL ao provedor (OPENAI_API_KEY, dia do card F4-04). A resposta foi gravada como veio (sosia, nao sucessor)."
-      : "Sem ANTHROPIC_API_KEY no dia do card: gravado do SOSIA (envelope montado a mao na forma da API real). AB-552 fica PENDENTE — evidencia com credencial, nunca gate.";
+      : "Sem credencial Anthropic (ANTHROPIC_AUTH_TOKEN / ANTHROPIC_API_KEY) no dia do card: gravado do SOSIA (envelope montado a mao na forma da API real). AB-552 fica PENDENTE — evidencia com credencial, nunca gate.";
 
   const { chave, diretorio } = gravarCasseteAutoria({
     raiz: RAIZ_CASSETES_PADRAO,

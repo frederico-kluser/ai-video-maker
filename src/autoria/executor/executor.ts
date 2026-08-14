@@ -10,10 +10,17 @@
  *      mensagens do brief + schema podado por fornecedor);
  *   2. CACHE (buscarOuGerar): a mesma entrada nunca chama a API duas
  *      vezes — HIT serve o arquivo, MISS chama o gerador UMA vez;
- *   3. GATE (rejeitarSaidaInvalida) ANTES do pipeline: a resposta do
- *      LLM so sai deste modulo depois de validar contra o schema
- *      completo. A saida invalida lanca ErroContratoAutoria e o
- *      pipeline NUNCA a recebe — mesmo que tenha vindo do cache.
+ *   3. NORMALIZA a saida bruta (normalizar.ts — P1): null -> ausente
+ *      nas chaves que o subset do fornecedor autoriza como null e o
+ *      schema completo rejeita (o strict da OpenAI emula opcional com
+ *      `anyOf [X, null]`; o completo so aceita ausencia);
+ *   4. GATE (rejeitarSaidaInvalida) ANTES do pipeline E ANTES do cache:
+ *      a resposta do LLM so sai deste modulo depois de validar contra o
+ *      schema completo. A saida invalida lanca ErroContratoAutoria e o
+ *      pipeline NUNCA a recebe — mesmo que tenha vindo do cache;
+ *   5. CACHE a saida VALIDA (P2): uma resposta rejeitada nunca chega ao
+ *      cache — a 2a tentativa com a mesma entrada faz chamada real em
+ *      vez de servir o cache envenenado (medido na onda 1).
  *
  * O gerador (a chamada real) entra por injecao — este modulo nao
  * conhece rede nem provedor (mesma disciplina do cache.ts do F4-01).
@@ -32,6 +39,7 @@ import {
   CAMINHO_SCHEMA_OPENAI,
 } from "../contrato/contrato.js";
 import { rejeitarSaidaInvalida } from "../contrato/rejeitar.js";
+import { normalizarDocumentoAutoria } from "../contrato/normalizar.js";
 import { executarChamada } from "./chamada.js";
 import {
   MAX_TOKENS_PADRAO,
@@ -88,7 +96,8 @@ export function montarEntrada(
 }
 
 /**
- * A chamada completa de autoria: cache + gate, nesta ordem.
+ * A chamada completa de autoria: cache + normalizacao + gate + cache,
+ * nesta ordem.
  *
  * O HIT/MISS replica EXATAMENTE a mecanica do buscarOuGerar do F4-01
  * (mesma chave, mesma escrita atomica, mesmo arquivo) — mas o ciclo
@@ -99,8 +108,15 @@ export function montarEntrada(
  * HIT serve o arquivo sem chamar o provedor; MISS chama UMA vez e
  * persiste.
  *
+ * A ORDEM (fix da autoria viva, onda 2): a saida bruta (fresca ou
+ * cacheada) passa pela NORMALIZACAO (P1) e pelo GATE (P2) ANTES de
+ * chegar ao cache e ao pipeline. Uma resposta rejeitada NUNCA e
+ * persistida — o cache so guarda documentos validos, e uma resposta
+ * cacheada (por um caminho antigo) tambem passa pelo gate: um cache
+ * envenenado nao entra no pipeline.
+ *
  * @returns o documento de autoria VALIDO (ja passou por
- *   rejeitarSaidaInvalida) e a origem (cache ou chamada).
+ *   normalizacao + rejeitarSaidaInvalida) e a origem (cache ou chamada).
  * @throws ErroContratoAutoria quando a saida (cacheada ou fresca) nao
  *   valida contra o schema completo — ANTES de devolver ao pipeline.
  */
@@ -129,15 +145,31 @@ export async function chamarAutoria(
       opcoes.chaveDeApi,
       maxTokens,
     );
-    escreverNoCache(entrada, saida);
     origem = "chamada";
   }
 
-  // ── GATE — antes do pipeline (contrato-w6 §12, ∅-crit do F4-01) ─────────
+  // ── NORMALIZACAO (P1) — entre a extracao/cache e o gate ────────────────
+  // O subset do strict da OpenAI emula opcional com `anyOf [X, null]` em
+  // required; o schema completo rejeita null (opcional la e AUSENCIA).
+  // Normaliza null -> ausente aqui, no ponto unico e deterministico; o
+  // gate continua validacao pura e os schemas nao mudam. O documento
+  // NORMALIZADO e o que o cache persiste e o pipeline consome.
+  saida = normalizarDocumentoAutoria(saida, provedor);
+
+  // ── GATE — antes do pipeline e ANTES do cache (contrato-w6 §12, ∅-crit
+  // do F4-01) ────────────────────────────────────────────────────────────
   // A saida do cache tambem passa pelo gate: um cache envenenado (ou uma
   // resposta gravada de um caminho nao-estrito) nao pode entrar no
   // pipeline.
   rejeitarSaidaInvalida(saida);
+
+  // ── CACHE (P2) — so o documento VALIDO e persistido ───────────────────
+  // Resposta rejeitada nunca chega ao cache: a 2a tentativa com a mesma
+  // entrada faz chamada real em vez de servir o cache envenenado
+  // (medido na onda 1 — a escrita era antes do gate).
+  if (origem === "chamada") {
+    escreverNoCache(entrada, saida);
+  }
 
   return { documento: saida, origem, entrada };
 }

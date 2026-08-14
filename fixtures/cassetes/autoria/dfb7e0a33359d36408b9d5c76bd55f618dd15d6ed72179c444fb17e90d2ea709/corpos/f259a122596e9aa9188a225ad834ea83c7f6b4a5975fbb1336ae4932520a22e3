@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-ECbfvXw6bVMeo1AbEVAeAnTw9doqZ",
+  "object": "chat.completion",
+  "created": 1786673467,
+  "model": "gpt-4o-mini-2024-07-18",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"schema_version\":\"Autoria.1\",\"nos\":[{\"id\":\"no1\",\"schema\":\"Codigo.1\",\"type\":\"codigo\",\"codigo\":\"function pipelineDeclarativo(ideia) {\\n    // Processa a ideia e gera o frame final\\n    return gerarFrameFinal(ideia);\\n}\",\"linguagem\":\"javascript\",\"linhas_destaque\":[1]},{\"id\":\"no2\",\"schema\":\"Grafico.1\",\"type\":\"grafico\",\"tipo_grafico\":\"linha\",\"titulo\":\"Evolução do Pipeline Declarativo\",\"dados\":[{\"rotulo\":\"Ideia\",\"valor\":1},{\"rotulo\":\"Processamento\",\"valor\":2},{\"rotulo\":\"Frame Final\",\"valor\":3}]}],\"cenas\":[{\"id\":\"cena1\",\"nos\":[\"no1\"],\"transicao_entrada\":null,\"transicao_saida\":{\"tipo\":\"fade\"},\"audio_cena\":{\"texto_locucao\":\"Neste vídeo, vamos explorar como um editor de vídeo baseado em IA pode transformar uma ideia em um frame final, sem a necessidade de edição manual.\"}},{\"id\":\"cena2\",\"nos\":[\"no2\"],\"transicao_entrada\":{\"tipo\":\"slide\"},\"transicao_saida\":{\"tipo\":\"fade\"},\"audio_cena\":{\"texto_locucao\":\"Aqui está um gráfico que ilustra a evolução do pipeline declarativo, mostrando as etapas desde a ideia até o frame final.\"}}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 3502,
+    "completion_tokens": 284,
+    "total_tokens": 3786,
+    "prompt_tokens_details": {
+      "cached_tokens": 3456,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_fabbcdf5d9"
+}

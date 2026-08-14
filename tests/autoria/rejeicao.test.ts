@@ -29,7 +29,7 @@
  * AB-433, AB-555, decisao-do-sistema).
  */
 
-import { mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it, expect, beforeEach, afterEach, afterAll } from "vitest";
@@ -197,28 +197,66 @@ describe("∅-crit — um manifesto invalido que passa derruba a suite", () => {
     });
   }
 
-  it("um cache ENVENENADO (documento invalido) nao passa pelo gate do executor", async () => {
+  it("uma resposta rejeitada NUNCA e cacheada — a 2a chamada faz chamada real (P2)", async () => {
     const cassete = lerCassete("openai");
     const primeiroInvalido = cassete.invalidos[0]!;
-    // Primeira chamada grava o documento invalido no cache (a escrita e
-    // antes do gate, mesma semantica do buscarOuGerar do F4-01)...
+    // A resposta invalida e barrada pelo gate...
     const primeira = await chamarAutoria("openai", briefCanonico(), {
       fetch: fetchQueEntrega("openai", primeiroInvalido.documento),
       diretorioCache: dirCache,
     }).catch((e: unknown) => e);
     expect(primeira).toBeInstanceOf(ErroContratoAutoria);
-    // ...e a segunda (MESMA entrada, cache HIT, fetch NUNCA chamado)
-    // tambem tem de ser barrada: o cache nao e porta de fuga do gate.
-    let fetchChamado = false;
-    const chamada = chamarAutoria("openai", briefCanonico(), {
+    // ...e NUNCA chega ao cache (P2: gate ANTES da escrita — sonda por
+    // ausencia do arquivo com a chave da entrada rejeitada).
+    const { caminhoDoCache } = await import("src/autoria/contrato/cache.js");
+    const { montarEntrada } = await import("src/autoria/executor/executor.js");
+    expect(existsSync(caminhoDoCache(montarEntrada("openai", briefCanonico(), {})))).toBe(
+      false,
+    );
+    // A 2a chamada (MESMA entrada) NAO serve do cache: faz chamada real.
+    // O cache nao e porta de fuga do gate — e a resposta rejeitada nao
+    // envenena a tentativa seguinte.
+    let chamadas = 0;
+    const segunda = await chamarAutoria("openai", briefCanonico(), {
       fetch: (async () => {
-        fetchChamado = true;
-        throw new Error("o fetch nao pode ser chamado em HIT");
+        chamadas += 1;
+        const envelope = {
+          id: "msg_sonda",
+          object: "chat.completion",
+          created: 0,
+          model: "gpt-4o-mini",
+          choices: [
+            {
+              index: 0,
+              message: {
+                role: "assistant",
+                content: JSON.stringify({
+                  schema_version: "Autoria.1",
+                  nos: [
+                    {
+                      id: "n-001",
+                      schema: "Cabecalho.1",
+                      type: "cabecalho",
+                      texto: "Titulo",
+                    },
+                  ],
+                  cenas: [{ id: "c-001", nos: ["n-001"] }],
+                }),
+              },
+              finish_reason: "stop",
+            },
+          ],
+          usage: {},
+        };
+        return new Response(JSON.stringify(envelope), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
       }) as typeof fetch,
       diretorioCache: dirCache,
     });
-    await expect(chamada).rejects.toBeInstanceOf(ErroContratoAutoria);
-    expect(fetchChamado).toBe(false);
+    expect(segunda.origem).toBe("chamada");
+    expect(chamadas).toBe(1);
   });
 });
 
