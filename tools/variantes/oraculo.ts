@@ -37,6 +37,7 @@ import type {
 import { contemPonto } from "../../src/composicao/camadas/geometria";
 import type { Retangulo } from "../../src/composicao/camadas/geometria";
 import { planoDeComposicao, faixasVisiveis } from "../../src/composicao/ManifestoRaiz";
+import { regiaoDoQuadro, type NoComEixo } from "../../src/composicao/layout/eixo";
 import type { Manifesto } from "../../src/contratos/manifesto";
 import type { PngDecodificado } from "../../tests/integracao/composicao/png";
 import { medirRegiao } from "../../tests/integracao/composicao/png";
@@ -47,15 +48,16 @@ import { safeRectDaPlataforma, type Plataforma } from "../../src/entrega/variant
 // ---------------------------------------------------------------------------
 
 /**
- * Tipos de no que pintam um fundo OPACO de tela cheia (`backgroundColor:
- * background.primary` com `inset: 0`) — cabecalho (F1-04), texto (F1-05) e
- * codigo (F1-07). Um no desses visivel no frame esconde o fundo da camada
- * por baixo dele: a expectativa de pixel fora da safe area tem de levar a
- * tela cheia do no em conta, ou o oraculo acusa o proprio fundo do no como
- * "tinta nao-explicada". Os nos que NAO pintam fundo (midia, grafico,
- * lista) nao entram na lista — conferido nos componentes (midia declara
- * "CONTRATO DE ALFA: nenhuma cor de fundo aqui"; grafico "Este no NAO pinta
- * fundo").
+ * Tipos de no que pintam um fundo OPACO (`backgroundColor: background.primary`)
+ * — cabecalho (F1-04), texto (F1-05) e codigo (F1-07). O retangulo pintado e
+ * a BANDA do no no eixo de posicionamento (`no.eixo.regiao`, onda 2); sem
+ * eixo, o quadro inteiro. Um no desses visivel no frame esconde o fundo da
+ * camada por baixo dele na sua banda: a expectativa de pixel fora da safe
+ * area tem de levar a banda do no em conta, ou o oraculo acusa o proprio
+ * fundo do no como "tinta nao-explicada". Os nos que NAO pintam fundo
+ * (midia, grafico, lista) nao entram na lista — conferido nos componentes
+ * (midia declara "CONTRATO DE ALFA: nenhuma cor de fundo aqui"; grafico
+ * "Este no NAO pinta fundo").
  */
 const NOS_COM_FUNDO_OPACO: ReadonlySet<string> = new Set([
   "cabecalho",
@@ -97,10 +99,11 @@ function hexParaRgb(cor: string): [number, number, number] {
  * (arvore.ts passa exatamente estas props a CAMADAS; os nos visiveis sao
  * os de faixasVisiveis no frame).
  *
- * O retangulo do fundo opaco dos nos e inserido como UM retangulo de
- * opacidade 1: quando ele existe, ele RESETA o acumulado para
- * background.primary — exatamente o que a tela cheia do no faz. Os frames
- * do gate sao escolhidos no meio das janelas (opacidade dos nos = 1).
+ * Os retangulos dos fundos opacos dos nos sao inseridos com opacidade 1
+ * na posicao da banda de cada no: quando existem, RESETAM o acumulado para
+ * background.primary naquela banda — exatamente o que o fundo do no faz.
+ * Os frames do gate sao escolhidos no meio das janelas (opacidade dos nos
+ * = 1).
  */
 export function planoDeCamadasDoFrame(
   frame: number,
@@ -124,14 +127,27 @@ export function planoDeCamadasDoFrame(
     // arvore do pintor (z10). A ordem do registro e [fundo, grade,
     // vinheta], entao inserir apos o modulo "fundo" e exatamente o ponto.
     if (modulo.meta.papel === "fundo") {
+      // Eixo de posicionamento (onda 2, commit 48add36): cada no de texto
+      // pinta o fundo opaco na SUA banda (`no.eixo.regiao`), nao no quadro
+      // inteiro — o mesmo contrato do componente (`regiao = comEixo.eixo?.
+      // regiao ?? regiaoDoQuadro(...)`, src/composicao/nos/cabecalho.tsx:378).
+      // No sem eixo (sozinho na cena) continua pintando o quadro inteiro. O
+      // modelo antigo (um retangulo de tela cheia) ficou stale com o eixo e
+      // acusava o proprio plano de camadas (banho + vinheta) como tinta
+      // nao-explicada (medido: 107456 pixels em variante-16x9-c002-frame140).
       const visiveis = faixasVisiveis(planoDeComposicao(manifesto), frame);
-      if (visiveis.some((v) => NOS_COM_FUNDO_OPACO.has(v.faixa.tipo))) {
+      for (const { faixa } of visiveis) {
+        if (!NOS_COM_FUNDO_OPACO.has(faixa.tipo)) {
+          continue;
+        }
+        const no = faixa.no as NoComEixo;
+        const regiao = no.eixo?.regiao ?? regiaoDoQuadro(canvas.width, canvas.height);
         plano.push({
-          nome: "fundo-opaco-dos-nos",
-          x: 0,
-          y: 0,
-          largura: canvas.width,
-          altura: canvas.height,
+          nome: `fundo-opaco-${faixa.noId}`,
+          x: regiao.x,
+          y: regiao.y,
+          largura: regiao.largura,
+          altura: regiao.altura,
           opacidade: 1,
           cor: background.primary,
         });

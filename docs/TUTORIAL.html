@@ -44,7 +44,7 @@
 <nav class="navbar navbar-expand-lg sticky-top bg-body-tertiary border-bottom">
   <div class="container">
     <span class="navbar-brand fw-semibold"><i class="bi bi-file-earmark-code me-1"></i>TUTORIAL — Editor de Vídeo IA</span>
-    <span class="navbar-text small text-body-secondary d-none d-md-inline">execução real de 2026-08-13 · Onda 3 · docs/TUTORIAL.html</span>
+    <span class="navbar-text small text-body-secondary d-none d-md-inline">execução real de 2026-08-13/14 · Onda 4 (vídeo final) · docs/TUTORIAL.html</span>
   </div>
 </nav>
 
@@ -52,7 +52,7 @@
 
   <header class="mb-4">
     <h1 class="display-6 fw-semibold">Como usar o Editor de Vídeo IA, de ponta a ponta</h1>
-    <p class="lead text-body-secondary">Um tema vira um MP4 entregue — autoria com LLM real, pipeline estrito offline, 11 artefatos verificados. Este tutorial documenta a execução real de 2026-08-13; todos os tempos, hashes e tamanhos foram medidos nela.</p>
+    <p class="lead text-body-secondary">Um tema vira um MP4 entregue — autoria com LLM real, pipeline estrito offline, 11 artefatos verificados. Este tutorial documenta as execuções reais de 2026-08-13 (Onda 3) e 2026-08-14 (Onda 4 — vídeo final com todas as correções: fundo preto puro, matemática 3blue1brown, eixo sem sobreposição, mídia real com legenda); todos os tempos, hashes e tamanhos foram medidos nelas.</p>
     <div class="d-flex flex-wrap gap-2">
       <span class="badge text-bg-secondary">pipeline 13 estágios (14 avisos no log)</span>
       <span class="badge text-bg-secondary">5 fases</span>
@@ -136,7 +136,7 @@
 
     <div class="tab-pane fade" id="pane-passos" role="tabpanel"
          aria-labelledby="tab-passos" tabindex="0" data-print-title="Passo a passo">
-      <h2 class="h4">Passo a passo real (execução de 2026-08-13)</h2>
+      <h2 class="h4">Passo a passo real (execuções de 2026-08-13 e 2026-08-14)</h2>
       <p>Pré-requisitos: Node 24 (via <code>.nvmrc</code>), <code>npm ci</code>, just 1.42+, FFmpeg <strong>6.1.1</strong> (pin verificado — o pipeline falha se divergir), Python 3.12 para o ferramental.</p>
 
       <h3 class="h5">1. Autoria viva — a cerimônia</h3>
@@ -151,7 +151,7 @@
 
       <h3 class="h5">2. Produção — o pipeline completo</h3>
 <pre><code class="language-bash">just produzir --fixture canonico --estrito --saida &lt;WORKTREE&gt;/output-tutorial</code></pre>
-      <p>Saída real (resumida; 29,5 s de parede, 326% CPU): tsc + validação da fixture (1 encontrada, 1 válida, 0 inválidas) + os 14 avisos de estágio até <code>=== produzir: VERDE (11 artefatos conferidos) ===</code>, com hash + tamanho de cada artefato — o CLI imprime <code>arquivo: arquivo (hash, tamanho)</code> com o nome duplicado; aqui o formato foi limpo. <code>--estrito</code> = autoria pulada (fixture), reparo mecânico (zero LLM), resolução offline por cassetes com rede bloqueada, só perfis <code>deterministico: true</code>.</p>
+      <p>Saída real da Onda 4 (resumida; ≈ 1 min de parede com cache frio — números da execução de 2026-08-14, cache frio de render): tsc + validação da fixture (1 encontrada, 1 válida, 0 inválidas) + os 14 avisos de estágio até <code>=== produzir: VERDE (11 artefatos conferidos) ===</code>, com hash + tamanho de cada artefato — o CLI imprime <code>arquivo: arquivo (hash, tamanho)</code> com o nome duplicado; aqui o formato foi limpo. <code>--estrito</code> = autoria pulada (fixture), reparo mecânico (zero LLM), resolução offline por cassetes com rede bloqueada, só perfis <code>deterministico: true</code>.</p>
 <pre><code class="language-text">[pipeline] estagio autoria...
 [pipeline] estagio reparo-mecanico...
 [pipeline] estagio resolucao-offline...
@@ -174,13 +174,28 @@
 sha256sum manifesto-resolvido.json master.mov master.wav mix-documento.json \
   entregavel.m4a entregavel.srt pos-documento.json variante-16x9.json \
   thumbnail.png relatorio-procedencia.json entregavel-final.mp4</code></pre>
-      <p><strong>Conteúdo do vídeo (C1):</strong> o piso é YAVG máximo por frame ≥ 32 (vídeo preto fica ~16–22; a fixture calibrou ~65):</p>
+      <p><strong>Conteúdo do vídeo (C1):</strong> o oráculo (ADR-0042) reprova só o que não tem conteúdo NENHUM: <code>YAVG máximo &lt; 24</code> <strong>E</strong> <code>desvio-padrão máximo &lt;= 1.0</code> (escuro e chapado). O desvio é a arma que reconhece a matemática estilo 3blue1brown (traço fino sobre preto — YAVG baixo por desenho, desvio alto). Medido na Onda 4 (vídeo final, com mídia): YAVG máximo <strong>129.34</strong>, desvio máximo <strong>94.14</strong> (48/48 amostras &gt; 1.0) → PASSA. Na Onda 3 (sem mídia): YAVG 22.49 — abaixo do piso; o desvio 19.71 era quem o reconhecia. Preto puro: YAVG 16.0 chapado, desvio 0.0000 (reprova).</p>
 <pre><code class="language-bash">ffprobe -v error -show_entries stream=index,codec_name,codec_type,width,height,r_frame_rate,duration -of compact entregavel-final.mp4
 # stream|0|h264|video|1920x1080|30/1|24.233333  +  stream|1|aac|audio|48000|2|24.233000
 
 ffmpeg -i entregavel-final.mp4 -vf signalstats,metadata=print:key=lavfi.signalstats.YAVG:file=- -f null - 2>/dev/null \
   | grep -oP 'YAVG=\K[0-9.]+' | sort -n | tail -1
-# 64.854  (piso 32 — conteúdo real)</code></pre>
+# 129.344  (muito acima do piso 24 — conteúdo real; preto puro daria ~16)
+
+# O desvio-padrão por frame (a outra arma do oráculo): amostra 2 fps, luma
+# sem conversão de range (extractplanes — a escala do signalstats).
+ffmpeg -i entregavel-final.mp4 -vf "fps=2,extractplanes=y" -f rawvideo -pix_fmt gray - 2>/dev/null \
+  | python3 -c "import sys; b=sys.stdin.buffer.read(); w=1920*1080; import math; print(max((lambda f: math.sqrt(sum((p-sum(f)/len(f))**2 for p in f)/len(f)))(b[i:i+w]) for i in range(0,len(b)-w+1,w)))"
+# 94.14  (48/48 amostras acima de 1.0 — conteúdo real; preto puro daria 0.0)</code></pre>
+      <p><strong>Verificação por conteúdo do vídeo final (Onda 4)</strong> — além de exit code e hash:</p>
+      <ul>
+        <li><strong>Fundo preto puro:</strong> pixels de canto (10×10) de 3 frames (início/meio/fim) = <code>#000000</code> no base — frame 0 e 726 = <code>(0,0,0)</code> puro em todos os cantos; no frame 363 (meio) o canto superior-esquerdo mede <code>(2,3,8)</code>/<code>(3,4,9)</code> (canal máximo 9): a camada global de fundo (banho de <code>#111827</code> a até 50% sobre o preto) + vinheta, e o canto inferior-direito permanece <code>(0,0,0)</code> puro — <strong>tolerância documentada: canal máximo ≤ 12</strong>.</li>
+        <li><strong>Sem sobreposição de texto:</strong> sonda C1-C5 no render — 60/60 testes (nenhum par de blocos visíveis se sobrepõe; numa transição nunca há texto dos dois lados).</li>
+        <li><strong>Matemática 3blue1brown (c-004):</strong> montagem dos 5 webm animando (traço fino sobre preto); oráculo de pixel <code>integrado-c004-frame460</code> confere as cores da série.</li>
+        <li><strong>GIF com legenda (c-005):</strong> oráculo <code>integrado-c005-frame590</code> (tinta de texto nas 3 bandas) passa; frame 590 do vídeo é byte a byte igual ao snapshot aprovado.</li>
+        <li><strong>Determinismo:</strong> produção 2× com cache limpo — 11/11 artefatos com sha256 idênticos.</li>
+        <li><strong>Hashes 1:1:</strong> <code>sha256sum</code> confere com o <code>relatorio-final.json</code>.</li>
+      </ul>
       <p><strong>Loudness</strong> (alvo -23 LUFS, teto -1 dBTP), medido pelo pós e registrado em <code>pos-documento.json</code>: <code>integradoLufs: -23</code>, <code>truePeakDbtp: -19.3</code>, <code>ganhoAplicadoDb: -7.6</code> (master a -15.4 LUFS). <strong>Legendas:</strong> o SRT descreve a timeline pós-reconciliação do mix (P4): 2 cues sem sobreposição, separadas exatamente no corte do mix em 18,233 s — a primeira termina no corte, a segunda começa nele.</p>
 <pre><code class="language-text">1
 00:00:14,233 --&gt; 00:00:18,233
@@ -192,11 +207,17 @@ desempenho do pipeline. Cada tipo de nó
 Concluindo, o manifesto é a peça central
 do pipeline. Obrigado por assistir.</code></pre>
 
-      <h3 class="h5">4. Gates</h3>
-<pre><code class="language-bash">just autoria-suite      # 18 arquivos, 189 testes — contrato, cache, normalização, rejeição, reparo
-just autoria-cassete    # 5 testes — determinismo do cassete (regravar = bytes idênticos exceto voláteis)
-just pos                # suite do pós + gate real com 8 sondas ∅-crit
-just e2e                # R1 (cache frio) + R2 (idempotente) + R3 (chave C7 mutada) + ∅-crit dos 11 artefatos</code></pre>
+      <h3 class="h5">4. Gates — o fluxo completo</h3>
+<pre><code class="language-bash">npm ci                                    # 1. instala
+just autoria-gravar --provedor openai     # 2. opcional — cerimônia VIVA (LLM real); pula p/ fixture
+just produzir --fixture canonico --estrito --saida output-final   # 3. produção offline
+# 4. verificação por conteúdo (hashes, cantos, sonda C1-C5, c-004, c-005, oráculo)
+npx tsc --noEmit && npx vitest run       # 5. tipo + suite completa
+just e2e                                  # 6. R1/R2/R3 + ∅-crit dos 11 artefatos
+just res-offline                          # 7. resolução com rede bloqueada
+just res-midia                            # 8. estagio de midia (ADR-0013 + oraculo)
+just gm-e2e                               # 9. golden master (F5-08)
+just variantes                            # 10. variantes (ver Limitações, item viii)</code></pre>
     </div>
 
     <div class="tab-pane fade" id="pane-artefatos" role="tabpanel"
@@ -209,17 +230,17 @@ just e2e                # R1 (cache frio) + R2 (idempotente) + R3 (chave C7 muta
             <tr><th>#</th><th>Arquivo</th><th>Tamanho real</th><th>O que é</th></tr>
           </thead>
           <tbody>
-            <tr><td>1</td><td><code>manifesto-resolvido.json</code></td><td>17.883 B</td><td>ManifestoResolvido.1 — manifesto com todos os assets resolvidos a hash</td></tr>
-            <tr><td>2</td><td><code>master.mov</code></td><td>22.995.405 B</td><td>Master de vídeo determinístico (QTRLE, sem perdas)</td></tr>
+            <tr><td>1</td><td><code>manifesto-resolvido.json</code></td><td>21.439 B</td><td>ManifestoResolvido.1 — manifesto com todos os assets resolvidos a hash</td></tr>
+            <tr><td>2</td><td><code>master.mov</code></td><td>41.584.025 B</td><td>Master de vídeo determinístico (QTRLE, sem perdas)</td></tr>
             <tr><td>3</td><td><code>master.wav</code></td><td>9.305.644 B</td><td>WAV f32le do master de áudio do mix</td></tr>
             <tr><td>4</td><td><code>mix-documento.json</code></td><td>1.146 B</td><td>MixDocument.1 — plano de mix + pins de ferramentas</td></tr>
             <tr><td>5</td><td><code>entregavel.m4a</code></td><td>568.288 B</td><td>AAC 192 kbps 48 kHz estéreo, -23 LUFS, teto -1 dBTP conferido no codificado</td></tr>
             <tr><td>6</td><td><code>entregavel.srt</code></td><td>225 B</td><td>Legendas pós-reconciliação (2 cues, sem sobreposição)</td></tr>
             <tr><td>7</td><td><code>pos-documento.json</code></td><td>970 B</td><td>PosDocument.1 — alvo, ganho, medições, hashes, pins</td></tr>
-            <tr><td>8</td><td><code>variante-16x9.json</code></td><td>9.730 B</td><td>Variante 16:9 derivada do mesmo manifesto</td></tr>
-            <tr><td>9</td><td><code>thumbnail.png</code></td><td>40.158 B</td><td>Thumbnail com contraste e piso de legibilidade conferidos</td></tr>
-            <tr><td>10</td><td><code>relatorio-procedencia.json</code></td><td>14.420 B</td><td>Procedência transitiva (todo asset com origem declarada)</td></tr>
-            <tr><td>11</td><td><code>entregavel-final.mp4</code></td><td>1.156.329 B</td><td>MP4 final muxado (vídeo + áudio) — 1920x1080@30, 24,2 s</td></tr>
+            <tr><td>8</td><td><code>variante-16x9.json</code></td><td>9.595 B</td><td>Variante 16:9 derivada do mesmo manifesto</td></tr>
+            <tr><td>9</td><td><code>thumbnail.png</code></td><td>39.886 B</td><td>Thumbnail com contraste e piso de legibilidade conferidos</td></tr>
+            <tr><td>10</td><td><code>relatorio-procedencia.json</code></td><td>20.593 B</td><td>Procedência transitiva (todo asset com origem declarada)</td></tr>
+            <tr><td>11</td><td><code>entregavel-final.mp4</code></td><td>1.505.178 B</td><td>MP4 final muxado (vídeo + áudio) — 1920x1080@30, 24,2 s</td></tr>
           </tbody>
         </table>
       </div>
@@ -272,14 +293,17 @@ just e2e                # R1 (cache frio) + R2 (idempotente) + R3 (chave C7 muta
         <li class="mb-2"><strong>O modo estrito é OFFLINE.</strong> Rede bloqueada durante a execução; resolução por <strong>cassetes commitados</strong> — sem TTS ao vivo, sem downloads, sem chamadas externas. Autoria e gravação de cassete são cerimônias manuais, com rede e credencial, fora do estrito.</li>
         <li class="mb-2"><strong>Regravar o cassete de autoria muda seu conteúdo.</strong> O LLM não é determinístico (nem com <code>temperature: 0</code> a OpenAI garante; <code>seed</code> é best-effort). Os gates não dependem do conteúdo — dependem da chave e da estrutura; o <code>git diff</code> do cassete é esperado após cada cerimônia.</li>
         <li class="mb-2"><strong><code>--provedor anthropic</code> grava SEMPRE do SOSIA — não há caminho de chamada real hoje.</strong> O código constrói o gravador com <code>provedor === "anthropic" ? fetchSosia(...) : globalThis.fetch</code>: para anthropic o fetch é incondicionalmente o SOSIA local (resposta canônica pré-existente), com ou sem credencial. Exportar <code>ANTHROPIC_AUTH_TOKEN</code> (lido primeiro, com fallback para <code>ANTHROPIC_API_KEY</code> — P3) apenas silencia o aviso ruidoso do stderr — o conteúdo gravado continua sendo o SOSIA. A chamada real anthropic é trabalho pendente (AB-552).</li>
-        <li class="mb-2"><strong>Golden master visual stale.</strong> O golden master de pixel (<code>fixtures/gm</code>) está defasado em relação à <strong>saída atual do pipeline</strong> — não ao cassete de autoria: o fix P4 (Onda 2) mudou o <code>entregavel.srt</code> (308 B pré → 225 B pós-reconciliação) e o <code>pos-documento.json</code> ganhou o hash do sidecar. O golden antigo não reflete essas saídas; <code>gm-e2e</code> não é gate do fluxo de produção. Dívida pré-existente — re-baseline apenas quando um bug de divergência exigir, nunca por rotina.</li>
+        <li class="mb-2"><strong>O golden master foi RE-CAPTURADO na Onda 3 e hoje CONFERE com o pipeline.</strong> A versão anterior do golden (<code>fixtures/gm</code>) estava defasada (o fix P4 mudou o <code>entregavel.srt</code> para 225 B e o <code>pos-documento.json</code> ganhou o hash do sidecar); a Onda 3 o re-capturou (commit <code>0a299ee</code>) e o <code>gm-e2e</code> da Onda 4 passou R1 (13 itens byte a byte idênticos ao golden, incluindo frames-chave do master.mov, manifestos e envelope de áudio) e R2 (re-execução quente idêntica). Esta limitação deixou de valer nesta rodada.</li>
+        <li class="mb-2"><strong>O GIPHY foi EXCLUÍDO — o GIF com texto vem do Wikimedia Commons (ADR-0013).</strong> O usuário pediu Giphy, mas a API do Giphy <strong>exige hotlink</strong> ("GIPHY media should be loaded directly from the media URLs returned by the API and should not be cached, proxied, rewritten, or stored by the partner"), e este pipeline não consegue hotlinkar sem quebrar três invariantes: nenhuma URL atravessa a fronteira de determinismo (C7/schema), o asset é endereçado por SHA-256 dos bytes e o render é offline (rede fechada no <code>--estrito</code>). Provedor com <code>politicaHotlink: "exige"</code> é <strong>inelegível por arquitetura, não por licença</strong>. O GIF do vídeo final é o <code>Spinning_globe_map.gif</code> do Wikimedia Commons (PDM-1.0), baixado na gravação do cassete e re-hospedado por hash — decisão completa em <code>docs/adr/0013-hotlink-e-midia-externa.md</code>.</li>
+        <li class="mb-2"><strong>As legendas da mídia estão em INGLÊS (<code>texto_alternativo</code> do asset).</strong> A legenda de cada mídia é o alt-text do manifesto ("spinning globe map", "dvorak typing", "code health checker"). Traduzir mudaria o conteúdo do manifesto, que <strong>re-hashearia o manifesto resolvido e re-chavearia todos os cassetes</strong> (C7) — onda opcional futura. O áudio e o SRT continuam em pt-BR.</li>
+        <li class="mb-2"><strong><code>just variantes</code> ficou VERMELHO pré-existente e foi RESOLVIDO na Onda 4 (re-baseline + modelo do oráculo corrigido).</strong> O snapshot <code>variante-16x9-c002-frame140.png</code> foi aprovado antes do eixo de posicionamento (Onda 2, commit <code>48add36</code>) — os nós de texto pintavam fundo opaco de tela cheia e os cantos eram pretos puros. O eixo confinou os nós às bandas: o render atual mostra o plano de camadas aprovado nos cantos (banho <code>#111827</code> + vinheta — medido <code>(3,5,8)</code> em (0,0), determinístico entre 2 renders) e o modelo do oráculo de pixel (<code>tools/variantes/oraculo.ts</code>) ainda assumia tela cheia — 107.456 pixels de "tinta não-explicada" fora da safe area, todos falso-positivo. A divergência é <strong>real de código, não de rasterizador</strong> (as outras sondas — integradas — são verde). Resolução: oráculo espelha o contrato do componente (fundo opaco por <strong>banda</strong>, <code>no.eixo.regiao ?? regiaoDoQuadro</code>) + re-aprovação pelo harness oficial (<code>just variantes-aprovar</code>); só o <code>variante-16x9-c002-frame140.png</code> mudou (99.715 → 98.691 B). Hoje <code>just variantes</code> fica <strong>VERDE</strong>.</li>
       </ol>
     </div>
 
     <div class="tab-pane fade" id="pane-problemas" role="tabpanel"
          aria-labelledby="tab-problemas" tabindex="0" data-print-title="Problemas corrigidos">
       <h2 class="h4">Problemas encontrados e corrigidos (P1–P4)</h2>
-      <p>Encontrados na <strong>Onda 1</strong> (primeira execução de ponta a ponta), corrigidos na <strong>Onda 2</strong> (merges <code>0726ee9</code> + <code>8fa3986</code>). Esta rodada (Onda 3) executou o fluxo já corrigido com todos os gates verdes.</p>
+      <p>Encontrados na <strong>Onda 1</strong> (primeira execução de ponta a ponta), corrigidos na <strong>Onda 2</strong> (merges <code>0726ee9</code> + <code>8fa3986</code>). A <strong>Onda 4</strong> (vídeo final) executou o fluxo já corrigido com todas as correções das Ondas 1-3: fundo preto puro <code>#000000</code>, matemática 3blue1brown (montagem dos 5 webm na c-004), eixo de posicionamento sem sobreposição (sondas C1-C5) e mídia real com legenda (Wikimedia Commons).</p>
       <div class="table-responsive">
         <table class="table table-sm align-middle">
           <thead>
@@ -336,7 +360,7 @@ just e2e                # R1 (cache frio) + R2 (idempotente) + R3 (chave C7 muta
   </div>
 
   <footer class="text-body-secondary small border-top mt-5 pt-3">
-    Execução real de 2026-08-13 (Onda 3) · Editor de Vídeo IA · Documento de arquivo único — salve, mande por anexo, abra offline.
+    Execuções reais de 2026-08-13/14 (Onda 4 — vídeo final) · Editor de Vídeo IA · Documento de arquivo único — salve, mande por anexo, abra offline.
   </footer>
 
 </main>
