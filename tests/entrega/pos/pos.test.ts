@@ -9,12 +9,16 @@
  *
  *   - a estrategia de ganho (`computarGanho`): chegar no alvo, clamp
  *     pelo teto pre-encode (-2.0 dBTP = teto - margem), UMA aplicacao;
- *   - o SRT: timecodes, serializacao do MESMO documento, parse,
- *     conferencia contra o documento (∅-crit (a) — a mutacao de um
- *     intervalo fica VERMELHA) e a coerencia da queimada (∅-crit (b) —
- *     o CASO C1 da c-004: a queimada morre na janela visual, o sidecar
- *     descreve a fala inteira; o gate assere inicio_s onde a queimada
- *     existe, NUNCA duracao total);
+ *   - o SRT: timecodes, a RECONCILIACAO com o mix (C1 — o sidecar
+ *     descreve a timeline POS-reconciliacao: cue que cruza o corte e
+ *     truncada no corte, menos de 1 frame visivel e removida, nenhuma
+ *     cue sobrepoe a vizinha), serializacao do MESMO documento, parse,
+ *     conferencia contra o documento pos-reconciliado (∅-crit (a) — a
+ *     mutacao de um intervalo fica VERMELHA) e a coerencia da queimada
+ *     (∅-crit (b) — o CASO C1 da c-004: a queimada morre na janela
+ *     visual e o sidecar morre no corte do mix (18,233 s), os dois
+ *     lados coincidem; o gate assere inicio_s onde a queimada existe,
+ *     NUNCA duracao total);
  *   - o parse do sumario do ebur128 (parse vazio = erro, nunca valor);
  *   - o perfil de audio: mesmo contrato do F5-02, comando com os flags
  *     canonicos e a guarda deterministico: false;
@@ -40,11 +44,12 @@ import {
   conferirSidecar,
   parseSrt,
   parseTimecode,
+  reconciliarComOMix,
   serializarSrt,
   spansDaQueimada,
   srtTimecode,
 } from "../../../src/entrega/pos/sidecar.js";
-import type { JanelaVisualDaCena } from "../../../src/entrega/pos/sidecar.js";
+import type { FalaReconciliada, JanelaVisualDaCena } from "../../../src/entrega/pos/sidecar.js";
 import {
   EMedicaoInvalida,
   parseSumarioEbur128,
@@ -86,6 +91,19 @@ function janelasVisuais(manifesto: Manifesto): readonly JanelaVisualDaCena[] {
     inicio_s: t.frameInicial / manifesto.fps,
     fim_s: t.frameFinal / manifesto.fps,
   }));
+}
+
+/**
+ * As falas reconciliadas do mix da fixture canonica (C1) — os MESMOS
+ * numeros que o mix REAL mede (faixas.locucao do MixDocument.1; o gate
+ * do pos os ancorou em tests/audio/mix.test.ts, C1): c-004 cortada em
+ * 18,233 s (inicio de c-005), c-005 em [18,233..23,588].
+ */
+function falasReconciliadasDaFixture(): readonly FalaReconciliada[] {
+  return [
+    { cena: "c-004", inicio_s: 14.233333333333333, fim_s: 18.233333333333334 },
+    { cena: "c-005", inicio_s: 18.233333333333334, fim_s: 23.588333333333335 },
+  ];
 }
 
 // ─── Estrategia de ganho ──────────────────────────────────────────────────────
@@ -203,6 +221,138 @@ describe("serializarSrt (∅-crit (a): o sidecar nasce do MESMO documento)", () 
   });
 });
 
+// ─── Reconciliacao com o mix (C1) ────────────────────────────────────────────
+
+describe("reconciliarComOMix (o SRT descreve a timeline POS-reconciliacao)", () => {
+  it("fixture canonica: o SRT pos-reconciliado nao tem sobreposicao e morre no corte", async () => {
+    const { manifesto, legendas } = await contextoCanonico();
+    const srt = serializarSrt(
+      reconciliarComOMix(legendas, falasReconciliadasDaFixture(), manifesto.fps),
+    );
+    const esperado = [
+      "1",
+      "00:00:14,233 --> 00:00:18,233",
+      "Nesta seção, apresentamos os dados de",
+      "desempenho do pipeline. Cada tipo de nó",
+      "",
+      "2",
+      "00:00:18,233 --> 00:00:23,588",
+      "Concluindo, o manifesto é a peça central",
+      "do pipeline. Obrigado por assistir.",
+      "",
+    ].join("\n");
+    expect(srt).toBe(esperado);
+  });
+
+  it("fixture canonica: nenhuma cue cruza o ponto de corte da reconciliacao (18,233 s)", async () => {
+    const { manifesto, legendas } = await contextoCanonico();
+    const reconciliadas = reconciliarComOMix(
+      legendas,
+      falasReconciliadasDaFixture(),
+      manifesto.fps,
+    );
+    const corte = 18.233333333333334;
+    // A 2a legenda de c-004 (19,888..22,738) e inteira DEPOIS do corte:
+    // some. A 1a (14,233..19,798) cruza o corte e e truncada em 18,233.
+    const spans = reconciliadas.legendas.map(
+      (l) => `${l.cena}:${l.inicio_s.toFixed(3)}:${l.fim_s.toFixed(3)}`,
+    );
+    expect(spans).toEqual(["c-004:14.233:18.233", "c-005:18.233:23.588"]);
+    // Nenhuma cue de c-004 vaza alem do corte; nenhuma de c-005 nasce antes.
+    for (const l of reconciliadas.legendas) {
+      if (l.cena === "c-004") expect(l.fim_s).toBeLessThanOrEqual(corte + 1e-6);
+      if (l.cena === "c-005") expect(l.inicio_s).toBeGreaterThanOrEqual(corte - 1e-6);
+    }
+  });
+
+  it("nenhuma cue sobrepoe a vizinha (parse do SRT; zero cues = FALHA)", async () => {
+    const { manifesto, legendas } = await contextoCanonico();
+    const srt = serializarSrt(
+      reconciliarComOMix(legendas, falasReconciliadasDaFixture(), manifesto.fps),
+    );
+    const cues = parseSrt(srt);
+    // C2: zero cues e FALHA — um SRT vazio nao e resultado aceitavel
+    // (falsifiable-gates: zero itens parseados = erro, nunca sucesso).
+    expect(cues.length).toBeGreaterThan(0);
+    for (let i = 1; i < cues.length; i++) {
+      const anterior = cues[i - 1]!;
+      const atual = cues[i]!;
+      // Tolerancia de 1 ms: o parse le timecodes com precisao de
+      // milissegundo; as fronteiras tocam exatamente em 18,233 s.
+      expect(atual.inicio_s).toBeGreaterThanOrEqual(anterior.fim_s - 0.001);
+    }
+  });
+
+  it("caso de borda: cue que cruza o corte e TRUNCADA no corte (nao some nem vaza)", () => {
+    const base = documentoSintetico([cue("c-x", 0, 10)]);
+    const r = reconciliarComOMix(base, [{ cena: "c-x", inicio_s: 0, fim_s: 5 }], 30);
+    expect(r.legendas).toHaveLength(1);
+    expect(r.legendas[0]!.inicio_s).toBeCloseTo(0, 6);
+    // Truncada em 5 s — o corte do mix, exatamente. Nao some, nao vaza.
+    expect(r.legendas[0]!.fim_s).toBeCloseTo(5, 6);
+  });
+
+  it("caso de borda: truncamento com menos de 1 frame visivel REMOVE a cue", () => {
+    const base = documentoSintetico([cue("c-x", 0, 10)]);
+    // Residuo de 0,01 s a 30 fps = 0,3 frame < 1 frame: a cue e removida.
+    const r = reconciliarComOMix(base, [{ cena: "c-x", inicio_s: 0, fim_s: 0.01 }], 30);
+    expect(r.legendas).toHaveLength(0);
+  });
+
+  it("caso de borda: o residuo tolerado pelo mix entre cenas nao sobrepoe a cue vizinha", () => {
+    // O mix C1 tolera ate 0,1 s de cauda da cena anterior sob a
+    // posterior (nao corta em 5,05 s). No SRT, a cauda e clampada ao
+    // inicio da cue da cena seguinte: nunca duas caixas ao mesmo tempo.
+    const base = documentoSintetico([cue("c-x", 0, 5.05), cue("c-y", 5.0, 9)]);
+    const r = reconciliarComOMix(
+      base,
+      [
+        { cena: "c-x", inicio_s: 0, fim_s: 5.05 },
+        { cena: "c-y", inicio_s: 5.0, fim_s: 9 },
+      ],
+      30,
+    );
+    expect(r.legendas).toHaveLength(2);
+    expect(r.legendas[0]!.fim_s).toBeCloseTo(5.0, 6);
+    expect(r.legendas[1]!.inicio_s).toBeCloseTo(5.0, 6);
+  });
+
+  it("fps invalido e recusado (o frame visivel e 1/fps — nunca divisao por zero)", () => {
+    const base = documentoSintetico([cue("c-x", 0, 10)]);
+    expect(() => reconciliarComOMix(base, [{ cena: "c-x", inicio_s: 0, fim_s: 5 }], 0)).toThrow(/fps/);
+    expect(() => reconciliarComOMix(base, [{ cena: "c-x", inicio_s: 0, fim_s: 5 }], NaN)).toThrow(/fps/);
+  });
+});
+
+/** Um documento sintetico minimo para os casos de borda da reconciliacao. */
+function documentoSintetico(
+  legendas: readonly {
+    cena: string;
+    inicio_s: number;
+    fim_s: number;
+  }[],
+): LegendasCanonicas {
+  return {
+    schema_version: "LegendasCanonicas.1",
+    unidade: "segundos",
+    legendas: legendas.map((l) => ({
+      unidade: "segundos" as const,
+      cena: l.cena,
+      audio: "abc",
+      inicio_s: l.inicio_s,
+      fim_s: l.fim_s,
+      linhas: ["ola"],
+      texto: "ola",
+      caracteres: 3,
+    })),
+  };
+}
+
+/** Uma cue sintetica: uma linha, um texto. */
+function cue(cena: string, inicio_s: number, fim_s: number) {
+  return { cena, inicio_s, fim_s };
+}
+
 // ─── ∅-crit (a): mutacao de um intervalo fica VERMELHA ───────────────────────
 
 describe("conferirSidecar (∅-crit (a) do contrato-w8 §2)", () => {
@@ -255,7 +405,7 @@ describe("spansDaQueimada e conferirCoerenciaDaQueimada (∅-crit (b))", () => {
     expect(c004Legendas[c004Legendas.length - 1]!.fim_s).toBeCloseTo(22.738, 3);
   });
 
-  it("a queimada morre na janela visual; o sidecar descreve a fala inteira", async () => {
+  it("a queimada morre na janela visual; o sidecar morre no corte do mix", async () => {
     const { manifesto, legendas } = await contextoCanonico();
     const janelas = janelasVisuais(manifesto);
     const spans = spansDaQueimada(legendas, janelas);
@@ -263,19 +413,28 @@ describe("spansDaQueimada e conferirCoerenciaDaQueimada (∅-crit (b))", () => {
     // A queimada de c-004 existe so ate o fim da janela (18,233 s).
     expect(c004.length).toBeGreaterThan(0);
     expect(Math.max(...c004.map((s) => s.fim_s))).toBeCloseTo(18.233, 3);
-    // O sidecar termina a fala inteira em 22,738 s — os dois lados
-    // divergem por CONSTRUCAO: duracao total NUNCA e igualdade.
-    const sidecarFim = Math.max(
-      ...legendas.legendas.filter((l) => l.cena === "c-004").map((l) => l.fim_s),
+    // O sidecar POS-reconciliacao morre no MESMO ponto: o mix cortou a
+    // fala de c-004 em 18,233 s (inicio de c-005, C1) — o SRT descreve o
+    // que o espectador OUVe, e o que ele ouve de c-004 termina no corte.
+    // A assercao do gate e de inicio_s onde a queimada existe
+    // (∅-crit (b)) — nunca igualdade de duracao total.
+    const reconciliadas = reconciliarComOMix(
+      legendas,
+      falasReconciliadasDaFixture(),
+      manifesto.fps,
     );
-    expect(sidecarFim).toBeCloseTo(22.738, 3);
-    expect(sidecarFim).not.toBeCloseTo(18.233, 3);
+    const sidecarFim = Math.max(
+      ...reconciliadas.legendas.filter((l) => l.cena === "c-004").map((l) => l.fim_s),
+    );
+    expect(sidecarFim).toBeCloseTo(18.233, 3);
   });
 
   it("o gate fica VERDE no CASO C1 (a divergencia legitima de FIM nao acusa)", async () => {
     const { manifesto, legendas } = await contextoCanonico();
     const janelas = janelasVisuais(manifesto);
-    const srt = serializarSrt(legendas);
+    const srt = serializarSrt(
+      reconciliarComOMix(legendas, falasReconciliadasDaFixture(), manifesto.fps),
+    );
     const problemas = conferirCoerenciaDaQueimada(srt, legendas, janelas);
     // Onde a queimada existe, o inicio_s coincide — a duracao total NAO
     // e comparada (asserir igualdade de duracao seria o falso-verde que
@@ -286,10 +445,13 @@ describe("spansDaQueimada e conferirCoerenciaDaQueimada (∅-crit (b))", () => {
   it("fica VERMELHO quando o inicio_s diverge onde a queimada existe", async () => {
     const { manifesto, legendas } = await contextoCanonico();
     const janelas = janelasVisuais(manifesto);
-    // Mutacao: a primeira legenda de c-004 comeca 1 s depois no SRT.
-    const srtMutado = serializarSrt(legendas).replace(
-      "00:00:14,233 --> 00:00:19,798",
-      "00:00:15,233 --> 00:00:19,798",
+    // Mutacao: a primeira legenda de c-004 comeca 1 s depois no SRT
+    // pos-reconciliado.
+    const srtMutado = serializarSrt(
+      reconciliarComOMix(legendas, falasReconciliadasDaFixture(), manifesto.fps),
+    ).replace(
+      "00:00:14,233 --> 00:00:18,233",
+      "00:00:15,233 --> 00:00:18,233",
     );
     const problemas = conferirCoerenciaDaQueimada(srtMutado, legendas, janelas);
     expect(problemas.length).toBeGreaterThan(0);

@@ -24,10 +24,15 @@
  *      entregavel fora do alvo NAO EXISTE (∅-crit original: a guarda
  *      lança, a entrega falha);
  *   5. GERA o sidecar SRT do MESMO documento LegendasCanonicas.1 lido
- *      via `lerLegendas` (ADR-0027 — ∅-crit (a)) e confere a coerencia
- *      com a queimada (∅-crit (b): inicio_s coincide ONDE a queimada
- *      existe; duracao total NUNCA e comparada — a c-004 prova que os
- *      dois lados divergem por construcao);
+ *      via `lerLegendas` (ADR-0027 — ∅-crit (a)), RECONCILIADO com o
+ *      mix (C1, `reconciliarComOMix`): o SRT descreve a timeline
+ *      POS-reconciliacao — cue que cruza um corte do mix e truncada no
+ *      corte, menos de 1 frame visivel e removida, nenhuma cue sobrepoe
+ *      a vizinha. Confere a coerencia com a queimada (∅-crit (b):
+ *      inicio_s coincide ONDE a queimada existe; duracao total NUNCA e
+ *      comparada — no CASO C1 da fixture o corte do mix em 18,233 s
+ *      coincide com o fim da janela: a queimada morre onde o sidecar
+ *      morre);
  *   6. REGISTRA tudo no PosDocument.1 (`formato.ts`): alvo, ganho,
  *      medicoes, sidecar e o pin das ferramentas (ffmpeg 6.1.1 + node —
  *      `just pos` falha se a versao corrente divergir do pin).
@@ -51,8 +56,13 @@ import { aplicarGanhoNoMaster, computarGanho } from "./normalizar.js";
 import type { GanhoComputado } from "./normalizar.js";
 import { montarComandoAudio } from "./perfil-audio.js";
 import { PERFIL_AUDIO_POS } from "./perfil-audio.js";
-import { conferirCoerenciaDaQueimada, conferirSidecar, serializarSrt } from "./sidecar.js";
-import type { JanelaVisualDaCena } from "./sidecar.js";
+import {
+  conferirCoerenciaDaQueimada,
+  conferirSidecar,
+  reconciliarComOMix,
+  serializarSrt,
+} from "./sidecar.js";
+import type { FalaReconciliada, JanelaVisualDaCena } from "./sidecar.js";
 import { FORMATO_POS, sha256Bytes } from "./formato.js";
 import type { AlvoDoPos, PosDocument } from "./formato.js";
 
@@ -117,6 +127,14 @@ export interface OpcoesDoPos {
   readonly documentoLegendasBytes: Buffer;
   /** Contexto do oraculo de legendas (manifesto + timing — F3-02). */
   readonly contextoLegendas: ContextoDeLegendas;
+  /**
+   * Os intervalos em que a fala de cada cena REALMENTE toca no master —
+   * a reconciliacao do mix (C1, `faixas.locucao` do MixDocument.1). O
+   * sidecar descreve a timeline POS-reconciliacao: cue que cruza um
+   * corte e truncada no corte; menos de 1 frame visivel e removida;
+   * nenhuma cue sobrepoe a vizinha (reconciliarComOMix).
+   */
+  readonly intervalosDeFala: readonly FalaReconciliada[];
   /** Diretorio de trabalho para os arquivos temporarios do ffmpeg. */
   readonly dirTrabalho: string;
   /** Versao do ffmpeg corrente (default: detectada — o pin e conferido). */
@@ -223,11 +241,17 @@ export async function produzirPos(opcoes: OpcoesDoPos): Promise<ResultadoDoPos> 
     throw new ETruePeakAcimaDoTeto(medicao.truePeakDbtp, alvo.maxTruePeakDbtp, alvo.toleranciaMedicaoLu);
   }
 
-  // 5. Sidecar do MESMO documento (ADR-0027) — por construcao ele bate;
-  //    a conferencia independente e do oraculo (`conferirPos`).
+  // 5. Sidecar do MESMO documento (ADR-0027), RECONCILIADO com o mix
+  //    (C1) — por construcao ele bate; a conferencia independente e do
+  //    oraculo (`conferirPos`).
   const legendas = lerLegendas(opcoes.documentoLegendasBytes, opcoes.contextoLegendas);
-  const sidecar = serializarSrt(legendas);
-  const problemasSidecar = conferirSidecar(sidecar, legendas);
+  const reconciliadas = reconciliarComOMix(
+    legendas,
+    opcoes.intervalosDeFala,
+    opcoes.contextoLegendas.manifesto.fps,
+  );
+  const sidecar = serializarSrt(reconciliadas);
+  const problemasSidecar = conferirSidecar(sidecar, reconciliadas);
   if (problemasSidecar.length > 0) {
     // Inalcancavel por construcao: o sidecar ACABOU de nascer do documento.
     throw new Error(`sidecar recusado pela propria conferencia:\n  - ${problemasSidecar.join("\n  - ")}`);
@@ -299,9 +323,11 @@ export async function produzirPos(opcoes: OpcoesDoPos): Promise<ResultadoDoPos> 
  *       dentro da margem declarada; acima dela, a margem e revisada por
  *       ADR (nunca ajustada em silencio).
  *   G7  sidecar (∅-crit (a)) — o SRT entregue e o que deriva do MESMO
- *       documento (lerLegendas -> serializarSrt) e confere contra o
- *       documento (intervalos coerentes); o hash registrado bate com os
- *       bytes entregues e com o documento de origem.
+ *       documento RECONCILIADO com o mix (lerLegendas ->
+ *       reconciliarComOMix -> serializarSrt) e confere contra a
+ *       timeline pos-reconciliada (intervalos coerentes); o hash
+ *       registrado bate com os bytes entregues e com o documento de
+ *       origem.
  *   G8  queimada (∅-crit (b)) — coerencia de inicio_s ONDE a queimada
  *       existe (janela visual da cena, F1-01); NUNCA igualdade de
  *       duracao total.
@@ -333,6 +359,12 @@ export interface EntradasDaConferencia {
   /** Os bytes do documento de legendas de que o sidecar nasceu. */
   readonly documentoLegendasBytes: Buffer;
   readonly contextoLegendas: ContextoDeLegendas;
+  /**
+   * A reconciliacao do mix (C1) — os intervalos em que a fala de cada
+   * cena toca no master. O sidecar esperado e re-derivado por
+   * `lerLegendas -> reconciliarComOMix -> serializarSrt`.
+   */
+  readonly intervalosDeFala: readonly FalaReconciliada[];
   /** As janelas visuais das cenas (F1-01) — a base da queimada. */
   readonly janelasVisuais: readonly JanelaVisualDaCena[];
   /** Os bytes do entregavel codificado. */
@@ -470,17 +502,25 @@ export async function conferirPos(
   }
 
   // G7 — sidecar (∅-crit (a)): o SRT entregue e o que deriva do MESMO
-  // documento; intervalos coerentes com o golden.
+  // documento, RECONCILIADO com o mix (C1): a expectativa e
+  // `lerLegendas -> reconciliarComOMix -> serializarSrt` — o sidecar
+  // descreve a timeline POS-reconciliacao, nunca a fala inteira do
+  // documento; intervalos coerentes com o golden pos-reconciliado.
   const legendas = lerLegendas(entradas.documentoLegendasBytes, entradas.contextoLegendas);
-  const esperadoSrt = serializarSrt(legendas);
+  const reconciliadas = reconciliarComOMix(
+    legendas,
+    entradas.intervalosDeFala,
+    entradas.contextoLegendas.manifesto.fps,
+  );
+  const esperadoSrt = serializarSrt(reconciliadas);
   if (entradas.sidecar !== esperadoSrt) {
     problemas.push(
       "G7: o sidecar entregue NAO e o que deriva do documento LegendasCanonicas.1 " +
-        "(lerLegendas -> serializarSrt) — o sidecar e fabricado no ponto de consumo, " +
-        "nunca regenerado de outra fonte (ADR-0027)",
+        "(lerLegendas -> reconciliarComOMix -> serializarSrt) — o sidecar e fabricado " +
+        "no ponto de consumo, nunca regenerado de outra fonte (ADR-0027)",
     );
   }
-  problemas.push(...conferirSidecar(entradas.sidecar, legendas).map((p) => `G7: ${p}`));
+  problemas.push(...conferirSidecar(entradas.sidecar, reconciliadas).map((p) => `G7: ${p}`));
   const hashSrt = sha256Bytes(Buffer.from(entradas.sidecar, "utf-8"));
   if (doc.sidecar.hash !== hashSrt) {
     problemas.push(

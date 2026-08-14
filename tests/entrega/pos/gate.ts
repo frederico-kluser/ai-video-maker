@@ -232,6 +232,7 @@ async function main(): Promise<void> {
     dirTrabalho: RAIZ_TRABALHO,
     ffmpeg: ffmpegVersao,
     fila: filaDoCard,
+    intervalosDeFala: mix.documento.faixas.locucao,
   });
   console.log(
     `ganho aplicado: ${resultado.ganho.ganhoAplicadoDb.toFixed(2)} dB ` +
@@ -247,7 +248,8 @@ async function main(): Promise<void> {
     documentoLegendasBytes,
     contextoLegendas,
     janelasVisuais: janelasVisuais(entradas.manifesto),
-    entregavel: resultado.entregavel,
+    intervalosDeFala: mix.documento.faixas.locucao,
+    entregavel:resultado.entregavel,
     sidecar: resultado.sidecar,
     documento: resultado.documento,
     ffmpegAtual: ffmpegVersao,
@@ -342,6 +344,7 @@ async function main(): Promise<void> {
             dirTrabalho: RAIZ_TRABALHO,
             ffmpeg: ffmpegVersao,
             fila: filaDoCard,
+            intervalosDeFala: mix.documento.faixas.locucao,
           });
           return ["sonda nao bloqueou a entrega fora do alvo"];
         } catch (e) {
@@ -353,9 +356,11 @@ async function main(): Promise<void> {
       nome: "S2 sidecar divergindo do golden (∅-crit (a))",
       trechoEsperado: /G7: .*NAO e o que deriva|G7: .*nao deriva|G7: sidecar/,
       rodar: async () => {
+        // O sidecar POS-reconciliacao: cue 1 truncada no corte do mix
+        // (18,233 s). Mutar esse fim desvia o SRT do golden.
         const mutado = resultado.sidecar.replace(
-          "00:00:19,798",
-          "00:00:20,000",
+          "00:00:14,233 --> 00:00:18,233",
+          "00:00:14,233 --> 00:00:18,400",
         );
         const c = await conferirPos({
           dirTrabalho: RAIZ_TRABALHO,
@@ -363,6 +368,7 @@ async function main(): Promise<void> {
           documentoLegendasBytes,
           contextoLegendas,
           janelasVisuais: janelasVisuais(entradas.manifesto),
+          intervalosDeFala: mix.documento.faixas.locucao,
           entregavel: resultado.entregavel,
           sidecar: mutado,
           documento: resultado.documento,
@@ -376,9 +382,12 @@ async function main(): Promise<void> {
       nome: "S3 queimada x sidecar: inicio_s divergindo onde a queimada existe (∅-crit (b))",
       trechoEsperado: /G8: .*c-004|G8: .*sem cue/,
       rodar: async () => {
+        // O sidecar POS-reconciliacao: cue 1 truncada no corte (18,233 s).
+        // Deslocar o inicio_s deixa a queimada de c-004 (inicio 14,233 s)
+        // sem cue correspondente.
         const mutado = resultado.sidecar.replace(
-          "00:00:14,233 --> 00:00:19,798",
-          "00:00:15,233 --> 00:00:19,798",
+          "00:00:14,233 --> 00:00:18,233",
+          "00:00:15,233 --> 00:00:18,233",
         );
         const c = await conferirPos({
           dirTrabalho: RAIZ_TRABALHO,
@@ -386,6 +395,7 @@ async function main(): Promise<void> {
           documentoLegendasBytes,
           contextoLegendas,
           janelasVisuais: janelasVisuais(entradas.manifesto),
+          intervalosDeFala: mix.documento.faixas.locucao,
           entregavel: resultado.entregavel,
           sidecar: mutado,
           documento: resultado.documento,
@@ -412,6 +422,7 @@ async function main(): Promise<void> {
           documentoLegendasBytes,
           contextoLegendas,
           janelasVisuais: janelasVisuais(entradas.manifesto),
+          intervalosDeFala: mix.documento.faixas.locucao,
           entregavel: await readFile(join(RAIZ_TRABALHO, "s4.m4a")),
           sidecar: resultado.sidecar,
           documento: resultado.documento,
@@ -431,6 +442,7 @@ async function main(): Promise<void> {
           documentoLegendasBytes,
           contextoLegendas,
           janelasVisuais: janelasVisuais(entradas.manifesto),
+          intervalosDeFala: mix.documento.faixas.locucao,
           entregavel: resultado.entregavel,
           sidecar: resultado.sidecar,
           documento: resultado.documento,
@@ -470,6 +482,7 @@ async function main(): Promise<void> {
           documentoLegendasBytes,
           contextoLegendas,
           janelasVisuais: janelasVisuais(entradas.manifesto),
+          intervalosDeFala: mix.documento.faixas.locucao,
           entregavel: await readFile(join(RAIZ_TRABALHO, "s7.m4a")),
           sidecar: resultado.sidecar,
           documento: resultado.documento,
@@ -489,8 +502,9 @@ async function main(): Promise<void> {
           documentoLegendasBytes,
           contextoLegendas,
           janelasVisuais: janelasVisuais(entradas.manifesto),
+          intervalosDeFala: mix.documento.faixas.locucao,
           entregavel: resultado.entregavel,
-          sidecar: "1\n00:00:14,233 --> 00:00:19,798\nok\n\n2\n00:00:19,888 --> 00:00:22,738\ntem características de renderização\ndistintas.\n\n3\n00:00:18,233 --> 00:00:23,588\nConcluindo, o manifesto é a peça central\ndo pipeline. Obrigado por assistir.\n",
+          sidecar: "1\n00:00:14,233 --> 00:00:18,233\nok\n\n2\n00:00:18,233 --> 00:00:23,588\nConcluindo, o manifesto é a peça central\ndo pipeline. Obrigado por assistir.\n",
           documento: resultado.documento,
           ffmpegAtual: ffmpegVersao,
           nodeAtual: process.version,

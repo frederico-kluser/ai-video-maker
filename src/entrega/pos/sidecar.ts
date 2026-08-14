@@ -7,10 +7,21 @@
  * legenda queimada — lido via `lerLegendas(bytes, contexto)` (ADR-0027:
  * o consumidor F5-03 le por `lerLegendas`, e o `serializeSrt` do
  * Remotion fabrica `timestampMs` e nao e round-trip limpo; o SRT so e
- * fabricado no ponto de consumo — ∅-crit (a) do contrato-w8 §2).
+ * fabricado no ponto de consumo — ∅-crit (a) do contrato-w8 §2),
+ * RECONCILIADO com o mix antes da serializacao: o SRT descreve o que a
+ * fala REALMENTE toca no entregavel, nao a fala inteira do documento.
  *
  * O que este modulo faz:
  *
+ *   - `reconciliarComOMix` — a timeline POS-reconciliacao (C1): cada
+ *     legenda clipada ao intervalo em que a fala da sua cena toca no
+ *     master (faixas.locucao do MixDocument.1 — cena posterior manda,
+ *     cauda da anterior cortada no inicio da posterior). Uma legenda
+ *     que cruza um corte e TRUNCADA no corte; se o truncamento deixar
+ *     menos de 1 frame visivel (1/fps), a legenda e REMOVIDA. Nenhuma
+ *     cue sobrepoe a vizinha: o fim de cada cue e clampado ao inicio da
+ *     proxima (entre cenas, o residuo tolerado pelo mix C1 — ate 0,1 s —
+ *     e absorvido aqui).
  *   - `serializarSrt` — SRT a partir do documento: tempos ABSOLUTOS em
  *     segundos -> timecodes hh:mm:ss,mmm. Nenhum `timestampMs`
  *     fabricado: o round-trip e o proprio documento.
@@ -19,23 +30,101 @@
  *   - `conferirSidecar` — cada legenda do documento TEM um cue no
  *     sidecar com o MESMO inicio_s e o MESMO texto (presenca, nunca
  *     lista fechada — contrato-w8 §7); cada cue tem um documento de que
- *     deriva (nenhum intervalo inventado).
+ *     deriva (nenhum intervalo inventado). O documento contra o qual se
+ *     confere e o POS-reconciliacao (a forma que o sidecar descreve).
  *   - `spansDaQueimada` — a legenda queimada e o MESMO documento
  *     CLIPADO a janela visual da cena (F1-01): onde a queimada existe,
- *     o inicio_s coincide com o sidecar — e o FIM diverge por
- *     construcao quando a fala carrega alem da janela (CASO C1: c-004
- *     tem janela visual de 4 s e fala de 8,505 s — a queimada existe so
- *     na janela, o sidecar descreve a fala inteira ate 22,738 s).
- *     `conferirCoerenciaDaQueimada` assere a COERENCIA DE inicio_s onde
- *     a queimada existe — nunca igualdade de duracao total (contrato-w8
- *     §2 ∅-crit (b); a licao do contrato-w7 §12: assercao de presenca,
- *     nunca de lista completa).
+ *     o inicio_s coincide com o sidecar. `conferirCoerenciaDaQueimada`
+ *     assere a COERENCIA DE inicio_s onde a queimada existe — nunca
+ *     igualdade de duracao total (contrato-w8 §2 ∅-crit (b); a licao do
+ *     contrato-w7 §12: assercao de presenca, nunca de lista completa).
+ *     No CASO C1 da fixture (c-004: janela visual de 4 s e fala de
+ *     8,505 s), o corte do mix em 18,233 s coincide com o fim da janela:
+ *     a queimada morre onde o sidecar morre — os dois lados descrevem o
+ *     que o espectador VE (queimada) e OUVe (mix).
  */
 
-import type { LegendasCanonicas } from "../../sincronia/legendas/formato.js";
+import type { LegendasCanonicas, LegendaCanonica } from "../../sincronia/legendas/formato.js";
 
 /** Tolerancia de comparacao de inicio entre documento e sidecar (um milissegundo). */
 export const TOLERANCIA_SRTCUE_MS = 1;
+
+// ─── Reconciliacao com o mix (C1) ─────────────────────────────────────────────
+
+/**
+ * Uma fala posicionada no master apos a reconciliacao do mix (C1): o
+ * intervalo absoluto em que a locucao de uma cena REALMENTE toca no
+ * entregavel (o campo `faixas.locucao` do MixDocument.1).
+ */
+export interface FalaReconciliada {
+  readonly cena: string;
+  readonly inicio_s: number;
+  readonly fim_s: number;
+}
+
+/**
+ * A timeline POS-reconciliacao (C1): cada legenda clipada ao intervalo
+ * em que a fala da sua cena toca no master (`falas` — cena posterior
+ * manda, cauda da anterior cortada no inicio da posterior).
+ *
+ * Regras:
+ *
+ *   1. CLIPE NO CORTE — uma legenda que cruza o corte do mix e truncada
+ *      no corte (`fim = min(fim, fimDaFala)`); a parte cortada da fala
+ *      nao existe no entregavel, e o SRT nao a descreve.
+ *   2. REMOCAO — se o truncamento deixar menos de 1 frame visivel
+ *      (`1/fps`), a legenda e removida: uma cue de menos de um frame nao
+ *      e exibicao, e ruido.
+ *   3. SEM SOBREPOSICAO — o fim de cada cue e clampado ao inicio da
+ *      proxima. Dentro da cena o oraculo do documento ja garante; entre
+ *      cenas, o residuo que o mix C1 tolera (ate 0,1 s de cauda da cena
+ *      anterior sob a posterior) e absorvido aqui — o espectador le uma
+ *      caixa por vez.
+ *
+ * A ordem do documento e preservada (tempo absoluto crescente).
+ */
+export function reconciliarComOMix(
+  legendas: LegendasCanonicas,
+  falas: readonly FalaReconciliada[],
+  fps: number,
+): LegendasCanonicas {
+  if (!Number.isFinite(fps) || fps <= 0) {
+    throw new RangeError(
+      `reconciliarComOMix: fps invalido (${String(fps)}) — o frame visivel e 1/fps`,
+    );
+  }
+  const intervaloPorCena = new Map(falas.map((f) => [f.cena, f]));
+  const frame_s = 1 / fps;
+
+  // 1 + 2: clipe ao intervalo do mix; cue com menos de 1 frame some.
+  const clipadas: LegendaCanonica[] = [];
+  for (const legenda of legendas.legendas) {
+    const fala = intervaloPorCena.get(legenda.cena);
+    if (fala === undefined) continue; // cena sem fala no mix: nada toca, nada existe
+    const inicio = Math.max(legenda.inicio_s, fala.inicio_s);
+    const fim = Math.min(legenda.fim_s, fala.fim_s);
+    if (fim - inicio < frame_s) continue;
+    clipadas.push({ ...legenda, inicio_s: inicio, fim_s: fim });
+  }
+
+  // 3: nenhuma cue sobrepoe a vizinha — o fim de cada uma e clampado ao
+  // inicio da proxima; se o clamp deixar menos de 1 frame, a cue sai.
+  const semSobreposicao: LegendaCanonica[] = [];
+  for (let i = 0; i < clipadas.length; i++) {
+    const cue = clipadas[i]!;
+    const proxima = clipadas[i + 1];
+    const fim =
+      proxima === undefined ? cue.fim_s : Math.min(cue.fim_s, proxima.inicio_s);
+    if (fim - cue.inicio_s < frame_s) continue;
+    semSobreposicao.push({ ...cue, fim_s: fim });
+  }
+
+  return {
+    schema_version: legendas.schema_version,
+    unidade: legendas.unidade,
+    legendas: semSobreposicao,
+  };
+}
 
 // ─── Timecodes ────────────────────────────────────────────────────────────────
 

@@ -934,6 +934,9 @@ async function estagioPos(ctx: ContextoDaProducao): Promise<void> {
     ffmpeg: ctx.ffmpegVersao,
     fila: ctx.fila,
     executor: ctx.executor,
+    // A reconciliacao do mix (C1) — o sidecar descreve a timeline
+    // POS-reconciliacao (faixas.locucao do MixDocument.1).
+    intervalosDeFala: ctx.mix.documento.faixas.locucao,
   });
   ctx.pos = pos;
 
