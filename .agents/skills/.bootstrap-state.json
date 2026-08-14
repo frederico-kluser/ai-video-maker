@@ -3,8 +3,8 @@
     {
       "id": 1,
       "name": "Latest-docs analysis + deep project analysis",
-      "done": false,
-      "gate_passed": false,
+      "done": true,
+      "gate_passed": true,
       "artifact": "project-analysis.md"
     },
     {
@@ -37,5 +37,5 @@
     }
   ],
   "stop_hook_active": false,
-  "updated_by": "phase1-bootstrap-setup"
+  "updated_by": "phase1-commit"
 }
