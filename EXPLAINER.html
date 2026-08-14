@@ -7,8 +7,8 @@
 
   1. TOKENS INLINE  — substituição simples de string. Cada token {{NOME}} é
      trocado pelo valor real:
-       3.2.0  2026-08-13  main  Corre&ccedil;&atilde;o do <code>npm run dev</code> no Editor de V&iacute;deo IA: o entry default do Remotion (<code>src/index.ts</code>) nunca chamava <code>registerRoot()</code>, e o Studio ficava preso em <em>Waiting for registerRoot() to get called</em>. O entry agora importa a raiz (<code>src/composicao/raiz.tsx</code>), que registra a composi&ccedil;&atilde;o <code>manifesto</code>. Regress&atilde;o permanente coberta por 5 testes. Este documento tamb&eacute;m responde &agrave; pergunta original: <em>como o projeto funciona</em>.
-       1  5  2
+       3.2.0  2026-08-14  main  Execu&ccedil;&atilde;o real do pipeline do Editor de V&iacute;deo IA, do in&iacute;cio ao fim, com as chaves do sistema: v&iacute;deo produzido (output/entregavel-final.mp4, conte&uacute;do verificado), 4 problemas reais corrigidos (P1&ndash;P4: autoria viva e SRT) + 1 viola&ccedil;&atilde;o de gate, e o tutorial oficial entregue (docs/TUTORIAL.md + docs/TUTORIAL.html).
+       3  11  5
      Os tokens inline aparecem na navbar, no hero, nos cards de estatística,
      no rodapé e na tabela de placeholders da aba "Visão geral".
 
@@ -176,7 +176,7 @@
 <nav class="navbar navbar-expand-lg sticky-top bg-body-tertiary">
   <div class="container">
     <span class="navbar-brand fw-semibold"><i class="bi bi-diagram-3 brand-accent me-2"></i>deep-orchestrator <span class="text-body-secondary fw-normal">· EXPLAINER</span></span>
-    <span class="navbar-text small text-body-secondary d-none d-md-inline">v3.2.0 · 2026-08-13</span>
+    <span class="navbar-text small text-body-secondary d-none d-md-inline">v3.2.0 · 2026-08-14</span>
   </div>
 </nav>
 
@@ -185,10 +185,10 @@
   <header class="explainer-hero rounded-4 p-4 p-md-5 mb-4">
     <span class="badge badge-accent mb-3"><i class="bi bi-clipboard-data me-1"></i>Relatório de execução</span>
     <h1 class="display-6 fw-semibold text-white mb-2">O que aconteceu nesta execução</h1>
-    <p class="lead text-white-50 mb-3">Corre&ccedil;&atilde;o do <code>npm run dev</code> no Editor de V&iacute;deo IA: o entry default do Remotion (<code>src/index.ts</code>) nunca chamava <code>registerRoot()</code>, e o Studio ficava preso em <em>Waiting for registerRoot() to get called</em>. O entry agora importa a raiz (<code>src/composicao/raiz.tsx</code>), que registra a composi&ccedil;&atilde;o <code>manifesto</code>. Regress&atilde;o permanente coberta por 5 testes. Este documento tamb&eacute;m responde &agrave; pergunta original: <em>como o projeto funciona</em>.</p>
+    <p class="lead text-white-50 mb-3">Execu&ccedil;&atilde;o real do pipeline do Editor de V&iacute;deo IA, do in&iacute;cio ao fim, com as chaves do sistema: v&iacute;deo produzido (output/entregavel-final.mp4, conte&uacute;do verificado), 4 problemas reais corrigidos (P1&ndash;P4: autoria viva e SRT) + 1 viola&ccedil;&atilde;o de gate, e o tutorial oficial entregue (docs/TUTORIAL.md + docs/TUTORIAL.html).</p>
     <div class="d-flex flex-wrap gap-2">
       <span class="badge badge-accent">v3.2.0</span>
-      <span class="badge badge-soft"><i class="bi bi-calendar3 me-1"></i>2026-08-13</span>
+      <span class="badge badge-soft"><i class="bi bi-calendar3 me-1"></i>2026-08-14</span>
       <span class="badge badge-soft"><i class="bi bi-git-branch me-1"></i>main</span>
     </div>
   </header>
@@ -245,7 +245,7 @@
     <div class="tab-pane fade show active" id="pane-visao" role="tabpanel"
          aria-labelledby="tab-visao" tabindex="0" data-print-title="Visão geral">
       <h2 class="h4 pane-title">Resumo da execução</h2>
-      <p class="text-body-secondary">Corre&ccedil;&atilde;o do <code>npm run dev</code> no Editor de V&iacute;deo IA: o entry default do Remotion (<code>src/index.ts</code>) nunca chamava <code>registerRoot()</code>, e o Studio ficava preso em <em>Waiting for registerRoot() to get called</em>. O entry agora importa a raiz (<code>src/composicao/raiz.tsx</code>), que registra a composi&ccedil;&atilde;o <code>manifesto</code>. Regress&atilde;o permanente coberta por 5 testes. Este documento tamb&eacute;m responde &agrave; pergunta original: <em>como o projeto funciona</em>.</p>
+      <p class="text-body-secondary">Execu&ccedil;&atilde;o real do pipeline do Editor de V&iacute;deo IA, do in&iacute;cio ao fim, com as chaves do sistema: v&iacute;deo produzido (output/entregavel-final.mp4, conte&uacute;do verificado), 4 problemas reais corrigidos (P1&ndash;P4: autoria viva e SRT) + 1 viola&ccedil;&atilde;o de gate, e o tutorial oficial entregue (docs/TUTORIAL.md + docs/TUTORIAL.html).</p>
 
       <div class="alert alert-primary d-flex gap-2" role="alert">
         <i class="bi bi-info-circle-fill flex-shrink-0"></i>
@@ -257,7 +257,7 @@
           <div class="card h-100 text-center">
             <div class="card-body py-4">
               <i class="bi bi-layers fs-3 stat-value"></i>
-              <div class="display-6 fw-bold stat-value">1</div>
+              <div class="display-6 fw-bold stat-value">3</div>
               <div class="text-body-secondary small">Ondas executadas</div>
             </div>
           </div>
@@ -266,7 +266,7 @@
           <div class="card h-100 text-center">
             <div class="card-body py-4">
               <i class="bi bi-robot fs-3 stat-value"></i>
-              <div class="display-6 fw-bold stat-value">5</div>
+              <div class="display-6 fw-bold stat-value">11</div>
               <div class="text-body-secondary small">Sub-agentes</div>
             </div>
           </div>
@@ -275,7 +275,7 @@
           <div class="card h-100 text-center">
             <div class="card-body py-4">
               <i class="bi bi-git-commit fs-3 stat-value"></i>
-              <div class="display-6 fw-bold stat-value">2</div>
+              <div class="display-6 fw-bold stat-value">5</div>
               <div class="text-body-secondary small">Commits (squash)</div>
             </div>
           </div>
@@ -286,7 +286,7 @@
       <p>O orquestrador, na fase COMMIT-FINAL, gera o explainer a partir deste template:</p>
 <pre><code class="language-bash"># Gera o explainer a partir do template
 ./scripts/generate-explainer.sh &gt; EXPLAINER.html
-# Ou preenche manualmente os placeholders 3.2.0, 2026-08-13, main, ...</code></pre>
+# Ou preenche manualmente os placeholders 3.2.0, 2026-08-14, main, ...</code></pre>
       <p class="text-body-secondary small">O template é <code>templates/html-explainer.html</code> — arquivo único, sem build: abre por file:// e imprime em PDF com todas as abas.</p>
 
       </div>
@@ -300,29 +300,42 @@
       <!-- {{WAVES_TABLE}} begin -->
       <div class="table-responsive">
         <table class="table table-hover align-middle">
-          <thead>
-            <tr>
-              <th scope="col">Onda</th>
-              <th scope="col">Worktree</th>
-              <th scope="col">Tarefas</th>
-              <th scope="col" class="text-end">Commits</th>
-              <th scope="col">Status</th>
-            </tr>
-          </thead>
+          <thead><tr><th scope="col">Onda</th><th scope="col">Worktree</th><th scope="col">Tarefas</th><th scope="col" class="text-end">Commits</th><th scope="col">Status</th></tr></thead>
           <tbody>
             <tr>
               <td><span class="badge badge-accent">Onda 1</span></td>
-              <td><code>onda1-fix-entry-dev</code></td>
-              <td>Fix do entry default do Remotion: <code>src/index.ts</code> vira o entry real (import est&aacute;tico de <code>./composicao/raiz</code>) &mdash; corrige <code>npm run dev</code> e <code>just dev</code></td>
-              <td class="text-end">1</td>
-              <td><span class="badge badge-ok">Conclu&iacute;da</span></td>
+              <td><code>onda1-execucao-e2e</code></td>
+              <td>Execu&ccedil;&atilde;o real do pipeline: autoria viva (falhou &mdash; bugs descobertos), produzir estrito VERDE, e2e VERDE, artefatos verificados por conte&uacute;do</td>
+              <td class="text-end">&mdash;</td>
+              <td><span class="badge badge-ok">Conclu&iacute;da (sem merge — artefatos entregues em output/2026-08-13-e2e/)</span></td>
             </tr>
             <tr>
-              <td><span class="badge badge-accent">Testing Subwave 1</span></td>
-              <td><code>test-onda1-entry-root</code></td>
-              <td>Regress&atilde;o permanente do entry: or&aacute;culo CLI real (<code>compositions</code> lista <code>manifesto</code>), modo de falha e 3 testes de wiring com sondas negativas</td>
+              <td><span class="badge badge-accent">Onda 2</span></td>
+              <td><code>onda2-fix-autoria-viva</code></td>
+              <td>P1 normaliza&ccedil;&atilde;o null&rarr;ausente + P2 gate antes do cache + P3 credencial anthropic &mdash; cerim&ocirc;nia viva PASSANDO</td>
               <td class="text-end">1</td>
-              <td><span class="badge badge-ok">Conclu&iacute;da</span></td>
+              <td><span class="badge badge-ok">Conclu&iacute;da (0726ee9)</span></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-accent">Onda 2</span></td>
+              <td><code>onda2-fix-srt-reconciliacao</code></td>
+              <td>P4: SRT serializa a timeline p&oacute;s-reconcilia&ccedil;&atilde;o do mix (sem sobreposi&ccedil;&atilde;o, cues clipadas no corte)</td>
+              <td class="text-end">1</td>
+              <td><span class="badge badge-ok">Conclu&iacute;da (8fa3986)</span></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-accent">Onda 3</span></td>
+              <td><code>onda3-tutorial-e2e</code></td>
+              <td>Run viva completa (autoria LLM real + pipeline) + docs/TUTORIAL.md + docs/TUTORIAL.html + .gitignore (output-*/)</td>
+              <td class="text-end">1</td>
+              <td><span class="badge badge-ok">Conclu&iacute;da (26ef9ed)</span></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-accent">Fix</span></td>
+              <td><code>onda3-fix-tutorial-dicionario</code></td>
+              <td>Gate F4-02: tutorial violava a fonte &uacute;nica do dicion&aacute;rio de pron&uacute;ncia (c&eacute;lula <code>| Node.js |</code>) &mdash; corrigido e refer&ecirc;ncia ao dicion&aacute;rio adicionada</td>
+              <td class="text-end">1</td>
+              <td><span class="badge badge-ok">Conclu&iacute;da (1e1fea9)</span></td>
             </tr>
           </tbody>
         </table>
@@ -346,24 +359,20 @@
       <!-- {{FILES_TABLE}} begin -->
       <div class="table-responsive">
         <table class="table table-hover align-middle">
-          <thead>
-            <tr>
-              <th scope="col">Arquivo</th>
-              <th scope="col">Tipo</th>
-              <th scope="col" class="text-end">Diff</th>
-            </tr>
-          </thead>
+          <thead><tr><th scope="col">Arquivo</th><th scope="col">Tipo</th><th scope="col" class="text-end">Diff</th></tr></thead>
           <tbody>
-            <tr>
-              <td><code>src/index.ts</code></td>
-              <td><span class="badge badge-accent">modificado</span></td>
-              <td class="text-end"><span class="diff-plus">+8</span> <span class="diff-minus">&minus;4</span></td>
-            </tr>
-            <tr>
-              <td><code>tests/integracao/entry/cli-entry.test.ts</code></td>
-              <td><span class="badge badge-ok">novo</span></td>
-              <td class="text-end diff-plus">+169</td>
-            </tr>
+            <tr><td><code>src/autoria/contrato/normalizar.ts</code></td><td><span class="badge badge-ok">novo</span></td><td class="text-end diff-plus">+186</td></tr>
+            <tr><td><code>src/autoria/executor/executor.ts</code></td><td><span class="badge badge-accent">modificado</span></td><td class="text-end"><span class="diff-plus">+48</span></td></tr>
+            <tr><td><code>src/autoria/executor/gravar-cassete.ts</code></td><td><span class="badge badge-accent">modificado</span></td><td class="text-end"><span class="diff-plus">+69</span></td></tr>
+            <tr><td><code>src/entrega/pos/sidecar.ts</code></td><td><span class="badge badge-accent">modificado</span></td><td class="text-end"><span class="diff-plus">+111</span> <span class="diff-minus">&minus;?</span></td></tr>
+            <tr><td><code>src/entrega/pos/index.ts</code></td><td><span class="badge badge-accent">modificado</span></td><td class="text-end"><span class="diff-plus">+76</span></td></tr>
+            <tr><td><code>src/pipeline/produzir.ts</code></td><td><span class="badge badge-accent">modificado</span></td><td class="text-end diff-plus">+3</td></tr>
+            <tr><td><code>tests/autoria/{normalizar,gravar-cassete}.test.ts</code></td><td><span class="badge badge-ok">novos</span></td><td class="text-end diff-plus">+298</td></tr>
+            <tr><td><code>tests/entrega/pos/{pos.test.ts,gate.ts}</code></td><td><span class="badge badge-accent">modificados</span></td><td class="text-end diff-plus">+224</td></tr>
+            <tr><td><code>docs/TUTORIAL.md</code></td><td><span class="badge badge-ok">novo</span></td><td class="text-end diff-plus">+341</td></tr>
+            <tr><td><code>docs/TUTORIAL.html</code></td><td><span class="badge badge-ok">novo</span></td><td class="text-end diff-plus">+434</td></tr>
+            <tr><td><code>.gitignore</code></td><td><span class="badge badge-accent">modificado</span></td><td class="text-end diff-plus">+1</td></tr>
+            <tr><td><code>fixtures/cassetes/autoria/dfb7e0a3&hellip;/</code></td><td><span class="badge badge-accent">regravado</span></td><td class="text-end">2&times; (runs vivas)</td></tr>
           </tbody>
         </table>
       </div>
@@ -375,12 +384,24 @@
       <!-- {{COMMITS_LIST}} begin -->
       <ul class="list-group list-group-flush">
         <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">c32911c</span>
-          <div><strong>Testing Subwave 1:</strong> adiciona testes de regress&atilde;o do entry default do Remotion (CLI real, modo de falha e wiring com sondas negativas)</div>
+          <span class="badge badge-soft font-monospace">1e1fea9</span>
+          <div><strong>Fix:</strong> tutorial n&atilde;o viola a fonte &uacute;nica do dicion&aacute;rio de pron&uacute;ncia (F4-02)</div>
         </li>
         <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">2eaa378</span>
-          <div><strong>Onda 1:</strong> entry default do Remotion chama registerRoot via import est&aacute;tico da raiz (fix do <code>npm run dev</code>)</div>
+          <span class="badge badge-soft font-monospace">26ef9ed</span>
+          <div><strong>Onda 3:</strong> tutorial oficial (TUTORIAL.md + TUTORIAL.html) baseado na run viva real; .gitignore output-*/</div>
+        </li>
+        <li class="list-group-item d-flex gap-3 align-items-start">
+          <span class="badge badge-soft font-monospace">a52e7e9</span>
+          <div><strong>Higiene:</strong> remove verificar-autoria.tmp.ts (artefato tempor&aacute;rio vazado)</div>
+        </li>
+        <li class="list-group-item d-flex gap-3 align-items-start">
+          <span class="badge badge-soft font-monospace">8fa3986</span>
+          <div><strong>Onda 2:</strong> entregavel.srt p&oacute;s-reconcilia&ccedil;&atilde;o (P4)</div>
+        </li>
+        <li class="list-group-item d-flex gap-3 align-items-start">
+          <span class="badge badge-soft font-monospace">0726ee9</span>
+          <div><strong>Onda 2:</strong> autoria viva consertada (P1+P2+P3) &mdash; cerim&ocirc;nia com LLM real passando</div>
         </li>
       </ul>
       <!-- {{COMMITS_LIST}} end -->
@@ -423,18 +444,14 @@
       </div>
 
       <!-- {{BEFORE_AFTER}} begin -->
-      <!-- De-para: o arquivo -->
-      <h2 class="h4 pane-title">De-Para: src/index.ts (o arquivo)</h2>
+      <!-- De-para: P1 -->
+      <h2 class="h4 pane-title">De-Para: P1&ndash;P3 &mdash; autoria viva</h2>
       <div class="row g-3 mb-4">
         <div class="col-lg-6">
           <div class="card h-100 depara-antes">
             <div class="card-header"><i class="bi bi-arrow-left-circle me-1"></i><strong>Antes</strong></div>
             <div class="card-body">
-              <pre><code class="language-typescript">// Placeholder — esqueleto do Editor de Video IA
-// Este arquivo existe para que `just build` (tsc --noEmit) passe
-// com o src/ ainda vazio de codigo real.
-export {};</code></pre>
-              <p class="card-text text-body-secondary mb-0">O CLI (<code>npx remotion studio</code> bare) usa <code>src/index.ts</code> como entry default &mdash; e o entry nunca chamava <code>registerRoot()</code>.</p>
+              <p class="card-text text-body-secondary mb-0"><code>autoria-gravar --provedor openai</code> falhava 2/2 com <code>ErroContratoAutoria: transicao_entrada: must be object</code>: o subset entregue ao LLM autorizava <code>null</code>, o schema completo exigia object, o cache guardava a resposta inv&aacute;lida (2&ordf; tentativa servia do cache envenenado sem chamar a API) e a credencial anthropic era lida da vari&aacute;vel errada.</p>
             </div>
           </div>
         </div>
@@ -442,31 +459,23 @@ export {};</code></pre>
           <div class="card h-100 depara-depois">
             <div class="card-header"><i class="bi bi-arrow-right-circle me-1"></i><strong>Depois</strong></div>
             <div class="card-body">
-              <pre><code class="language-typescript">// Entry default do Remotion — ponto de entrada quando o CLI roda SEM entry
-// explicito (`npm run dev` / `just dev`: `npx remotion studio`).
-//
-// O registro real da raiz (`registerRoot(RaizRemotion)`, composicao id="manifesto")
-// mora em `src/composicao/raiz.tsx`. Este arquivo importa a raiz estaticamente
-// para que `registerRoot()` seja chamado no escopo de modulo — o contrato que o
-// CLI exige do entry (remotion.dev/docs/register-root).
-import "./composicao/raiz";</code></pre>
-              <p class="card-text text-body-secondary mb-0">O import est&aacute;tico faz <code>registerRoot(RaizRemotion)</code> rodar no escopo de m&oacute;dulo (vive em <code>src/composicao/raiz.tsx:102</code>). A composi&ccedil;&atilde;o <code>manifesto</code> &eacute; registrada.</p>
+              <p class="card-text text-body-secondary mb-0">Normaliza&ccedil;&atilde;o <code>null&rarr;ausente</code> derivada do subset em runtime (11 chaves openai); gate ANTES do cache (rejeitada nunca &eacute; cacheada); <code>ANTHROPIC_AUTH_TOKEN</code> com fallback + aviso ruidoso para SOSIA. Prova: <strong>exit 0 com chamada real</strong>, cassete regravado, autoria-suite 189/189.</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- De-para: a experiencia do usuario -->
-      <h2 class="h4 pane-title">De-Para: o que o usu&aacute;rio v&ecirc;</h2>
+      <!-- De-para: P4 -->
+      <h2 class="h4 pane-title">De-Para: P4 &mdash; SRT com cues sobrepostas</h2>
       <div class="row g-3 mb-4">
         <div class="col-lg-6">
           <div class="card h-100 depara-antes">
             <div class="card-header"><i class="bi bi-arrow-left-circle me-1"></i><strong>Antes</strong></div>
             <div class="card-body">
-              <p class="card-text"><code>$ npm run dev</code></p>
-              <pre><code>Waiting for registerRoot() to get called.
-Learn more: remotion.dev/docs/register-root</code></pre>
-              <p class="card-text text-body-secondary mb-0">O servidor do Studio sobe, mas a composi&ccedil;&atilde;o nunca &eacute; registrada &mdash; a pr&eacute;via fica esperando.</p>
+              <pre><code>1  00:00:14,233 --&gt; 00:00:19,798
+2  00:00:19,888 --&gt; 00:00:22,738
+3  00:00:18,233 --&gt; 00:00:23,588   ← SOBREP&Otilde;E 1 e 2</code></pre>
+              <p class="card-text text-body-secondary mb-0">O mix cortava a locu&ccedil;&atilde;o de c-004 em 18,233 s, mas o SRT serializava o pr&eacute;-reconcilia&ccedil;&atilde;o: a 2&ordf; legenda de c-004 aparecia depois do corte do seu pr&oacute;prio &aacute;udio, durante a fala de c-005.</p>
             </div>
           </div>
         </div>
@@ -474,47 +483,55 @@ Learn more: remotion.dev/docs/register-root</code></pre>
           <div class="card h-100 depara-depois">
             <div class="card-header"><i class="bi bi-arrow-right-circle me-1"></i><strong>Depois</strong></div>
             <div class="card-body">
-              <p class="card-text"><code>$ npm run dev</code></p>
-              <pre><code>Server ready
-Built in 974ms</code></pre>
-              <p class="card-text text-body-secondary mb-0">Studio abre com a composi&ccedil;&atilde;o <code>manifesto</code> (1920&times;1080 &middot; 30 fps &middot; 727 frames &asymp; 24,23 s) pronta para pr&eacute;via e render.</p>
+              <pre><code>1  00:00:14,233 --&gt; 00:00:18,233   ← termina no corte do mix
+2  00:00:18,233 --&gt; 00:00:23,588   ← come&ccedil;a no corte</code></pre>
+              <p class="card-text text-body-secondary mb-0"><code>reconciliarComOMix()</code> clipa cada cue ao intervalo <code>faixas.locucao</code> do MixDocument: cue que cruza o corte &eacute; truncada, res&iacute;duo &lt; 1 frame &eacute; removido, nunca h&aacute; sobreposi&ccedil;&atilde;o. O SRT descreve o que o espectador ouve.</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- De-para: como o projeto funciona -->
-      <h2 class="h4 pane-title">Como o projeto funciona (a pergunta original)</h2>
-      <p>O <strong>Editor de V&iacute;deo IA</strong> transforma um tema/brief em v&iacute;deo completo (narra&ccedil;&atilde;o, gr&aacute;ficos, legendas, m&uacute;sica). O v&iacute;deo &eacute; uma <strong>fun&ccedil;&atilde;o pura</strong> de um manifesto resolvido mais assets endere&ccedil;ados por conte&uacute;do (SHA-256). Os cinco est&aacute;gios:</p>
-      <ol class="list-group list-group-flush mb-4">
-        <li class="list-group-item"><strong>AUTORIA</strong> &mdash; um LLM recebe o tema e produz <code>manifesto.json</code> (n&atilde;o-determin&iacute;stico, cacheado).</li>
-        <li class="list-group-item"><strong>RESOLU&Ccedil;&Atilde;O</strong> &mdash; cinco sub-est&aacute;gios impuros (loca&ccedil;&atilde;o, gr&aacute;fico, m&iacute;dia, c&oacute;digo, m&uacute;sica), cada um cacheado por hash, produzem <code>manifesto-resolvido.json</code>.</li>
-        <li class="list-group-item"><strong>COMPOSI&Ccedil;&Atilde;O</strong> &mdash; fun&ccedil;&atilde;o pura: zero rede, zero <code>Date.now()</code>, zero <code>Math.random()</code> sem seed. A raiz (<code>src/composicao/raiz.tsx</code>) recebe o manifesto por prop e o frame por prop &mdash; o determinismo &eacute; testado (render 2&times; = bytes id&ecirc;nticos).</li>
-        <li class="list-group-item"><strong>RENDER</strong> &mdash; frames a encode, paraleliz&aacute;vel por faixa (cache por hash, perfis de encode descobertos por conven&ccedil;&atilde;o).</li>
-        <li class="list-group-item"><strong>POS/ENTREGA</strong> &mdash; loudness, variantes por plataforma, legendas, thumbnail, proced&ecirc;ncia (gate de licen&ccedil;a).</li>
-      </ol>
-      <p>Nada de impuro (LLM, TTS, download, rede) atravessa a <strong>fronteira de determinismo</strong>: tudo que &eacute; impuro sobe acima dela e &eacute; cacheado por hash. O que este fix toca &eacute; a porta de entrada do est&aacute;gio de composi&ccedil;&atilde;o: o Studio (entry default) agora registra a raiz que orquestra toda a &aacute;rvore da composi&ccedil;&atilde;o.</p>
+      <!-- De-para: o video -->
+      <h2 class="h4 pane-title">De-Para: o v&iacute;deo entregue</h2>
+      <div class="row g-3 mb-4">
+        <div class="col-lg-6">
+          <div class="card h-100 depara-antes">
+            <div class="card-header"><i class="bi bi-arrow-left-circle me-1"></i><strong>Antes</strong></div>
+            <div class="card-body">
+              <p class="card-text text-body-secondary mb-0">Nenhum v&iacute;deo real produzido pela ferramenta em execu&ccedil;&atilde;o documentada; o erro <em>Waiting for registerRoot()</em> (corrigido em sess&atilde;o anterior) era o &uacute;ltimo contato do usu&aacute;rio com o projeto.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card h-100 depara-depois">
+            <div class="card-header"><i class="bi bi-arrow-right-circle me-1"></i><strong>Depois</strong></div>
+            <div class="card-body">
+              <p class="card-text text-body-secondary mb-0"><code>output/entregavel-final.mp4</code> &mdash; h264 1920&times;1080@30, 727 frames, aac 48&nbsp;kHz est&eacute;reo, YAVG m&aacute;x 64.854 (piso 32), loudness -23.0 LUFS exato, 10 hashes conferidos 1:1; mais master.mov, master.wav, m4a, variante 16:9, thumbnail, SRT, rel&oacute;rios.</p>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- {{BEFORE_AFTER}} end -->
 
       <h2 class="h4 pane-title">Impacto</h2>
       <h2 class="h4 pane-title">Impacto</h2>
-      <p>O que a mudan&ccedil;a significa para quem usa o Editor de V&iacute;deo IA:</p>
+      <p>O que esta execu&ccedil;&atilde;o entregou para quem usa o Editor de V&iacute;deo IA:</p>
       <div class="list-group list-group-flush mb-4">
         <div class="list-group-item d-flex gap-3 align-items-start">
           <i class="bi bi-play-circle fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong><code>npm run dev</code> funciona</strong> &mdash; o Remotion Studio abre e lista a composi&ccedil;&atilde;o <code>manifesto</code> (1920&times;1080 &middot; 30 fps &middot; 727 frames &asymp; 24,23 s).</div>
+          <div><strong>Um v&iacute;deo de verdade, do in&iacute;cio ao fim</strong> &mdash; <code>output/entregavel-final.mp4</code> (1.156.329 B, h264 1920&times;1080@30, 727 frames &asymp; 24,2 s) com narra&ccedil;&atilde;o, gr&aacute;ficos, legendas sincronizadas e m&uacute;sica &mdash; gerado com as chaves reais do sistema (autoria LLM viva).</div>
         </div>
         <div class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-terminal fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong><code>just dev</code> idem</strong> &mdash; mesmo comando bare (<code>npx remotion studio</code>), mesma corre&ccedil;&atilde;o.</div>
-        </div>
-        <div class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-shield-check fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Regress&atilde;o permanente</strong> &mdash; 5 testes (or&aacute;culo CLI real + modo de falha + wiring com sondas negativas) ficam vermelhos se o entry voltar a n&atilde;o registrar a raiz.</div>
+          <i class="bi bi-wrench-adjustable fs-5 stat-value flex-shrink-0 mt-1"></i>
+          <div><strong>4 problemas reais corrigidos (P1&ndash;P4)</strong> &mdash; autoria viva (schema null vs object + cache envenenado + credencial anthropic errada) e SRT pr&eacute;-reconcilia&ccedil;&atilde;o com cues sobrepostas. Mais 1 viola&ccedil;&atilde;o de gate (F4-02) pega e corrigida no pr&oacute;prio tutorial.</div>
         </div>
         <div class="list-group-item d-flex gap-3 align-items-start">
           <i class="bi bi-book fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Conhecimento registrado</strong> &mdash; a valida&ccedil;&atilde;o de entry do Remotion 4.0.507 &eacute; textual (<code>does not contain "registerRoot"</code>) e o mecanismo real de falha do render &eacute; o timeout do <code>delayRender</code> (28 s); documentados para as pr&oacute;ximas ondas.</div>
+          <div><strong>Tutorial oficial</strong> &mdash; <code>docs/TUTORIAL.md</code> (333 linhas) + <code>docs/TUTORIAL.html</code> (6 abas): pr&eacute;-requisitos, passo a passo real com sa&iacute;das, 11 artefatos, gates, limita&ccedil;&otilde;es honestas e solu&ccedil;&atilde;o de problemas.</div>
+        </div>
+        <div class="list-group-item d-flex gap-3 align-items-start">
+          <i class="bi bi-shield-check fs-5 stat-value flex-shrink-0 mt-1"></i>
+          <div><strong>Gates verdes no estado final</strong> &mdash; tsc, vitest 90 arquivos / 3202 testes, <code>just e2e</code> (R1/R2/R3 + S1&ndash;S4), autoria-suite 189/189, pos com 8 sondas &empty;-crit.</div>
         </div>
       </div>
 
@@ -524,27 +541,27 @@ Built in 974ms</code></pre>
         <div class="col-md-6 col-lg-4">
           <div class="card h-100">
             <div class="card-body">
-              <i class="bi bi-rocket-takeoff fs-3 stat-value"></i>
-              <h3 class="h6 mt-2 mb-1">Entry default funcional</h3>
-              <p class="small text-body-secondary mb-0">O CLI roda sem entry expl&iacute;cito: <code>src/index.ts</code> importa a raiz e o <code>registerRoot</code> acontece na carga do m&oacute;dulo.</p>
+              <i class="bi bi-stars fs-3 stat-value"></i>
+              <h3 class="h6 mt-2 mb-1">Autoria viva funcionando</h3>
+              <p class="small text-body-secondary mb-0">A cerim&ocirc;nia <code>just autoria-gravar --provedor openai</code> roda com o LLM real: normaliza&ccedil;&atilde;o null&rarr;ausente derivada do subset, gate antes do cache, credencial anthropic correta.</p>
             </div>
           </div>
         </div>
         <div class="col-md-6 col-lg-4">
           <div class="card h-100">
             <div class="card-body">
-              <i class="bi bi-bullseye fs-3 stat-value"></i>
-              <h3 class="h6 mt-2 mb-1">Or&aacute;culo falsific&aacute;vel</h3>
-              <p class="small text-body-secondary mb-0"><code>npx remotion compositions src/index.ts</code> lista <code>manifesto</code> &mdash; asser&ccedil;&atilde;o por conte&uacute;do, sonda negativa registrada antes do fix.</p>
+              <i class="bi bi-subtitles fs-3 stat-value"></i>
+              <h3 class="h6 mt-2 mb-1">SRT p&oacute;s-reconcilia&ccedil;&atilde;o</h3>
+              <p class="small text-body-secondary mb-0"><code>reconciliarComOMix</code> clipa as cues nos cortes do mix: legenda nunca cruza o ponto de corte nem sobrep&otilde;e a vizinha.</p>
             </div>
           </div>
         </div>
         <div class="col-md-6 col-lg-4">
           <div class="card h-100">
             <div class="card-body">
-              <i class="bi bi-shield-lock fs-3 stat-value"></i>
-              <h3 class="h6 mt-2 mb-1">Regress&atilde;o em 3 camadas</h3>
-              <p class="small text-body-secondary mb-0">CLI real + modo de falha (mensagem assertada) + wiring com sondas negativas &mdash; falsificabilidade demonstrada por muta&ccedil;&atilde;o.</p>
+              <i class="bi bi-book fs-3 stat-value"></i>
+              <h3 class="h6 mt-2 mb-1">Tutorial oficial</h3>
+              <p class="small text-body-secondary mb-0"><code>docs/TUTORIAL.md</code> + <code>docs/TUTORIAL.html</code> — o guia que o usu&aacute;rio pediu, ancorado em execu&ccedil;&otilde;es reais.</p>
             </div>
           </div>
         </div>
@@ -552,8 +569,8 @@ Built in 974ms</code></pre>
           <div class="card h-100">
             <div class="card-body">
               <i class="bi bi-diagram-3 fs-3 stat-value"></i>
-              <h3 class="h6 mt-2 mb-1">Mapa do projeto</h3>
-              <p class="small text-body-secondary mb-0">Os 5 est&aacute;gios (autoria &rarr; resolu&ccedil;&atilde;o &rarr; composi&ccedil;&atilde;o &rarr; render &rarr; p&oacute;s/entrega) e a fronteira de determinismo explicados na aba De-Para.</p>
+              <h3 class="h6 mt-2 mb-1">E2E comprovado 3&times;</h3>
+              <p class="small text-body-secondary mb-0">O pipeline estrito foi executado em 3 momentos diferentes (Onda 1, Onda 3 e gate combinado) com os mesmos hashes determin&iacute;sticos (YAVG 64.854, -23 LUFS exato).</p>
             </div>
           </div>
         </div>
@@ -569,27 +586,27 @@ Built in 974ms</code></pre>
       <ul class="list-group list-group-flush">
         <li class="list-group-item d-flex gap-3 align-items-start">
           <i class="bi bi-lightbulb fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Fix na origem (entry default) em vez de mexer em package.json/justfile:</strong> corrige <code>npm run dev</code> E <code>just dev</code> com uma &uacute;nica mudan&ccedil;a; entry expl&iacute;cito nos scripts seria redundante e criaria um segundo ponto de verdade. Validado pelo REVISOR DE PLANO.</div>
+          <div><strong>P1 resolvido por normaliza&ccedil;&atilde;o, n&atilde;o por mudan&ccedil;a de schema:</strong> a forma "ausente" j&aacute; era comprovadamente aceita (cassete antigo); schemas permanecem estritos; um &uacute;nico ponto determin&iacute;stico de normaliza&ccedil;&atilde;o derivado do subset em runtime (revisor de plano, op&ccedil;&atilde;o a).</div>
         </li>
         <li class="list-group-item d-flex gap-3 align-items-start">
           <i class="bi bi-lightbulb fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Or&aacute;culo por conte&uacute;do, n&atilde;o por exit code:</strong> <code>npx remotion compositions src/index.ts</code> deve listar o id <code>manifesto</code>. A mensagem literal <em>Waiting for registerRoot()</em> &eacute; runtime do browser do Studio e n&atilde;o aparece no stdout do CLI 4.0.507 &mdash; a falha antecipada no bundler &eacute; <code>does not contain "registerRoot"</code> (conven&ccedil;&atilde;o B, verificado).</div>
+          <div><strong>P4 &eacute; fix de serializa&ccedil;&atilde;o, n&atilde;o do mix:</strong> o corte em 18,233 s era a reconcilia&ccedil;&atilde;o funcionando; o SRT &eacute; que serializava o pr&eacute;-reconcilia&ccedil;&atilde;o. Autoridade: <code>faixas.locucao</code> do MixDocument.</div>
         </li>
         <li class="list-group-item d-flex gap-3 align-items-start">
           <i class="bi bi-lightbulb fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Sonda negativa antes da mudan&ccedil;a:</strong> o sub-agente registrou o estado quebrado (entry vazio &rarr; CLI rejeita) ANTES de aplicar o fix &mdash; o or&aacute;culo demonstrou que falha sem o trabalho.</div>
+          <div><strong>Testing subwaves dispensadas (decis&atilde;o registrada do replan):</strong> os pr&oacute;prios fixes entregaram 31 testes novos com sondas dedicadas; cobertura dos alvos verificada por inspe&ccedil;&atilde;o pelos revisores; nenhuma depend&ecirc;ncia nova de coverage instalada.</div>
         </li>
         <li class="list-group-item d-flex gap-3 align-items-start">
           <i class="bi bi-lightbulb fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Testing subwave com uma &uacute;nica worktree:</strong> 5 testes num arquivo cobrem CLI real, modo de falha e wiring &mdash; sem paralelismo desnecess&aacute;rio.</div>
+          <div><strong>Golden master (fixtures/gm) N&Atilde;O recapturado:</strong> staleness pr&eacute;-existente (gm-e2e n&atilde;o &eacute; gate do fluxo); re-baseline s&oacute; em bug-a-divergir (disciplina ADR-0044) — recapturar para conte&uacute;do de LLM esvaziaria o or&aacute;culo.</div>
         </li>
         <li class="list-group-item d-flex gap-3 align-items-start">
           <i class="bi bi-lightbulb fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Achados documentais do revisor aceitos sem onda de fix:</strong> o mecanismo real de falha da regress&atilde;o &eacute; o timeout do <code>delayRender</code> (28 s), n&atilde;o a literal do Studio; e npx ausente daria diagn&oacute;stico enganoso no teste de modo de falha. Nenhum derruba o gate &mdash; documentados no relat&oacute;rio final.</div>
+          <div><strong>Autonomia total (R2):</strong> nenhuma pergunta ao usu&aacute;rio; decis&otilde;es de produto (SRT p&oacute;s-reconcilia&ccedil;&atilde;o, tutorial com limita&ccedil;&otilde;es honestas) tomadas com base nos fatos da execu&ccedil;&atilde;o.</div>
         </li>
         <li class="list-group-item d-flex gap-3 align-items-start">
           <i class="bi bi-lightbulb fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Autonomia total (R2):</strong> nenhuma pergunta ao usu&aacute;rio. A explica&ccedil;&atilde;o de &ldquo;como o projeto funciona&rdquo; entrou neste EXPLAINER e no relat&oacute;rio final.</div>
+          <div><strong>Chamada anthropic real N&Atilde;O implementada:</strong> o fetch anthropic &eacute; sempre SOSIA (pr&eacute;-existente, AB-552 pendente no ledger) — documentado como limita&ccedil;&atilde;o no tutorial em vez de promessa n&atilde;o cumprida.</div>
         </li>
       </ul>
       <!-- {{DECISIONS}} end -->
@@ -605,32 +622,20 @@ Built in 974ms</code></pre>
       <!-- {{TIMELINE}} begin -->
       <ol class="timeline list-unstyled mb-0">
         <li class="timeline-item mb-4">
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-accent">Fase 1</span>
-            <strong>ANALYZE</strong>
-          </div>
-          <p class="mb-0 text-body-secondary small">FASE 0 (MODE=normal; raiz-de-mundo = repo; branch main). Diagn&oacute;stico da causa raiz: <code>src/index.ts</code> &eacute; placeholder vazio (<code>export {}</code>); o registro real est&aacute; em <code>src/composicao/raiz.tsx:102</code>. Project-router carregado (20 skills; cadeia remotion-core + falsifiable-gates + parallel-worktrees). Busca Tier 1 OK (surf-skill); BRAVE_API_KEY definida.</p>
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-1"><span class="badge badge-accent">Fase 1</span><strong>ANALYZE</strong></div>
+          <p class="mb-0 text-body-secondary small">FASE 0 (MODE=normal, branch main). Descoberta: entry do pipeline = <code>just produzir --fixture canonico --estrito</code> (F5-07); autoria viva = <code>just autoria-gravar</code>; chaves do sistema no ambiente (OPENAI_API_KEY, ANTHROPIC_AUTH_TOKEN); toolchain pinada e presente (node 24, just 1.42.4, ffmpeg 6.1.1). Project-router carregado (cadeia: falsifiable-gates, video-characterization, remotion-render-pipeline, ffmpeg-media-ops, timeline-manifest).</p>
         </li>
         <li class="timeline-item mb-4">
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-accent">Fase 2</span>
-            <strong>PLAN</strong>
-          </div>
-          <p class="mb-0 text-body-secondary small">1 onda / 1 sub-tarefa (<code>onda1-fix-entry-dev</code>), mapa de propriedade exclusivo (<code>src/index.ts</code>), or&aacute;culo definido antes do c&oacute;digo: <code>compositions</code> + id <code>manifesto</code>.</p>
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-1"><span class="badge badge-accent">Fase 2</span><strong>PLAN</strong></div>
+          <p class="mb-0 text-body-secondary small">3 ondas: execu&ccedil;&atilde;o real E2E &rarr; fixes dos problemas encontrados &rarr; tutorial + run viva. Or&aacute;culos definidos antes do c&oacute;digo (conte&uacute;do do v&iacute;deo, hashes 1:1, cerim&ocirc;nia viva exit 0).</p>
         </li>
         <li class="timeline-item mb-4">
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-accent">Fase 3</span>
-            <strong>EXECUTE-ONDA</strong>
-          </div>
-          <p class="mb-0 text-body-secondary small">Onda 1: sonda negativa (exit 1) &rarr; fix &rarr; sonda positiva (<code>manifesto</code> listado) &rarr; tsc + vitest 3166 verdes &rarr; REVISOR DE PLANO: CONVERG&Ecirc;NCIA &rarr; revisor adversarial: &ldquo;Nada a refutar&rdquo; &rarr; squash <code>2eaa378</code> + gate + limpeza. Testing subwave: 5 testes, falsificabilidade por 3 muta&ccedil;&otilde;es (todas vermelhas), 4 execu&ccedil;&otilde;es verdes (3171), revisor adversarial emp&iacute;rico (Q1&ndash;Q7) &rarr; squash <code>c32911c</code> + gate + limpeza.</p>
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-1"><span class="badge badge-accent">Fase 3</span><strong>EXECUTE-ONDA</strong></div>
+          <p class="mb-0 text-body-secondary small">Onda 1: pipeline VERDE (11 artefatos) + autoria viva FALHOU &rarr; P1&ndash;P4 descobertos com causa raiz provada (cache envenenado, null no subset). REPLAN 1 &rarr; Onda 2 paralela: fix autoria (cerim&ocirc;nia viva exit 0, 15 testes) + fix SRT (8 testes). REPLAN 2 (CONVERG&Ecirc;NCIA + gate do estado combinado VERDE). Onda 3: tutorial + run viva (valida&ccedil;&atilde;o completa VERDE); revis&atilde;o adversarial achou 2 problemas reais no tutorial (promessa anthropic, fato do CI) &rarr; fix (7 corre&ccedil;&otilde;es); gate pegou viola&ccedil;&atilde;o F4-02 no tutorial &rarr; fix. REPLAN 3: CONVERG&Ecirc;NCIA.</p>
         </li>
         <li class="timeline-item">
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-ok">Fase 4</span>
-            <strong>COMMIT-FINAL</strong>
-          </div>
-          <p class="mb-0 text-body-secondary small">Gate final (88 arquivos / 3171 testes), EXPLAINER.html gerado, commit final em main, relat&oacute;rio com o de-para completo.</p>
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-1"><span class="badge badge-ok">Fase 4</span><strong>COMMIT-FINAL</strong></div>
+          <p class="mb-0 text-body-secondary small">Gate final (tsc, vitest 90/3202, e2e VERDE), entrega do v&iacute;deo final em output/, EXPLAINER.html gerado, commit final, relat&oacute;rio.</p>
         </li>
       </ol>
       <!-- {{TIMELINE}} end -->
@@ -640,7 +645,7 @@ Built in 974ms</code></pre>
   </div>
 
   <footer class="text-body-secondary small border-top mt-5 pt-3">
-    Gerado por <strong>deep-orchestrator</strong> v3.2.0 · 2026-08-13 · branch main.
+    Gerado por <strong>deep-orchestrator</strong> v3.2.0 · 2026-08-14 · branch main.
     Documento de arquivo único — salve, abra com duplo clique ou imprima em PDF (todas as abas entram no papel).
   </footer>
 
