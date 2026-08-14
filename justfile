@@ -168,7 +168,7 @@ skills-eval:
 
 skills-catalogo:
     python3 .agents/scripts/gerar-catalogo.py
-    git diff --exit-code .agents/skills/catalog.md || (echo "ERROR: catalog.md is out of date. Run 'just skills:catalogo' to regenerate." && exit 1)
+    git diff --exit-code .agents/skills/catalog.md || (echo "ERROR: catalog.md is out of date. Run 'just skills-catalogo' to regenerate." && exit 1)
 # Alias
 default: build
 

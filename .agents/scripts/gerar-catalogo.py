@@ -6,7 +6,7 @@ This file is GENERATED — never edit it by hand. Regenerate with:
   python3 .agents/scripts/gerar-catalogo.py
 
 Or via just:
-  just skills:catalogo
+  just skills-catalogo
 """
 
 import sys
