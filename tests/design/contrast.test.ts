@@ -18,6 +18,7 @@ import {
   state,
   highlight,
   border,
+  palette,
 } from "src/design/tokens";
 
 // ---------------------------------------------------------------------------
@@ -99,6 +100,28 @@ describe("Contraste WCAG AA", () => {
         `Estado ${color} / bg.primary: ${ratio.toFixed(2)}:1 < ${AA_LARGE}:1`,
       ).toBeGreaterThanOrEqual(AA_LARGE);
     }
+  });
+});
+
+describe("Fundo principal — preto puro (#000000)", () => {
+  // Onda 1 (fundo preto): TODOS os videos gerados tem o fundo da
+  // composicao em PRETO PURO. O padrao de referencia (3blue1brown/Manim)
+  // tambem usa #000000 — os webm dos graficos entram com fundo preto e a
+  // composicao casa. Este teste trava o valor: quem mudar o fundo de novo
+  // tem de mudar aqui, no canario visual e na prova C1 do pipeline.
+  it("background.primary e exatamente #000000", () => {
+    expect(background.primary).toBe("#000000");
+  });
+
+  it("background.primary vem de palette.black (mesma fonte)", () => {
+    expect(background.primary).toBe(palette.black);
+  });
+
+  it("texto primario sobre preto puro passa AA normal (maximo de contraste)", () => {
+    const ratio = contrastRatio(text.primary, background.primary);
+    expect(ratio).toBeGreaterThanOrEqual(AA_NORMAL);
+    // branco-ish sobre preto puro: proximo de 20:1
+    expect(ratio).toBeGreaterThan(15);
   });
 });
 

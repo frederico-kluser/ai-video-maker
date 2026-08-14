@@ -123,7 +123,7 @@ PALETTE = {
 
 # Cores semanticas
 BACKGROUND = {
-    "primary": GRAY["950"],
+    "primary": PALETTE["black"],  # preto puro (onda1-fundo-preto)
     "secondary": GRAY["900"],
     "elevated": GRAY["800"],
     "light": GRAY["50"],

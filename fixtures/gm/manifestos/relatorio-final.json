@@ -21,8 +21,8 @@
       "arquivos": [
         {
           "nome": "master.mov",
-          "sha256": "44bc866d0317a4493d6e90e073418d24594fbf2f72f21c50dcf91bdae9c5d038",
-          "tamanho": 22995405
+          "sha256": "7fdf04277bb382acea57e2771d8b8fa744729fc0c031fd0a1655a1d63aa764e5",
+          "tamanho": 18628864
         }
       ]
     },
@@ -56,8 +56,8 @@
       "arquivos": [
         {
           "nome": "entregavel.srt",
-          "sha256": "2d546d1e7b0796089cae769603bfe3aea8526999b893b6523b86d545747fcec7",
-          "tamanho": 308
+          "sha256": "eef6f14c95d65bfb49239ee3555428840ff7fe29380a677080151301fc3ed16b",
+          "tamanho": 225
         }
       ]
     },
@@ -66,7 +66,7 @@
       "arquivos": [
         {
           "nome": "pos-documento.json",
-          "sha256": "1cf119438356aabe8540f7d9cbb750168b88b34d7e6eeaa0ec016885d2bb8507",
+          "sha256": "c860d68b27c826b4e05c0ab57a0c79cc8bfc0db68e6797110f62755b51ecb2c0",
           "tamanho": 970
         }
       ]
@@ -86,8 +86,8 @@
       "arquivos": [
         {
           "nome": "thumbnail.png",
-          "sha256": "ff2d57b8e0ebe0df24033050fc8652e8745fc4390e9501e88f6c1febabcd6a8d",
-          "tamanho": 40158
+          "sha256": "cb7ee5ac9058d926858ab11fac44494a351babf138891fd95b356da305f4a99c",
+          "tamanho": 39886
         }
       ]
     },
@@ -106,8 +106,8 @@
       "arquivos": [
         {
           "nome": "entregavel-final.mp4",
-          "sha256": "28171670eb8a7535c34909e220c5fad70ae0389026dee405c053da96fa89b17d",
-          "tamanho": 1156329
+          "sha256": "9ad69f1adf68b13a704a57dc1eac7434d55ae98e2a5e9a94ac42c6fc4539f2e5",
+          "tamanho": 1144344
         }
       ]
     }

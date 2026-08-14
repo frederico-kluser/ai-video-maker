@@ -21,7 +21,7 @@
  *       recomputada da saida da R1 casa a chave registrada no golden
  *       (uma mudanca de versao de ferramenta acende AQUI — declarado,
  *       sem re-render — e muda tambem os itens, se re-renderizar).
- *   M1  MUTACAO DE TOKEN: background.primary (#030712 -> #1F2937, escuro
+ *   M1  MUTACAO DE TOKEN: background.primary (#000000 -> #1F2937, escuro
  *       e valido — muda o pixel sem derrubar os gates do pipeline) ->
  *       producao com cache FRIO -> a extracao TEM de divergir do golden
  *       (senao o golden e cego). tokens.ts restaurado e conferido por
@@ -232,7 +232,7 @@ async function main(): Promise<number> {
   // ── M1: mutacao de token tem de acender o diff ─────────────────────────
   process.stdout.write("=== M1: mutacao de token (background.primary) TEM de acender o diff ===\n");
   const tokensOriginal = readFileSync(TOKENS);
-  // Mutacao conservadora: background.primary #030712 -> #111827
+  // Mutacao conservadora: background.primary #000000 -> #111827
   // (palette.gray[900]). Escuro, valido e consumido por TODOS os frames
   // (o fundo da pintura) — muda o pixel sem derrubar os gates do proprio
   // pipeline. CALIBRADO contra os pares declarados de tokens.ts: o pior
@@ -243,7 +243,7 @@ async function main(): Promise<number> {
   // (texto/graficos/cards) mantem o maximo bem acima de 32.
   const mutado = tokensOriginal
     .toString("utf-8")
-    .replace("primary: palette.gray[950],", "primary: palette.gray[900],");
+    .replace("primary: palette.black,", "primary: palette.gray[900],");
   if (mutado === tokensOriginal.toString("utf-8")) {
     falhou("M1", "a mutacao de tokens.ts nao casou o padrao — o sed nao aplicou (falso verde)");
   } else {

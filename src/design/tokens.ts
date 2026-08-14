@@ -163,8 +163,11 @@ export const palette = {
 
 /** Cores de fundo */
 export const background = {
-  /** Fundo principal — escuro (padrao do editor) */
-  primary: palette.gray[950],
+  /** Fundo principal — PRETO PURO (#000000) — exigencia do usuario; o
+   *  padrao de referencia (3blue1brown/Manim) tambem usa #000000 e os
+   *  webm dos graficos entram com fundo preto. Contraste com texto claro
+   *  e maximo (contrastPairs recomputa no gate). */
+  primary: palette.black,
   /** Fundo secundario — cards, paineis */
   secondary: palette.gray[900],
   /** Fundo elevado — modais, tooltips */

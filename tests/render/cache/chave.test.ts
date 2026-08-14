@@ -129,7 +129,7 @@ describe("chave C7 — os cinco componentes (ADR-0041, decisao 1)", () => {
     // diferentes) produziria a MESMA chave — o falso-verde do card.
     const a = calcularChaveC7({
       ...entradasBase(),
-      tokensConsumidos: { fundo: { primario: "#030712" }, texto: { primario: "#F9FAFB" } },
+      tokensConsumidos: { fundo: { primario: "#000000" }, texto: { primario: "#F9FAFB" } },
     });
     const b = calcularChaveC7({
       ...entradasBase(),

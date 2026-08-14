@@ -59,7 +59,7 @@ function chaveComTokens(tokensConsumidos?: unknown): string {
   });
 }
 
-const TOKENS_REAIS = { fundo: { primario: "#030712" }, texto: { primario: "#F9FAFB" } };
+const TOKENS_REAIS = { fundo: { primario: "#000000" }, texto: { primario: "#F9FAFB" } };
 const TOKENS_MUTADOS = { fundo: { primario: "#010203" }, texto: { primario: "#F9FAFB" } };
 
 /**
