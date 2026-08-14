@@ -17,8 +17,8 @@
     {
       "id": 3,
       "name": "Generate knowledge and task skills",
-      "done": false,
-      "gate_passed": false,
+      "done": true,
+      "gate_passed": true,
       "artifact": "catalog.md + skills + symlink + CLAUDE.md"
     },
     {
@@ -37,5 +37,5 @@
     }
   ],
   "stop_hook_active": false,
-  "updated_by": "phase2-commit"
+  "updated_by": "phase3-commit"
 }
