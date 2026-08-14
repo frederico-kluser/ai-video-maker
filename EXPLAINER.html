@@ -5,24 +5,24 @@
   Uso: o orquestrador, na fase COMMIT-FINAL, preenche este template e entrega o
   EXPLAINER.html da execução. Duas formas de preencher:
 
-  1. TOKENS INLINE  — substituição simples de string. Cada token &#123;&#123;NOME&#125;&#125; é
+  1. TOKENS INLINE  — substituição simples de string. Cada token {{NOME}} é
      trocado pelo valor real:
-       65/65 cards  2026-08-13  main  Editor de Vídeo IA — pipeline completo: tema → entrega (65 cards, 13 ondas)
-       13 ondas + 4 meias-ondas  ~70 sub-agentes  87 squash-commits
+       3.2.0  2026-08-13  main  Corre&ccedil;&atilde;o do <code>npm run dev</code> no Editor de V&iacute;deo IA: o entry default do Remotion (<code>src/index.ts</code>) nunca chamava <code>registerRoot()</code>, e o Studio ficava preso em <em>Waiting for registerRoot() to get called</em>. O entry agora importa a raiz (<code>src/composicao/raiz.tsx</code>), que registra a composi&ccedil;&atilde;o <code>manifesto</code>. Regress&atilde;o permanente coberta por 5 testes. Este documento tamb&eacute;m responde &agrave; pergunta original: <em>como o projeto funciona</em>.
+       1  5  2
      Os tokens inline aparecem na navbar, no hero, nos cards de estatística,
      no rodapé e na tabela de placeholders da aba "Visão geral".
 
   2. SLOTS — bloco substituído INTEIRO, delimitado por um par de comentários
-     HTML: um com o texto &#123;&#123;SLOT&#125;&#125; begin e outro com &#123;&#123;SLOT&#125;&#125; end (sem os
+     HTML: um com o texto {{SLOT}} begin e outro com {{SLOT}} end (sem os
      delimitadores — veja os exemplos reais no corpo do arquivo). O gerador
      substitui TUDO entre o par pelo conteúdo real. O que está entre os
      marcadores é EXEMPLO demonstrativo (fallback) e morre na geração.
-       &#123;&#123;WAVES_TABLE&#125;&#125;   (aba Ondas — <table> com colunas Onda|Worktree|Tarefas|Commits|Status)
-       &#123;&#123;FILES_TABLE&#125;&#125;   (aba Arquivos — <table> com colunas Arquivo|Tipo|Diff)
-       &#123;&#123;COMMITS_LIST&#125;&#125;  (aba Arquivos — lista de commits squash)
-       &#123;&#123;BEFORE_AFTER&#125;&#125;  (aba De-Para — seções de de-para adicionais)
-       &#123;&#123;DECISIONS&#125;&#125;     (aba Decisões — lista de premissas inferidas)
-       &#123;&#123;TIMELINE&#125;&#125;      (aba Timeline — linha do tempo da execução)
+       {{WAVES_TABLE}}   (aba Ondas — <table> com colunas Onda|Worktree|Tarefas|Commits|Status)
+       {{FILES_TABLE}}   (aba Arquivos — <table> com colunas Arquivo|Tipo|Diff)
+       {{COMMITS_LIST}}  (aba Arquivos — lista de commits squash)
+       {{BEFORE_AFTER}}  (aba De-Para — seções de de-para adicionais)
+       {{DECISIONS}}     (aba Decisões — lista de premissas inferidas)
+       {{TIMELINE}}      (aba Timeline — linha do tempo da execução)
 
   Exemplo de geração manual:
        ./scripts/generate-explainer.sh > EXPLAINER.html
@@ -176,7 +176,7 @@
 <nav class="navbar navbar-expand-lg sticky-top bg-body-tertiary">
   <div class="container">
     <span class="navbar-brand fw-semibold"><i class="bi bi-diagram-3 brand-accent me-2"></i>deep-orchestrator <span class="text-body-secondary fw-normal">· EXPLAINER</span></span>
-    <span class="navbar-text small text-body-secondary d-none d-md-inline">v65/65 cards · 2026-08-13</span>
+    <span class="navbar-text small text-body-secondary d-none d-md-inline">v3.2.0 · 2026-08-13</span>
   </div>
 </nav>
 
@@ -185,9 +185,9 @@
   <header class="explainer-hero rounded-4 p-4 p-md-5 mb-4">
     <span class="badge badge-accent mb-3"><i class="bi bi-clipboard-data me-1"></i>Relatório de execução</span>
     <h1 class="display-6 fw-semibold text-white mb-2">O que aconteceu nesta execução</h1>
-    <p class="lead text-white-50 mb-3">Editor de Vídeo IA — pipeline completo: tema → entrega (65 cards, 13 ondas)</p>
+    <p class="lead text-white-50 mb-3">Corre&ccedil;&atilde;o do <code>npm run dev</code> no Editor de V&iacute;deo IA: o entry default do Remotion (<code>src/index.ts</code>) nunca chamava <code>registerRoot()</code>, e o Studio ficava preso em <em>Waiting for registerRoot() to get called</em>. O entry agora importa a raiz (<code>src/composicao/raiz.tsx</code>), que registra a composi&ccedil;&atilde;o <code>manifesto</code>. Regress&atilde;o permanente coberta por 5 testes. Este documento tamb&eacute;m responde &agrave; pergunta original: <em>como o projeto funciona</em>.</p>
     <div class="d-flex flex-wrap gap-2">
-      <span class="badge badge-accent">v65/65 cards</span>
+      <span class="badge badge-accent">v3.2.0</span>
       <span class="badge badge-soft"><i class="bi bi-calendar3 me-1"></i>2026-08-13</span>
       <span class="badge badge-soft"><i class="bi bi-git-branch me-1"></i>main</span>
     </div>
@@ -245,7 +245,7 @@
     <div class="tab-pane fade show active" id="pane-visao" role="tabpanel"
          aria-labelledby="tab-visao" tabindex="0" data-print-title="Visão geral">
       <h2 class="h4 pane-title">Resumo da execução</h2>
-      <p class="text-body-secondary">Editor de Vídeo IA — pipeline completo: tema → entrega (65 cards, 13 ondas)</p>
+      <p class="text-body-secondary">Corre&ccedil;&atilde;o do <code>npm run dev</code> no Editor de V&iacute;deo IA: o entry default do Remotion (<code>src/index.ts</code>) nunca chamava <code>registerRoot()</code>, e o Studio ficava preso em <em>Waiting for registerRoot() to get called</em>. O entry agora importa a raiz (<code>src/composicao/raiz.tsx</code>), que registra a composi&ccedil;&atilde;o <code>manifesto</code>. Regress&atilde;o permanente coberta por 5 testes. Este documento tamb&eacute;m responde &agrave; pergunta original: <em>como o projeto funciona</em>.</p>
 
       <div class="alert alert-primary d-flex gap-2" role="alert">
         <i class="bi bi-info-circle-fill flex-shrink-0"></i>
@@ -257,7 +257,7 @@
           <div class="card h-100 text-center">
             <div class="card-body py-4">
               <i class="bi bi-layers fs-3 stat-value"></i>
-              <div class="display-6 fw-bold stat-value">13 ondas + 4 meias-ondas</div>
+              <div class="display-6 fw-bold stat-value">1</div>
               <div class="text-body-secondary small">Ondas executadas</div>
             </div>
           </div>
@@ -266,7 +266,7 @@
           <div class="card h-100 text-center">
             <div class="card-body py-4">
               <i class="bi bi-robot fs-3 stat-value"></i>
-              <div class="display-6 fw-bold stat-value">~70 sub-agentes</div>
+              <div class="display-6 fw-bold stat-value">5</div>
               <div class="text-body-secondary small">Sub-agentes</div>
             </div>
           </div>
@@ -275,7 +275,7 @@
           <div class="card h-100 text-center">
             <div class="card-body py-4">
               <i class="bi bi-git-commit fs-3 stat-value"></i>
-              <div class="display-6 fw-bold stat-value">87 squash-commits</div>
+              <div class="display-6 fw-bold stat-value">2</div>
               <div class="text-body-secondary small">Commits (squash)</div>
             </div>
           </div>
@@ -286,35 +286,10 @@
       <p>O orquestrador, na fase COMMIT-FINAL, gera o explainer a partir deste template:</p>
 <pre><code class="language-bash"># Gera o explainer a partir do template
 ./scripts/generate-explainer.sh &gt; EXPLAINER.html
-# Ou preenche manualmente os placeholders &#123;&#123;VERSION&#125;&#125;, &#123;&#123;DATE&#125;&#125;, &#123;&#123;BRANCH&#125;&#125;, ...</code></pre>
+# Ou preenche manualmente os placeholders 3.2.0, 2026-08-13, main, ...</code></pre>
       <p class="text-body-secondary small">O template é <code>templates/html-explainer.html</code> — arquivo único, sem build: abre por file:// e imprime em PDF com todas as abas.</p>
 
-      <details class="mt-4">
-        <summary class="text-body-secondary">Placeholders usados na geração</summary>
-        <div class="table-responsive mt-2">
-          <table class="table table-sm align-middle">
-            <thead>
-              <tr><th scope="col">Placeholder</th><th scope="col">Onde aparece</th><th scope="col">Preenchido com</th></tr>
-            </thead>
-            <tbody>
-              <tr><td><code>&#123;&#123;VERSION&#125;&#125;</code></td><td>Navbar, hero, rodapé</td><td>Versão do orquestrador</td></tr>
-              <tr><td><code>&#123;&#123;DATE&#125;&#125;</code></td><td>Navbar, hero, rodapé</td><td>Data da execução</td></tr>
-              <tr><td><code>&#123;&#123;BRANCH&#125;&#125;</code></td><td>Hero, rodapé</td><td>Branch principal</td></tr>
-              <tr><td><code>&#123;&#123;TASK_SUMMARY&#125;&#125;</code></td><td>Visão geral</td><td>Resumo da tarefa</td></tr>
-              <tr><td><code>&#123;&#123;TOTAL_WAVES&#125;&#125;</code></td><td>Cards de estatística</td><td>Número de ondas</td></tr>
-              <tr><td><code>&#123;&#123;TOTAL_AGENTS&#125;&#125;</code></td><td>Cards de estatística</td><td>Número de sub-agentes</td></tr>
-              <tr><td><code>&#123;&#123;TOTAL_COMMITS&#125;&#125;</code></td><td>Cards de estatística</td><td>Número de commits</td></tr>
-              <tr><td><code>&#123;&#123;WAVES_TABLE&#125;&#125;</code></td><td>Aba Ondas</td><td>Tabela HTML de ondas (Onda | Worktree | Tarefas | Commits | Status)</td></tr>
-              <tr><td><code>&#123;&#123;FILES_TABLE&#125;&#125;</code></td><td>Aba Arquivos</td><td>Tabela HTML de arquivos modificados (Arquivo | Tipo | Diff)</td></tr>
-              <tr><td><code>&#123;&#123;BEFORE_AFTER&#125;&#125;</code></td><td>Aba De-Para</td><td>Seções de de-para adicionais</td></tr>
-              <tr><td><code>&#123;&#123;DECISIONS&#125;&#125;</code></td><td>Aba Decisões</td><td>Lista de decisões autônomas</td></tr>
-              <tr><td><code>&#123;&#123;TIMELINE&#125;&#125;</code></td><td>Aba Timeline</td><td>Linha do tempo da execução</td></tr>
-              <tr><td><code>&#123;&#123;COMMITS_LIST&#125;&#125;</code></td><td>Aba Arquivos</td><td>Lista de commits squash</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </details>
-    </div>
+      </div>
 
     <!-- ══════════════ ABA 2 · ONDAS EXECUTADAS ══════════════ -->
     <div class="tab-pane fade" id="pane-ondas" role="tabpanel"
@@ -322,119 +297,37 @@
       <h2 class="h4 pane-title">Ondas executadas</h2>
       <p>Uma linha por sub-agente. Cada sub-agente trabalha numa worktree Git nomeada; a integração é squash-merge um a um, com gate (build + testes) entre merges. Worktrees e branches <code>wt/*</code> são removidos ao fim de cada onda.</p>
 
-            <div class="table-responsive">
+      <!-- {{WAVES_TABLE}} begin -->
+      <div class="table-responsive">
         <table class="table table-hover align-middle">
           <thead>
             <tr>
               <th scope="col">Onda</th>
               <th scope="col">Worktree</th>
               <th scope="col">Tarefas</th>
+              <th scope="col" class="text-end">Commits</th>
               <th scope="col">Status</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><span class="badge badge-accent">W0</span></td>
-              <td><code>onda0-esqueleto-toolchain</code> · <code>onda0-vocabulario-convencoes</code></td>
-              <td>F0-01 esqueleto do repositório (toolchain pinada, justfile, .gitignore) · T-01 vocabulário, convenções, estrutura, AGENTS.md, ADR-0001/0002</td>
-              <td><span class="badge badge-ok">Concluída</span></td>
+              <td><span class="badge badge-accent">Onda 1</span></td>
+              <td><code>onda1-fix-entry-dev</code></td>
+              <td>Fix do entry default do Remotion: <code>src/index.ts</code> vira o entry real (import est&aacute;tico de <code>./composicao/raiz</code>) &mdash; corrige <code>npm run dev</code> e <code>just dev</code></td>
+              <td class="text-end">1</td>
+              <td><span class="badge badge-ok">Conclu&iacute;da</span></td>
             </tr>
             <tr>
-              <td><span class="badge badge-accent">W0.5</span></td>
-              <td><code>onda0.5-enquadramento-uso</code></td>
-              <td>I-01 enquadramento de uso pessoal — ADR-0003, fecha P-01..P-04</td>
-              <td><span class="badge badge-ok">Concluída</span></td>
-            </tr>
-            <tr>
-              <td><span class="badge badge-accent">W1</span></td>
-              <td><code>onda1-gate-local</code> · <code>onda1-worktree-card</code> · <code>onda1-infra-skills</code> · <code>onda1-reuso-3b1b</code> · <code>onda1-ledger-incerteza</code> · <code>onda1-validador-grafo</code> · <code>onda1-tokens-design</code> · <code>onda1-contrato-manifesto</code></td>
-              <td>8 cards: gate local executável (3 estados + autoteste) · script de worktree com preflight e 4 provas · infra de skills (linter, selftest, catálogo) · inventário 3b1b (25 claims, ADR-0004) · ledger de incerteza (validador + consolidador) · validador de grafo (11 checagens) · tokens de design (21 testes, espelho Python, varredura) · contrato do manifesto (schema, tipos, 12 fixtures inválidas)</td>
-              <td><span class="badge badge-ok">Concluída</span></td>
-            </tr>
-            <tr>
-              <td><span class="badge badge-accent">W2</span></td>
-              <td><code>onda2-hooks</code> · <code>onda2-verificador-aceitacao</code> · <code>onda2-estado-derivado</code> · <code>onda2-medicao-custo</code> · <code>onda2-fixture-canonica</code> · <code>onda2-invariantes</code> · <code>onda2-store-conteudo</code> · <code>onda2-harness-determinismo</code></td>
-              <td>8 cards: hooks de segurança/skill/barreira/nudge (40 selftests) · verificador de aceitação · estado derivado · medição de custo · fixture canônica · invariantes · store de conteúdo · harness de determinismo (canário, 2× render, snapshot)</td>
-              <td><span class="badge badge-ok">Concluída</span></td>
-            </tr>
-            <tr>
-              <td><span class="badge badge-accent">W2.5</span></td>
-              <td><code>onda2.5-contas-chaves</code></td>
-              <td>I-02 contas e chaves — .env.example, docs/contas.md, ADR-0005 política de segredos</td>
-              <td><span class="badge badge-ok">Concluída</span></td>
-            </tr>
-            <tr>
-              <td><span class="badge badge-accent">W3</span></td>
-              <td><code>onda3-motor-layout</code> · <code>onda3-composicao-raiz</code> · <code>onda3-contrato-resolucao</code> · <code>onda3-fontes-locais</code> · <code>onda3-ci-espelhado</code></td>
-              <td>5 hubs: motor de layout (medição, ajuste, overflow como erro de build) · raiz de composição (raiz pura, contrato de nó, descoberta por convenção, fronteira de transição) · contrato de resolução (estágios + cassetes, rede bloqueada de verdade) · fontes locais embutidas (família resolvida) · CI espelhado lido pelo gate local</td>
-              <td><span class="badge badge-ok">Concluída</span></td>
-            </tr>
-            <tr>
-              <td><span class="badge badge-accent">W4</span></td>
-              <td><code>onda4-res-grafico</code> · <code>onda4-res-locucao</code> · <code>onda4-res-codigo</code> · <code>onda4-res-musica</code> · <code>onda4-res-midia</code> · <code>onda4-no-cabecalho</code> · <code>onda4-no-texto</code> · <code>onda4-no-lista</code> · <code>onda4-no-midia</code> · <code>onda4-no-codigo</code> · <code>onda4-no-grafico</code> · <code>onda4-transicoes</code> · <code>onda4-camadas</code></td>
-              <td>13 cards — a onda mais larga: 5 estágios de resolução (gráfico/Manim headless, locução com timing por palavra, código com tokens pré-computados, música com decisão de licenciamento, mídia externa por hash) + 6 nós (cabeçalho, texto, lista, mídia, código, gráfico) + transições (aritmética F1-01) + camadas globais (fundo, grade, vinheta sem cobrir a safe area)</td>
-              <td><span class="badge badge-ok">Concluída</span></td>
-            </tr>
-            <tr>
-              <td><span class="badge badge-accent">W5</span></td>
-              <td><code>onda5-f3-01-timing</code> · <code>onda5-f4-01-autoria</code> · <code>onda5-f4-02-prompts</code> · <code>onda5-f1-12-integracao</code> · <code>onda5-f2-07-offline</code></td>
-              <td>5 joins: timing canônico em segundos (oráculo C1-C8 + golden) · contrato de autoria v1 (cache C12, rejeição pré-pipeline) · biblioteca de prompts (front-matter de versão, números editoriais com fonte) · suite integrada de composição (oráculo de conteúdo, presença por nó) · suite offline (guarda de rede, redação de headers voláteis)</td>
-              <td><span class="badge badge-ok">Concluída</span></td>
-            </tr>
-            <tr>
-              <td><span class="badge badge-accent">W6</span></td>
-              <td><code>onda6-f3-02-legendas</code> · <code>onda6-f3-03-ducking</code> · <code>onda6-f3-04-ritmo</code> · <code>onda6-f4-03-reparo</code> · <code>onda6-f4-04-cassete</code></td>
-              <td>5 cards: legendas canônicas (invariante em segundos, pesquisa NBR 15290) · envelope de ducking com anti-degrau como invariante · corte de silêncio como plano de edição sem comer palavras · validação e reparo por forma (rejeição definitiva de semântica) · cassete de autoria com suite de rejeição e executor</td>
-              <td><span class="badge badge-ok">Concluída</span></td>
-            </tr>
-            <tr>
-              <td><span class="badge badge-accent">W6.5</span></td>
-              <td><code>onda6.5-i03-maquina</code></td>
-              <td>I-03 medição da máquina de render com tetos de concorrência</td>
-              <td><span class="badge badge-ok">Concluída</span></td>
-            </tr>
-            <tr>
-              <td><span class="badge badge-accent">W7</span></td>
-              <td><code>onda7-f3-05-mix</code> · <code>onda7-f5-02-encode</code> · <code>onda7-f5-06-procedencia</code> · <code>onda7-f5-04-variantes</code> · <code>onda7-f5-05-thumb</code> · <code>onda7-f5-01-pipeline</code></td>
-              <td>6 cards: trilha de áudio composta (reconciliação C1, emenda C3) · perfis de encode hw/sw com determinismo declarado por perfil · relatório de procedência transitivo (cadeia de emenda) · variantes de proporção com safe area por plataforma · thumbnail do mesmo manifesto com contraste medido · render por faixa byte a byte com ponte AB-550</td>
-              <td><span class="badge badge-ok">Concluída</span></td>
-            </tr>
-            <tr>
-              <td><span class="badge badge-accent">W8</span></td>
-              <td><code>onda8-f5-03-pos</code> · <code>onda8-f5-09-cache</code></td>
-              <td>2 cards (o pescoço): pós-processamento com loudness e sidecar do mesmo documento (ADR-0040) · cache de render por conteúdo com chave C7 (ADR-0041)</td>
-              <td><span class="badge badge-ok">Concluída</span></td>
-            </tr>
-            <tr>
-              <td><span class="badge badge-accent">W9/W9.5</span></td>
-              <td><code>onda9-f5-07-pipeline</code> · <code>onda9.5-i04-politica</code></td>
-              <td>F5-07 join final: orquestrador ponta a ponta tema → entrega com 11 artefatos e retomada C7 · I-04 política editorial com alavanca-mestra e papéis nomeados</td>
-              <td><span class="badge badge-ok">Concluída</span></td>
-            </tr>
-            <tr>
-              <td><span class="badge badge-accent">W10</span></td>
-              <td><code>onda10-f6-01-dossie</code> · <code>onda10-f5-08-golden</code></td>
-              <td>F6-01 dossiê de revisão humana com bloqueio de publicação sem dossiê · F5-08 golden master ponta a ponta com frames-chave e envelope de áudio</td>
-              <td><span class="badge badge-ok">Concluída</span></td>
-            </tr>
-            <tr>
-              <td><span class="badge badge-accent">W11</span></td>
-              <td><code>onda11-f6-02-runbook</code> · <code>onda11-f6-03-gates</code> · <code>onda11-f6-04-ledger</code></td>
-              <td>F6-02 runbook de publicação (construído, não disparado) · F6-03 gates numerados P-1..P-5 com veredito CONFERE exigindo evidência · F6-04 fechamento do ledger com allowlist explícita e categorias bloqueantes zeradas</td>
-              <td><span class="badge badge-ok">Concluída</span></td>
-            </tr>
-            <tr>
-              <td><span class="badge badge-accent">W12</span></td>
-              <td><code>onda12-f6-05-arquivamento</code></td>
-              <td>F6-05 arquivamento e escopo negativo com sonda qtrle corrigida e dívida de vocabulário migrada</td>
-              <td><span class="badge badge-ok">Concluída</span></td>
+              <td><span class="badge badge-accent">Testing Subwave 1</span></td>
+              <td><code>test-onda1-entry-root</code></td>
+              <td>Regress&atilde;o permanente do entry: or&aacute;culo CLI real (<code>compositions</code> lista <code>manifesto</code>), modo de falha e 3 testes de wiring com sondas negativas</td>
+              <td class="text-end">1</td>
+              <td><span class="badge badge-ok">Conclu&iacute;da</span></td>
             </tr>
           </tbody>
         </table>
       </div>
-
-
-      <p class="text-body-secondary small">Exemplo demonstrativo — a geração substitui o bloco entre os marcadores pelos dados reais da execução.</p>
+      <!-- {{WAVES_TABLE}} end -->
 
       <h3 class="h6 mt-4 text-body-secondary">Legenda de status</h3>
       <div class="d-flex flex-wrap gap-2">
@@ -450,7 +343,8 @@
       <h2 class="h4 pane-title">Arquivos modificados</h2>
       <p>Diff stats da execução: <span class="diff-plus">+</span> linhas adicionadas, <span class="diff-minus">−</span> removidas.</p>
 
-            <div class="table-responsive">
+      <!-- {{FILES_TABLE}} begin -->
+      <div class="table-responsive">
         <table class="table table-hover align-middle">
           <thead>
             <tr>
@@ -461,449 +355,37 @@
           </thead>
           <tbody>
             <tr>
-              <td><code>src/composicao/**</code><span class="text-body-secondary small d-block">8 nós (cabeçalho, texto, lista, mídia, código, gráfico) + transições + camadas + pintura</span></td>
-              <td><span class="badge badge-ok">novo</span></td>
-              <td class="text-end diff-plus">+5.600</td>
-            </tr>
-            <tr>
-              <td><code>src/resolucao/**</code><span class="text-body-secondary small d-block">5 estágios (gráfico, locução, código, música, mídia) + contrato + cassete + rede</span></td>
-              <td><span class="badge badge-ok">novo</span></td>
-              <td class="text-end diff-plus">+4.800</td>
-            </tr>
-            <tr>
-              <td><code>src/sincronia/**</code><span class="text-body-secondary small d-block">timing em segundos + legendas canônicas + ducking + ritmo</span></td>
-              <td><span class="badge badge-ok">novo</span></td>
-              <td class="text-end diff-plus">+2.900</td>
-            </tr>
-            <tr>
-              <td><code>src/autoria/**</code><span class="text-body-secondary small d-block">contrato de autoria v1 + reparo por forma + executor/cassete</span></td>
-              <td><span class="badge badge-ok">novo</span></td>
-              <td class="text-end diff-plus">+2.400</td>
-            </tr>
-            <tr>
-              <td><code>src/render/**</code><span class="text-body-secondary small d-block">pipeline byte a byte + perfis de encode hw/sw + cache por conteúdo</span></td>
-              <td><span class="badge badge-ok">novo</span></td>
-              <td class="text-end diff-plus">+2.600</td>
-            </tr>
-            <tr>
-              <td><code>src/audio/mix/**</code><span class="text-body-secondary small d-block">trilha composta com reconciliação C1 e emenda C3</span></td>
-              <td><span class="badge badge-ok">novo</span></td>
-              <td class="text-end diff-plus">+1.300</td>
-            </tr>
-            <tr>
-              <td><code>src/entrega/**</code><span class="text-body-secondary small d-block">variantes de proporção + thumbnail + procedência + pós-processamento</span></td>
-              <td><span class="badge badge-ok">novo</span></td>
-              <td class="text-end diff-plus">+2.700</td>
-            </tr>
-            <tr>
-              <td><code>src/pipeline/**</code><span class="text-body-secondary small d-block">orquestrador ponta a ponta tema → entrega (11 artefatos)</span></td>
-              <td><span class="badge badge-ok">novo</span></td>
-              <td class="text-end diff-plus">+1.100</td>
-            </tr>
-            <tr>
-              <td><code>tools/**</code><span class="text-body-secondary small d-block">gate local, validador, offline-guard, medir-máquina, gm (golden), revisão, gates P-1..P-5</span></td>
-              <td><span class="badge badge-ok">novo</span></td>
-              <td class="text-end diff-plus">+3.400</td>
-            </tr>
-            <tr>
-              <td><code>fixtures/**</code><span class="text-body-secondary small d-block">canônico + cassetes sósias + snapshots + fixtures do golden master</span></td>
-              <td><span class="badge badge-ok">novo</span></td>
-              <td class="text-end diff-plus">+9.800</td>
-            </tr>
-            <tr>
-              <td><code>docs/**</code><span class="text-body-secondary small d-block">contratos-w4..w9, ADRs 0001..0049, política editorial, runbook, revisão, arquivamento</span></td>
-              <td><span class="badge badge-ok">novo</span></td>
-              <td class="text-end diff-plus">+8.900</td>
-            </tr>
-            <tr>
-              <td><code>ledger/**</code><span class="text-body-secondary small d-block">256 itens de incerteza + fechamento com allowlist explícita</span></td>
-              <td><span class="badge badge-ok">novo</span></td>
-              <td class="text-end diff-plus">+1.600</td>
-            </tr>
-            <tr>
-              <td><code>schema/**</code><span class="text-body-secondary small d-block">manifesto, manifesto-resolvido, timing</span></td>
-              <td><span class="badge badge-ok">novo</span></td>
-              <td class="text-end diff-plus">+2.300</td>
-            </tr>
-            <tr>
-              <td><code>justfile</code><span class="text-body-secondary small d-block">receitas honestas com hífen (armadilha 9.1), alvos reais</span></td>
-              <td><span class="badge badge-ok">novo</span></td>
-              <td class="text-end diff-plus">+420</td>
-            </tr>
-            <tr>
-              <td><code>AGENTS.md</code><span class="text-body-secondary small d-block">vocabulário e convenções da construção</span></td>
-              <td><span class="badge badge-ok">novo</span></td>
-              <td class="text-end diff-plus">+180</td>
-            </tr>
-            <tr>
-              <td><code>.gitignore</code><span class="text-body-secondary small d-block">exclui .deep-orchestrator/</span></td>
+              <td><code>src/index.ts</code></td>
               <td><span class="badge badge-accent">modificado</span></td>
-              <td class="text-end diff-plus">+25 −3</td>
+              <td class="text-end"><span class="diff-plus">+8</span> <span class="diff-minus">&minus;4</span></td>
+            </tr>
+            <tr>
+              <td><code>tests/integracao/entry/cli-entry.test.ts</code></td>
+              <td><span class="badge badge-ok">novo</span></td>
+              <td class="text-end diff-plus">+169</td>
             </tr>
           </tbody>
         </table>
       </div>
-
-
-      <p class="text-body-secondary small">Exemplo demonstrativo — valores aproximados, substituídos na geração.</p>
+      <!-- {{FILES_TABLE}} end -->
 
       <h2 class="h4 pane-title mt-4">Commits (squash)</h2>
       <p>Histórico final do branch principal: um commit squash por sub-agente. Nenhuma worktree ou branch <code>wt/*</code> sobra ao final.</p>
 
-            <ul class="list-group list-group-flush">
+      <!-- {{COMMITS_LIST}} begin -->
+      <ul class="list-group list-group-flush">
         <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">438f5f3</span>
-          <div><strong>onda12.5-fix-gled-final:</strong> fechamento final do G-LED pos-merges W11/W12 (AB-930 resolvido)</div>
+          <span class="badge badge-soft font-monospace">c32911c</span>
+          <div><strong>Testing Subwave 1:</strong> adiciona testes de regress&atilde;o do entry default do Remotion (CLI real, modo de falha e wiring com sondas negativas)</div>
         </li>
         <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">30a6de7</span>
-          <div><strong>onda12-f6-05-arquivamento:</strong> arquivamento e escopo negativo com sonda qtrle corrigida e divida migrada</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">b5b2935</span>
-          <div><strong>onda11-f6-04-ledger:</strong> fechamento do ledger com allowlist explicita e categorias bloqueantes zeradas</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">46ace52</span>
-          <div><strong>onda11-f6-03-gates:</strong> gates numerados P-1..P-5 com veredito CONFERE exigindo evidencia</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">e6b1a33</span>
-          <div><strong>onda11-f6-02-runbook:</strong> runbook de publicacao encerrado como construido e nao disparado</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">2d0f641</span>
-          <div><strong>onda10-f5-08-golden:</strong> golden master ponta a ponta com frames-chave e envelope de audio</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">155e62c</span>
-          <div><strong>onda10-f6-01-dossie:</strong> dossie de revisao humana com bloqueio de publicacao sem dossie</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">1153c76</span>
-          <div><strong>PREP-tokens:</strong> revisao AB-720..723 com ADR-0043 — tokens congelados para o golden</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">5bfba55</span>
-          <div><strong>onda9.5-i04-politica:</strong> politica editorial com alavanca-mestra e papeis nomeados</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">f88e0b5</span>
-          <div><strong>onda9-f5-07-pipeline:</strong> orquestrador ponta a ponta tema-entrega com 11 artefatos e retomada C7</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">957e9e3</span>
-          <div><strong>PREP-w9:</strong> contrato de integracao do join F5-07, pre-alocacoes ADR 0033/0042, rotas de ABs, correcao criterio I-04</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">57422b7</span>
-          <div><strong>onda8-f5-09-cache:</strong> cache de render por conteudo com chave C7</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">3c31419</span>
-          <div><strong>onda8-f5-03-pos:</strong> pos-processamento com loudness e sidecar do mesmo documento</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">7bd07ff</span>
-          <div><strong>PREP-w8:</strong> contrato-w8, ADR-0040 loudness congelado, ADR-0041 chave de cache por conteudo</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">090d6a7</span>
-          <div><strong>onda7-f5-01-pipeline:</strong> render por faixa byte a byte com ponte AB-550</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">49f1775</span>
-          <div><strong>onda7-f5-05-thumb:</strong> thumbnail do mesmo manifesto com contraste medido</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">fb9324d</span>
-          <div><strong>onda7-f5-04-variantes:</strong> variantes de proporcao com safe area por plataforma</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">06384d0</span>
-          <div><strong>onda7-f5-06-procedencia:</strong> relatorio de procedencia transitivo com cadeia de emenda</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">8a26595</span>
-          <div><strong>onda7-f5-02-encode:</strong> perfis de encode hw/sw com determinismo declarado por perfil</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">83bd3da</span>
-          <div><strong>onda7-f3-05-mix:</strong> trilha de audio composta com reconciliacao C1 e emenda C3</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">a152d72</span>
-          <div><strong>PREP-w7:</strong> contratos C1-C4, pintor promovido a src/composicao/pintura, bytes de grafico, ADRs 0034-0039</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">9adc78b</span>
-          <div><strong>onda6.5-i03-maquina:</strong> medicao da maquina de render com tetos de concorrencia (I-03)</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">3df24c0</span>
-          <div><strong>onda6-f4-04-cassete:</strong> cassete de autoria com suite de rejeicao e executor</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">64fb75f</span>
-          <div><strong>onda6-f4-03-reparo:</strong> validacao e reparo por forma com rejeicao definitiva de semantica</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">f324ff9</span>
-          <div><strong>onda6-f3-04-ritmo:</strong> corte de silencio como plano de edicao sem comer palavras</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">54f5eab</span>
-          <div><strong>onda6-f3-03-ducking:</strong> envelope de ducking calculado com anti-degrau como invariante</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">6eb63c8</span>
-          <div><strong>onda6-f3-02-legendas:</strong> legendas canonicas com invariante em segundos e pesquisa NBR 15290</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">7d68d7f</span>
-          <div><strong>PREP-w6:</strong> contratos congelados (consumo timing, erro F4-03, ducking), fix AB-502, migracao AB-570, ADRs 0027-0033</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">c5141ad</span>
-          <div><strong>onda6-fix-f4-02-schema:</strong> prompts em segundos alinhados ao schema real (AB-570) e PII x-client-ip redigido</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">be7d556</span>
-          <div><strong>onda5-f2-07-offline:</strong> suite offline integrada com guarda de rede e redacao de headers volateis</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">f58aec9</span>
-          <div><strong>onda5-f1-12-integracao:</strong> suite integrada de composicao com oraculo de conteudo e presenca por no</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">a9a687b</span>
-          <div><strong>onda5-f4-02-prompts:</strong> biblioteca de prompts com front-matter versao e numeros editoriais com fonte</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">f152ef6</span>
-          <div><strong>onda5-f4-01-autoria:</strong> contrato de autoria v1 com cache C12 e rejeicao pre-pipeline</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">527e847</span>
-          <div><strong>onda5-f3-01-timing:</strong> timing canonico em segundos com oraculo C1-C8 e golden</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">4fead06</span>
-          <div><strong>onda5-fix-webm-grafico:</strong> cartucho webm do estagio grafico (AB-390) — formato webm, v1.1.0, cassete regravado</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">770725b</span>
-          <div><strong>PREP-w5:</strong> renumeracao de ADRs, justfile honesto, guardrail token-aware, contrato-w5 e congelamento de contratos</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">7531924</span>
-          <div><strong>onda4-camadas:</strong> camadas globais de fundo, grade e vinheta sem cobrir a safe area</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">764b7b4</span>
-          <div><strong>onda4-transicoes:</strong> transicoes e composicao de sequencia com aritmetica de F1-01</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">1b98454</span>
-          <div><strong>onda4-no-grafico:</strong> no de grafico com alfa nao-suportado falhando no build e janela respeitada</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">631a15c</span>
-          <div><strong>onda4-no-codigo:</strong> no de codigo consumindo tokens pre-computados</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">cff9d18</span>
-          <div><strong>onda4-no-midia:</strong> no de midia por hash com GIF avancando por frame</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">bbec4c1</span>
-          <div><strong>onda4-no-lista:</strong> no de lista com grade e extremos 1/20 itens</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">786b266</span>
-          <div><strong>onda4-no-texto:</strong> no de texto com destaque palavra a palavra e degradacao para frase</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">c8cafc1</span>
-          <div><strong>onda4-no-cabecalho:</strong> no de cabecalho com mola nomeada dos tokens, sem valor inline</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">390c227</span>
-          <div><strong>onda4-res-midia:</strong> estagio de midia externa com cassete sosia e perna de determinismo nao-vacua</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">11b1114</span>
-          <div><strong>onda4-res-musica:</strong> estagio de musica com cassete sosia e decisao de licenciamento por som</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">a6b180f</span>
-          <div><strong>onda4-res-codigo:</strong> estagio de destaque de codigo com tokens pre-computados, cassete sosia</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">624a676</span>
-          <div><strong>onda4-res-locucao:</strong> estagio de locucao com audio e timing por palavra, cassete sosia</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">4fddc00</span>
-          <div><strong>onda4-res-grafico:</strong> estagio de resolucao de grafico (Manim headless) com cassete sosia</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">2444d44</span>
-          <div><strong>onda4.5-fix-gate-vitest:</strong> gate honesto — rc do vitest propagado; render de fontes em processo externo</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">1c83b31</span>
-          <div><strong>fix-hooks:</strong> formato real dos hooks, payload por stdin e filtro de path no comando</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">9022f2e</span>
-          <div><strong>RETOMAR-AQUI:</strong> estado completo da construcao para retomada por outra sessao</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">d38fe8f</span>
-          <div><strong>PREP-w4:</strong> contrato da onda, criterios corrigidos e a fixture canonica coerente</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">2263a04</span>
-          <div><strong>onda3-ci-espelhado:</strong> CI espelhado, lido pelo gate local</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">6ab5c80</span>
-          <div><strong>onda3-fontes-locais:</strong> fontes embutidas com asseracao de familia resolvida, nao de pixel</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">6c6ae78</span>
-          <div><strong>onda3-contrato-resolucao:</strong> contrato de estagio, cassetes e orquestrador com rede bloqueada de verdade</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">47b2778</span>
-          <div><strong>onda3-composicao-raiz:</strong> raiz pura, contrato de no, descoberta por convencao e fronteira de transicao</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">f175e7b</span>
-          <div><strong>onda3-motor-layout:</strong> motor de layout com medicao, ajuste e overflow como erro de build</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">0ee36f9</span>
-          <div><strong>PREP-preflight-tres-estados:</strong> preflight parava de criar worktree por causa de aviso</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">96da4bf</span>
-          <div><strong>PREP-gate-verde:</strong> conserta as tres regressoes que deixavam o gate vermelho no main</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">9e99ad7</span>
-          <div><strong>onda2.5-contas-chaves:</strong> cria .env.example, docs/contas.md e ADR-0005 politica de segredos</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">331fb69</span>
-          <div><strong>onda2-harness-determinismo:</strong> cria harness de determinismo com canario, 2x render e snapshot</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">fcf9548</span>
-          <div><strong>onda2-store-conteudo:</strong> store-conteudo</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">5e74cbc</span>
-          <div><strong>onda2-invariantes:</strong> invariantes</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">75a8b51</span>
-          <div><strong>onda2-fixture-canonica:</strong> fixture-canonica</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">85d3d7e</span>
-          <div><strong>onda2-medicao-custo:</strong> medicao-custo</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">76a23b3</span>
-          <div><strong>onda2-estado-derivado:</strong> estado-derivado</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">324e9be</span>
-          <div><strong>onda2-verificador-aceitacao:</strong> verificador-aceitacao</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">5995a9d</span>
-          <div><strong>onda2-hooks:</strong> cria hooks de seguranca, skill, barreira e nudge com 40 selftests</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">dc019ce</span>
-          <div><strong>adiciona .deep-orchestrator/ ao .gitignore para exclusão de arquivos indesejados</strong></div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">b575266</span>
-          <div><strong>onda1-contrato-manifesto:</strong> cria contrato do manifesto com schema, tipos e 12 fixtures invalidas</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">cea0110</span>
-          <div><strong>onda1-tokens-design:</strong> cria tokens de design com 21 testes, espelho Python e varredura</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">e7d9f88</span>
-          <div><strong>onda1-validador-grafo:</strong> cria validador de grafo com 11 checagens, autoteste e geradores</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">f432adf</span>
-          <div><strong>onda1-ledger-incerteza:</strong> cria ledger de incerteza com validador, selftest e consolidador</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">9c1acb2</span>
-          <div><strong>onda1-reuso-3b1b:</strong> cria inventario de reuso 3b1b com 25 claims e ADR-0004</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">3c4283e</span>
-          <div><strong>onda1-infra-skills:</strong> cria infra de skills com linter, selftest e catalogo gerado</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">88cb51e</span>
-          <div><strong>onda1-worktree-card:</strong> cria script de worktree com preflight e 4 provas</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">af13f79</span>
-          <div><strong>onda1-gate-local:</strong> cria gate local executavel com 3 estados e autoteste</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">693621b</span>
-          <div><strong>onda0.5-enquadramento-uso:</strong> ADR-0003 enquadramento de uso pessoal, fecha P-01..P-04</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">74b5b4f</span>
-          <div><strong>onda0-esqueleto-toolchain:</strong> cria esqueleto do repositorio, toolchain pinada, justfile, .gitignore</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">97dff9c</span>
-          <div><strong>onda0-vocabulario-convencoes:</strong> cria vocabulario, convencoes, estrutura, AGENTS.md, ADR-0001 e ADR-0002</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">290b6f3</span>
-          <div><strong>Merge branch &#x27;programa-editor-video-ia&#x27;</strong></div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">5782daf</span>
-          <div><strong>Add more detailed task validation and acceptance criteria in PROGRAMA.html</strong></div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">5a84412</span>
-          <div><strong>Add &quot;Formulários&quot; tab and detailed explanation for marked cards</strong></div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">340e1a2</span>
-          <div><strong>update execution</strong></div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">8737ad6</span>
-          <div><strong>Programa de construção do Editor de Vídeo IA:</strong> guia, pesquisa verificada e 20 agent skills</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <span class="badge badge-soft font-monospace">e57d941</span>
-          <div><strong>Initial commit</strong></div>
+          <span class="badge badge-soft font-monospace">2eaa378</span>
+          <div><strong>Onda 1:</strong> entry default do Remotion chama registerRoot via import est&aacute;tico da raiz (fix do <code>npm run dev</code>)</div>
         </li>
       </ul>
+      <!-- {{COMMITS_LIST}} end -->
 
-
-      <p class="text-body-secondary small mt-2">Exemplo demonstrativo — hashes fictícios, substituídos na geração.</p>
-    </div>
+      </div>
 
     <!-- ══════════════ ABA 4 · DE-PARA (BEFORE/AFTER) ══════════════ -->
     <div class="tab-pane fade" id="pane-depara" role="tabpanel"
@@ -940,16 +422,19 @@
         </div>
       </div>
 
-            <h3 class="h5 mt-4 mb-2">1 · Repositório vazio → pipeline funcional</h3>
+      <!-- {{BEFORE_AFTER}} begin -->
+      <!-- De-para: o arquivo -->
+      <h2 class="h4 pane-title">De-Para: src/index.ts (o arquivo)</h2>
       <div class="row g-3 mb-4">
         <div class="col-lg-6">
           <div class="card h-100 depara-antes">
             <div class="card-header"><i class="bi bi-arrow-left-circle me-1"></i><strong>Antes</strong></div>
             <div class="card-body">
-              <ul class="list-unstyled mb-0 d-grid gap-2">
-                <li><i class="bi bi-file-earmark-x me-2 text-body-secondary"></i>Apenas <code>PROGRAMA.html</code> (o programa de construção) e <code>.agents/skills</code> (20 skills) — zero código de produto.</li>
-                <li><i class="bi bi-file-earmark-x me-2 text-body-secondary"></i>Sem pipeline: nenhuma linha do Editor de Vídeo IA existia.</li>
-              </ul>
+              <pre><code class="language-typescript">// Placeholder — esqueleto do Editor de Video IA
+// Este arquivo existe para que `just build` (tsc --noEmit) passe
+// com o src/ ainda vazio de codigo real.
+export {};</code></pre>
+              <p class="card-text text-body-secondary mb-0">O CLI (<code>npx remotion studio</code> bare) usa <code>src/index.ts</code> como entry default &mdash; e o entry nunca chamava <code>registerRoot()</code>.</p>
             </div>
           </div>
         </div>
@@ -957,243 +442,159 @@
           <div class="card h-100 depara-depois">
             <div class="card-header"><i class="bi bi-arrow-right-circle me-1"></i><strong>Depois</strong></div>
             <div class="card-body">
-              <ul class="list-unstyled mb-0 d-grid gap-2">
-                <li><i class="bi bi-file-earmark-check me-2 text-body-secondary"></i>Pipeline completo funcional: <code>just produzir --fixture canonico --estrito</code> gera os 11 artefatos de ponta a ponta (tema → entrega).</li>
-                <li><i class="bi bi-file-earmark-check me-2 text-body-secondary"></i>65 cards e 13 ondas entregues; ~3300 testes vitest + 90 pytest passando.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-      <h3 class="h5 mt-4 mb-2">2 · Gate com falso-verde → gate honesto</h3>
-      <div class="row g-3 mb-4">
-        <div class="col-lg-6">
-          <div class="card h-100 depara-antes">
-            <div class="card-header"><i class="bi bi-arrow-left-circle me-1"></i><strong>Antes</strong></div>
-            <div class="card-body">
-              <ul class="list-unstyled mb-0 d-grid gap-2">
-                <li><i class="bi bi-file-earmark-x me-2 text-body-secondary"></i>Falha do vitest engolida pelo <code>;</code> no script do gate — o gate ficava VERDE mesmo com testes quebrados (falso-verde).</li>
-                <li><i class="bi bi-file-earmark-x me-2 text-body-secondary"></i>As 3 regressões que deixavam o main vermelho eram mascaradas (PREP-gate-verde).</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6">
-          <div class="card h-100 depara-depois">
-            <div class="card-header"><i class="bi bi-arrow-right-circle me-1"></i><strong>Depois</strong></div>
-            <div class="card-body">
-              <ul class="list-unstyled mb-0 d-grid gap-2">
-                <li><i class="bi bi-file-earmark-check me-2 text-body-secondary"></i><code>onda4.5-fix-gate-vitest</code>: rc do vitest propagado de verdade; render de fontes em processo externo.</li>
-                <li><i class="bi bi-file-earmark-check me-2 text-body-secondary"></i>Gate final com 5 PASS reais (vitest + pytest + validações), lido pelo gate local.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-      <h3 class="h5 mt-4 mb-2">3 · ADRs colididos → numeração única</h3>
-      <div class="row g-3 mb-4">
-        <div class="col-lg-6">
-          <div class="card h-100 depara-antes">
-            <div class="card-header"><i class="bi bi-arrow-left-circle me-1"></i><strong>Antes</strong></div>
-            <div class="card-body">
-              <ul class="list-unstyled mb-0 d-grid gap-2">
-                <li><i class="bi bi-file-earmark-x me-2 text-body-secondary"></i>16 ADRs colididos: ADR-0006 ×6 e ADR-0007 ×9 — decisões diferentes com o mesmo número.</li>
-                <li><i class="bi bi-file-earmark-x me-2 text-body-secondary"></i>Renumeração feita na PREP-w5.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6">
-          <div class="card h-100 depara-depois">
-            <div class="card-header"><i class="bi bi-arrow-right-circle me-1"></i><strong>Depois</strong></div>
-            <div class="card-body">
-              <ul class="list-unstyled mb-0 d-grid gap-2">
-                <li><i class="bi bi-file-earmark-check me-2 text-body-secondary"></i>ADRs 0001..0049 únicos, sem colisão, com validador.</li>
-                <li><i class="bi bi-file-earmark-check me-2 text-body-secondary"></i>Novos ADRs (0033..0046) pré-alocados por onda e conferidos no merge.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-      <h3 class="h5 mt-4 mb-2">4 · Ledger com erros de schema → validado</h3>
-      <div class="row g-3 mb-4">
-        <div class="col-lg-6">
-          <div class="card h-100 depara-antes">
-            <div class="card-header"><i class="bi bi-arrow-left-circle me-1"></i><strong>Antes</strong></div>
-            <div class="card-body">
-              <ul class="list-unstyled mb-0 d-grid gap-2">
-                <li><i class="bi bi-file-earmark-x me-2 text-body-secondary"></i>100+ erros de schema no ledger de incerteza durante a construção.</li>
-                <li><i class="bi bi-file-earmark-x me-2 text-body-secondary"></i>Itens soltos, categorias sem padrão.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6">
-          <div class="card h-100 depara-depois">
-            <div class="card-header"><i class="bi bi-arrow-right-circle me-1"></i><strong>Depois</strong></div>
-            <div class="card-body">
-              <ul class="list-unstyled mb-0 d-grid gap-2">
-                <li><i class="bi bi-file-earmark-check me-2 text-body-secondary"></i>Validação de schema OK; ledger com 256 itens.</li>
-                <li><i class="bi bi-file-earmark-check me-2 text-body-secondary"></i>Fechamento (F6-04) com allowlist explícita e categorias bloqueantes zeradas.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-      <h3 class="h5 mt-4 mb-2">5 · Refutações adversariais → corrigidas com evidência</h3>
-      <div class="row g-3 mb-4">
-        <div class="col-lg-6">
-          <div class="card h-100 depara-antes">
-            <div class="card-header"><i class="bi bi-arrow-left-circle me-1"></i><strong>Antes</strong></div>
-            <div class="card-body">
-              <ul class="list-unstyled mb-0 d-grid gap-2">
-                <li><i class="bi bi-file-earmark-x me-2 text-body-secondary"></i>F1-09: janela de render respeitada nos nós (gráfico falha no build sem alfa; janela fora da safe area).</li>
-                <li><i class="bi bi-file-earmark-x me-2 text-body-secondary"></i>F2-04: determinismo não-vácuo — cassetes sósias e perna de determinismo no estágio de mídia.</li>
-                <li><i class="bi bi-file-earmark-x me-2 text-body-secondary"></i>F4-02×F4-01: prompts em segundos desalinhados do schema real (AB-570).</li>
-                <li><i class="bi bi-file-earmark-x me-2 text-body-secondary"></i>PII: <code>x-client-ip</code> vazando nos headers voláteis.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6">
-          <div class="card h-100 depara-depois">
-            <div class="card-header"><i class="bi bi-arrow-right-circle me-1"></i><strong>Depois</strong></div>
-            <div class="card-body">
-              <ul class="list-unstyled mb-0 d-grid gap-2">
-                <li><i class="bi bi-file-earmark-check me-2 text-body-secondary"></i>Janela e safe area respeitadas com teste de build falhando de propósito.</li>
-                <li><i class="bi bi-file-earmark-check me-2 text-body-secondary"></i>Determinismo com cassete sósia e comparação não-vácuo (2× render).</li>
-                <li><i class="bi bi-file-earmark-check me-2 text-body-secondary"></i><code>onda6-fix-f4-02-schema</code>: prompts em segundos alinhados ao schema real; PII redigido.</li>
-                <li><i class="bi bi-file-earmark-check me-2 text-body-secondary"></i>Suite offline com guarda de rede e redação de headers voláteis.</li>
-              </ul>
+              <pre><code class="language-typescript">// Entry default do Remotion — ponto de entrada quando o CLI roda SEM entry
+// explicito (`npm run dev` / `just dev`: `npx remotion studio`).
+//
+// O registro real da raiz (`registerRoot(RaizRemotion)`, composicao id="manifesto")
+// mora em `src/composicao/raiz.tsx`. Este arquivo importa a raiz estaticamente
+// para que `registerRoot()` seja chamado no escopo de modulo — o contrato que o
+// CLI exige do entry (remotion.dev/docs/register-root).
+import "./composicao/raiz";</code></pre>
+              <p class="card-text text-body-secondary mb-0">O import est&aacute;tico faz <code>registerRoot(RaizRemotion)</code> rodar no escopo de m&oacute;dulo (vive em <code>src/composicao/raiz.tsx:102</code>). A composi&ccedil;&atilde;o <code>manifesto</code> &eacute; registrada.</p>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- De-para: a experiencia do usuario -->
+      <h2 class="h4 pane-title">De-Para: o que o usu&aacute;rio v&ecirc;</h2>
+      <div class="row g-3 mb-4">
+        <div class="col-lg-6">
+          <div class="card h-100 depara-antes">
+            <div class="card-header"><i class="bi bi-arrow-left-circle me-1"></i><strong>Antes</strong></div>
+            <div class="card-body">
+              <p class="card-text"><code>$ npm run dev</code></p>
+              <pre><code>Waiting for registerRoot() to get called.
+Learn more: remotion.dev/docs/register-root</code></pre>
+              <p class="card-text text-body-secondary mb-0">O servidor do Studio sobe, mas a composi&ccedil;&atilde;o nunca &eacute; registrada &mdash; a pr&eacute;via fica esperando.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card h-100 depara-depois">
+            <div class="card-header"><i class="bi bi-arrow-right-circle me-1"></i><strong>Depois</strong></div>
+            <div class="card-body">
+              <p class="card-text"><code>$ npm run dev</code></p>
+              <pre><code>Server ready
+Built in 974ms</code></pre>
+              <p class="card-text text-body-secondary mb-0">Studio abre com a composi&ccedil;&atilde;o <code>manifesto</code> (1920&times;1080 &middot; 30 fps &middot; 727 frames &asymp; 24,23 s) pronta para pr&eacute;via e render.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- De-para: como o projeto funciona -->
+      <h2 class="h4 pane-title">Como o projeto funciona (a pergunta original)</h2>
+      <p>O <strong>Editor de V&iacute;deo IA</strong> transforma um tema/brief em v&iacute;deo completo (narra&ccedil;&atilde;o, gr&aacute;ficos, legendas, m&uacute;sica). O v&iacute;deo &eacute; uma <strong>fun&ccedil;&atilde;o pura</strong> de um manifesto resolvido mais assets endere&ccedil;ados por conte&uacute;do (SHA-256). Os cinco est&aacute;gios:</p>
+      <ol class="list-group list-group-flush mb-4">
+        <li class="list-group-item"><strong>AUTORIA</strong> &mdash; um LLM recebe o tema e produz <code>manifesto.json</code> (n&atilde;o-determin&iacute;stico, cacheado).</li>
+        <li class="list-group-item"><strong>RESOLU&Ccedil;&Atilde;O</strong> &mdash; cinco sub-est&aacute;gios impuros (loca&ccedil;&atilde;o, gr&aacute;fico, m&iacute;dia, c&oacute;digo, m&uacute;sica), cada um cacheado por hash, produzem <code>manifesto-resolvido.json</code>.</li>
+        <li class="list-group-item"><strong>COMPOSI&Ccedil;&Atilde;O</strong> &mdash; fun&ccedil;&atilde;o pura: zero rede, zero <code>Date.now()</code>, zero <code>Math.random()</code> sem seed. A raiz (<code>src/composicao/raiz.tsx</code>) recebe o manifesto por prop e o frame por prop &mdash; o determinismo &eacute; testado (render 2&times; = bytes id&ecirc;nticos).</li>
+        <li class="list-group-item"><strong>RENDER</strong> &mdash; frames a encode, paraleliz&aacute;vel por faixa (cache por hash, perfis de encode descobertos por conven&ccedil;&atilde;o).</li>
+        <li class="list-group-item"><strong>POS/ENTREGA</strong> &mdash; loudness, variantes por plataforma, legendas, thumbnail, proced&ecirc;ncia (gate de licen&ccedil;a).</li>
+      </ol>
+      <p>Nada de impuro (LLM, TTS, download, rede) atravessa a <strong>fronteira de determinismo</strong>: tudo que &eacute; impuro sobe acima dela e &eacute; cacheado por hash. O que este fix toca &eacute; a porta de entrada do est&aacute;gio de composi&ccedil;&atilde;o: o Studio (entry default) agora registra a raiz que orquestra toda a &aacute;rvore da composi&ccedil;&atilde;o.</p>
+      <!-- {{BEFORE_AFTER}} end -->
 
       <h2 class="h4 pane-title">Impacto</h2>
-      <p>O que cada mudança significa para quem usa o deep-orchestrator:</p>
+      <h2 class="h4 pane-title">Impacto</h2>
+      <p>O que a mudan&ccedil;a significa para quem usa o Editor de V&iacute;deo IA:</p>
       <div class="list-group list-group-flush mb-4">
         <div class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-search fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Busca Brave integrada</strong> — sub-agentes pesquisam na web direto do terminal (curl + API Brave), sem depender de outras ferramentas.</div>
+          <i class="bi bi-play-circle fs-5 stat-value flex-shrink-0 mt-1"></i>
+          <div><strong><code>npm run dev</code> funciona</strong> &mdash; o Remotion Studio abre e lista a composi&ccedil;&atilde;o <code>manifesto</code> (1920&times;1080 &middot; 30 fps &middot; 727 frames &asymp; 24,23 s).</div>
         </div>
         <div class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-credit-card-2-front fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Créditos sob controle</strong> — o orquestrador consulta os créditos restantes da API antes de disparar ondas longas.</div>
+          <i class="bi bi-terminal fs-5 stat-value flex-shrink-0 mt-1"></i>
+          <div><strong><code>just dev</code> idem</strong> &mdash; mesmo comando bare (<code>npx remotion studio</code>), mesma corre&ccedil;&atilde;o.</div>
         </div>
         <div class="list-group-item d-flex gap-3 align-items-start">
           <i class="bi bi-shield-check fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Execução confiável</strong> — contratos ECC (execução de código confiável) que os sub-agentes seguem ao executar código.</div>
+          <div><strong>Regress&atilde;o permanente</strong> &mdash; 5 testes (or&aacute;culo CLI real + modo de falha + wiring com sondas negativas) ficam vermelhos se o entry voltar a n&atilde;o registrar a raiz.</div>
         </div>
         <div class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-chat-square-text fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Busca padronizada</strong> — prompts de pesquisa consistentes entre sub-agentes (search-prompts.md).</div>
-        </div>
-        <div class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-file-earmark-code fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>De-para visível</strong> — toda execução termina com um EXPLAINER.html legível (este documento).</div>
-        </div>
-        <div class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-gear fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Processo documentado</strong> — ondas ilimitadas e o novo fluxo registrados no SKILL.md.</div>
+          <i class="bi bi-book fs-5 stat-value flex-shrink-0 mt-1"></i>
+          <div><strong>Conhecimento registrado</strong> &mdash; a valida&ccedil;&atilde;o de entry do Remotion 4.0.507 &eacute; textual (<code>does not contain "registerRoot"</code>) e o mecanismo real de falha do render &eacute; o timeout do <code>delayRender</code> (28 s); documentados para as pr&oacute;ximas ondas.</div>
         </div>
       </div>
 
       <h2 class="h4 pane-title">Novas capacidades</h2>
+      <h2 class="h4 pane-title">Capacidades verificadas nesta execu&ccedil;&atilde;o</h2>
       <div class="row g-3">
         <div class="col-md-6 col-lg-4">
           <div class="card h-100">
             <div class="card-body">
-              <i class="bi bi-search fs-3 stat-value"></i>
-              <h3 class="h6 mt-2 mb-1">Busca Brave interna</h3>
-              <p class="small text-body-secondary mb-0">Sub-agentes pesquisam na web via API Brave, direto do terminal — sem sair do fluxo.</p>
+              <i class="bi bi-rocket-takeoff fs-3 stat-value"></i>
+              <h3 class="h6 mt-2 mb-1">Entry default funcional</h3>
+              <p class="small text-body-secondary mb-0">O CLI roda sem entry expl&iacute;cito: <code>src/index.ts</code> importa a raiz e o <code>registerRoot</code> acontece na carga do m&oacute;dulo.</p>
             </div>
           </div>
         </div>
         <div class="col-md-6 col-lg-4">
           <div class="card h-100">
             <div class="card-body">
-              <i class="bi bi-shield-check fs-3 stat-value"></i>
-              <h3 class="h6 mt-2 mb-1">ECC prompts</h3>
-              <p class="small text-body-secondary mb-0">Contratos de execução de código confiável que os sub-agentes seguem (ecc-prompts.md, ecc-skills.md).</p>
+              <i class="bi bi-bullseye fs-3 stat-value"></i>
+              <h3 class="h6 mt-2 mb-1">Or&aacute;culo falsific&aacute;vel</h3>
+              <p class="small text-body-secondary mb-0"><code>npx remotion compositions src/index.ts</code> lista <code>manifesto</code> &mdash; asser&ccedil;&atilde;o por conte&uacute;do, sonda negativa registrada antes do fix.</p>
             </div>
           </div>
         </div>
         <div class="col-md-6 col-lg-4">
           <div class="card h-100">
             <div class="card-body">
-              <i class="bi bi-infinity fs-3 stat-value"></i>
-              <h3 class="h6 mt-2 mb-1">Ondas ilimitadas</h3>
-              <p class="small text-body-secondary mb-0">O plano não fica limitado a N ondas — a topologia das dependências manda.</p>
+              <i class="bi bi-shield-lock fs-3 stat-value"></i>
+              <h3 class="h6 mt-2 mb-1">Regress&atilde;o em 3 camadas</h3>
+              <p class="small text-body-secondary mb-0">CLI real + modo de falha (mensagem assertada) + wiring com sondas negativas &mdash; falsificabilidade demonstrada por muta&ccedil;&atilde;o.</p>
             </div>
           </div>
         </div>
         <div class="col-md-6 col-lg-4">
           <div class="card h-100">
             <div class="card-body">
-              <i class="bi bi-credit-card-2-front fs-3 stat-value"></i>
-              <h3 class="h6 mt-2 mb-1">Verificação de créditos</h3>
-              <p class="small text-body-secondary mb-0">Créditos da API Brave consultados antes de ondas longas — o orquestrador sabe quando parar.</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-4">
-          <div class="card h-100">
-            <div class="card-body">
-              <i class="bi bi-file-earmark-code fs-3 stat-value"></i>
-              <h3 class="h6 mt-2 mb-1">HTML explainer</h3>
-              <p class="small text-body-secondary mb-0">Este documento: o de-para (antes/depois) de tudo que foi feito na execução.</p>
+              <i class="bi bi-diagram-3 fs-3 stat-value"></i>
+              <h3 class="h6 mt-2 mb-1">Mapa do projeto</h3>
+              <p class="small text-body-secondary mb-0">Os 5 est&aacute;gios (autoria &rarr; resolu&ccedil;&atilde;o &rarr; composi&ccedil;&atilde;o &rarr; render &rarr; p&oacute;s/entrega) e a fronteira de determinismo explicados na aba De-Para.</p>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- ══════════════ ABA 5 · DECISÕES AUTÔNOMAS ══════════════ -->
+      <!-- ══════════════ ABA 5 · DECISÕES AUTÔNOMAS ══════════════ -->
     <div class="tab-pane fade" id="pane-decisoes" role="tabpanel"
          aria-labelledby="tab-decisoes" tabindex="0" data-print-title="Decisões autônomas">
       <h2 class="h4 pane-title">Premissas inferidas sem perguntar</h2>
       <p>O orquestrador opera em autonomia total: nenhuma pergunta foi feita ao usuário. Toda premissa assumida fica registrada aqui — para revisão e reprodutibilidade.</p>
 
-            <ul class="list-group list-group-flush">
+      <!-- {{DECISIONS}} begin -->
+      <ul class="list-group list-group-flush">
         <li class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-person-check fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Uso pessoal (ADR-0003)</strong> — o projeto foi enquadrado como ferramenta de uso pessoal, fechando P-01..P-04 sem perguntar nada sobre licenciamento ou distribuição.</div>
+          <i class="bi bi-lightbulb fs-5 stat-value flex-shrink-0 mt-1"></i>
+          <div><strong>Fix na origem (entry default) em vez de mexer em package.json/justfile:</strong> corrige <code>npm run dev</code> E <code>just dev</code> com uma &uacute;nica mudan&ccedil;a; entry expl&iacute;cito nos scripts seria redundante e criaria um segundo ponto de verdade. Validado pelo REVISOR DE PLANO.</div>
         </li>
         <li class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-terminal fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Hífen nas receitas just (armadilha 9.1)</strong> — receitas do justfile nomeadas com hífen (ex.: <code>medir-maquina</code>) para não virarem argumento de alvo.</div>
+          <i class="bi bi-lightbulb fs-5 stat-value flex-shrink-0 mt-1"></i>
+          <div><strong>Or&aacute;culo por conte&uacute;do, n&atilde;o por exit code:</strong> <code>npx remotion compositions src/index.ts</code> deve listar o id <code>manifesto</code>. A mensagem literal <em>Waiting for registerRoot()</em> &eacute; runtime do browser do Studio e n&atilde;o aparece no stdout do CLI 4.0.507 &mdash; a falha antecipada no bundler &eacute; <code>does not contain "registerRoot"</code> (conven&ccedil;&atilde;o B, verificado).</div>
         </li>
         <li class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-search fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>rg --files-without-match (armadilha 9.2)</strong> — varreduras de código usam <code>rg</code> em vez de grep, listando arquivos sem match — token-aware e reprodutível.</div>
+          <i class="bi bi-lightbulb fs-5 stat-value flex-shrink-0 mt-1"></i>
+          <div><strong>Sonda negativa antes da mudan&ccedil;a:</strong> o sub-agente registrou o estado quebrado (entry vazio &rarr; CLI rejeita) ANTES de aplicar o fix &mdash; o or&aacute;culo demonstrou que falha sem o trabalho.</div>
         </li>
         <li class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-film fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Cartucho webm (AB-390)</strong> — o estágio gráfico entrega o cartucho em formato webm (v1.1.0), com cassete regravado — sem pedir preferência de formato.</div>
+          <i class="bi bi-lightbulb fs-5 stat-value flex-shrink-0 mt-1"></i>
+          <div><strong>Testing subwave com uma &uacute;nica worktree:</strong> 5 testes num arquivo cobrem CLI real, modo de falha e wiring &mdash; sem paralelismo desnecess&aacute;rio.</div>
         </li>
         <li class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-aspect-ratio fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>16:9-only no estrito (AB-720)</strong> — no modo estrito a produção é somente 16:9; proporções alternativas exigem allowlist explícita.</div>
+          <i class="bi bi-lightbulb fs-5 stat-value flex-shrink-0 mt-1"></i>
+          <div><strong>Achados documentais do revisor aceitos sem onda de fix:</strong> o mecanismo real de falha da regress&atilde;o &eacute; o timeout do <code>delayRender</code> (28 s), n&atilde;o a literal do Studio; e npx ausente daria diagn&oacute;stico enganoso no teste de modo de falha. Nenhum derruba o gate &mdash; documentados no relat&oacute;rio final.</div>
         </li>
         <li class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-list-check fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Allowlist de 1 item (AB-950)</strong> — a allowlist de variantes nasce com 1 item — princípio do mínimo, ampliada só com evidência.</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-arrow-repeat fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Migração do vocabulário do ledger (F6-05)</strong> — a dívida de vocabulário do ledger foi migrada no fechamento, com escopo negativo sondado pela sonda qtrle corrigida.</div>
-        </li>
-        <li class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-youtube fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Canal YouTube (ADR-0046)</strong> — plataforma-alvo da entrega: um canal YouTube — definido por ADR, sem consultar.</div>
+          <i class="bi bi-lightbulb fs-5 stat-value flex-shrink-0 mt-1"></i>
+          <div><strong>Autonomia total (R2):</strong> nenhuma pergunta ao usu&aacute;rio. A explica&ccedil;&atilde;o de &ldquo;como o projeto funciona&rdquo; entrou neste EXPLAINER e no relat&oacute;rio final.</div>
         </li>
       </ul>
+      <!-- {{DECISIONS}} end -->
 
-
-      <p class="text-body-secondary small mt-2">Exemplo demonstrativo — a geração substitui o bloco entre os marcadores pelas decisões reais da execução.</p>
-    </div>
+      </div>
 
     <!-- ══════════════ ABA 6 · TIMELINE ══════════════ -->
     <div class="tab-pane fade" id="pane-timeline" role="tabpanel"
@@ -1201,143 +602,45 @@
       <h2 class="h4 pane-title">Linha do tempo da execução</h2>
       <p>As quatro fases do orquestrador e o que aconteceu em cada uma.</p>
 
-            <ol class="timeline list-unstyled mb-0">
+      <!-- {{TIMELINE}} begin -->
+      <ol class="timeline list-unstyled mb-0">
         <li class="timeline-item mb-4">
           <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-accent">2026-08-11</span>
-            <strong>Execução iniciada — W0 a W3</strong>
+            <span class="badge badge-accent">Fase 1</span>
+            <strong>ANALYZE</strong>
           </div>
-          <p class="mb-0 text-body-secondary small">W0 esqueleto + vocabulário (F0-01, T-01) · W0.5 enquadramento de uso (I-01) · W1 8 cards de infra e contratos · W2 8 cards de invariantes e harness · W2.5 contas e chaves (I-02) · W3 5 hubs (layout, composição, resolução, fontes, CI).</p>
+          <p class="mb-0 text-body-secondary small">FASE 0 (MODE=normal; raiz-de-mundo = repo; branch main). Diagn&oacute;stico da causa raiz: <code>src/index.ts</code> &eacute; placeholder vazio (<code>export {}</code>); o registro real est&aacute; em <code>src/composicao/raiz.tsx:102</code>. Project-router carregado (20 skills; cadeia remotion-core + falsifiable-gates + parallel-worktrees). Busca Tier 1 OK (surf-skill); BRAVE_API_KEY definida.</p>
         </li>
         <li class="timeline-item mb-4">
           <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-soft">2026-08-11</span>
-            <strong>Pausa e registro de retomada</strong>
+            <span class="badge badge-accent">Fase 2</span>
+            <strong>PLAN</strong>
           </div>
-          <p class="mb-0 text-body-secondary small">RETOMAR-AQUI grava o estado completo da construção para outra sessão; fix-hooks corrige o formato real dos hooks (payload por stdin, filtro de path no comando).</p>
+          <p class="mb-0 text-body-secondary small">1 onda / 1 sub-tarefa (<code>onda1-fix-entry-dev</code>), mapa de propriedade exclusivo (<code>src/index.ts</code>), or&aacute;culo definido antes do c&oacute;digo: <code>compositions</code> + id <code>manifesto</code>.</p>
         </li>
         <li class="timeline-item mb-4">
           <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-accent">2026-08-13</span>
-            <strong>Retomada — sincronização do owned.tsv</strong>
+            <span class="badge badge-accent">Fase 3</span>
+            <strong>EXECUTE-ONDA</strong>
           </div>
-          <p class="mb-0 text-body-secondary small">13 worktrees da W4 adotadas pela nova sessão; fixture canônica coerente e critérios corrigidos na PREP-w4.</p>
+          <p class="mb-0 text-body-secondary small">Onda 1: sonda negativa (exit 1) &rarr; fix &rarr; sonda positiva (<code>manifesto</code> listado) &rarr; tsc + vitest 3166 verdes &rarr; REVISOR DE PLANO: CONVERG&Ecirc;NCIA &rarr; revisor adversarial: &ldquo;Nada a refutar&rdquo; &rarr; squash <code>2eaa378</code> + gate + limpeza. Testing subwave: 5 testes, falsificabilidade por 3 muta&ccedil;&otilde;es (todas vermelhas), 4 execu&ccedil;&otilde;es verdes (3171), revisor adversarial emp&iacute;rico (Q1&ndash;Q7) &rarr; squash <code>c32911c</code> + gate + limpeza.</p>
         </li>
-        <li class="timeline-item mb-4">
+        <li class="timeline-item">
           <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-accent">2026-08-13</span>
-            <strong>W4 — 13 cards (a onda mais larga)</strong>
-          </div>
-          <p class="mb-0 text-body-secondary small">5 estágios de resolução + 6 nós + transições + camadas globais; integradas uma a uma com gate.</p>
-        </li>
-        <li class="timeline-item mb-4">
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-ok">2026-08-13</span>
-            <strong>Gate honesto — onda4.5-fix-gate-vitest</strong>
-          </div>
-          <p class="mb-0 text-body-secondary small">rc do vitest propagado (fim do falso-verde); render de fontes movido para processo externo. Gate passa a refletir a realidade.</p>
-        </li>
-        <li class="timeline-item mb-4">
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-accent">2026-08-13</span>
-            <strong>W5 — 5 joins</strong>
-          </div>
-          <p class="mb-0 text-body-secondary small">timing, autoria, prompts, integração e offline; correções AB-390 (cartucho webm) e AB-570/PII (prompts em segundos, x-client-ip redigido).</p>
-        </li>
-        <li class="timeline-item mb-4">
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-accent">2026-08-13</span>
-            <strong>W6 — sincronia e autoria</strong>
-          </div>
-          <p class="mb-0 text-body-secondary small">legendas canônicas (NBR 15290), ducking com anti-degrau, ritmo (corte de silêncio), reparo por forma, cassete de autoria com executor.</p>
-        </li>
-        <li class="timeline-item mb-4">
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-accent">2026-08-13</span>
-            <strong>W6.5 — medição da máquina (I-03)</strong>
-          </div>
-          <p class="mb-0 text-body-secondary small">medir-maquina com tetos de concorrência; números reais da máquina de render para o pipeline.</p>
-        </li>
-        <li class="timeline-item mb-4">
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-accent">2026-08-13</span>
-            <strong>W7 — entrega</strong>
-          </div>
-          <p class="mb-0 text-body-secondary small">mix, encode hw/sw, procedência transitiva, variantes, thumbnail, render por faixa byte a byte (ponte AB-550).</p>
-        </li>
-        <li class="timeline-item mb-4">
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-accent">2026-08-13</span>
-            <strong>W8 — o pescoço</strong>
-          </div>
-          <p class="mb-0 text-body-secondary small">pós-processamento com loudness (ADR-0040) e cache de render por conteúdo com chave C7 (ADR-0041).</p>
-        </li>
-        <li class="timeline-item mb-4">
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-accent">2026-08-13</span>
-            <strong>W9 — join final F5-07</strong>
-          </div>
-          <p class="mb-0 text-body-secondary small">orquestrador ponta a ponta tema → entrega com 11 artefatos e retomada C7; contratos de integração pré-alocados (ADRs 0033/0042).</p>
-        </li>
-        <li class="timeline-item mb-4">
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-accent">2026-08-13</span>
-            <strong>W9.5 — política editorial (I-04)</strong>
-          </div>
-          <p class="mb-0 text-body-secondary small">política editorial com alavanca-mestra e papéis nomeados; critério I-04 corrigido.</p>
-        </li>
-        <li class="timeline-item mb-4">
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-soft">2026-08-13</span>
-            <strong>PREP-tokens</strong>
-          </div>
-          <p class="mb-0 text-body-secondary small">revisão AB-720..723 com ADR-0043 — tokens de design congelados para o golden master.</p>
-        </li>
-        <li class="timeline-item mb-4">
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-accent">2026-08-13</span>
-            <strong>W10 — golden master + dossiê</strong>
-          </div>
-          <p class="mb-0 text-body-secondary small">F5-08 golden ponta a ponta com frames-chave e envelope de áudio; F6-01 dossiê de revisão humana bloqueando publicação sem dossiê.</p>
-        </li>
-        <li class="timeline-item mb-4">
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-accent">2026-08-13</span>
-            <strong>W11 — runbook, gates e fechamento</strong>
-          </div>
-          <p class="mb-0 text-body-secondary small">F6-02 runbook de publicação · F6-03 gates P-1..P-5 com veredito CONFERE exigindo evidência · F6-04 fechamento do ledger (allowlist explícita, bloqueantes zerados).</p>
-        </li>
-        <li class="timeline-item mb-4">
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-accent">2026-08-13</span>
-            <strong>W12 — arquivamento (F6-05)</strong>
-          </div>
-          <p class="mb-0 text-body-secondary small">arquivamento e escopo negativo com sonda qtrle corrigida e dívida de vocabulário migrada.</p>
-        </li>
-        <li class="timeline-item mb-4">
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-ok">2026-08-13</span>
-            <strong>Fix G-LED final</strong>
-          </div>
-          <p class="mb-0 text-body-secondary small">onda12.5-fix-gled-final: fechamento do G-LED pós-merges W11/W12 — AB-930 resolvido.</p>
-        </li>
-        <li class="timeline-item mb-4">
-          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <span class="badge badge-ok">2026-08-13</span>
+            <span class="badge badge-ok">Fase 4</span>
             <strong>COMMIT-FINAL</strong>
           </div>
-          <p class="mb-0 text-body-secondary small">gate completo VERDE: 5 PASS (~3300 testes vitest + 90 pytest); varredura de limpeza; EXPLAINER.html gerado (este documento).</p>
+          <p class="mb-0 text-body-secondary small">Gate final (88 arquivos / 3171 testes), EXPLAINER.html gerado, commit final em main, relat&oacute;rio com o de-para completo.</p>
         </li>
       </ol>
+      <!-- {{TIMELINE}} end -->
 
-
-      <p class="text-body-secondary small mt-3">Exemplo demonstrativo — a geração substitui o bloco entre os marcadores pela timeline real da execução.</p>
-    </div>
+      </div>
 
   </div>
 
   <footer class="text-body-secondary small border-top mt-5 pt-3">
-    Gerado por <strong>deep-orchestrator</strong> v65/65 cards · 2026-08-13 · branch main.
+    Gerado por <strong>deep-orchestrator</strong> v3.2.0 · 2026-08-13 · branch main.
     Documento de arquivo único — salve, abra com duplo clique ou imprima em PDF (todas as abas entram no papel).
   </footer>
 
