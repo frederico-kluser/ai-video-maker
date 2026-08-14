@@ -1,10 +1,10 @@
 ---
 name: tts-voiceover
-description: Provides the voiceover knowledge this program needs — which TTS engines return word timestamps (the criterion that decides whether an ASR stage exists at all), the license/cost/local/pt-BR comparison, the immutable (audio, timing) cache keyed by input hash, seed and determinism limits, SSML prosody portability, the pt-BR pronunciation dictionary for technical terms and acronyms, and voice-rights obligations. Use whenever a task synthesizes speech, picks or swaps a voice provider, writes the voiceover cache key, tunes pauses or pronunciation, or decides whether forced alignment is needed. Triggers: "TTS", "voiceover", "locucao", "narracao", "voz", "speech synthesis", "ElevenLabs", "Cartesia", "Polly", "Azure Speech", "Kokoro", "Piper", "XTTS", "Chatterbox", "SSML", "pronuncia", "phoneme", "voice cloning", "clonagem de voz", "word timestamps", "speech marks", "WordBoundary", "seed", "prosodia", "pausa"
+description: 'Provides the voiceover knowledge this program needs — which TTS engines return word timestamps (the criterion that decides whether an ASR stage exists at all), the license/cost/local/pt-BR comparison, the immutable (audio, timing) cache keyed by input hash, seed and determinism limits, SSML prosody portability, the pt-BR pronunciation dictionary for technical terms and acronyms, and voice-rights obligations. Use whenever a task synthesizes speech, picks or swaps a voice provider, writes the voiceover cache key, tunes pauses or pronunciation, or decides whether forced alignment is needed. Triggers: "TTS", "voiceover", "locucao", "narracao", "voz", "speech synthesis", "ElevenLabs", "Cartesia", "Polly", "Azure Speech", "Kokoro", "Piper", "XTTS", "Chatterbox", "SSML", "pronuncia", "phoneme", "voice cloning", "clonagem de voz", "word timestamps", "speech marks", "WordBoundary", "seed", "prosodia", "pausa"'
 metadata:
   type: knowledge
   tier: dominio
-  verification_signal: "curl -sS https://raw.githubusercontent.com/hexgrad/kokoro/main/kokoro/pipeline.py | grep -c \"lang_code in 'ab'\"   # >=1 enquanto o ramo pt-BR do Kokoro nao alinhar; 0 significa que a guarda caiu e esta skill precisa ser reescrita"
+  verification_signal: 'curl -sS https://raw.githubusercontent.com/hexgrad/kokoro/main/kokoro/pipeline.py | grep -c "lang_code in ''ab''"   # >=1 enquanto o ramo pt-BR do Kokoro nao alinhar; 0 significa que a guarda caiu e esta skill precisa ser reescrita'
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

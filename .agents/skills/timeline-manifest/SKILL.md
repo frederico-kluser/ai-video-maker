@@ -1,10 +1,10 @@
 ---
 name: timeline-manifest
-description: Provides the cross-language data contract of the video manifest — the one JSON artifact read by Node/Remotion and by Python/Manim — covering the two-schema shape mandated by card F0-02 (LLM subset + full 2020-12 validator), closed objects, the anyOf+const union on the node kind field, the flat node list with id references, per-object versioning, single-source codegen and the validation gate, the time-unit decision owned by ADR-0010 and its conversion rule, and why OpenTimelineIO, EDL and FCPXML are not adopted. Use whenever a task reads, writes, generates, validates, versions or migrates the manifest, or adds a field that both sides consume, even if the user doesn't mention "schema" or "JSON". Triggers: "manifest", "manifesto", "schema", "json schema", "zod", "pydantic", "contract", "data contract", "node", "timeline", "codegen", "validator", "migration", "otio", "fps", "duration".
+description: 'Provides the cross-language data contract of the video manifest — the one JSON artifact read by Node/Remotion and by Python/Manim — covering the two-schema shape mandated by card F0-02 (LLM subset + full 2020-12 validator), closed objects, the anyOf+const union on the node kind field, the flat node list with id references, per-object versioning, single-source codegen and the validation gate, the time-unit decision owned by ADR-0010 and its conversion rule, and why OpenTimelineIO, EDL and FCPXML are not adopted. Use whenever a task reads, writes, generates, validates, versions or migrates the manifest, or adds a field that both sides consume, even if the user doesn''t mention "schema" or "JSON". Triggers: "manifest", "manifesto", "schema", "json schema", "zod", "pydantic", "contract", "data contract", "node", "timeline", "codegen", "validator", "migration", "otio", "fps", "duration".'
 metadata:
   type: knowledge
   tier: dominio
-  verification_signal: "just contrato:gerar && test -s schema/manifesto.schema.json && test -s schema/manifesto.llm.schema.json && git diff --exit-code schema/ src/contratos/"
+  verification_signal: just contrato:gerar && test -s schema/manifesto.schema.json && test -s schema/manifesto.llm.schema.json && git diff --exit-code schema/ src/contratos/
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

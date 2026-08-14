@@ -1,10 +1,10 @@
 ---
 name: wave-planning
-description: Provides the law that turns this program's dependency graph into waves — level is a constraint, wave is a scheduling decision, and neither is chosen by taste. Use whenever planning, numbering, widening, splitting or re-ordering waves of parallel cards, when deciding which wave a card belongs to, when inserting new work into an existing plan, or when writing or debugging the graph validator, even if the user never says "wave", "DAG" or "topological level". Triggers: "which wave", "wave table", "tabela de ondas", "que onda", "plan the waves", "parallelize these cards", "run these in parallel", "dependency graph", "critical path", "caminho critico", "fan-out", "composition wave", "onda de composicao", "PREP commit", "insert a new task", "renumber waves", "graph validator", "validate-graph".
+description: 'Provides the law that turns this program''s dependency graph into waves — level is a constraint, wave is a scheduling decision, and neither is chosen by taste. Use whenever planning, numbering, widening, splitting or re-ordering waves of parallel cards, when deciding which wave a card belongs to, when inserting new work into an existing plan, or when writing or debugging the graph validator, even if the user never says "wave", "DAG" or "topological level". Triggers: "which wave", "wave table", "tabela de ondas", "que onda", "plan the waves", "parallelize these cards", "run these in parallel", "dependency graph", "critical path", "caminho critico", "fan-out", "composition wave", "onda de composicao", "PREP commit", "insert a new task", "renumber waves", "graph validator", "validate-graph".'
 metadata:
   type: knowledge
   tier: metodo
-  verification_signal: "python3 tools/validate-graph.py PROGRAMA.md  # enquanto T-02 nao existir: grep -nF 'onda(c) >= nivel(c)' PROGRAMA.md && grep -nF 'onda(card) > onda(dep)' PROGRAMA.md"
+  verification_signal: 'python3 tools/validate-graph.py PROGRAMA.md  # enquanto T-02 nao existir: grep -nF ''onda(c) >= nivel(c)'' PROGRAMA.md && grep -nF ''onda(card) > onda(dep)'' PROGRAMA.md'
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

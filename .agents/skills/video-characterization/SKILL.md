@@ -1,10 +1,10 @@
 ---
 name: video-characterization
-description: Injects the video-adapted golden master method — the six-layer oracle pyramid and its build order (structural ffprobe first, key-frame pixel diff last), which artifact to pin per output type, how determinism is proven twice before the approved directory is touched, why a red run writes to *.received/ and never overwrites the baseline, the catalog of headless-Chrome nondeterminism and how each source is removed, CONTRATO vs BUG-A-DIVERGIR classification, fixture lifecycle and baseline storage cost. Use whenever a task captures, approves, compares, calibrates or retires a visual or audio baseline, or answers "how do we know this render did not regress", even if the user never says snapshot, golden master or characterization. Triggers: "snapshot", "golden master", "baseline", "fixture", "regressão visual", "visual regression", "determinismo", "flaky render", "pixel diff", "limiar de diff", "framemd5", "received", "re-baseline", "caracterização", "aprovar o frame".
+description: 'Injects the video-adapted golden master method — the six-layer oracle pyramid and its build order (structural ffprobe first, key-frame pixel diff last), which artifact to pin per output type, how determinism is proven twice before the approved directory is touched, why a red run writes to *.received/ and never overwrites the baseline, the catalog of headless-Chrome nondeterminism and how each source is removed, CONTRATO vs BUG-A-DIVERGIR classification, fixture lifecycle and baseline storage cost. Use whenever a task captures, approves, compares, calibrates or retires a visual or audio baseline, or answers "how do we know this render did not regress", even if the user never says snapshot, golden master or characterization. Triggers: "snapshot", "golden master", "baseline", "fixture", "regressão visual", "visual regression", "determinismo", "flaky render", "pixel diff", "limiar de diff", "framemd5", "received", "re-baseline", "caracterização", "aprovar o frame".'
 metadata:
   type: knowledge
   tier: metodo
-  verification_signal: 'ffmpeg -hide_banner -h muxer=framemd5 >/dev/null && ffmpeg -hide_banner -h filter=libvmaf 2>&1 | grep -q "Unknown filter"'
+  verification_signal: ffmpeg -hide_banner -h muxer=framemd5 >/dev/null && ffmpeg -hide_banner -h filter=libvmaf 2>&1 | grep -q "Unknown filter"
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

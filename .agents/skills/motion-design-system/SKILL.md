@@ -1,20 +1,10 @@
 ---
 name: motion-design-system
-description: Provides the named token vocabulary every other skill inherits — typographic scale,
-  palette with measured contrast, grid and safe areas per aspect ratio, canonical transition
-  durations, spring presets held as (damping ratio, settling time) — plus the measurable numbers
-  that become blocking gates: minimum on-screen text time, characters per second, contrast floors,
-  the three-flashes-per-second limit, loudness target, true-peak headroom, and the markup-contract
-  rule that keeps snapshot approval honest. Use whenever a task picks a duration, a colour, a size,
-  a screen position, an easing curve or an audio level, even if the user never says "design
-  system". Triggers: "token de design", "design system", "motion-invariants", "escala tipografica",
-  "paleta", "contraste", "WCAG", "safe area", "graphics safe", "9:16", "Shorts", "Reels", "TikTok",
-  "duracao de transicao", "easing", "spring preset", "snappy", "damping ratio", "overshoot",
-  "flash", "fotossensibilidade", "LUFS", "true peak", "legibilidade", "valor magico".
+description: 'Provides the named token vocabulary every other skill inherits — typographic scale, palette with measured contrast, grid and safe areas per aspect ratio, canonical transition durations, spring presets held as (damping ratio, settling time) — plus the measurable numbers that become blocking gates: minimum on-screen text time, characters per second, contrast floors, the three-flashes-per-second limit, loudness target, true-peak headroom, and the markup-contract rule that keeps snapshot approval honest. Use whenever a task picks a duration, a colour, a size, a screen position, an easing curve or an audio level, even if the user never says "design system". Triggers: "token de design", "design system", "motion-invariants", "escala tipografica", "paleta", "contraste", "WCAG", "safe area", "graphics safe", "9:16", "Shorts", "Reels", "TikTok", "duracao de transicao", "easing", "spring preset", "snappy", "damping ratio", "overshoot", "flash", "fotossensibilidade", "LUFS", "true peak", "legibilidade", "valor magico".'
 metadata:
   type: knowledge
   tier: dominio
-  verification_signal: "grep -qF '| R14-06 |' docs/00-panorama-verificado.md && grep -qF '| R14-16 |' docs/00-panorama-verificado.md && grep -qF '| AB-071 |' docs/00-panorama-verificado.md && curl -sL https://raw.githubusercontent.com/remotion-dev/remotion/main/packages/core/src/spring/spring-utils.ts | grep -qF 'Math.sqrt(k * m)' && curl -sL https://www.w3.org/WAI/WCAG22/Understanding/three-flashes-or-below-threshold.html | grep -qF 'three times in any one second'"
+  verification_signal: grep -qF '| R14-06 |' docs/00-panorama-verificado.md && grep -qF '| R14-16 |' docs/00-panorama-verificado.md && grep -qF '| AB-071 |' docs/00-panorama-verificado.md && curl -sL https://raw.githubusercontent.com/remotion-dev/remotion/main/packages/core/src/spring/spring-utils.ts | grep -qF 'Math.sqrt(k * m)' && curl -sL https://www.w3.org/WAI/WCAG22/Understanding/three-flashes-or-below-threshold.html | grep -qF 'three times in any one second'
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

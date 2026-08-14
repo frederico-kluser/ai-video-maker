@@ -58,6 +58,11 @@ Thumbs.db
 # =============================================================================
 TASK_PLAN.md
 
+# =============================================================================
+# Skill eval tokens — local, ephemeral, never inherited (meta-skill-evolution)
+# =============================================================================
+.agents/skills/.eval_records/
+
 .deep-orchestrator/
 
 # .tmp-* — lixo temporario de execucao (nunca commitar)

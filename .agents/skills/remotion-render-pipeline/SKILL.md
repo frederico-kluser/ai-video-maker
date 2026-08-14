@@ -1,10 +1,10 @@
 ---
 name: remotion-render-pipeline
-description: Provides the exact semantics of the Remotion render CLI at scale — flag allowlist, what --concurrency really opens and its hard cap of 8, the three quality options that break hardware encoding (a hard throw under required, a silent software fallback under if-possible), the --gl backends per OS, pinning Chrome for cross-machine reproducibility, and frame-range chunking with its concatenation rules. Use whenever a task builds, tunes, parallelizes or budgets a video render, even if the user doesn't mention Remotion, NVENC, concurrency or ffmpeg. Triggers: "render the video", "make the render faster", "use the GPU", "hardware acceleration", "nvenc", "concurrency", "render in chunks", "combineChunks", "frameRange", "--frames", "--gl", "swangle", "angle", "bundle cache", "render preset", "crf", "video bitrate", "why is my render slow", "render out of memory", "renders differ between machines".
+description: 'Provides the exact semantics of the Remotion render CLI at scale — flag allowlist, what --concurrency really opens and its hard cap of 8, the three quality options that break hardware encoding (a hard throw under required, a silent software fallback under if-possible), the --gl backends per OS, pinning Chrome for cross-machine reproducibility, and frame-range chunking with its concatenation rules. Use whenever a task builds, tunes, parallelizes or budgets a video render, even if the user doesn''t mention Remotion, NVENC, concurrency or ffmpeg. Triggers: "render the video", "make the render faster", "use the GPU", "hardware acceleration", "nvenc", "concurrency", "render in chunks", "combineChunks", "frameRange", "--frames", "--gl", "swangle", "angle", "bundle cache", "render preset", "crf", "video bitrate", "why is my render slow", "render out of memory", "renders differ between machines".'
 metadata:
   type: knowledge
   tier: dominio
-  verification_signal: 'grep -rho "Math.min(8, Math.max(1, maxCpus / 2))" node_modules/@remotion/renderer/dist/ && npx remotion render --help | grep -c -- "--hardware-acceleration"'
+  verification_signal: grep -rho "Math.min(8, Math.max(1, maxCpus / 2))" node_modules/@remotion/renderer/dist/ && npx remotion render --help | grep -c -- "--hardware-acceleration"
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

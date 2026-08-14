@@ -1,10 +1,10 @@
 ---
 name: asset-acquisition
-description: Provides the licensing, rate-limit and content-addressed cache rules for pulling third-party GIFs, memes, stock photos/videos and music into a video rendered locally under this program's signed personal-use framing (ADR-0003). Use whenever a task fetches, caches, references or credits any external media asset, even if the user never says "license", "attribution", "GIPHY", "Tenor" or "rate limit". Triggers: "gif", "meme", "reaction", "sticker", "stock photo", "stock video", "b-roll", "background music", "soundtrack", "royalty free", "giphy", "tenor", "pexels", "unsplash", "pixabay", "openverse", "audio library", "content id", "api key", "rate limit", "download asset", "asset cache", "attribution", "watermark", "credits"
+description: 'Provides the licensing, rate-limit and content-addressed cache rules for pulling third-party GIFs, memes, stock photos/videos and music into a video rendered locally under this program''s signed personal-use framing (ADR-0003). Use whenever a task fetches, caches, references or credits any external media asset, even if the user never says "license", "attribution", "GIPHY", "Tenor" or "rate limit". Triggers: "gif", "meme", "reaction", "sticker", "stock photo", "stock video", "b-roll", "background music", "soundtrack", "royalty free", "giphy", "tenor", "pexels", "unsplash", "pixabay", "openverse", "audio library", "content id", "api key", "rate limit", "download asset", "asset cache", "attribution", "watermark", "credits"'
 metadata:
   type: knowledge
   tier: dominio
-  verification_signal: 'test 0 -eq "$(curl -sL https://raw.githubusercontent.com/remotion-dev/remotion/main/packages/gif/src/index.ts | grep -c useGif)"'
+  verification_signal: test 0 -eq "$(curl -sL https://raw.githubusercontent.com/remotion-dev/remotion/main/packages/gif/src/index.ts | grep -c useGif)"
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

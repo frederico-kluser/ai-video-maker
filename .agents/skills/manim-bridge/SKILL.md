@@ -1,10 +1,10 @@
 ---
 name: manim-bridge
-description: Provides the Manim-to-Remotion handoff contract - which container/codec/pix_fmt actually preserves alpha, why the output extension changes silently, how Cairo and OpenGL differ, what varies between two identical renders, how to run N scenes in parallel without collision, and which quirks of the 3blue1brown manim-api are worth absorbing. Use whenever a Python process shells out to the manim CLI, whenever a scene asset has to reach a Remotion composition with transparency, and whenever a render "succeeds" without producing a file - even if the user never says "manim". Triggers: "manim", "transparent", "alpha channel", "yuva420p", "qtrle", "webm", "prores", "scene render", "headless render", "media_dir", "write_to_movie", "renderer opengl", "partial_movie_files", "disable_caching", "manim_executor".
+description: 'Provides the Manim-to-Remotion handoff contract - which container/codec/pix_fmt actually preserves alpha, why the output extension changes silently, how Cairo and OpenGL differ, what varies between two identical renders, how to run N scenes in parallel without collision, and which quirks of the 3blue1brown manim-api are worth absorbing. Use whenever a Python process shells out to the manim CLI, whenever a scene asset has to reach a Remotion composition with transparency, and whenever a render "succeeds" without producing a file - even if the user never says "manim". Triggers: "manim", "transparent", "alpha channel", "yuva420p", "qtrle", "webm", "prores", "scene render", "headless render", "media_dir", "write_to_movie", "renderer opengl", "partial_movie_files", "disable_caching", "manim_executor".'
 metadata:
   type: knowledge
   tier: dominio
-  verification_signal: "manim --version | grep -q 0.20.1 && manim render --help | grep -q -- '-t, --transparent' && ! manim render --help | grep -qiE 'codec|pix_fmt|--jobs|parallel'"
+  verification_signal: manim --version | grep -q 0.20.1 && manim render --help | grep -q -- '-t, --transparent' && ! manim render --help | grep -qiE 'codec|pix_fmt|--jobs|parallel'
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

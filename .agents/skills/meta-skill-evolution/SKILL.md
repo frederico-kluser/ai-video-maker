@@ -1,20 +1,10 @@
 ---
 name: meta-skill-evolution
-description: Manages the memory pipeline of this program — the five gated steps, default DISCARD,
-  that decide whether something learned while running a card enters a SKILL.md, replaces a passage
-  already there, or is thrown away; also owns the contract of the three-layer skill write gate
-  (form, drift, regression) and the rule that a brand-new skill is a reviewed draft, never an
-  auto-publish. Use whenever a card is being closed, whenever work produced a gotcha, a silent
-  flag, a measured number or a refuted premise, whenever the router finds no skill for a domain,
-  and whenever anyone is about to edit a SKILL.md — even if the user never says skill, memory,
-  learning or evolution. Triggers: "aprendi que", "salva isso", "vale a pena guardar", "atualiza a
-  skill", "cria uma skill", "nao tem skill pra isso", "ao concluir o card", "evolucao", "guarda na
-  memoria", "learned this", "save this knowledge", "update the skill", "new skill", "no skill
-  covers this", "should we document this", "write it to memory", "promote this finding"
+description: 'Manages the memory pipeline of this program — the five gated steps, default DISCARD, that decide whether something learned while running a card enters a SKILL.md, replaces a passage already there, or is thrown away; also owns the contract of the three-layer skill write gate (form, drift, regression) and the rule that a brand-new skill is a reviewed draft, never an auto-publish. Use whenever a card is being closed, whenever work produced a gotcha, a silent flag, a measured number or a refuted premise, whenever the router finds no skill for a domain, and whenever anyone is about to edit a SKILL.md — even if the user never says skill, memory, learning or evolution. Triggers: "aprendi que", "salva isso", "vale a pena guardar", "atualiza a skill", "cria uma skill", "nao tem skill pra isso", "ao concluir o card", "evolucao", "guarda na memoria", "learned this", "save this knowledge", "update the skill", "new skill", "no skill covers this", "should we document this", "write it to memory", "promote this finding"'
 metadata:
   type: meta
   tier: meta
-  verification_signal: "grep -q 'detecta deriva, não correção' PROGRAMA.md && grep -q 'default: descartar' PROGRAMA.md && python3 .agents/scripts/skill_lint.py"
+  verification_signal: 'grep -q ''detecta deriva, não correção'' PROGRAMA.md && grep -q ''default: descartar'' PROGRAMA.md && python3 .agents/scripts/skill_lint.py'
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

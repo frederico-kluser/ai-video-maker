@@ -1,10 +1,10 @@
 ---
 name: falsifiable-gates
-description: Provides falsifiable acceptance criteria for this video pipeline — the negative probe per target, the independent tripwire, "zero parsed items = fail", criteria that fail by absence, two oracles per capture, and a self-test that asserts the message. Use whenever a task writes or reviews a done-criterion, a gate, a verifier, a hook or a CI step, even if the user never says "test". Triggers: "acceptance criteria", "definition of done", "gate", "verifier", "it is green", "exit 0", "negative probe", "grep -L", "git diff --exit-code", "ffprobe check", "pytest -k", "vitest -t", "node --test", "render twice".
+description: 'Provides falsifiable acceptance criteria for this video pipeline — the negative probe per target, the independent tripwire, "zero parsed items = fail", criteria that fail by absence, two oracles per capture, and a self-test that asserts the message. Use whenever a task writes or reviews a done-criterion, a gate, a verifier, a hook or a CI step, even if the user never says "test". Triggers: "acceptance criteria", "definition of done", "gate", "verifier", "it is green", "exit 0", "negative probe", "grep -L", "git diff --exit-code", "ffprobe check", "pytest -k", "vitest -t", "node --test", "render twice".'
 metadata:
   type: knowledge
   tier: metodo
-  verification_signal: "rg --help | grep -q -e '-L, --follow' && ffmpeg -hide_banner -h filter=libvmaf 2>&1 | grep -q Unknown"
+  verification_signal: rg --help | grep -q -e '-L, --follow' && ffmpeg -hide_banner -h filter=libvmaf 2>&1 | grep -q Unknown
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

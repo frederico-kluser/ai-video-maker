@@ -1,17 +1,10 @@
 ---
 name: uncertainty-ledger
-description: Provides the rules for opening, anchoring, distributing and closing items in this
-  program's uncertainty ledger — a work queue for the day the real environment answers, not a risk
-  register. Use whenever a task is about to assume something the current machine cannot prove, when
-  a card needs new ledger ids while N worktrees run in parallel, when someone wants to mark an item
-  confirmed, or when the closing script runs at a gate. Load it even if the user never says
-  "ledger", "uncertainty" or "AB-nnn". Triggers: "assume", "we don't know yet", "needs the real
-  environment", "open item", "close this item", "mark as confirmed", "provisional decision",
-  "TODO in the code", "AB-", "// ABERTO", "unblock on access day", "who answers this".
+description: 'Provides the rules for opening, anchoring, distributing and closing items in this program''s uncertainty ledger — a work queue for the day the real environment answers, not a risk register. Use whenever a task is about to assume something the current machine cannot prove, when a card needs new ledger ids while N worktrees run in parallel, when someone wants to mark an item confirmed, or when the closing script runs at a gate. Load it even if the user never says "ledger", "uncertainty" or "AB-nnn". Triggers: "assume", "we don''t know yet", "needs the real environment", "open item", "close this item", "mark as confirmed", "provisional decision", "TODO in the code", "AB-", "// ABERTO", "unblock on access day", "who answers this".'
 metadata:
   type: knowledge
   tier: metodo
-  verification_signal: "grep -cE '^. AB-[0-9]{3} .' docs/00-panorama-verificado.md | grep -qx 75"
+  verification_signal: grep -cE '^. AB-[0-9]{3} .' docs/00-panorama-verificado.md | grep -qx 75
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

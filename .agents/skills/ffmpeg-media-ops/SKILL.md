@@ -1,10 +1,10 @@
 ---
 name: ffmpeg-media-ops
-description: Provides the FFmpeg knowledge this program needs outside Remotion — hardware-encoder rate control (no encoder exposes CRF), the alpha container/codec/pix_fmt/player matrix, EBU R 128 two-pass loudness, stream-copy concatenation limits, silence detection, byte-determinism flags and ffprobe as source of truth. Use whenever a task shells out to ffmpeg or ffprobe, transcodes, concatenates, mixes, normalizes loudness, measures duration/fps/sample rate, or writes a reproducibility gate over a media file — even if the user doesn't mention "ffmpeg". Triggers: "ffmpeg", "ffprobe", "transcode", "encode", "nvenc", "vaapi", "qsv", "encoder de hardware", "crf", "alpha channel", "video com alfa", "prores", "loudnorm", "LUFS", "EBU R128", "ebur128", "true peak", "sidechaincompress", "concat demuxer", "stream copy", "silencedetect", "trim silence", "bitexact", "framemd5", "bytes deterministicos no ffmpeg", "md5 of video", "stream duration", "sample rate", "pix_fmt", "remux"
+description: 'Provides the FFmpeg knowledge this program needs outside Remotion — hardware-encoder rate control (no encoder exposes CRF), the alpha container/codec/pix_fmt/player matrix, EBU R 128 two-pass loudness, stream-copy concatenation limits, silence detection, byte-determinism flags and ffprobe as source of truth. Use whenever a task shells out to ffmpeg or ffprobe, transcodes, concatenates, mixes, normalizes loudness, measures duration/fps/sample rate, or writes a reproducibility gate over a media file — even if the user doesn''t mention "ffmpeg". Triggers: "ffmpeg", "ffprobe", "transcode", "encode", "nvenc", "vaapi", "qsv", "encoder de hardware", "crf", "alpha channel", "video com alfa", "prores", "loudnorm", "LUFS", "EBU R128", "ebur128", "true peak", "sidechaincompress", "concat demuxer", "stream copy", "silencedetect", "trim silence", "bitexact", "framemd5", "bytes deterministicos no ffmpeg", "md5 of video", "stream duration", "sample rate", "pix_fmt", "remux"'
 metadata:
   type: knowledge
   tier: dominio
-  verification_signal: "test $(ffmpeg -hide_banner -h encoder=h264_nvenc | grep -ci crf) -eq 0 && test $(ffmpeg -hide_banner -h filter=loudnorm | grep -c 'default -24') -eq 2"
+  verification_signal: test $(ffmpeg -hide_banner -h encoder=h264_nvenc | grep -ci crf) -eq 0 && test $(ffmpeg -hide_banner -h filter=loudnorm | grep -c 'default -24') -eq 2
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

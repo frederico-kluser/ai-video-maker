@@ -1,10 +1,10 @@
 ---
 name: adversarial-review
-description: Provides the fresh-context refutation prompt and the falsifiable question bank for this video pipeline — how to phrase a question that names an observable result which, if it happens, kills the work, and how to keep the oracle from inheriting the implementation's premise. Use whenever a diff, render, caption track, cache key, asset fetch or gate is about to be declared done, even if the user never says review, refutation or adversarial. Triggers: "revisão adversarial", "antes de concluir", "refute isso", "contexto fresco", "o smoke passaria", "prove que não quebrou", "review this diff", "falsifiable question", "render twice and diff", "would the test pass with a black frame", "would the test pass with a silent track"
+description: 'Provides the fresh-context refutation prompt and the falsifiable question bank for this video pipeline — how to phrase a question that names an observable result which, if it happens, kills the work, and how to keep the oracle from inheriting the implementation''s premise. Use whenever a diff, render, caption track, cache key, asset fetch or gate is about to be declared done, even if the user never says review, refutation or adversarial. Triggers: "revisão adversarial", "antes de concluir", "refute isso", "contexto fresco", "o smoke passaria", "prove que não quebrou", "review this diff", "falsifiable question", "render twice and diff", "would the test pass with a black frame", "would the test pass with a silent track"'
 metadata:
   type: knowledge
   tier: metodo
-  verification_signal: "grep -n 'CONTEXTO FRESCO' PROGRAMA.md && grep -n 'quadro totalmente preto' PROGRAMA.md"
+  verification_signal: grep -n 'CONTEXTO FRESCO' PROGRAMA.md && grep -n 'quadro totalmente preto' PROGRAMA.md
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em
