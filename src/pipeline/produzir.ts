@@ -67,6 +67,7 @@ import { paraProcedenciaDoStore, RAIZ_CASSETES_PADRAO } from "../resolucao/casse
 import { reproduzirLocucao } from "../resolucao/locucao/replay.js";
 import estagioLocucao from "../resolucao/locucao/estagio.js";
 import estagioCodigo from "../resolucao/codigo/estagio.js";
+import estagioGrafico from "../resolucao/grafico/estagio.js";
 import estagioMusica from "../resolucao/musica/estagio.js";
 import { Store } from "../store/store.js";
 import type { Procedencia } from "../store/procedencia.js";
@@ -86,7 +87,7 @@ import { criarFilaDeEncode, executarEncode, listarPerfis, verificarSaida, codecN
 import type { FilaDeEncode } from "../render/encode/fila.js";
 import { posicionarAudio } from "../render/pipeline/audio.js";
 import type { MixDeEmenda, PlanoDeAudio } from "../render/pipeline/audio.js";
-import { fiar, HASH_DO_GRAFICO } from "../composicao/pintura/fiar.js";
+import { fiar, extensaoDeMime } from "../composicao/pintura/fiar.js";
 import type { FixtureIntegrada } from "../composicao/pintura/fiar.js";
 import { breakpoints } from "../design/tokens.js";
 import {
@@ -109,33 +110,125 @@ export const ID_DA_COMPOSICAO = "pipeline-integrado";
 const FORMATO_RELATORIO_PROCEDENCIA = "RelatorioProcedencia.1";
 
 /**
- * Piso do oraculo de conteudo do pipeline (C1): o YAVG MAXIMO por frame
- * do video codificado. O render da fixture canonica tem maximo ~65; um
- * video inteiro preto fica ~16-22 (preto em range limitado). Calibrado
- * na execucao do proprio card (ADR-0042) — nunca escolhido por chute.
+ * Oraculo de conteudo do pipeline (C1): um video reprova se TODO frame
+ * amostrado for escuro E chapado — YAVG maximo < PISO_YAVG_MAXIMO_DE_CONTEUDO
+ * E desvio-padrao maximo <= DESVIO_MINIMO_DE_CONTEUDO. As duas armas sao
+ * medidas nos MESMOS frames amostrados (fps=AMOSTRAGEM_DE_FRAMES, o filtro
+ * `fps` e deterministico), por `medirConteudoDe`.
+ *
+ * POR QUE NAO SO YAVG (a fragilidade corrigida nesta onda, medida em
+ * 2026-08-14 no entregavel real de 727 frames e em videos sinteticos):
+ *
+ *   - O YAVG nao separa preto de conteudo escuro POR DESENHO. A cena c-004
+ *     (os webm de matematica estilo 3blue1brown — traco fino sobre preto)
+ *     mede YAVG 16.22..21.01 por frame; preto puro (range limitado) mede
+ *     16.0. As distribuicoes se SOBREPOEM: um video cujo UNICO conteudo
+ *     fosse matematica reprovaria FALSO-VERMELHO em qualquer piso de YAVG
+ *     (com o piso 24 calibrado na onda 2, o corte c-004 isolado media
+ *     YAVG maximo 21.01 < 24 — reprovado).
+ *   - O desvio-padrao dos pixels separa: um quadro chapado (preto, branco
+ *     ou fundo solido) tem variancia ~0; um frame com matematica tem
+ *     variancia > 0 — o mesmo padrao do runner do grafico
+ *     (src/resolucao/grafico/manim/runner.py, DESVIO_MINIMO_DE_CONTEUDO).
+ *
+ * Medido (2026-08-14, ffmpeg 6.1.1, luma do range limitado via
+ * extractplanes — a mesma escala do YAVG do signalstats):
+ *
+ *   - entregavel FINAL (fixture canonica, 727 frames, cache frio): YAVG
+ *     min 16.0 / max 22.49 / media 19.65 — TODOS os frames abaixo do piso
+ *     de yavg (a geometria honesta do bloco de codigo, fix desta onda,
+ *     encolheu o bloco claro: o YAVG sozinho reprovaria o proprio
+ *     entregavel); desvio maximo 19.71 (726/727 frames com desvio > 1.0,
+ *     so o frame 0 — fade-in — e chapado). Na leitura do oraculo
+ *     (fps=2): 48/48 amostras com desvio > 1.0 (min 2.62, max 19.71) —
+ *     PASSA pela arma do desvio.
+ *   - c-004 isolada (so matematica, 102 frames): YAVG max 21.01 —
+ *     REPROVARIA no piso 24 (falso-vermelho); desvio min 2.39, todos os
+ *     frames com desvio > 1.0 — PASSA no oraculo novo.
+ *   - video 100% preto sintetico (727 frames, mesmo encode): YAVG 16.0
+ *     chapado E desvio 0.0000 em todos os frames — REPROVA no oraculo
+ *     novo (e reprovaria no velho).
+ *
+ * A constante do desvio repete o valor do runner do grafico (1.0): um
+ * frame com traco fino de matematica fica ~2.4 no minimo (margem 1.4); o
+ * preto fica 0.0 (margem 1.0). A amostragem espelha a disciplina do
+ * runner (FRAMES_INSPECIONADOS): a checagem varre varios frames e nunca
+ * aceita "o primeiro deu certo".
  */
-export const PISO_YAVG_MAXIMO_DE_CONTEUDO = 32;
+export const PISO_YAVG_MAXIMO_DE_CONTEUDO = 24;
+export const DESVIO_MINIMO_DE_CONTEUDO = 1.0;
 
-/** YAVG maximo por frame de um arquivo de video (signalstats). */
-export async function yavgMaximoDe(
+/** Frames por segundo a inspecionar na checagem de conteudo (fps do ffmpeg). */
+export const AMOSTRAGEM_DE_FRAMES = 2;
+
+/** Medida de conteudo de um video: por frame, yavg (media) e desvio-padrao. */
+export interface MedidaDeConteudo {
+  readonly yavgMaximo: number;
+  readonly desvioMaximo: number;
+}
+
+/**
+ * Mede o conteudo de um arquivo de video: decodifica AMOSTRAGEM_DE_FRAMES
+ * frames por segundo e devolve, sobre os frames amostrados, o maior yavg
+ * e o maior desvio-padrao.
+ *
+ * A luma e extraida com `extractplanes=y` — SEM conversao de range: o Y
+ * sai com os valores do arquivo (16-235 no range limitado), exatamente a
+ * escala do YAVG do signalstats. (`format=gray` NAO serve: o gray e
+ * full-range por definicao e o ffmpeg expande 16-235 -> 0-255 — o piso
+ * de yavg foi calibrado na escala do signalstats.)
+ *
+ * O desvio-padrao exige os BYTES dos pixels — a saida do ffmpeg e BRUTA
+ * (rawvideo), nunca texto: o executorBruto e o contrato desta leitura.
+ */
+export async function medirConteudoDe(
   ctx: ContextoDaProducao,
   arquivo: string,
-): Promise<number> {
-  const saida = await ctx.executor("ffmpeg", [
-    "-hide_banner", "-loglevel", "info",
+  largura: number,
+  altura: number,
+): Promise<MedidaDeConteudo> {
+  const saida = await ctx.executorBruto("ffmpeg", [
+    "-hide_banner", "-loglevel", "error",
     "-i", arquivo,
-    "-vf", "signalstats,metadata=print",
-    "-f", "null", "-",
+    "-vf", `fps=${String(AMOSTRAGEM_DE_FRAMES)},extractplanes=y`,
+    "-f", "rawvideo", "-pix_fmt", "gray", "-",
   ]);
-  let maximo = 0;
-  for (const linha of saida.stderr.split("\n")) {
-    const m = /YAVG=([0-9.]+)/.exec(linha);
-    if (m !== null) {
-      const valor = Number(m[1]);
-      if (valor > maximo) maximo = valor;
+  return medirConteudoDeBytes(saida.stdout, largura, altura);
+}
+
+/** Medida PURA (testavel sem ffmpeg): yavg e desvio-padrao por frame. */
+export function medirConteudoDeBytes(
+  bytes: Buffer,
+  largura: number,
+  altura: number,
+): MedidaDeConteudo {
+  const porFrame = largura * altura;
+  let yavgMaximo = 0;
+  let desvioMaximo = 0;
+  for (let o = 0; o + porFrame <= bytes.length; o += porFrame) {
+    let soma = 0;
+    for (let i = o; i < o + porFrame; i++) soma += bytes[i]!;
+    const media = soma / porFrame;
+    let variancia = 0;
+    for (let i = o; i < o + porFrame; i++) {
+      const d = bytes[i]! - media;
+      variancia += d * d;
     }
+    const desvio = Math.sqrt(variancia / porFrame);
+    if (media > yavgMaximo) yavgMaximo = media;
+    if (desvio > desvioMaximo) desvioMaximo = desvio;
   }
-  return maximo;
+  return { yavgMaximo, desvioMaximo };
+}
+
+/** O criterio do oraculo: reprova se NENHUM frame amostrado tem conteudo. */
+export function reprovadoPorConteudo(medida: MedidaDeConteudo): boolean {
+  return (
+    !Number.isFinite(medida.yavgMaximo) ||
+    !Number.isFinite(medida.desvioMaximo) ||
+    (medida.yavgMaximo < PISO_YAVG_MAXIMO_DE_CONTEUDO &&
+      medida.desvioMaximo <= DESVIO_MINIMO_DE_CONTEUDO)
+  );
 }
 
 // ─── Helpers de producao ──────────────────────────────────────────────────────
@@ -157,6 +250,41 @@ export const executorPadrao: ExecutorDeComando = (comando, args) =>
       }
       resolve2({ stdout: String(stdout), stderr: String(stderr) });
     });
+  });
+
+/**
+ * Executor com stdout BRUTO (bytes): o oraculo de conteudo decodifica os
+ * PIXELS (rawvideo) — passar por string corromperia os bytes (o executor
+ * de texto e para stdout de texto, nunca para dados binarios).
+ */
+export type ExecutorBruto = (
+  comando: string,
+  args: string[],
+) => Promise<{ stdout: Buffer; stderr: Buffer }>;
+
+export const executorBrutoPadrao: ExecutorBruto = (comando, args) =>
+  new Promise((resolve2, reject) => {
+    // `encoding: "buffer"` e OBRIGATORIO: o execFile assincrono padroniza
+    // UTF-8 (devolve STRING) — um stream de pixels passado por string e
+    // remontado corrompido (medido: 100.4MB lidos vs 99.5MB reais, yavg e
+    // desvio errados). Com encoding buffer o callback recebe os bytes.
+    execFile(
+      comando,
+      args,
+      { timeout: 900_000, maxBuffer: 512 * 1024 * 1024, encoding: "buffer" },
+      (erro, stdout, stderr) => {
+        if (erro) {
+          const saida = String(stderr);
+          const trecho = saida.length > 4000 ? `${saida.slice(0, 3500)}\n…(${saida.length - 4000} linhas suprimidas)` : saida;
+          reject(new Error(`${comando} ${args.join(" ")}\n${String(erro)}\n${trecho}`));
+          return;
+        }
+        resolve2({
+          stdout: Buffer.from(stdout as unknown as Uint8Array),
+          stderr: Buffer.from(stderr as unknown as Uint8Array),
+        });
+      },
+    );
   });
 
 /** SHA-256 hex de um buffer. */
@@ -211,6 +339,8 @@ export interface OpcoesDaProducao {
   readonly relogio?: () => Date;
   /** Executor de comandos injetavel (default: execFile). */
   readonly executor?: ExecutorDeComando;
+  /** Executor de stdout BRUTO (bytes) — o oraculo de conteudo (default: execFile). */
+  readonly executorBruto?: ExecutorBruto;
   /** Raiz do repositorio (default: a deste arquivo). */
   readonly raizDoProjeto?: string;
   /** Raiz dos cassetes do F2-07 (default: fixtures/cassetes). */
@@ -263,6 +393,7 @@ interface ContextoDaProducao {
   readonly store: Store;
   readonly fila: FilaDeEncode;
   readonly executor: ExecutorDeComando;
+  readonly executorBruto: ExecutorBruto;
   readonly relogio: () => Date;
   readonly manifesto: Manifesto;
   readonly artefatos: Map<string, ArquivoProduzido[]>;
@@ -383,15 +514,15 @@ export function validarManifestoDaFixture(manifesto: Manifesto): readonly string
 /**
  * Resolve a fixture canonica OFFLINE:
  *
- *   locucao + codigo + musica — reproducao REAL dos cassetes commitados
- *       contra a fixture canonica (o caminho que o F2-07 provou);
- *   grafico — camada offline commitada da fixture canonica (F1-12 /
- *       AB-501): nos_grafico {n-009, n-011} -> HASH_DO_GRAFICO, com os
- *       bytes commitados em fixtures/canonico/assets/. O cassete de
- *       grafico foi gravado contra OUTRO manifesto (AB-500) e os bytes
- *       renderizados nunca foram commitados (metadata-only, AB-501) — a
- *       origem desta camada e a fixture, declarada na procedencia do
- *       store, nunca inventada;
+ *   locucao + codigo + grafico + musica — reproducao REAL dos cassetes
+ *       commitados contra a fixture canonica (o caminho que o F2-07
+ *       provou). O cassete de grafico (onda 1, estagio v1.2.1, chave
+ *       6d53c386…) e o cartucho webm de matematica estilo 3blue1brown:
+ *       cinco nos (n-009..n-013) -> cinco webm vp9 1920x1080, com os
+ *       CORPOS commitados em fixtures/cassetes/grafico/<chave>/corpos/ —
+ *       e e essa a camada que o video consome, nunca mais o PNG
+ *       grafico-integrado.png da fixture canonica (a camada offline
+ *       AB-501, que a onda 2 substituiu);
  *   midia — a fixture canonica NAO tem camada de midia commitada (o
  *       cassete de midia foi gravado contra outro manifesto, AB-500); os
  *       nos de midia pintam o fallback do manifesto, exatamente como o
@@ -399,20 +530,27 @@ export function validarManifestoDaFixture(manifesto: Manifesto): readonly string
  *
  * Todos os assets dos cassetes entram no store enderecado por SHA-256
  * (a ponte cassete->store do F2-07, AB-455), com a procedencia do
- * cassete traduzida pelo contrato (paraProcedenciaDoStore).
+ * cassete traduzida pelo contrato (paraProcedenciaDoStore). O estagio
+ * `grafico` e o `midia` ficaram FORA do orquestrador nas ondas W7/W8
+ * porque os bytes nao existiam (metadata-only, AB-501); com os corpos
+ * commitados na onda 1, o grafico entra na reproducao como qualquer
+ * outro estagio.
  */
 async function estagioResolucaoOffline(ctx: ContextoDaProducao): Promise<void> {
   const manifesto = ctx.manifesto;
   const hash = hashDoManifesto(manifesto);
 
   const orquestrador = new Orquestrador({
-    estagios: [estagioLocucao, estagioCodigo, estagioMusica],
+    estagios: [estagioLocucao, estagioCodigo, estagioGrafico, estagioMusica],
     raizCassetes: ctx.raizCassetes,
     modo: "offline",
   });
   const { resolvido: resolvidoDosCassetes } = await orquestrador.resolver(manifesto);
 
-  // Ponte cassete -> store (AB-455): bytes + procedencia por hash.
+  // Ponte cassete -> store (AB-455): bytes + procedencia por hash. O
+  // cassete de grafico carrega os cinco webm em `corpos/` — a ponte os
+  // publica no store por hash, e o estagio de composicao os materializa
+  // no publicDir do render.
   for (const registro of resolvidoDosCassetes.estagios) {
     const cassete = await lerCassete(ctx.raizCassetes, registro.estagio, registro.chave);
     for (const asset of cassete.procedencia.assets) {
@@ -422,55 +560,16 @@ async function estagioResolucaoOffline(ctx: ContextoDaProducao): Promise<void> {
         registro.chave,
         asset.hash,
       );
-      if (bytes === null) continue; // metadata-only documentado (AB-501)
+      if (bytes === null) continue; // metadata-only: cassete sem corpos (AB-501)
       await ctx.store.put(bytes, paraProcedenciaDoStore(asset, cassete.procedencia));
     }
   }
 
-  // Camada de grafico da fixture canonica (offline commitado — F1-12).
-  const caminhoGrafico = join(ctx.raiz, "fixtures", "canonico", "assets", "grafico-integrado.png");
-  const bytesGrafico = await readFile(caminhoGrafico);
-  if (sha256Hex(bytesGrafico) !== HASH_DO_GRAFICO) {
-    throw new ErroDoPipeline(
-      `os bytes de fixtures/canonico/assets/grafico-integrado.png NAO rehasheiam ` +
-        `para ${HASH_DO_GRAFICO} — a camada offline de grafico da fixture mudou ` +
-        "(AB-501)",
-      "resolucao",
-    );
-  }
-  const assetGrafico: AssetResolvido = {
-    hash: HASH_DO_GRAFICO,
-    tipo: "imagem",
-    mimeType: "image/png",
-    largura: 480,
-    altura: 320,
-    byteSize: bytesGrafico.length,
-    licenca: "CC0-1.0",
-    atribuicaoObrigatoria: false,
-    provedor: "local",
-  };
-  const procedenciaDoGrafico: Procedencia = {
-    license: "CC0-1.0",
-    attributionRequired: false,
-    source: "local",
-    acquiredAt: DATA_EPOCH,
-    toolVersion: "fixture-canonica-f1-12 (AB-501)",
-    notes:
-      "camada de grafico da fixture canonica offline (F1-12/AB-501): os bytes " +
-      "commitados em fixtures/canonico/assets/. O cassete de grafico do F2-02 foi " +
-      "gravado contra outro manifesto (AB-500) e os bytes nunca foram commitados " +
-      "(metadata-only). O pixel do grafico e ESTE arquivo.",
-  };
-  await ctx.store.put(bytesGrafico, procedenciaDoGrafico);
+  // A resolucao da fixture: nos_grafico completo (n-009..n-013 -> 5 hashes
+  // de webm) e assets de video, vindo do proprio cassete — nada digitado.
+  ctx.resolvido = resolvidoDosCassetes;
 
-  const resolvidoFinal: ManifestoResolvido = {
-    ...resolvidoDosCassetes,
-    assets: { ...resolvidoDosCassetes.assets, [HASH_DO_GRAFICO]: assetGrafico },
-    nos_grafico: { "n-009": HASH_DO_GRAFICO, "n-011": HASH_DO_GRAFICO },
-  };
-  ctx.resolvido = resolvidoFinal;
-
-  await registrarArtefato(ctx, "manifesto-resolvido.json", "manifesto-resolvido.json", serializarResolvido(resolvidoFinal));
+  await registrarArtefato(ctx, "manifesto-resolvido.json", "manifesto-resolvido.json", serializarResolvido(resolvidoDosCassetes));
 }
 
 /** Serializacao estavel do manifesto resolvido (chaves na ordem do contrato). */
@@ -541,19 +640,20 @@ async function estagioComposicao(ctx: ContextoDaProducao): Promise<void> {
 
   // publicDir: os bytes que o pintor consome + as fontes locais. O
   // pintor integrado (ArvoreIntegrada) fia com `resolverPadrao`, que
-  // mapeia HASH_DO_GRAFICO -> staticFile("grafico-integrado.png") — o
-  // arquivo tem de existir no publicDir com ESSE nome. A resolucao ja
-  // garantiu que a camada de grafico e a da fixture canonica (hash
-  // exato); aqui re-confirmamos para o pintor nunca 404ar no navegador.
+  // deriva o nome do arquivo do hash e do mimeType do asset:
+  // staticFile("grafico/<hash>.<ext>") — o arquivo tem de existir no
+  // publicDir com ESSE nome exato. Nada de mapeamento hardcoded: cada
+  // hash de nos_grafico vira o seu arquivo (os cinco webm de matematica
+  // da cena c-004), e o render nunca 404a por nome errado.
   const publicDir = join(ctx.dirEntrada, "public");
   await mkdir(publicDir, { recursive: true });
-  const hashesDoGrafico = new Set(Object.values(resolvido.nos_grafico));
-  for (const hash of [...hashesDoGrafico].sort()) {
-    if (hash !== HASH_DO_GRAFICO) {
+  const hashesDoGrafico = [...new Set(Object.values(resolvido.nos_grafico))].sort();
+  for (const hash of hashesDoGrafico) {
+    const asset = resolvido.assets[hash];
+    if (asset === undefined) {
       throw new ErroDoPipeline(
-        `a camada de grafico cita ${hash.slice(0, 12)}…, e o pintor integrado ` +
-          `so resolve ${HASH_DO_GRAFICO.slice(0, 12)}… (resolverPadrao) — o render ` +
-          "404aria no navegador sem erro de exit",
+        `nos_grafico cita ${hash.slice(0, 12)}…, que nao existe em assets — ` +
+          "referencia pendurada nao vira arquivo no publicDir",
         "composicao",
       );
     }
@@ -565,7 +665,8 @@ async function estagioComposicao(ctx: ContextoDaProducao): Promise<void> {
         "composicao",
       );
     }
-    await escreverAtomico(join(publicDir, "grafico-integrado.png"), bytes);
+    const nome = `grafico/${hash}.${extensaoDeMime(asset.mimeType)}`;
+    await escreverAtomico(join(publicDir, nome), bytes);
   }
   // fontes locais (C6): symlink para os bytes canonicos de assets/fontes.
   try {
@@ -799,7 +900,9 @@ function totalDeFramesDe(resolvido: ManifestoResolvido): number {
     assets: resolvido.assets,
     nos_grafico: resolvido.nos_grafico,
   };
-  return fiar(fixture, () => "/grafico-integrado.png").plano.totalFrames;
+  // O resolvedor aqui so precisa de existir: a duracao vem do plano, e o
+  // caminho do arquivo nao entra na aritmetica.
+  return fiar(fixture, (hash, asset) => `/grafico/${hash}.${extensaoDeMime(asset.mimeType)}`).plano.totalFrames;
 }
 
 /**
@@ -886,10 +989,12 @@ async function estagioEncode(ctx: ContextoDaProducao): Promise<void> {
   // metadado volatil). O oraculo do F5-02 (verificarSaida) inclui um
   // piso de ENTROPIA MEDIA (YAVG medio >= 32) calibrado para os masters
   // sinteticos do F5-02 — o render da fixture canonica e escuro por
-  // desenho (fundo dos tokens, maximo por frame ~65) e nao passa nesse
-  // piso. O pipeline declara o SEU oraculo de conteudo (C1: quadro preto
-  // = sucesso) abaixo: o YAVG MAXIMO por frame do video codificado tem
-  // de passar do piso — um video inteiro preto fica ~16-22 e NAO passa.
+  // desenho (fundo dos tokens, maximo por frame ~26) e nao passa nesse
+  // piso. O pipeline declara o SEU oraculo de conteudo (C1) abaixo —
+  // ADR-0042 decisoes 2/2a: o desvio-padrao por frame, complementado pelo
+  // yavg. Um video inteiro preto fica chapado (desvio 0.0000) e NAO passa;
+  // um video so-de-matematica (traco fino sobre preto) tem desvio > 2.8 e
+  // PASSA — o que o piso de yavg sozinho reprovava falso-vermelho.
   const verificacao = await verificarSaida(saida, {
     codec: codecNameDePerfil(perfil.codec),
     largura: ctx.resolvido.manifesto.width,
@@ -904,12 +1009,19 @@ async function estagioEncode(ctx: ContextoDaProducao): Promise<void> {
       "encode",
     );
   }
-  const yavgMaximo = await yavgMaximoDe(ctx, saida);
-  if (!Number.isFinite(yavgMaximo) || yavgMaximo < PISO_YAVG_MAXIMO_DE_CONTEUDO) {
+  const conteudo = await medirConteudoDe(
+    ctx,
+    saida,
+    ctx.resolvido.manifesto.width,
+    ctx.resolvido.manifesto.height,
+  );
+  if (reprovadoPorConteudo(conteudo)) {
     throw new ErroDoPipeline(
-      `o video codificado e (quase) preto: YAVG maximo por frame ` +
-        `${String(yavgMaximo)} < ${String(PISO_YAVG_MAXIMO_DE_CONTEUDO)} — quadro ` +
-        "preto passa em toda a camada estrutural (C1)",
+      `o video codificado e (quase) chapado: yavg maximo por frame ` +
+        `${String(conteudo.yavgMaximo)} < ${String(PISO_YAVG_MAXIMO_DE_CONTEUDO)} E ` +
+        `desvio-padrao maximo ${String(conteudo.desvioMaximo)} <= ` +
+        `${String(DESVIO_MINIMO_DE_CONTEUDO)} — quadro preto/chapado passa em ` +
+        "toda a camada estrutural (C1)",
       "encode",
     );
   }
@@ -1193,6 +1305,7 @@ export async function produzir(opcoes: OpcoesDaProducao): Promise<ResultadoDaPro
   const store = new Store({ root: join(raiz, ".cache", "pipeline", "store") });
   const fila = opcoes.fila ?? criarFilaDeEncode();
   const executor = opcoes.executor ?? executorPadrao;
+  const executorBruto = opcoes.executorBruto ?? executorBrutoPadrao;
   const relogio = opcoes.relogio ?? (() => new Date(DATA_EPOCH));
   const ffmpegVersao = await versaoDoFfmpeg(executor);
   const nodeVersao = process.version;
@@ -1211,6 +1324,7 @@ export async function produzir(opcoes: OpcoesDaProducao): Promise<ResultadoDaPro
     store,
     fila,
     executor,
+    executorBruto,
     relogio,
     manifesto,
     artefatos: new Map(),

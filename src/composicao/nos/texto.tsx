@@ -57,6 +57,12 @@ import {
   typeScale,
 } from "../../design/tokens";
 import type { NoComponent, NoComponentMeta } from "../contrato-de-no";
+import {
+  regiaoDoQuadro,
+  type NoComEixo,
+  type Regiao,
+} from "../layout/eixo";
+import { measureTextWidth } from "../layout/medicao";
 
 export const meta: NoComponentMeta = {
   tipo: "texto",
@@ -256,10 +262,49 @@ function pesoDaUnidade(estado: EstadoDeUnidade, base: number): number {
 }
 
 // ---------------------------------------------------------------------------
+// Geometria para a sonda — o bloco de texto real, em numeros
+// ---------------------------------------------------------------------------
+
+/**
+ * A caixa do paragrafo dentro da regiao (banda): centralizada na regiao,
+ * com a largura limitada a `maxCharsPerLine` caracteres (o `maxWidth` do
+ * proprio paragrafo, em ch — medido pelo fator MEDIUM do medicao.ts, o
+ * mesmo que o componente usa para o CSS).
+ *
+ * A sonda de sobreposicao le esta caixa do DOM (data-bbox): e a bounding
+ * box HONESTA do texto que o frame renderiza. Se o no ignorar a banda, a
+ * caixa vaza da regiao e a sonda acusa.
+ */
+export function caixaDoTexto(
+  texto: NoTexto,
+  regiao: Regiao,
+  width: number,
+  height: number,
+): { x: number; y: number; largura: number; altura: number } {
+  const fontSize = Math.round(height * typeScale.body);
+  const larguraMaximaPx = maxCharsPerLine * measureTextWidth("0", fontSize);
+  const larguraDoTexto = measureTextWidth(texto.texto, fontSize);
+  const largura = Math.min(larguraDoTexto, larguraMaximaPx);
+  const linhas = Math.max(1, Math.ceil(larguraDoTexto / larguraMaximaPx));
+  const altura = Math.ceil(linhas * fontSize * lineHeight.relaxed);
+  const padding = spacing["24"];
+
+  const alinhamento = texto.alinhamento ?? "esquerda";
+  const x =
+    alinhamento === "centro"
+      ? regiao.x + Math.floor((regiao.largura - largura) / 2)
+      : alinhamento === "direita"
+        ? regiao.x + regiao.largura - padding - largura
+        : regiao.x + padding;
+  const y = regiao.y + Math.floor((regiao.altura - altura) / 2);
+  return { x, y, largura, altura };
+}
+
+// ---------------------------------------------------------------------------
 // O componente
 // ---------------------------------------------------------------------------
 
-const Texto: NoComponent = ({ no, frame, fps, height }) => {
+const Texto: NoComponent = ({ no, frame, fps, width, height }) => {
   const texto = no as NoTexto;
 
   // A janela do proprio no. Desenhar fora dela e o modo classico de um no
@@ -275,6 +320,15 @@ const Texto: NoComponent = ({ no, frame, fps, height }) => {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
+
+  // Eixo de texto (onda 2): a banda onde o bloco se centraliza e o fator de
+  // transicao. Fora da fiacao da cena (render direto, Studio) o default e
+  // quadro inteiro e fator 1 — comportamento historico intacto.
+  const comEixo = no as NoComEixo;
+  const regiao = comEixo.eixo?.regiao ?? regiaoDoQuadro(width, height);
+  const fator = comEixo.eixo?.fatorTexto ?? 1;
+  const visibilidade = opacidade * fator;
+  const caixa = caixaDoTexto(texto, regiao, width, height);
 
   const palavras = palavrasDoTexto(texto.texto);
   const leitura = lerTimingDePalavras(texto, palavras.length);
@@ -313,16 +367,23 @@ const Texto: NoComponent = ({ no, frame, fps, height }) => {
       data-degradacao={leitura.motivo}
       data-unidades={String(unidades)}
       data-ativa={String(ativa)}
+      data-regiao={`${String(regiao.x)},${String(regiao.y)},${String(regiao.largura)},${String(regiao.altura)}`}
+      data-fator-texto={String(fator)}
+      data-bbox={`${String(caixa.x)},${String(caixa.y)},${String(caixa.largura)},${String(caixa.altura)}`}
+      data-visibilidade={String(Math.round(visibilidade * 1000) / 1000)}
       style={{
         position: "absolute",
-        inset: 0,
+        left: regiao.x,
+        top: regiao.y,
+        width: regiao.largura,
+        height: regiao.altura,
         display: "flex",
         alignItems: "center",
         justifyContent,
         paddingLeft: spacing["24"],
         paddingRight: spacing["24"],
         backgroundColor: background.primary,
-        opacity: opacidade,
+        opacity: visibilidade,
       }}
     >
       <p

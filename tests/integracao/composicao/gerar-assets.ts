@@ -106,7 +106,18 @@ function principal(): void {
   const existente = readFileSync(caminho).equals(png)
     ? "(bytes inalterados)"
     : "(ATENCAO: bytes mudaram — atualize o hash em fiar.tsx e no ledger)";
+
+  // Onda 2 (2b): o resolvedor da fiacao serve o asset por
+  // `grafico/<hash>.<ext>` — o MESMO PNG precisa existir nesse caminho no
+  // publicDir da fixture integrada, senao o render de verdade (qtrle.ts,
+  // render-fixture.ts) 404a no navegador sem erro de exit.
+  const subdiretorio = resolve(DESTINO, "grafico");
+  mkdirSync(subdiretorio, { recursive: true });
+  const caminhoResolvido = resolve(subdiretorio, `${hash}.png`);
+  writeFileSync(caminhoResolvido, png);
+
   process.stdout.write(`gerar-assets: ${caminho}\n`);
+  process.stdout.write(`gerar-assets: ${caminhoResolvido}\n`);
   process.stdout.write(`gerar-assets: sha256 = ${hash} ${existente}\n`);
 }
 

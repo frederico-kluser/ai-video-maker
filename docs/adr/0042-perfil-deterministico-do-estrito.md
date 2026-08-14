@@ -93,17 +93,50 @@ mentir, o gate fica VERMELHO.
 ## Decisao 2 — oraculo de conteudo do encode do pipeline (C1)
 
 O `verificarSaida` do F5-02 inclui `YAVG medio >= 32` como piso de
-entropia. O render da fixture canonica mede YAVG medio ~30 (maximo por
-frame ~65): reprovar por isso seria falso-vermelho — o video NAO e
-preto, e o piso do F5-02 foi calibrado para os masters sinteticos do
-gate dele.
+entropia, calibrado para os masters sinteticos do gate do F5-02. O
+render da fixture canonica e escuro por desenho e nao passa nesse piso:
+reprovar por isso seria falso-vermelho.
 
 O pipeline usa o `verificarSaida` para a ESTRUTURA (codec, dimensoes,
 frames, framemd5, sem metadado volatil) e declara o ORACULO DE CONTEUDO
-DO PIPELINE: o YAVG MAXIMO por frame do video codificado (signalstats)
-tem de passar de 32 (`PISO_YAVG_MAXIMO_DE_CONTEUDO`). Um video inteiro
-preto fica ~16-22 (preto em range limitado) e NAO passa. Calibrado na
-execucao deste card (maximo medido ~65).
+DO PIPELINE em `src/pipeline/produzir.ts` (`medirConteudoDe` +
+`reprovadoPorConteudo`): um video reprova se TODO frame amostrado for
+escuro E chapado — `YAVG maximo < PISO_YAVG_MAXIMO_DE_CONTEUDO (24)` E
+`desvio-padrao maximo <= DESVIO_MINIMO_DE_CONTEUDO (1.0)`. A medicao
+amostra `AMOSTRAGEM_DE_FRAMES (2)` frames por segundo (o filtro `fps` e
+deterministico), decodifica em cinza (gray = luma do range limitado, o
+mesmo YAVG do signalstats) e calcula media e desvio-padrao por frame.
+
+### Por que desvio-padrao, e nao so YAVG (decisao 2a, 2026-08-14)
+
+O YAVG nao separa preto de conteudo escuro POR DESENHO. Com os webm de
+matematica estilo 3blue1brown (traco fino sobre preto) no conteudo da
+fixture, medido no entregavel real e em videos sinteticos (2026-08-14,
+luma do range limitado via extractplanes — a mesma escala do YAVG do
+signalstats):
+
+- entregavel FINAL (fixture canonica, 727 frames, cache frio): YAVG
+  min 16.0 / max 22.49 / media 19.65 — TODOS os frames abaixo do piso
+  de yavg. A geometria honesta do bloco de codigo (fix desta onda)
+  encolheu o bloco claro: o YAVG sozinho reprovaria o PROPRIO
+  entregavel. Desvio-padrao maximo 19.71 (726/727 frames com desvio >
+  1.0; so o frame 0 — fade-in — e chapado); na leitura do oraculo
+  (fps=2): 48/48 amostras com desvio > 1.0 (min 2.62, max 19.71) —
+  passa pela arma do desvio.
+- c-004 isolada (so matematica, 102 frames): YAVG maximo 21.01 < 24 —
+  reprovava FALSO-VERMELHO no piso de yavg. Desvio minimo por frame
+  2.39 — passa com folga no piso de desvio.
+- video 100% preto sintetico (727 frames, mesmo encode): YAVG 16.0
+  chapado E desvio 0.0000 em todos os frames — reprova.
+
+O desvio-padrao segue o padrao que o proprio projeto ja usa no runner
+do grafico (`src/resolucao/grafico/manim/runner.py`,
+`DESVIO_MINIMO_DE_CONTEUDO = 1.0`): um quadro chapado tem variancia ~0;
+um frame com matematica tem variancia > 0. A checagem varre varios
+frames e nunca aceita "o primeiro deu certo". A constante 1.0 separa
+com margem: preto 0.0000 (margem 1.0) x matematica 2.39+ (margem 1.39).
+
+## Decisao 3 — ordem de execucao por ENTRADA NOMEADA (mix antes do render)
 
 ## Decisao 3 — ordem de execucao por ENTRADA NOMEADA (mix antes do render)
 

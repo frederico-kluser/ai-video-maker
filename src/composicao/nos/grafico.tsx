@@ -43,7 +43,7 @@
 // =============================================================================
 
 import type React from "react";
-import { Img, interpolate } from "remotion";
+import { Img, OffthreadVideo, Sequence, interpolate } from "remotion";
 import type { DadoGrafico, No, NoGrafico } from "../../contratos/manifesto";
 import {
   borderRadius,
@@ -58,6 +58,7 @@ import {
 } from "../../design/tokens";
 import type { AssetResolvido } from "../../resolucao/manifesto-resolvido";
 import type { NoComponent, NoComponentMeta } from "../contrato-de-no";
+import type { NoComEixo } from "../layout/eixo";
 
 export const meta: NoComponentMeta = {
   tipo: "grafico",
@@ -624,6 +625,50 @@ const Grafico: NoComponent = ({ no, frame, fps, width, height }) => {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
+
+  // O CAMINHO DE VIDEO (onda 2): o estagio `grafico` (F2-02) entrega webm
+  // de matematica 1920x1080 — quadro cheio, titulo e equacao embutidos no
+  // proprio video. O video entra QUADRO CHEIO (nada de area com respiro:
+  // seria encolher o que ja nasceu do tamanho do canvas) e SEM o titulo do
+  // no (o video ja carrega o titulo do no como legenda no topo — desenhar
+  // de novo seria titulo duplicado).
+  //
+  // O relogio: fora de um `<Sequence>`, o OffthreadVideo veria o frame
+  // ABSOLUTO da composicao (427..547 na cena c-004) e pediria ao webm de
+  // 90-120 frames um frame alem do fim — preto. O eixo anexa a base
+  // absoluta (`videoInicioAbsoluto`): com a base, o no envolve o video num
+  // `<Sequence from={base}>` e o relogio do video comeca em 0 no primeiro
+  // frame do no. Na camada da raiz (Studio) nao ha eixo: o EnvelopeSequence
+  // ja desloca, e o video sai sem o envoltorio.
+  const eixo = (no as NoComEixo).eixo;
+  const videoInicio = eixo?.videoInicioAbsoluto;
+
+  if (resolvido !== undefined && resolvido.asset.tipo === "video") {
+    const video = (
+      <OffthreadVideo
+        src={resolvido.fonte ?? ""}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        }}
+      />
+    );
+    return (
+      <div
+        data-no={grafico.id}
+        data-tipo={meta.tipo}
+        data-frame={String(frame)}
+        data-modo="asset-video"
+        data-video-inicio={String(videoInicio ?? 0)}
+        style={{ position: "absolute", inset: 0, opacity: progresso }}
+      >
+        {videoInicio === undefined ? video : <Sequence from={videoInicio}>{video}</Sequence>}
+      </div>
+    );
+  }
 
   const respiro = spacing["16"];
   const tamanhoTitulo = Math.round(height * typeScale.title);

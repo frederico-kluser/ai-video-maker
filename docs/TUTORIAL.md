@@ -168,8 +168,17 @@ sha256sum manifesto-resolvido.json master.mov master.wav mix-documento.json \
 Nesta execução: **11/11 arquivos conferem 1:1** (hash e tamanho) contra o
 relatório.
 
-**Conteúdo do vídeo (C1):** o piso do pipeline é o YAVG máximo por frame ≥ 32
-(um vídeo inteiro preto fica em ~16–22; a fixture canônica calibrou em ~65):
+**Conteúdo do vídeo (C1):** o oráculo do pipeline (ADR-0042, decisões 2/2a)
+reprova só o que não tem conteúdo NENHUM: `YAVG máximo por frame < 24` **E**
+`desvio-padrão máximo por frame <= 1.0` (escuro e chapado). O desvio-padrão é
+a arma que reconhece a matemática estilo 3blue1brown (traço fino sobre preto —
+YAVG baixo por desenho, desvio alto); o YAVG sozinho reprovaria falso-vermelho
+um vídeo só-de-matemática — e, nesta execução, o próprio entregável (a
+geometria honesta do bloco de código deixou o YAVG máximo em ~22.5, abaixo do
+piso; o desvio é quem o reconhece). Medido nesta execução e nos vídeos
+sintéticos da correção (2026-08-14): entregável 727 frames — YAVG máximo 22.49
+(média 19.65), desvio máximo 19.71 (48/48 amostras > 1.0); preto puro — YAVG
+16.0 chapado, desvio 0.0000 (reprova).
 
 ```bash
 ffprobe -v error -show_entries stream=index,codec_name,codec_type,width,height,r_frame_rate,duration -of compact entregavel-final.mp4
@@ -177,7 +186,13 @@ ffprobe -v error -show_entries stream=index,codec_name,codec_type,width,height,r
 
 ffmpeg -i entregavel-final.mp4 -vf signalstats,metadata=print:key=lavfi.signalstats.YAVG:file=- -f null - 2>/dev/null \
   | grep -oP 'YAVG=\K[0-9.]+' | sort -n | tail -1
-# 64.854  (piso 32 — vídeo com conteúdo real)
+# 22.49  (abaixo do piso 24 — o YAVG sozinho reprovaria; o desvio é a outra arma)
+
+# O desvio-padrão por frame (a outra arma do oráculo): amostra 2 fps, luma
+# sem conversão de range (extractplanes — a escala do signalstats).
+ffmpeg -i entregavel-final.mp4 -vf "fps=2,extractplanes=y" -f rawvideo -pix_fmt gray - 2>/dev/null \
+  | python3 -c "import sys; b=sys.stdin.buffer.read(); w=1920*1080; import math; print(max((lambda f: math.sqrt(sum((p-sum(f)/len(f))**2 for p in f)/len(f)))(b[i:i+w]) for i in range(0,len(b)-w+1,w)))"
+# ~19.7  (48/48 amostras acima de 1.0 — vídeo com conteúdo real; preto puro daria 0.0)
 ```
 
 **Loudness (alvo -23 LUFS, teto -1 dBTP)** — medido pelo próprio pós e

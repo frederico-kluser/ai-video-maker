@@ -3,7 +3,7 @@
   "fixture": "canonico",
   "estrito": true,
   "captura": {
-    "commit": "168c7e61ecd8dac49ef79ed1c7dcefe8dce09e8b",
+    "commit": "593761bebdc6e1e4c18ced909790c83b4d8da97d",
     "maquina": "pop-os / linux / x64",
     "em": "2026-08-13",
     "pipeline": "just produzir --fixture canonico --estrito (API do F5-07)"
@@ -23,9 +23,9 @@
       "ffmpeg": "6.1.1-3ubuntu5"
     }
   },
-  "chaveC7": "bb6125086f65e2cf6d593222c012049cdd5492de938788cb0410a924eed8cee6",
+  "chaveC7": "dd604594bb00a119eec02705820915c355a3a5d6fda0d958a6ff67a699efd504",
   "componentesC7": {
-    "manifesto": "1c0ea9f8a86d3f323aafc7f9dfeee2f98bf31a3fe8492352eed03a6836fc761f",
+    "manifesto": "14d4815a10d58e98e2700f565415a5470d5456620bedb1f01479d10a8d5661fc",
     "assets": "721cdcd92cce12ecfe2e315d2173dc202ff4851bdb4ea25039a082d9ce157848",
     "tokens": "7425513c101218d094dacf466f47e126946db9053eee65e8512b520e69f01c32",
     "versoes": "4679b7b877c0a34cfe4d9dcb268189aaf7ea2c970852dc4dba8d1f605efe1ce9",
@@ -48,37 +48,37 @@
       "frame": 265,
       "arquivo": "frames/frame-0265.png",
       "motivo": "primeira moldura da cena c-003 — fronteira de transicao com a cena anterior (interpolacao exercida)",
-      "sha256": "5388514516952bbced8c2289a94eba6487dbefcdbb9089b587a54da29ba5797c"
+      "sha256": "b929676af8f77c44d2ccbdae956f605facd406c3926eeabb7877f15437215981"
     },
     {
       "frame": 355,
       "arquivo": "frames/frame-0355.png",
       "motivo": "meio da cena c-003 — cena representativa (contem no tipo \"codigo\")",
-      "sha256": "00e037da628a2cb9301afbff58c160c1146897de707f8886992b9341d4b60321"
+      "sha256": "4630b2a83ae97320e154b0b9efdbcc94b43a5e31f8de69c44013f31f7853068c"
     },
     {
       "frame": 427,
       "arquivo": "frames/frame-0427.png",
       "motivo": "primeira moldura da cena c-004 — fronteira de transicao com a cena anterior (interpolacao exercida)",
-      "sha256": "0f9c28f45a40b257bc1e35cab6947e8616e48b23b386a2f96cb81aa236579f28"
+      "sha256": "b26308c0a83e4e6784cef296e3b98436c497563a9a3b1b2f8da31944843a804b"
     },
     {
       "frame": 487,
       "arquivo": "frames/frame-0487.png",
       "motivo": "meio da cena c-004 — cena representativa (contem no tipo \"grafico\")",
-      "sha256": "a017ef6da7e76cfd3061d3dde1f4e148daa87a0443d00ca4fb24723e61f07ac6"
+      "sha256": "a9575afced78a10667f54dbc2651218be053c2189c3a9802f9eaa8d600c94fc8"
     },
     {
       "frame": 547,
       "arquivo": "frames/frame-0547.png",
       "motivo": "primeira moldura da cena c-005 — fronteira de transicao com a cena anterior (interpolacao exercida)",
-      "sha256": "fa4458e3c2b0062e1e1f1478fc50f8c1c82addbd2b1d23b59af119b8160e1ae2"
+      "sha256": "cb20a507a8eb7f39a9c96679c2db444efb7666cd5dbb2040889afbc7776e181b"
     },
     {
       "frame": 726,
       "arquivo": "frames/frame-0726.png",
       "motivo": "ultima moldura do video (fim)",
-      "sha256": "bda1c7a247a92a80c0afefcdc3f924fdc18fd38080eadf80e18eb32199d89dba"
+      "sha256": "1fbebf13ba98dc6dc65e75f67adfbf068c1dfddf3ebc8673965db8da5f377724"
     }
   ],
   "itens": [
@@ -99,38 +99,38 @@
     },
     {
       "arquivo": "frames/frame-0265.png",
-      "sha256": "5388514516952bbced8c2289a94eba6487dbefcdbb9089b587a54da29ba5797c",
-      "tamanho": 37120
+      "sha256": "b929676af8f77c44d2ccbdae956f605facd406c3926eeabb7877f15437215981",
+      "tamanho": 37139
     },
     {
       "arquivo": "frames/frame-0355.png",
-      "sha256": "00e037da628a2cb9301afbff58c160c1146897de707f8886992b9341d4b60321",
-      "tamanho": 78131
+      "sha256": "4630b2a83ae97320e154b0b9efdbcc94b43a5e31f8de69c44013f31f7853068c",
+      "tamanho": 77602
     },
     {
       "arquivo": "frames/frame-0427.png",
-      "sha256": "0f9c28f45a40b257bc1e35cab6947e8616e48b23b386a2f96cb81aa236579f28",
-      "tamanho": 57154
+      "sha256": "b26308c0a83e4e6784cef296e3b98436c497563a9a3b1b2f8da31944843a804b",
+      "tamanho": 55925
     },
     {
       "arquivo": "frames/frame-0487.png",
-      "sha256": "a017ef6da7e76cfd3061d3dde1f4e148daa87a0443d00ca4fb24723e61f07ac6",
-      "tamanho": 80727
+      "sha256": "a9575afced78a10667f54dbc2651218be053c2189c3a9802f9eaa8d600c94fc8",
+      "tamanho": 52594
     },
     {
       "arquivo": "frames/frame-0547.png",
-      "sha256": "fa4458e3c2b0062e1e1f1478fc50f8c1c82addbd2b1d23b59af119b8160e1ae2",
-      "tamanho": 13613
+      "sha256": "cb20a507a8eb7f39a9c96679c2db444efb7666cd5dbb2040889afbc7776e181b",
+      "tamanho": 21510
     },
     {
       "arquivo": "frames/frame-0726.png",
-      "sha256": "bda1c7a247a92a80c0afefcdc3f924fdc18fd38080eadf80e18eb32199d89dba",
-      "tamanho": 42134
+      "sha256": "1fbebf13ba98dc6dc65e75f67adfbf068c1dfddf3ebc8673965db8da5f377724",
+      "tamanho": 42193
     },
     {
       "arquivo": "manifestos/manifesto-resolvido.json",
-      "sha256": "1c0ea9f8a86d3f323aafc7f9dfeee2f98bf31a3fe8492352eed03a6836fc761f",
-      "tamanho": 17883
+      "sha256": "14d4815a10d58e98e2700f565415a5470d5456620bedb1f01479d10a8d5661fc",
+      "tamanho": 19976
     },
     {
       "arquivo": "manifestos/mix-documento.json",
@@ -144,7 +144,7 @@
     },
     {
       "arquivo": "manifestos/relatorio-final.json",
-      "sha256": "02bccdb2d84800515b53e3d875c5c1e9b0beb8b490a3447012623db3bf3aeb39",
+      "sha256": "7c259db2cf2d5f12afe582f474ded84ff3b7c0ce20d8a4a1fa3a07c7353556ac",
       "tamanho": 2976
     }
   ],

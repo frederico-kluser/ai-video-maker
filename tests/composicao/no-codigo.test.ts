@@ -262,10 +262,11 @@ describe("o fonte do componente nao contem destacador nenhum (C11)", () => {
   });
 
   it("nao roda regex sobre o codigo do no", () => {
-    // O componente le `codigo.codigo` uma unica vez, para split("\n").
+    // O componente le `codigo.codigo` uma unica vez, para split("\n")
+    // (onda 2: a leitura unica agora alimenta tambem a caixa da sonda).
     const usos = [...fonte.matchAll(/codigo\.codigo/g)].length;
     expect(usos).toBe(1);
-    expect(fonte).toContain('codigo.codigo.split("\\n")');
+    expect(fonte).toContain('codigoCru.split("\\n")');
     for (const suspeito of [".match(", ".matchAll(", ".replace(", "RegExp("]) {
       expect(fonte, `manipulacao de texto do codigo: ${suspeito}`).not.toContain(
         suspeito,

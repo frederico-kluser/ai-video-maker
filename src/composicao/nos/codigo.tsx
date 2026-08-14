@@ -62,6 +62,12 @@ import {
   typeScale,
 } from "../../design/tokens";
 import type { NoComponent, NoComponentMeta } from "../contrato-de-no";
+import {
+  regiaoDoQuadro,
+  type NoComEixo,
+  type Regiao,
+} from "../layout/eixo";
+import { measureTextWidth } from "../layout/medicao";
 
 // ---------------------------------------------------------------------------
 // Metadados — a descoberta le isto do proprio modulo (Regra 6)
@@ -316,10 +322,59 @@ export function lerDestaque(no: NoCodigo): LeituraDeDestaque {
 }
 
 // ---------------------------------------------------------------------------
+// Geometria para a sonda — o bloco do codigo em numeros
+// ---------------------------------------------------------------------------
+
+/**
+ * A caixa do bloco `<pre>` dentro da regiao — a geometria HONESTA do que o
+ * componente desenha (a sonda de sobreposicao le esta caixa do DOM,
+ * data-bbox; se o no ignorar a banda, a caixa vaza e a sonda acusa).
+ *
+ * O `<pre>` NAO estica na regiao: ele tem largura e altura EXPLICITAS
+ * (caixa.largura x caixa.altura, border-box) e a coluna o centraliza com
+ * `alignItems: center`. A altura inclui o padding do bloco E a borda
+ * (borderWidth 1px, boxSizing border-box) e, quando o no tem
+ * `nome_arquivo`, o bloco desce pelo titulo (altura da linha do titulo +
+ * margem) — o mesmo deslocamento que o flex faz na coluna. CORRIGIDO na
+ * onda 2 (fix adversario): antes, o pre esticava na largura total com o
+ * texto a esquerda e a caixa declarada era centrada — a caixa ficava
+ * deslocada do texto real.
+ */
+export function caixaDoCodigo(
+  codigoCru: string,
+  regiao: Regiao,
+  height: number,
+  nomeArquivo: string | undefined,
+): { x: number; y: number; largura: number; altura: number } {
+  const corpo = Math.round(height * typeScale.caption);
+  const alturaDaLinha = Math.round(corpo * lineHeight.normal);
+  const linhasCruas = codigoCru.split("\n");
+  const larguraDoCodigo = measureTextWidth(codigoCru, corpo);
+  const largura = Math.min(
+    larguraDoCodigo + spacing["2"] * 2,
+    regiao.largura - spacing["20"] * 2,
+  );
+  // O border-box do pre: conteudo (linhas com altura explicita) + padding
+  // + borda (borderWidth = spacing.1 / 4 = 1px, dos dois lados).
+  const borda = spacing["1"] / 2;
+  const altura = linhasCruas.length * alturaDaLinha + spacing["6"] * 2 + borda;
+  // O titulo do arquivo, quando presente: a linha (fonte small com
+  // line-height normal, explicito no componente) + a margem abaixo.
+  const alturaDoNome =
+    nomeArquivo === undefined
+      ? 0
+      : Math.round(height * typeScale.small) * lineHeight.normal + spacing["3"];
+  const x = regiao.x + Math.floor((regiao.largura - largura) / 2);
+  const y =
+    regiao.y + Math.floor((regiao.altura - altura - alturaDoNome) / 2) + alturaDoNome;
+  return { x, y, largura, altura };
+}
+
+// ---------------------------------------------------------------------------
 // O componente
 // ---------------------------------------------------------------------------
 
-const Codigo: NoComponent = ({ no, frame, fps, height }) => {
+const Codigo: NoComponent = ({ no, frame, fps, width, height }) => {
   const codigo = no as NoCodigo;
 
   // A janela declarada e do no, nao do envelope. O <Sequence> ja janela em
@@ -335,7 +390,15 @@ const Codigo: NoComponent = ({ no, frame, fps, height }) => {
     extrapolateRight: "clamp",
   });
 
-  const linhasCruas = codigo.codigo.split("\n");
+  const codigoCru = codigo.codigo;
+  const linhasCruas = codigoCru.split("\n");
+
+  // Eixo de texto (onda 2): banda + fator de transicao, como os irmaos.
+  const comEixo = no as NoComEixo;
+  const regiao = comEixo.eixo?.regiao ?? regiaoDoQuadro(width, height);
+  const fator = comEixo.eixo?.fatorTexto ?? 1;
+  const visibilidade = Math.round(opacidade * fator * 1000) / 1000;
+  const caixa = caixaDoCodigo(codigoCru, regiao, height, codigo.nome_arquivo);
   const realcadas = new Set(codigo.linhas_destaque ?? []);
   const leitura = lerDestaque(codigo);
 
@@ -351,16 +414,24 @@ const Codigo: NoComponent = ({ no, frame, fps, height }) => {
       data-linguagem={codigo.linguagem}
       data-destacador={leitura.destaque?.destacador ?? ""}
       data-linguagem-destacada={leitura.destaque?.linguagem ?? ""}
+      data-regiao={`${String(regiao.x)},${String(regiao.y)},${String(regiao.largura)},${String(regiao.altura)}`}
+      data-fator-texto={String(fator)}
+      data-bbox={`${String(caixa.x)},${String(caixa.y)},${String(caixa.largura)},${String(caixa.altura)}`}
+      data-visibilidade={String(visibilidade)}
       style={{
         position: "absolute",
-        inset: 0,
+        left: regiao.x,
+        top: regiao.y,
+        width: regiao.largura,
+        height: regiao.altura,
         display: "flex",
         flexDirection: "column",
+        alignItems: "center",
         justifyContent: "center",
         paddingLeft: spacing["20"],
         paddingRight: spacing["20"],
         backgroundColor: background.primary,
-        opacity: opacidade,
+        opacity: visibilidade,
       }}
     >
       {codigo.nome_arquivo !== undefined ? (
@@ -368,6 +439,9 @@ const Codigo: NoComponent = ({ no, frame, fps, height }) => {
           data-parte="nome-arquivo"
           style={{
             fontSize: Math.round(height * typeScale.small),
+            // line-height explicito: a altura do titulo entra na geometria
+            // honesta do bbox (caixaDoCodigo usa a MESMA formula).
+            lineHeight: lineHeight.normal,
             color: corDeTexto.muted,
             fontFamily: fontFamily.mono,
             marginBottom: spacing["3"],
@@ -380,6 +454,12 @@ const Codigo: NoComponent = ({ no, frame, fps, height }) => {
         data-parte="bloco"
         style={{
           margin: 0,
+          // Largura e altura EXPLICITAS (border-box) = a caixa declarada no
+          // data-bbox: o pre NAO estica na regiao (a geometria honesta e o
+          // contrato da sonda de sobreposicao da onda 2).
+          width: caixa.largura,
+          height: caixa.altura,
+          boxSizing: "border-box",
           padding: spacing["6"],
           backgroundColor: background.secondary,
           borderRadius: borderRadius.md,

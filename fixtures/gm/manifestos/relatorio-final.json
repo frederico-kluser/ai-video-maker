@@ -11,8 +11,8 @@
       "arquivos": [
         {
           "nome": "manifesto-resolvido.json",
-          "sha256": "1c0ea9f8a86d3f323aafc7f9dfeee2f98bf31a3fe8492352eed03a6836fc761f",
-          "tamanho": 17883
+          "sha256": "14d4815a10d58e98e2700f565415a5470d5456620bedb1f01479d10a8d5661fc",
+          "tamanho": 19976
         }
       ]
     },
@@ -21,8 +21,8 @@
       "arquivos": [
         {
           "nome": "master.mov",
-          "sha256": "7fdf04277bb382acea57e2771d8b8fa744729fc0c031fd0a1655a1d63aa764e5",
-          "tamanho": 18628864
+          "sha256": "a7d404fff3d8dbe01e98a9e0d2c8d641ceaf21a0042ee9adfb8f77fe193f329a",
+          "tamanho": 29409850
         }
       ]
     },
@@ -96,8 +96,8 @@
       "arquivos": [
         {
           "nome": "relatorio-procedencia.json",
-          "sha256": "901fce3cad0172ff15e168cfc5d843a81d023d1419f2b79e8faa2d2b7c3c8e45",
-          "tamanho": 14420
+          "sha256": "6b2f22d2e4f0d50d8050b54c45a392b7e7cce6cc22aa187306278cb0eba3fd71",
+          "tamanho": 17295
         }
       ]
     },
@@ -106,8 +106,8 @@
       "arquivos": [
         {
           "nome": "entregavel-final.mp4",
-          "sha256": "9ad69f1adf68b13a704a57dc1eac7434d55ae98e2a5e9a94ac42c6fc4539f2e5",
-          "tamanho": 1144344
+          "sha256": "692e9904d653c07da685e0b4a04a922015209c5ec12efe6a45ba9133410bde80",
+          "tamanho": 1361522
         }
       ]
     }

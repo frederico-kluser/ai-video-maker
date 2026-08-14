@@ -3,6 +3,7 @@
 // =============================================================================
 // Card: F1-12 — Suite integrada de composicao (onda W5)
 // Promovido para src/composicao/pintura/ no PREP-w7 (AB-493).
+// Wiring dos webm de matematica: onda 2 (onda2-composicao, sub-parte 2b).
 //
 // O que os oito nos da W4 declararam como suposicao (AB-364, AB-374, AB-383)
 // e que nenhum card da W4 podia escrever porque so existe no join:
@@ -16,6 +17,18 @@
 // Regra de ouro (AB-364): TODO asset fiado TEM de ter `fonte`. Um asset
 // resolvido sem fonte e ErroDeGraficoOpaco no componente — a fiacao pela
 // metade nao vira desenho local.
+//
+// O RESOLVEDOR (onda 2): a fonte e `staticFile("grafico/<hash>.<ext>")` —
+// um caminho DERIVADO do hash e do mimeType do proprio asset, nunca um
+// mapeamento hardcoded hash->arquivo. Foi o mapeamento hardcoded
+// (HASH_DO_GRAFICO -> "grafico-integrado.png", a camada offline AB-501)
+// que a onda 2 substituiu: o cassete canonico do estagio `grafico` grava
+// CINCO webm de matematica (n-009..n-013) e o estagio de composicao do
+// pipeline materializa os bytes de cada um no publicDir sob exatamente
+// este nome derivado. O resolvedor e o ponto onde o runtime manda: um
+// caminho escrito a mao funciona no Studio e quebra no render — o bundle
+// serve os arquivos de public/ sob o prefixo de runtime e o `staticFile()`
+// traduz o nome para o caminho certo do bundle.
 //
 // Tudo aqui e PURO (nada de hook, nada de relogio, nada de disco): o mesmo
 // modulo roda dentro do bundle do Remotion e dentro do teste de node.
@@ -50,33 +63,71 @@ export interface Fiado {
   /** O plano de composicao (raiz, F1-01). */
   plano: PlanoDeComposicao;
   /** Resolvedor de hash -> caminho local servido ao navegador. */
-  resolverFonte: (hash: string) => string;
+  resolverFonte: (hash: string, asset: AssetResolvido) => string;
 }
 
 // ---------------------------------------------------------------------------
-// O asset de grafico — endereco por conteudo (C7)
+// O resolvedor hash -> caminho do publicDir
 // ---------------------------------------------------------------------------
 
 /**
- * SHA-256 dos bytes de grafico da fixture canonica:
- * fixtures/canonico/assets/grafico-integrado.png — o MESMO PNG RGBA
- * deterministico da fixture integrada
- * (fixtures/snapshots/integrado/assets/grafico-integrado.png), commitado no
- * PREP-w7 (AB-501). O hash e a chave do store por conteudo.
+ * Extensao de arquivo por mimeType — a LISTA DE PERMISSAO do publicDir de
+ * grafico. Um asset sem extensao mapeada e recusado: o navegador nao
+ * adivinha mime de arquivo sem extensao no render, e um nome errado
+ * produziria 404 sem erro de exit.
  */
-export const HASH_DO_GRAFICO =
-  "4dd3497f7719e4aa541f1087413be1522e47f4ac75c44eaceefcc4a8e5c4878c";
+export function extensaoDeMime(mimeType: string | undefined): string {
+  const m = (mimeType ?? "").split(";")[0]!.trim().toLowerCase();
+  switch (m) {
+    case "video/webm":
+      return "webm";
+    case "video/mp4":
+      return "mp4";
+    case "image/png":
+      return "png";
+    case "image/webp":
+      return "webp";
+    case "image/gif":
+      return "gif";
+    case "image/svg+xml":
+      return "svg";
+    case "image/jpeg":
+      return "jpg";
+    case "image/bmp":
+      return "bmp";
+    default:
+      throw new Error(
+        `fiar: mimeType "${String(mimeType)}" sem extensao mapeada — o ` +
+          `publicDir nao sabe servir este asset de grafico`,
+      );
+  }
+}
 
-/** Nome do arquivo no publicDir da fixture integrada. */
-export const NOME_DO_ARQUIVO_DO_GRAFICO = "grafico-integrado.png";
+/**
+ * O resolvedor padrao: hash + descritor do asset -> caminho servido ao
+ * navegador. Deriva o NOME do arquivo do conteudo (hash, C7) e o mimeType
+ * do proprio asset — o estagio de composicao do pipeline materializa os
+ * bytes exatamente sob `grafico/<hash>.<ext>` no publicDir.
+ */
+export function resolverPadrao(hash: string, asset: AssetResolvido): string {
+  return staticFile(`grafico/${hash}.${extensaoDeMime(asset.mimeType)}`);
+}
+
+// ---------------------------------------------------------------------------
+// A fiacao
+// ---------------------------------------------------------------------------
 
 /**
  * A fiacao: anexa `grafico_resolvido` a todo no de grafico que o manifesto
  * resolvido declara em `nos_grafico`.
+ *
+ * O resolvedor recebe o DESCRITOR do asset junto do hash: o nome do
+ * arquivo no publicDir deriva do mimeType (`grafico/<hash>.webm` vs
+ * `grafico/<hash>.png`) e o resolvedor sozinho nao tem como saber qual.
  */
 export function fiar(
   fixture: FixtureIntegrada,
-  resolverFonte: (hash: string) => string,
+  resolverFonte: (hash: string, asset: AssetResolvido) => string,
 ): Fiado {
   const manifesto = JSON.parse(JSON.stringify(fixture.manifesto)) as Manifesto;
   const porId = new Map(manifesto.nos.map((no) => [no.id, no] as const));
@@ -94,7 +145,7 @@ export function fiar(
     }
     const resolvido: GraficoResolvido = {
       asset,
-      fonte: resolverFonte(hash),
+      fonte: resolverFonte(hash, asset),
     };
     // O tipo da W4 declara o campo readonly de proposito (a fiacao e o
     // unico lugar que o preenche). A anexacao e por cast de atribuicao.
@@ -107,32 +158,7 @@ export function fiar(
   return { manifesto, porId, plano, resolverFonte };
 }
 
-/**
- * O resolvedor de fonte padrao: hash -> caminho servido ao navegador.
- *
- * A resolucao passa por `staticFile()` do Remotion — e ISTO que a fiacao
- * da W4 declarou como suposicao (AB-364): a fonte e o caminho local JA
- * RESOLVIDO, e o resolvedor e o ponto onde o runtime manda. Um caminho
- * escrito a mao ("/grafico-integrado.png") funciona no Studio e quebra no
- * render: o bundle serve os arquivos de public/ sob o prefixo de runtime
- * (`/public/...`), e o `staticFile()` e quem traduz o nome para o caminho
- * certo do bundle. Achado da propria suite integrada — o primeiro render
- * 404ou exatamente por isso.
- *
- * No teste de node (sem `window`) o staticFile devolve a forma relativa:
- * e o mesmo valor que o markup do teste espera.
- */
-export function resolverPadrao(hash: string): string {
-  if (hash === HASH_DO_GRAFICO) {
-    return staticFile(NOME_DO_ARQUIVO_DO_GRAFICO);
-  }
-  throw new Error(
-    `fiar: nao existe mapeamento hash->arquivo para ${hash} no publicDir ` +
-      `da fixture integrada (conhecido: ${HASH_DO_GRAFICO})`,
-  );
-}
-
-/** A fixture integrada fiada, com o resolvedor de fonte padrao (staticFile). */
+/** A fixture integrada fiada, com o resolvedor padrao (staticFile). */
 export function fiarApadrao(fixture: FixtureIntegrada): Fiado {
   return fiar(fixture, resolverPadrao);
 }

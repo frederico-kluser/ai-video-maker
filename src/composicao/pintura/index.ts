@@ -25,8 +25,7 @@ export {
   fiar,
   fiarApadrao,
   resolverPadrao,
-  HASH_DO_GRAFICO,
-  NOME_DO_ARQUIVO_DO_GRAFICO,
+  extensaoDeMime,
   type Fiado,
   type FixtureIntegrada,
 } from "./fiar";

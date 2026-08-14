@@ -25,6 +25,11 @@ import {
 } from "./contrato-de-no";
 import { REGISTRO_DE_NOS, type RegistroDeNos } from "./registro";
 import { calcularDuracao, type DuracaoResolvida, type TimelineCena } from "./tempo";
+import {
+  regioesDeTextoDaCena,
+  type NoComEixo,
+  type Regiao,
+} from "./layout/eixo";
 
 // ---------------------------------------------------------------------------
 // Erro
@@ -177,12 +182,31 @@ export function planoDeComposicao(
   const porCena = new Map(duracao.timeline.map((t) => [t.cenaId, t] as const));
   const faixas: FaixaDeNo[] = [];
 
+  // Eixo de texto (onda 2): a banda de cada no de texto, por cena. A raiz
+  // anexa a banda ao proprio no (no CLONADO — o manifesto original nunca e
+  // mutado) para que o Studio e os testes renderizem o mesmo layout do
+  // pintor de producao. O fator de transicao nao existe nesta camada (a
+  // sequencia com transicoes vive na pintura): aqui e 1, por construcao.
+  const regioesPorCena = new Map<string, Map<string, Regiao>>();
+  for (const cena of manifesto.cenas) {
+    regioesPorCena.set(
+      cena.id,
+      regioesDeTextoDaCena(cena, porId, manifesto.width, manifesto.height),
+    );
+  }
+
   for (const cena of manifesto.cenas) {
     const janela = porCena.get(cena.id)!;
+    const regioes = regioesPorCena.get(cena.id)!;
     for (const noId of cena.nos) {
       const no = porId.get(noId)!;
       const entrada = no.entrada_frames ?? 0;
       const inicio = janela.frameInicial + entrada;
+      const regiao = regioes.get(noId);
+      const noParaPintar: No =
+        regiao === undefined
+          ? no
+          : ({ ...no, eixo: { regiao } } as unknown as NoComEixo);
       faixas.push({
         noId,
         tipo: no.type,
@@ -190,7 +214,7 @@ export function planoDeComposicao(
         inicio,
         fim: inicio + no.duracao_frames,
         duracao: no.duracao_frames,
-        no,
+        no: noParaPintar,
         componente: registro.get(no.type)!.componente,
       });
     }

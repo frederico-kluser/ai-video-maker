@@ -51,6 +51,7 @@ import type { NoComponent, NoComponentMeta } from "../contrato-de-no";
 import { MIN_FONT_SIZE_PX, fitTextToBounds } from "../layout/ajuste";
 import { measureTextWidth } from "../layout/medicao";
 import { assertNoOverflow, type NodeContext } from "../layout/overflow";
+import { regiaoDoQuadro, type NoComEixo, type Regiao } from "../layout/eixo";
 
 export const meta: NoComponentMeta = {
   tipo: "lista",
@@ -187,6 +188,11 @@ function textAlignDe(alinhamento: Alinhamento): "left" | "center" | "right" {
  * couber na safe area no piso legivel — falhar e o comportamento correto,
  * encolher abaixo do piso seria um video ilegivel com build verde.
  *
+ * `regiao` (eixo de texto, onda 2): a banda dentro da qual o bloco se
+ * centraliza verticalmente. Ausente = a cena inteira (comportamento
+ * historico). O bloco nunca sai da safe area: a regiao das bandas ja mora
+ * dentro dela, e o clamp abaixo garante o caso de banda menor que o bloco.
+ *
  * @throws {TextOverflowError} conteudo que nao cabe nem no piso de fonte
  * @throws {Error} lista sem itens (o schema exige minItems 1)
  */
@@ -196,6 +202,7 @@ export function planejarLista(
   fps: number,
   width: number,
   height: number,
+  regiao?: Regiao,
 ): PlanoDeLista {
   const itens = lista.itens;
   if (itens.length === 0) {
@@ -297,12 +304,25 @@ export function planejarLista(
   // item so: a celula nao se estica pela safe area inteira.
   const larguraDaCelula = Math.min(larguraColuna, larguraDeConteudo);
 
+  const alturaDoBloco = linhas * alturaDeLinha + gapLinha * (linhas - 1);
   const bloco: RetanguloDeLista = {
     x: 0,
-    y: safeRect.y + Math.floor((safeRect.altura - (linhas * alturaDeLinha + gapLinha * (linhas - 1))) / 2),
+    y: safeRect.y + Math.floor((safeRect.altura - alturaDoBloco) / 2),
     largura: colunas * larguraDaCelula + gapColuna * (colunas - 1),
-    altura: linhas * alturaDeLinha + gapLinha * (linhas - 1),
+    altura: alturaDoBloco,
   };
+
+  // Eixo de texto: o bloco se centraliza na BANDA, nao na cena inteira.
+  // O clamp na safe area garante que uma banda menor que o bloco (ou um
+  // bloco maior que a banda) nunca estique o texto para fora do visivel.
+  if (regiao !== undefined) {
+    const centroDaBanda = regiao.y + Math.floor((regiao.altura - alturaDoBloco) / 2);
+    bloco.y = Math.max(
+      safeRect.y,
+      Math.min(centroDaBanda, safeRect.y + safeRect.altura - alturaDoBloco),
+    );
+  }
+
   bloco.x =
     alinhamento === "centro"
       ? safeRect.x + Math.floor((safeRect.largura - bloco.largura) / 2)
@@ -383,7 +403,11 @@ export function planejarLista(
 
 const Lista: NoComponent = ({ no, frame, fps, width, height }) => {
   const lista = no as NoLista;
-  const plano = planejarLista(lista, frame, fps, width, height);
+  const comEixo = no as NoComEixo;
+  const regiao = comEixo.eixo?.regiao ?? regiaoDoQuadro(width, height);
+  const fator = comEixo.eixo?.fatorTexto ?? 1;
+  const plano = planejarLista(lista, frame, fps, width, height, regiao);
+  const visibilidade = Math.round(plano.opacidadeDoNo * fator * 1000) / 1000;
 
   // Fora da propria janela nao se desenha nada. O envelope da raiz ja janela,
   // mas o no tambem se recusa — quem desenha fora da duracao declarada nao
@@ -401,10 +425,14 @@ const Lista: NoComponent = ({ no, frame, fps, width, height }) => {
       data-linhas={String(plano.linhas)}
       data-fonte={String(plano.fonte)}
       data-itens={String(plano.caixas.length)}
+      data-regiao={`${String(regiao.x)},${String(regiao.y)},${String(regiao.largura)},${String(regiao.altura)}`}
+      data-fator-texto={String(fator)}
+      data-bbox={`${String(plano.bloco.x)},${String(plano.bloco.y)},${String(plano.bloco.largura)},${String(plano.bloco.altura)}`}
+      data-visibilidade={String(visibilidade)}
       style={{
         position: "absolute",
         inset: 0,
-        opacity: plano.opacidadeDoNo,
+        opacity: visibilidade,
         fontFamily: fontFamily.sans,
       }}
     >

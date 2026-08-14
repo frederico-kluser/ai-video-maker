@@ -399,6 +399,18 @@
     }
   },
   "assets": {
+    "08bfc0026bd820ea010f41f422cc91813856f17728788929df959e7400104fe6": {
+      "altura": 1080,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 193830,
+      "duracaoSegundos": 3,
+      "hash": "08bfc0026bd820ea010f41f422cc91813856f17728788929df959e7400104fe6",
+      "largura": 1920,
+      "licenca": "CC0-1.0",
+      "mimeType": "video/webm",
+      "provedor": "local",
+      "tipo": "video"
+    },
     "09c8a304b49dd8b632c1a8c4ed22ce829b4932fad9314600bf98d843e2dec7ea": {
       "atribuicaoObrigatoria": false,
       "byteSize": 1900,
@@ -429,6 +441,18 @@
       "provedor": "wikimedia-commons",
       "tipo": "audio"
     },
+    "14155b52eb8aab34b6e8a2dba3b7406d325df9bc7af85494a30de7fc4d2e25bf": {
+      "altura": 1080,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 328401,
+      "duracaoSegundos": 3,
+      "hash": "14155b52eb8aab34b6e8a2dba3b7406d325df9bc7af85494a30de7fc4d2e25bf",
+      "largura": 1920,
+      "licenca": "CC0-1.0",
+      "mimeType": "video/webm",
+      "provedor": "local",
+      "tipo": "video"
+    },
     "15ea1591069231d080425045634404e2d3c2e5f51bc84fe991fc147a36856bdd": {
       "atribuicaoObrigatoria": false,
       "byteSize": 2586,
@@ -450,6 +474,18 @@
       "provedor": "sosia-local",
       "tipo": "audio"
     },
+    "30b19742a27fcb9fffc94707f3568a2bcc8d50814dc5894e18da529e61cee3d0": {
+      "altura": 1080,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 314683,
+      "duracaoSegundos": 4,
+      "hash": "30b19742a27fcb9fffc94707f3568a2bcc8d50814dc5894e18da529e61cee3d0",
+      "largura": 1920,
+      "licenca": "CC0-1.0",
+      "mimeType": "video/webm",
+      "provedor": "local",
+      "tipo": "video"
+    },
     "3a00855408e16a823176c25052bc801b2f70023c382e75fa11d7d913609daa80": {
       "atribuicao": "\"Sound Effect - Door Bell\" por Amada44 sob CC0",
       "atribuicaoObrigatoria": false,
@@ -460,6 +496,18 @@
       "mimeType": "application/ogg",
       "provedor": "wikimedia-commons",
       "tipo": "audio"
+    },
+    "3a4174aba984711c9000dab26e731df79d16eb988f6e411116e643eccf007daa": {
+      "altura": 1080,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 288013,
+      "duracaoSegundos": 3,
+      "hash": "3a4174aba984711c9000dab26e731df79d16eb988f6e411116e643eccf007daa",
+      "largura": 1920,
+      "licenca": "CC0-1.0",
+      "mimeType": "video/webm",
+      "provedor": "local",
+      "tipo": "video"
     },
     "6ac2876495aa5f0a8d4558bc35aa3e05f6e88b667a097cd3b7f41f15874276bb": {
       "atribuicao": "\"Kevin MacLeod - Lift Motif\" por Kevin MacLeod sob CC BY 3.0",
@@ -483,6 +531,18 @@
       "provedor": "sosia-local",
       "tipo": "audio"
     },
+    "6f468c54445abf443a37452da546005d63493f398d1788e3f68baf378d57df36": {
+      "altura": 1080,
+      "atribuicaoObrigatoria": false,
+      "byteSize": 175376,
+      "duracaoSegundos": 3,
+      "hash": "6f468c54445abf443a37452da546005d63493f398d1788e3f68baf378d57df36",
+      "largura": 1920,
+      "licenca": "CC0-1.0",
+      "mimeType": "video/webm",
+      "provedor": "local",
+      "tipo": "video"
+    },
     "cce5b73c814b7f8c501d0370ce27995c28fe2e6c2bed06547208cba00f285c2b": {
       "atribuicao": "\"Airplane Chime Sound Effect\" por Sharelk sob CC0",
       "atribuicaoObrigatoria": false,
@@ -504,17 +564,6 @@
       "mimeType": "audio/wav",
       "provedor": "wikimedia-commons",
       "tipo": "audio"
-    },
-    "4dd3497f7719e4aa541f1087413be1522e47f4ac75c44eaceefcc4a8e5c4878c": {
-      "hash": "4dd3497f7719e4aa541f1087413be1522e47f4ac75c44eaceefcc4a8e5c4878c",
-      "tipo": "imagem",
-      "mimeType": "image/png",
-      "largura": 480,
-      "altura": 320,
-      "byteSize": 2253,
-      "licenca": "CC0-1.0",
-      "atribuicaoObrigatoria": false,
-      "provedor": "local"
     }
   },
   "nos_midia": {},
@@ -523,8 +572,11 @@
     "c-005": "2b8de8cb0a8e0acd586bc0e68ed2edb245ca7960be56454383714a26e118adeb"
   },
   "nos_grafico": {
-    "n-009": "4dd3497f7719e4aa541f1087413be1522e47f4ac75c44eaceefcc4a8e5c4878c",
-    "n-011": "4dd3497f7719e4aa541f1087413be1522e47f4ac75c44eaceefcc4a8e5c4878c"
+    "n-009": "30b19742a27fcb9fffc94707f3568a2bcc8d50814dc5894e18da529e61cee3d0",
+    "n-010": "3a4174aba984711c9000dab26e731df79d16eb988f6e411116e643eccf007daa",
+    "n-011": "14155b52eb8aab34b6e8a2dba3b7406d325df9bc7af85494a30de7fc4d2e25bf",
+    "n-012": "6f468c54445abf443a37452da546005d63493f398d1788e3f68baf378d57df36",
+    "n-013": "08bfc0026bd820ea010f41f422cc91813856f17728788929df959e7400104fe6"
   },
   "nos_codigo": {
     "n-008": "0c4a9057a1b8199a9621e08e99c76cb403dc8f20d7b89d1f4ddea82abe6ddef2"
@@ -552,6 +604,12 @@
       "estagio": "locucao",
       "versaoEstagio": "1.0.0",
       "chave": "3a5fb7645aee1a748f0a9dd4776ca67257f144ff85d462d67181f44963855003",
+      "origem": "cassete"
+    },
+    {
+      "estagio": "grafico",
+      "versaoEstagio": "1.2.1",
+      "chave": "6d53c3865b6c1627eeafae927accf2cd316cf00b5351fe3d24753b773451fb47",
       "origem": "cassete"
     },
     {

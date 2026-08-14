@@ -45,8 +45,6 @@ import {
   fiarApadrao,
   resolverPadrao,
   pintorDeCena,
-  HASH_DO_GRAFICO,
-  NOME_DO_ARQUIVO_DO_GRAFICO,
   type ArvoreIntegradaProps,
   type Fiado,
   type FixtureIntegrada,
@@ -65,12 +63,28 @@ export {
   fiarApadrao,
   resolverPadrao,
   pintorDeCena,
-  HASH_DO_GRAFICO,
-  NOME_DO_ARQUIVO_DO_GRAFICO,
 };
 export type { ArvoreIntegradaProps, Fiado, FixtureIntegrada };
 
 export const FIXTURA_INTEGRADA = fixtureIntegrado as unknown as FixtureIntegrada;
+
+/**
+ * O hash do asset de grafico da fixture integrada (o PNG RGBA gerado por
+ * gerar-assets.ts) — derivado da propria fixture, nunca digitado: a onda 2
+ * removeu o HASH_DO_GRAFICO hardcoded da camada de pintura (o resolvedor
+ * agora e data-driven) e esta suite continua precisando do identificador
+ * do SEU asset para as assercoes de fiacao.
+ */
+export const HASH_DO_GRAFICO: string = (() => {
+  const hashes = Object.keys(FIXTURA_INTEGRADA.assets);
+  if (hashes.length !== 1) {
+    throw new Error(
+      `fiar.tsx: a fixture integrada tem ${String(hashes.length)} asset(s) — ` +
+        "a suite assume exatamente um (o PNG de grafico)",
+    );
+  }
+  return hashes[0]!;
+})();
 
 /** O manifesto canonico — a lista de presenca que o gate exige. */
 export function manifestoCanonico(): Manifesto {

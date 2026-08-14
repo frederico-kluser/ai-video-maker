@@ -48,6 +48,12 @@ export interface PintorDeCenaProps {
   frameAbsoluto: number;
   /** Lado da fronteira, ou null quando a cena esta sozinha no frame */
   lado: LadoDaTransicao | null;
+  /**
+   * Progresso da fronteira ativa em [0, 1); 0 quando lado e null.
+   * Consumido pelo pintor de cena para o eixo temporal de texto (a cena
+   * que sai some na primeira metade; a que entra aparece na segunda).
+   */
+  progresso: number;
   fps: number;
   width: number;
   height: number;
@@ -126,6 +132,7 @@ const LadoDaCena: React.FC<LadoDaCenaProps> = ({
       frame={cena.frameLocal}
       frameAbsoluto={frame}
       lado={lado}
+      progresso={cena.progresso}
       fps={plano.fps}
       width={plano.width}
       height={plano.height}

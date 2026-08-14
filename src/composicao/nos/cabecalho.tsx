@@ -71,6 +71,12 @@ import {
   type SpringPreset,
 } from "../../design/tokens";
 import type { NoComponent, NoComponentMeta } from "../contrato-de-no";
+import {
+  regiaoDoQuadro,
+  type NoComEixo,
+  type Regiao,
+} from "../layout/eixo";
+import { measureTextWidth } from "../layout/medicao";
 
 // ---------------------------------------------------------------------------
 // Metadados — NAO MUDE. A descoberta por convencao e o gate de unicidade
@@ -241,6 +247,50 @@ function alinhar(alinhamento: string | undefined): Alinhado {
 }
 
 // ---------------------------------------------------------------------------
+// Geometria para a sonda — o bloco do cabecalho em numeros
+// ---------------------------------------------------------------------------
+
+/**
+ * A caixa da coluna (titulo + regua + subtitulo) dentro da regiao. O bloco
+ * real e a coluna flex centralizada na regiao; a caixa e o retangulo que a
+ * envolve — o que a sonda de sobreposicao le do DOM (data-bbox).
+ */
+export function caixaDoCabecalho(
+  cabecalho: NoCabecalho,
+  regiao: Regiao,
+  width: number,
+  height: number,
+): { x: number; y: number; largura: number; altura: number } {
+  const tamanhoTitulo = Math.round(height * typeScale.display);
+  const tamanhoSubtitulo =
+    cabecalho.subtitulo === undefined ? 0 : Math.round(height * typeScale.subtitle);
+  const largura = Math.max(
+    measureTextWidth(cabecalho.texto, tamanhoTitulo),
+    cabecalho.subtitulo === undefined
+      ? 0
+      : measureTextWidth(cabecalho.subtitulo, tamanhoSubtitulo),
+    spacing["32"], // a regua
+  );
+  const altura =
+    Math.ceil(tamanhoTitulo * lineHeight.tight) +
+    spacing["4"] +
+    spacing["1"] +
+    (cabecalho.subtitulo === undefined
+      ? 0
+      : spacing["6"] + Math.ceil(tamanhoSubtitulo * lineHeight.normal));
+  const layout = alinhar(cabecalho.alinhamento);
+  const margemHorizontal = Math.round(width * safeArea16x9.graphicsSafePct);
+  const x =
+    layout.alignItems === "flex-start"
+      ? regiao.x + margemHorizontal
+      : layout.alignItems === "flex-end"
+        ? regiao.x + regiao.largura - margemHorizontal - largura
+        : regiao.x + Math.floor((regiao.largura - largura) / 2);
+  const y = regiao.y + Math.floor((regiao.altura - altura) / 2);
+  return { x, y, largura, altura };
+}
+
+// ---------------------------------------------------------------------------
 // O componente
 // ---------------------------------------------------------------------------
 
@@ -318,15 +368,40 @@ const Cabecalho: NoComponent = ({ no, frame, fps, width, height }) => {
   const margemHorizontal = Math.round(width * safeArea16x9.graphicsSafePct);
   const margemVertical = Math.round(height * safeArea16x9.graphicsSafePct);
 
+  // Eixo de texto (onda 2): a banda onde a coluna se centraliza e o fator
+  // de transicao. O fator fica na OPACIDADE DO ENVELOPE (este container) —
+  // o titulo e o subtitulo mantem a propria aritmetica (AB-312: o fade de
+  // saida da propria janela do no nao e multiplicado pela transicao) — e o
+  // fundo opaco do container some junto com o texto, senao a cena que sai
+  // esconderia a que entra na transicao (retangulo opaco).
+  const comEixo = no as NoComEixo;
+  const regiao = comEixo.eixo?.regiao ?? regiaoDoQuadro(width, height);
+  const fator = comEixo.eixo?.fatorTexto ?? 1;
+  const visibilidadeDoTitulo = Math.round(
+    opacidadeTitulo * fator * 1000,
+  ) / 1000;
+  const visibilidadeDoSubtitulo =
+    cabecalho.subtitulo === undefined
+      ? 0
+      : Math.round(opacidadeSubtitulo * fator * 1000) / 1000;
+  const caixa = caixaDoCabecalho(cabecalho, regiao, width, height);
+
   return (
     <div
       data-no={cabecalho.id}
       data-tipo={meta.tipo}
       data-frame={String(frame)}
       data-duracao={String(duracao)}
+      data-regiao={`${String(regiao.x)},${String(regiao.y)},${String(regiao.largura)},${String(regiao.altura)}`}
+      data-fator-texto={String(fator)}
+      data-bbox={`${String(caixa.x)},${String(caixa.y)},${String(caixa.largura)},${String(caixa.altura)}`}
+      data-visibilidade={String(Math.max(visibilidadeDoTitulo, visibilidadeDoSubtitulo))}
       style={{
         position: "absolute",
-        inset: 0,
+        left: regiao.x,
+        top: regiao.y,
+        width: regiao.largura,
+        height: regiao.altura,
         display: "flex",
         flexDirection: "column",
         alignItems: layout.alignItems,
@@ -336,6 +411,10 @@ const Cabecalho: NoComponent = ({ no, frame, fps, width, height }) => {
         paddingTop: margemVertical,
         paddingBottom: margemVertical,
         backgroundColor: background.primary,
+        // O fator so entra no estilo quando difere de 1: fora de transicao
+        // o container NAO declara opacidade (a mola do titulo e a unica
+        // autoridade — o gate de opacidade do no le o maximo do markup).
+        ...(fator < 1 ? { opacity: fator } : {}),
         color: corDeTexto.primary,
         fontFamily: fontFamily.sans,
       }}
