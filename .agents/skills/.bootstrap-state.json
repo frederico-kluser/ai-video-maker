@@ -24,8 +24,8 @@
     {
       "id": 4,
       "name": "Router + verified-evolution mechanism",
-      "done": false,
-      "gate_passed": false,
+      "done": true,
+      "gate_passed": true,
       "artifact": "router + meta-skills + pipeline + gating suite + hooks"
     },
     {
@@ -37,5 +37,5 @@
     }
   ],
   "stop_hook_active": false,
-  "updated_by": "phase3-commit"
+  "updated_by": "phase4-commit"
 }
