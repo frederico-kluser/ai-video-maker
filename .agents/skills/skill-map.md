@@ -38,8 +38,11 @@ acima de ~15 skills**. Este catálogo tem 20. Isso é uma escolha, e ela vem com
    dentro do `project-router`, não só aqui.
 2. **Medição, não impressão** — `meta-skill-consolidate` roda evals de roteamento com
    **near-misses** (queries que não devem disparar nada) e publica a precisão como número.
-   O `catalog.md` gerado já lista **14 gatilhos ambíguos de 344** (4%), com os donos concorrentes
-   nomeados. Ambiguidade declarada é dívida; ambiguidade não medida é acidente esperando acontecer.
+   O `catalog.md` gerado lista **11 gatilhos ambíguos de 352** (3,1%), com os donos concorrentes
+   nomeados — números regerados por `gerar-catalogo.py` em `ccda369` (a linha "14 de 344" deste
+   arquivo, escrita quando o catálogo tinha outra forma, está superada pelo gerado; gerado vence,
+   é a representação derivada). Ambiguidade declarada é dívida; ambiguidade não medida é acidente
+   esperando acontecer.
 
 **Por que 20 e não 12:** porque o eixo de corte é **propriedade de arquivo e falha silenciosa**,
 não conveniência de navegação. Fundir `ffmpeg-media-ops` com `remotion-render-pipeline` deixaria
@@ -104,11 +107,42 @@ deriva, não correção.
 contra código de produto, porque não há produto. Os sinais atuais provam **forma e proveniência**,
 não **correção**. Isso muda a partir da W1, e cada skill declara qual será o seu sinal real.
 
-## 7. Limites declarados
+## 7. Grafo de composição
 
-1. **Nenhuma skill foi exercitada.** Elas foram escritas por agentes, refutadas por auditores de
-   contexto zero e auditadas em conjunto — mas nunca carregadas numa tarefa real. A primeira onda
-   é o primeiro teste.
+Quem compõe com quem, e por quê. As arestas abaixo são **carregamento em cadeia** (a skill de
+origem assume a de destino na mesma tarefa) ou **fluxo de artefato** (a saída de uma é entrada da
+outra). Aresta ausente por decisão — as fusões recusadas do §4 — é anti-aresta deliberada
+(`asset-acquisition` × `code-animation`, `tts-voiceover` × `audio-captions-sync`,
+`remotion-core` × `remotion-render-pipeline` atravessando a fronteira de determinismo).
+
+| De | Para | Por quê |
+|---|---|---|
+| `project-router` | todas | roteamento em dois níveis: fechou o tier, escolhe a skill — o router despacha e não executa |
+| `project-router` | `video-characterization`, `parallel-worktrees` | as duas obrigatórias por classe de tarefa, decididas por Q1/Q3 (ou pelos campos do card) — sem julgamento |
+| `wave-planning` | `parallel-worktrees` | quem decide **quando** (DAG, níveis, largura) assume quem decide **se** (propriedade de arquivo, barreira, teardown) — dois filtros em ordem, nunca um |
+| `falsifiable-gates` | `video-characterization` | o oráculo de pixel/som **é** um critério de gate: caracterização sem sonda negativa é medição de decoração |
+| `video-characterization` | `falsifiable-gates` | a caracterização precisa do catálogo de falso-verde para saber o que a própria sonda deve reprovar |
+| todas as task skills | `meta-skill-evolution` | o `<evolution>` roda ao fechar cada skill carregada — sem ele a memória morre no card |
+| `meta-skill-consolidate` | todas | GC lê todos os corpos, mede sobreposição de gatilho (via `catalog.md`), podridão de pin e teto de linhas |
+| `timeline-manifest` | `remotion-core`, `audio-captions-sync` | o manifesto resolvido é consumido pela árvore de composição e pelo timing de legendas/ducking |
+| `tts-voiceover` | `audio-captions-sync` | o timing nativo de voz (palavra/caractere/byte) alimenta o alinhamento da legenda |
+| `manim-bridge` | `remotion-core`, `ffmpeg-media-ops` | os webm de cena entram via OffthreadVideo; o alfa (`qtrle`/`yuva420p`) é tratado por FFmpeg fora do render |
+| `remotion-render-pipeline` | `ffmpeg-media-ops` | concat, extração de frame (golden), remux — o render chama FFmpeg, mas o conhecimento de mídia não mora nele |
+| `audio-captions-sync` | `ffmpeg-media-ops` | loudness/`ebur128`/`true peak` são domínio FFmpeg consumido pela pista de áudio |
+| `llm-authoring` | `timeline-manifest` | a autoria gera/valida o manifesto; o contrato de forma do artefato é do timeline |
+| `asset-acquisition` | `remotion-core` | o nó de mídia consome assets hash-addressados; o regime jurídico vive na aquisição, o layout no nó |
+| `code-animation` | `remotion-core` | destaque de código pré-computado vira o nó de código da composição |
+| `motion-design-system` | `remotion-core`, `video-characterization` | tokens e invariantes de motion são consumidos pelos nós e verificados visualmente |
+| qualquer tarefa | `uncertainty-ledger` | todo pressuposto não-provável abre item; o ledger é ortogonal ao roteamento e não compete com skill |
+
+## 8. Limites declarados
+
+1. **Todas foram exercitadas.** Escritas em `8737ad6`, as skills rodaram nas 13 ondas de
+   execução (W1-W12 + fix, `ccda369`): a convenção `skills_obrigatorias` de cada card as declarou
+   (`docs/adr/0002-contrato-de-card.md:41`), os handoffs declararam as carregadas (C10,
+   `AGENTS.md:110`), e a calibração C1/C2/C9/C12 é reinjetada por hook a cada prompt. O primeiro
+   teste real do catálogo foi o pipeline completo — incluindo os 5 webm 3b1b, o GIF com legenda e
+   o golden master. O que continua **não** medido: precisão de roteamento em número (item 4).
 2. **O placar vem da pesquisa, não da skill.** Uma skill que inflasse um placar seria indetectável
    pelo linter — só a auditoria cruzada pega, e ela roda uma vez por onda, não a cada escrita.
 3. **`Não verificado` é uma seção obrigatória e não vazia na maioria.** Isso é saudável: significa
