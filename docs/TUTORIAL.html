@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="pt-BR" data-bs-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>TUTORIAL — Editor de Vídeo IA</title>
+
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous">
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+      integrity="sha384-CK2SzKma4jA5H/MXDUU7i1TqZlCFaD4T01vtyDFvPlD97JQyS+IsSh1nI2EFbpyk"
+      crossorigin="anonymous">
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css"
+      integrity="sha384-wH75j6z1lH97ZOpMOInqhgKzFkAInZPPSPlZpYKYTOqsaizPvhQZmAtLcPKXpLyH"
+      crossorigin="anonymous">
+
+<style>
+  [id] { scroll-margin-top: 5rem; }
+
+  pre { position: relative; margin-bottom: 1rem; }
+  pre code.hljs { padding-right: 4rem; border-radius: var(--bs-border-radius); font-size: .875rem; }
+
+  .copy-btn { position: absolute; top: .5rem; right: .5rem; opacity: .4; transition: opacity .15s; }
+  pre:hover .copy-btn, .copy-btn:focus-visible { opacity: 1; }
+
+  .tab-pane:focus-visible { outline: 0; box-shadow: 0 0 0 .2rem rgba(var(--bs-emphasis-color-rgb), .15); }
+
+  @media print {
+    .nav-tabs, .copy-btn { display: none !important; }
+    .tab-content > .tab-pane { display: block !important; opacity: 1 !important; page-break-inside: avoid; }
+    .tab-pane::before { content: attr(data-print-title); display: block;
+                        font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 .5rem; }
+  }
+</style>
+</head>
+
+<body class="bg-body">
+
+<nav class="navbar navbar-expand-lg sticky-top bg-body-tertiary border-bottom">
+  <div class="container">
+    <span class="navbar-brand fw-semibold"><i class="bi bi-file-earmark-code me-1"></i>TUTORIAL — Editor de Vídeo IA</span>
+    <span class="navbar-text small text-body-secondary d-none d-md-inline">execução real de 2026-08-13 · Onda 3 · docs/TUTORIAL.html</span>
+  </div>
+</nav>
+
+<main class="container py-4" style="max-width: 60rem">
+
+  <header class="mb-4">
+    <h1 class="display-6 fw-semibold">Como usar o Editor de Vídeo IA, de ponta a ponta</h1>
+    <p class="lead text-body-secondary">Um tema vira um MP4 entregue — autoria com LLM real, pipeline estrito offline, 11 artefatos verificados. Este tutorial documenta a execução real de 2026-08-13; todos os tempos, hashes e tamanhos foram medidos nela.</p>
+    <div class="d-flex flex-wrap gap-2">
+      <span class="badge text-bg-secondary">pipeline 13 estágios (14 avisos no log)</span>
+      <span class="badge text-bg-secondary">5 fases</span>
+      <span class="badge text-bg-secondary">11 artefatos</span>
+      <span class="badge text-bg-secondary">Remotion 4.0.507</span>
+    </div>
+  </header>
+
+  <div class="alert alert-warning d-flex gap-2" role="alert">
+    <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+    <div><strong>Antes de rodar:</strong> as chaves vêm do <strong>ambiente</strong> (o <code>.env</code> não é lido) — <code>OPENAI_API_KEY</code> para autoria openai, <code>ANTHROPIC_AUTH_TOKEN</code> (fallback <code>ANTHROPIC_API_KEY</code>) para anthropic — mas hoje o fetch anthropic é <strong>sempre</strong> o SOSIA local (Limitações, item iv). O modo estrito é OFFLINE: a rede é bloqueada e a resolução usa cassetes commitados.</div>
+  </div>
+
+  <ul class="nav nav-tabs" id="doc-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="tab-resposta" data-bs-toggle="tab" data-bs-target="#pane-resposta"
+              type="button" role="tab" aria-controls="pane-resposta" aria-selected="true">
+        <i class="bi bi-eye me-1"></i>Resposta
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-passos" data-bs-toggle="tab" data-bs-target="#pane-passos"
+              type="button" role="tab" aria-controls="pane-passos" aria-selected="false">
+        <i class="bi bi-terminal me-1"></i>Passo a passo
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-artefatos" data-bs-toggle="tab" data-bs-target="#pane-artefatos"
+              type="button" role="tab" aria-controls="pane-artefatos" aria-selected="false">
+        <i class="bi bi-box-seam me-1"></i>Artefatos
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-gates" data-bs-toggle="tab" data-bs-target="#pane-gates"
+              type="button" role="tab" aria-controls="pane-gates" aria-selected="false">
+        <i class="bi bi-shield-check me-1"></i>Gates e verificação
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-limitacoes" data-bs-toggle="tab" data-bs-target="#pane-limitacoes"
+              type="button" role="tab" aria-controls="pane-limitacoes" aria-selected="false">
+        <i class="bi bi-exclamation-triangle me-1"></i>Limitações
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-problemas" data-bs-toggle="tab" data-bs-target="#pane-problemas"
+              type="button" role="tab" aria-controls="pane-problemas" aria-selected="false">
+        <i class="bi bi-wrench-adjustable me-1"></i>Problemas corrigidos
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content border border-top-0 rounded-bottom p-4" id="doc-tabs-content">
+
+    <div class="tab-pane fade show active" id="pane-resposta" role="tabpanel"
+         aria-labelledby="tab-resposta" tabindex="0" data-print-title="Resposta">
+      <h2 class="h4">O que é a ferramenta e como ela entrega um vídeo</h2>
+      <p>O <strong>Editor de Vídeo IA</strong> transforma um <strong>tema</strong> (uma frase de brief) em um <strong>vídeo entregue</strong> — MP4 muxado com áudio normalizado e legendas — sem edição manual. O ponto de entrada é um único comando: <code>just produzir --fixture canonico --estrito</code>, que executa um pipeline orquestrado de <strong>13 estágios</strong> (contrato-w9 §3 — variante e thumbnail compartilham o estágio 10; por isso o log anuncia 14 avisos <code>[pipeline] estagio ...</code>, um por execução, sem contradição) produzindo <strong>11 artefatos</strong> verificados (hash + tamanho, lista fechada do contrato-w9 §2). O LLM decide <strong>o quê</strong> contar; frames, layout, cor, timing e áudio são decisões do sistema — os campos dessas decisões nem existem no schema (fronteira de decisão do contrato de autoria).</p>
+
+      <h3 class="h5 mt-4">As 5 fases, em uma tabela</h3>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr><th>Fase</th><th>O que acontece</th><th>Saída</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1. Autoria</td><td>LLM vivo (OpenAI/Anthropic) escreve o manifesto a partir do brief</td><td><code>manifesto.json</code> (Autoria.1)</td></tr>
+            <tr><td>2. Resolução</td><td>URLs/asset por hash, offline por cassetes commitados</td><td><code>manifesto-resolvido.json</code> + store SHA-256</td></tr>
+            <tr><td>3. Composição + render</td><td>Remotion renderiza os nós (cabeçalho, texto, lista, código, gráfico, camadas)</td><td><code>master.mov</code> determinístico</td></tr>
+            <tr><td>4. Mix + pós</td><td>Timing canônico, ducking, loudness -23 LUFS, legendas</td><td><code>entregavel.m4a</code> + <code>entregavel.srt</code> + <code>pos-documento.json</code></td></tr>
+            <tr><td>5. Entrega</td><td>Variante 16:9, thumbnail, procedência, mux, relatório</td><td><code>entregavel-final.mp4</code> + <code>relatorio-final.json</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-primary d-flex gap-2" role="alert">
+        <i class="bi bi-info-circle-fill flex-shrink-0"></i>
+        <div><strong>A fronteira de determinismo</strong> é a regra que sustenta tudo: o que chega ao pixel ou ao áudio é calculado acima da fronteira (tempo, tokens, assets, fonte) e o render é determinístico — o mesmo manifesto produz os mesmos bytes. O relatório final carrega <code>escritoEm: 1970-01-01</code> porque o relógio é congelado por design (ver Limitações). O motor é o <strong>Remotion 4.0.507</strong> com o Chrome headless empacotado, e o <strong>FFmpeg 6.1.1</strong> é o pin verificado de toda a cadeia de mídia.</div>
+      </div>
+    </div>
+
+    <div class="tab-pane fade" id="pane-passos" role="tabpanel"
+         aria-labelledby="tab-passos" tabindex="0" data-print-title="Passo a passo">
+      <h2 class="h4">Passo a passo real (execução de 2026-08-13)</h2>
+      <p>Pré-requisitos: Node 24 (via <code>.nvmrc</code>), <code>npm ci</code>, just 1.42+, FFmpeg <strong>6.1.1</strong> (pin verificado — o pipeline falha se divergir), Python 3.12 para o ferramental.</p>
+
+      <h3 class="h5">1. Autoria viva — a cerimônia</h3>
+<pre><code class="language-bash">just autoria-gravar --provedor openai</code></pre>
+      <p>Saída real (9,5 s no total): 1 chamada ao LLM real, 7 manifestos inválidos gravados, cassete gravado em <code>fixtures/cassetes/autoria/&lt;chave-do-brief&gt;/</code>. O gate valida <strong>antes</strong> do cache (P2); regravar pode mudar o conteúdo (o LLM não é determinístico) — normal, os gates não dependem do conteúdo.</p>
+<pre><code class="language-text">cassete de autoria (openai): fixtures/cassetes/autoria/dfb7e0a3…
+  chave: dfb7e0a33359d36408b9d5c76bd55f618dd15d6ed72179c444fb17e90d2ea709
+  origem: chamada
+  chamadas gravadas: 1
+  manifestos invalidos gravados: 7</code></pre>
+
+      <h3 class="h5">2. Produção — o pipeline completo</h3>
+<pre><code class="language-bash">just produzir --fixture canonico --estrito --saida &lt;WORKTREE&gt;/output-tutorial</code></pre>
+      <p>Saída real (resumida; 29,5 s de parede, 326% CPU): tsc + validação da fixture (1 encontrada, 1 válida, 0 inválidas) + os 14 avisos de estágio até <code>=== produzir: VERDE (11 artefatos conferidos) ===</code>, com hash + tamanho de cada artefato — o CLI imprime <code>arquivo: arquivo (hash, tamanho)</code> com o nome duplicado; aqui o formato foi limpo. <code>--estrito</code> = autoria pulada (fixture), reparo mecânico (zero LLM), resolução offline por cassetes com rede bloqueada, só perfis <code>deterministico: true</code>.</p>
+<pre><code class="language-text">[pipeline] estagio autoria...
+[pipeline] estagio reparo-mecanico...
+[pipeline] estagio resolucao-offline...
+[pipeline] estagio timing...
+[pipeline] estagio composicao...
+[pipeline] estagio mix...
+[pipeline] estagio render...
+[pipeline] estagio encode...
+[pipeline] estagio pos...
+[pipeline] estagio variante...
+[pipeline] estagio thumbnail...
+[pipeline] estagio procedencia...
+[pipeline] estagio mux...
+[pipeline] estagio relatorio-final...
+=== produzir: VERDE (11 artefatos conferidos) ===</code></pre>
+
+      <h3 class="h5">3. Verificação — hashes, conteúdo do vídeo, loudness, legendas</h3>
+      <p><strong>Hash 1:1:</strong> o <code>relatorio-final.json</code> declara sha256 + tamanho de cada artefato (escrito por último, atomicamente). Nesta execução, <strong>11/11 arquivos conferem</strong>:</p>
+<pre><code class="language-bash">cd output-tutorial
+sha256sum manifesto-resolvido.json master.mov master.wav mix-documento.json \
+  entregavel.m4a entregavel.srt pos-documento.json variante-16x9.json \
+  thumbnail.png relatorio-procedencia.json entregavel-final.mp4</code></pre>
+      <p><strong>Conteúdo do vídeo (C1):</strong> o piso é YAVG máximo por frame ≥ 32 (vídeo preto fica ~16–22; a fixture calibrou ~65):</p>
+<pre><code class="language-bash">ffprobe -v error -show_entries stream=index,codec_name,codec_type,width,height,r_frame_rate,duration -of compact entregavel-final.mp4
+# stream|0|h264|video|1920x1080|30/1|24.233333  +  stream|1|aac|audio|48000|2|24.233000
+
+ffmpeg -i entregavel-final.mp4 -vf signalstats,metadata=print:key=lavfi.signalstats.YAVG:file=- -f null - 2>/dev/null \
+  | grep -oP 'YAVG=\K[0-9.]+' | sort -n | tail -1
+# 64.854  (piso 32 — conteúdo real)</code></pre>
+      <p><strong>Loudness</strong> (alvo -23 LUFS, teto -1 dBTP), medido pelo pós e registrado em <code>pos-documento.json</code>: <code>integradoLufs: -23</code>, <code>truePeakDbtp: -19.3</code>, <code>ganhoAplicadoDb: -7.6</code> (master a -15.4 LUFS). <strong>Legendas:</strong> o SRT descreve a timeline pós-reconciliação do mix (P4): 2 cues sem sobreposição, separadas exatamente no corte do mix em 18,233 s — a primeira termina no corte, a segunda começa nele.</p>
+<pre><code class="language-text">1
+00:00:14,233 --&gt; 00:00:18,233
+Nesta seção, apresentamos os dados de
+desempenho do pipeline. Cada tipo de nó
+
+2
+00:00:18,233 --&gt; 00:00:23,588
+Concluindo, o manifesto é a peça central
+do pipeline. Obrigado por assistir.</code></pre>
+
+      <h3 class="h5">4. Gates</h3>
+<pre><code class="language-bash">just autoria-suite      # 18 arquivos, 189 testes — contrato, cache, normalização, rejeição, reparo
+just autoria-cassete    # 5 testes — determinismo do cassete (regravar = bytes idênticos exceto voláteis)
+just pos                # suite do pós + gate real com 8 sondas ∅-crit
+just e2e                # R1 (cache frio) + R2 (idempotente) + R3 (chave C7 mutada) + ∅-crit dos 11 artefatos</code></pre>
+    </div>
+
+    <div class="tab-pane fade" id="pane-artefatos" role="tabpanel"
+         aria-labelledby="tab-artefatos" tabindex="0" data-print-title="Artefatos">
+      <h2 class="h4">Os 11 artefatos — tamanhos reais desta execução</h2>
+      <p>Caem em <code>--saida</code> (default <code>output/</code>), <strong>gitignored</strong> — a entrega é em disco, nunca no git. Um artefato faltando, renomeado ou corrompido deixa o gate vermelho nomeando o artefato (∅-crit de ausência).</p>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr><th>#</th><th>Arquivo</th><th>Tamanho real</th><th>O que é</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td><code>manifesto-resolvido.json</code></td><td>17.883 B</td><td>ManifestoResolvido.1 — manifesto com todos os assets resolvidos a hash</td></tr>
+            <tr><td>2</td><td><code>master.mov</code></td><td>22.995.405 B</td><td>Master de vídeo determinístico (QTRLE, sem perdas)</td></tr>
+            <tr><td>3</td><td><code>master.wav</code></td><td>9.305.644 B</td><td>WAV f32le do master de áudio do mix</td></tr>
+            <tr><td>4</td><td><code>mix-documento.json</code></td><td>1.146 B</td><td>MixDocument.1 — plano de mix + pins de ferramentas</td></tr>
+            <tr><td>5</td><td><code>entregavel.m4a</code></td><td>568.288 B</td><td>AAC 192 kbps 48 kHz estéreo, -23 LUFS, teto -1 dBTP conferido no codificado</td></tr>
+            <tr><td>6</td><td><code>entregavel.srt</code></td><td>225 B</td><td>Legendas pós-reconciliação (2 cues, sem sobreposição)</td></tr>
+            <tr><td>7</td><td><code>pos-documento.json</code></td><td>970 B</td><td>PosDocument.1 — alvo, ganho, medições, hashes, pins</td></tr>
+            <tr><td>8</td><td><code>variante-16x9.json</code></td><td>9.730 B</td><td>Variante 16:9 derivada do mesmo manifesto</td></tr>
+            <tr><td>9</td><td><code>thumbnail.png</code></td><td>40.158 B</td><td>Thumbnail com contraste e piso de legibilidade conferidos</td></tr>
+            <tr><td>10</td><td><code>relatorio-procedencia.json</code></td><td>14.420 B</td><td>Procedência transitiva (todo asset com origem declarada)</td></tr>
+            <tr><td>11</td><td><code>entregavel-final.mp4</code></td><td>1.156.329 B</td><td>MP4 final muxado (vídeo + áudio) — 1920x1080@30, 24,2 s</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Mais o <code>relatorio-final.json</code> (3,0 KB) — a declaração de sucesso com hash + tamanho dos 11 itens, escrita por último. Um processo morto no meio deixa ou o relatório anterior ou nada, nunca um sucesso parcial.</p>
+    </div>
+
+    <div class="tab-pane fade" id="pane-gates" role="tabpanel"
+         aria-labelledby="tab-gates" tabindex="0" data-print-title="Gates e verificação">
+      <h2 class="h4">Gates — o que cada um prova e por que não é decorativo</h2>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr><th>Gate</th><th>Comando</th><th>O que prova</th><th>Por que não é decorativo</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Contrato de autoria</td>
+              <td><code>just autoria-suite</code> (189 testes)</td>
+              <td>Schema completo + subset por fornecedor, cache HIT/MISS (C12), normalização null→ausente (P1), rejeição de inválido antes do pipeline e do cache (P2), vocabulário de transição, regras AB-432/AB-433</td>
+              <td>Um inválido que passa derruba a suite; o runner exige o numerador — filtro vazio sai 0 sem olhar nada (falso verde)</td>
+            </tr>
+            <tr>
+              <td>Determinismo do cassete</td>
+              <td><code>just autoria-cassete</code> (5 testes)</td>
+              <td>Regravar reproduz bytes idênticos exceto os voláteis declarados</td>
+              <td>Sonda negativa: mutar o resultado TEM de ficar vermelho</td>
+            </tr>
+            <tr>
+              <td>Pós-processamento</td>
+              <td><code>just pos</code></td>
+              <td>Medição (loudness/true peak), sidecar coerente com a queimada, pin ffmpeg 6.1.1 + node conferido</td>
+              <td>8 sondas ∅-crit (sidecar divergindo, perfil não-determinístico, pin divergindo, normalização dupla…) TEM de ficarem vermelhas pelo motivo certo</td>
+            </tr>
+            <tr>
+              <td>Ponta a ponta</td>
+              <td><code>just e2e</code></td>
+              <td>R1 produção com chave FRIA (miss forçado), R2 re-executa integral idempotente (cache quente, 0 chamadas ao renderer, artefatos idênticos), R3 chave C7 mutada → MISS obrigatório; ∅-crit de presença dos 11 artefatos; determinismo do perfil (2x encodes = bytes + framemd5 idênticos); escopo 16:9</td>
+              <td>O e2e é manual (<code>just e2e</code> — o CI não o roda) e, sob carga, o render Chrome tem um flake transitório conhecido — se falhar por isso, re-execute; cada execução faz 3 renders completos e ~5 encodes — a prova do join é cara de propósito</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-pane fade" id="pane-limitacoes" role="tabpanel"
+         aria-labelledby="tab-limitacoes" tabindex="0" data-print-title="Limitações">
+      <h2 class="h4">Limitações conhecidas (honestas)</h2>
+      <ol>
+        <li class="mb-2"><strong>Relógio congelado no relatório-final.</strong> <code>escritoEm: 1970-01-01T00:00:00.000Z</code> — determinismo R2 <strong>por design</strong>, não bug: data no artefato mudaria o hash a cada execução. O relatório é estável byte a byte para a mesma entrada.</li>
+        <li class="mb-2"><strong>O modo estrito é OFFLINE.</strong> Rede bloqueada durante a execução; resolução por <strong>cassetes commitados</strong> — sem TTS ao vivo, sem downloads, sem chamadas externas. Autoria e gravação de cassete são cerimônias manuais, com rede e credencial, fora do estrito.</li>
+        <li class="mb-2"><strong>Regravar o cassete de autoria muda seu conteúdo.</strong> O LLM não é determinístico (nem com <code>temperature: 0</code> a OpenAI garante; <code>seed</code> é best-effort). Os gates não dependem do conteúdo — dependem da chave e da estrutura; o <code>git diff</code> do cassete é esperado após cada cerimônia.</li>
+        <li class="mb-2"><strong><code>--provedor anthropic</code> grava SEMPRE do SOSIA — não há caminho de chamada real hoje.</strong> O código constrói o gravador com <code>provedor === "anthropic" ? fetchSosia(...) : globalThis.fetch</code>: para anthropic o fetch é incondicionalmente o SOSIA local (resposta canônica pré-existente), com ou sem credencial. Exportar <code>ANTHROPIC_AUTH_TOKEN</code> (lido primeiro, com fallback para <code>ANTHROPIC_API_KEY</code> — P3) apenas silencia o aviso ruidoso do stderr — o conteúdo gravado continua sendo o SOSIA. A chamada real anthropic é trabalho pendente (AB-552).</li>
+        <li class="mb-2"><strong>Golden master visual stale.</strong> O golden master de pixel (<code>fixtures/gm</code>) está defasado em relação à <strong>saída atual do pipeline</strong> — não ao cassete de autoria: o fix P4 (Onda 2) mudou o <code>entregavel.srt</code> (308 B pré → 225 B pós-reconciliação) e o <code>pos-documento.json</code> ganhou o hash do sidecar. O golden antigo não reflete essas saídas; <code>gm-e2e</code> não é gate do fluxo de produção. Dívida pré-existente — re-baseline apenas quando um bug de divergência exigir, nunca por rotina.</li>
+      </ol>
+    </div>
+
+    <div class="tab-pane fade" id="pane-problemas" role="tabpanel"
+         aria-labelledby="tab-problemas" tabindex="0" data-print-title="Problemas corrigidos">
+      <h2 class="h4">Problemas encontrados e corrigidos (P1–P4)</h2>
+      <p>Encontrados na <strong>Onda 1</strong> (primeira execução de ponta a ponta), corrigidos na <strong>Onda 2</strong> (merges <code>0726ee9</code> + <code>8fa3986</code>). Esta rodada (Onda 3) executou o fluxo já corrigido com todos os gates verdes.</p>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr><th>#</th><th>Problema (medido na Onda 1)</th><th>Causa</th><th>Correção (Onda 2)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>P1</strong></td>
+              <td>Manifesto com <code>transicao_*: null</code> rejeitado pelo schema completo</td>
+              <td>O strict da OpenAI emula opcional com <code>anyOf [X, null]</code>; o schema completo só aceita <strong>ausência</strong></td>
+              <td><code>normalizar.ts</code> (186 linhas): normalização <code>null → ausente</code> derivada do subset do fornecedor, no ponto único entre extração/cache e gate</td>
+            </tr>
+            <tr>
+              <td><strong>P2</strong></td>
+              <td>Cache <strong>antes</strong> do gate: inválido persistido; 2ª tentativa servia o <strong>cache envenenado</strong> (medido)</td>
+              <td><code>escreverNoCache</code> rodava antes de <code>rejeitarSaidaInvalida</code></td>
+              <td>Gate <strong>antes</strong> do cache: rejeitada nunca é persistida; cacheado também passa pelo gate — envenenado não entra no pipeline</td>
+            </tr>
+            <tr>
+              <td><strong>P3</strong></td>
+              <td><code>--provedor anthropic</code> com credencial presente gravava do <strong>SOSIA em silêncio</strong></td>
+              <td>O código lia <code>ANTHROPIC_API_KEY</code>; o ambiente provisiona <code>ANTHROPIC_AUTH_TOKEN</code></td>
+              <td><code>resolverChaveDeApi</code> (AUTH_TOKEN primeiro, fallback API_KEY) + aviso ruidoso no stderr quando anthropic explícito não tem credencial</td>
+            </tr>
+            <tr>
+              <td><strong>P4</strong></td>
+              <td><code>entregavel.srt</code> com <strong>cues sobrepostas</strong></td>
+              <td>O sidecar serializava o documento de legendas, não a timeline real do mix</td>
+              <td><code>reconciliarComOMix</code> (C1): cue que cruza o corte é truncada no corte; menos de 1 frame visível é removida; nenhuma cue sobrepõe a vizinha — SRT atual <code>[14,233–18,233]</code> e <code>[18,233–23,588]</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="h5 mt-4">Solução de problemas</h3>
+      <div class="alert alert-success d-flex gap-2" role="alert">
+        <i class="bi bi-check-circle-fill flex-shrink-0"></i>
+        <div><strong>“Waiting for registerRoot() to get called” — JÁ CORRIGIDO.</strong> O entry <code>src/index.ts</code> era <code>export {}</code> e o CLI nunca via o registro da raiz. Agora ele registra <code>registerRoot(RaizRemotion)</code> no escopo de módulo, coberto por <code>tests/integracao/entry/cli-entry.test.ts</code>. Se reaparecer, é regressão do entry — o teste fica vermelho.</div>
+      </div>
+      <div class="alert alert-warning d-flex gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <div><strong><code>ErroContratoAutoria</code> na cerimônia.</strong> A resposta não validou contra o schema completo e foi rejeitada antes do pipeline e do cache — o sistema funcionando, não quebrado. Use <code>--provedor openai</code> (a normalização P1 cobre o <code>null</code> do strict), revise o campo apontado e repita: o LLM não é determinístico e a tentativa seguinte pode sair válida.</div>
+      </div>
+      <div class="alert alert-warning d-flex gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <div><strong>Cache envenenado.</strong> O gate atual rejeita na hora do uso. Para limpar: apague o diretório <code>fixtures/cassetes/autoria/&lt;chave-do-brief&gt;/</code> e regrave. O cache de render (<code>/tmp/ai-video-maker/render-cache</code>, default) é invalidado por conteúdo (C7) — nunca precisa de limpeza manual; apagar é inócuo, a re-executação é integral e idempotente.</div>
+      </div>
+      <div class="alert alert-warning d-flex gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <div><strong>Gate vermelho sem nada ter mudado?</strong> O <code>e2e</code> é manual (<code>just e2e</code> — o CI não o roda) e tem um flake transiente conhecido do render Chrome sob carga — se falhar por isso, re-execute uma vez antes de investigar. “Nenhum teste selecionado” = filtro vazio (falso verde do runner); saída vazia de <code>ffprobe</code> com exit 0 = chave errada — o sinal é a saída, não o código.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="text-body-secondary small border-top mt-5 pt-3">
+    Execução real de 2026-08-13 (Onda 3) · Editor de Vídeo IA · Documento de arquivo único — salve, mande por anexo, abra offline.
+  </footer>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"
+        integrity="sha384-RH2xi4eIQ/gjtbs9fUXM68sLSi99C7ZWBRX1vDrVv6GQXRibxXLbwO2NGZB74MbU"
+        crossorigin="anonymous"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  var sources = new WeakMap();
+  document.querySelectorAll('pre > code').forEach(function (code) {
+    sources.set(code, code.textContent.replace(/\n$/, ''));
+  });
+
+  if (window.hljs) hljs.highlightAll();
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(function () { return true; },
+                                                      function () { return legacyCopy(text); });
+    }
+    return Promise.resolve(legacyCopy(text));
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  document.querySelectorAll('pre > code').forEach(function (code) {
+    var pre = code.parentElement;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-sm btn-outline-secondary copy-btn';
+    btn.innerHTML = '<i class="bi bi-clipboard"></i>';
+    btn.setAttribute('aria-label', 'Copiar código');
+    btn.addEventListener('click', function () {
+      copyText(sources.get(code) || code.textContent).then(function (ok) {
+        btn.innerHTML = ok ? '<i class="bi bi-check-lg"></i>' : '<i class="bi bi-x-lg"></i>';
+        btn.classList.toggle('btn-outline-success', ok);
+        btn.classList.toggle('btn-outline-danger', !ok);
+        btn.classList.remove('btn-outline-secondary');
+        setTimeout(function () {
+          btn.innerHTML = '<i class="bi bi-clipboard"></i>';
+          btn.className = 'btn btn-sm btn-outline-secondary copy-btn';
+        }, 1500);
+      });
+    });
+    pre.appendChild(btn);
+  });
+
+  var tabs = document.querySelectorAll('[data-bs-toggle="tab"]');
+  if (!tabs.length) return;
+
+  function activateFromHash() {
+    var hash = window.location.hash;
+    if (!hash || hash.length < 2) return;
+    var target = document.querySelector(hash);
+    if (!target) return;
+    var pane = target.closest('.tab-pane') || (target.classList.contains('tab-pane') ? target : null);
+    if (!pane) return;
+    var trigger = document.querySelector('[data-bs-target="#' + CSS.escape(pane.id) + '"]');
+    if (trigger) bootstrap.Tab.getOrCreateInstance(trigger).show();
+    var scrollTo = target !== pane ? target : (trigger && trigger.closest('[role="tablist"]')) || pane;
+    requestAnimationFrame(function () { scrollTo.scrollIntoView({ block: 'start' }); });
+  }
+
+  tabs.forEach(function (t) {
+    t.addEventListener('shown.bs.tab', function (e) {
+      var id = (e.target.getAttribute('data-bs-target') || '').slice(1);
+      if (id) history.replaceState(null, '', '#' + id);
+    });
+  });
+
+  window.addEventListener('hashchange', activateFromHash);
+  activateFromHash();
+})();
+</script>
+</body>
+</html>
