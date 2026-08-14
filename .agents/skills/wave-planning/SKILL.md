@@ -4,7 +4,7 @@ description: 'Provides the law that turns this program''s dependency graph into 
 metadata:
   type: knowledge
   tier: metodo
-  verification_signal: 'python3 tools/validate-graph.py PROGRAMA.md  # enquanto T-02 nao existir: grep -nF ''onda(c) >= nivel(c)'' PROGRAMA.md && grep -nF ''onda(card) > onda(dep)'' PROGRAMA.md'
+  verification_signal: 'python3 tools/validate-graph.py tools/cards.json && git show 8737ad6:PROGRAMA.md | grep -nF ''onda(c) >= nivel(c)'' && git show 8737ad6:PROGRAMA.md | grep -nF ''onda(card) > onda(dep)'''
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

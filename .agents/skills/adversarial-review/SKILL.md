@@ -4,7 +4,7 @@ description: 'Provides the fresh-context refutation prompt and the falsifiable q
 metadata:
   type: knowledge
   tier: metodo
-  verification_signal: grep -n 'CONTEXTO FRESCO' PROGRAMA.md && grep -n 'quadro totalmente preto' PROGRAMA.md
+  verification_signal: git show 8737ad6:PROGRAMA.md | grep -n 'CONTEXTO FRESCO' && git show 8737ad6:PROGRAMA.md | grep -n 'quadro totalmente preto'
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

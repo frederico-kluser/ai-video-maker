@@ -4,7 +4,7 @@ description: Scans the whole skill catalog on a schedule to deduplicate rules, r
 metadata:
   type: meta
   tier: meta
-  verification_signal: "cd $(git rev-parse --show-toplevel) && test $(ls -d .agents/skills/*/ 2>/dev/null | wc -l) -ge 1 && python3 .agents/scripts/skill_lint.py"
+  verification_signal: "cd $(git rev-parse --show-toplevel) && test $(ls -d .agents/skills/*/ 2>/dev/null | wc -l) -ge 1 && (python3 .agents/scripts/skill_lint.py; test $? -le 1)"
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

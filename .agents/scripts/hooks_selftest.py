@@ -18,6 +18,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 SCRIPTS_DIR = Path(__file__).resolve().parent
@@ -43,11 +44,13 @@ def assert_exit_code(result: subprocess.CompletedProcess, expected: int, test_na
 
 
 def assert_output_contains(result: subprocess.CompletedProcess, text: str, test_name: str) -> bool:
-    """Assert that stdout contains the given text."""
-    if text.lower() not in result.stdout.lower():
+    """Assert that stdout or stderr contains the given text (gate messages may be on either)."""
+    combined = (result.stdout + result.stderr).lower()
+    if text.lower() not in combined:
         print(f"  FAIL: {test_name}")
         print(f"    Expected output to contain '{text}'")
         print(f"    stdout: {result.stdout.strip()[:200]}")
+        print(f"    stderr: {result.stderr.strip()[:200]}")
         return False
     return True
 
@@ -237,15 +240,31 @@ def test_bash_guardrail() -> int:
 # skill_write_gate.py tests
 # ═══════════════════════════════════════════════════════════════════════════
 
+def _make_token(skill_name: str, sha1: str = "", stale: bool = False) -> Path:
+    """Create a green token for a skill. Returns the token path."""
+    eval_records_dir = PROJECT_ROOT / ".agents/skills/.eval_records"
+    eval_records_dir.mkdir(parents=True, exist_ok=True)
+    token = eval_records_dir / f"{skill_name}.json"
+    token.write_text(json.dumps({"last_eval_passed": True, "sha1": sha1}))
+    if stale:
+        old = time.time() - 3600
+        os.utime(token, (old, old))
+    return token
+
+
 def test_skill_write_gate() -> int:
-    """Test skill_write_gate.py token gate logic."""
+    """Test skill_write_gate.py v2 (fail-closed, TTL 30 min, sha1-bound token)."""
+    import hashlib
+    import time
     failures = 0
     print("\n--- skill_write_gate.py ---")
 
-    # Test 1: Empty path → allow
+    # Test 1: Empty path → BLOCK (fail-closed; v1 allowed)
     r = run_hook("skill_write_gate.py", "")
-    if assert_exit_code(r, 0, "Empty path allows"):
-        print("  PASS: Empty path allows")
+    if assert_exit_code(r, 2, "Empty path blocks (fail-closed)"):
+        print("  PASS: Empty path blocks (fail-closed)")
+    else:
+        failures += 1
 
     # Test 2: Non-SKILL.md path → allow
     r = run_hook("skill_write_gate.py", "src/App.tsx")
@@ -271,58 +290,87 @@ def test_skill_write_gate() -> int:
     else:
         failures += 1
 
-    # Test 5: Existing skill without eval record → block
-    # We test with 'project-router' which exists but has no .eval_records/
-    r = run_hook("skill_write_gate.py", ".agents/skills/project-router/SKILL.md")
-    if assert_exit_code(r, 2, "Existing skill without eval record blocks"):
-        if assert_output_contains(r, "BLOCKING", "Existing skill output contains BLOCKING"):
-            print("  PASS: Existing skill without eval record is blocked")
-        else:
-            failures += 1
-    else:
-        failures += 1
-
-    # Test 6: Existing skill with green eval record → allow
-    eval_records_dir = PROJECT_ROOT / ".agents/skills/.eval_records"
-    eval_records_dir.mkdir(parents=True, exist_ok=True)
-    test_record = eval_records_dir / "project-router.json"
-    test_record.write_text(json.dumps({"last_eval_passed": True}))
+    # Test 5: Existing skill without eval token → block
+    # (the token dir may hold a real token from a prior eval run — remove it
+    # for the duration of this test, like every other gate test must)
+    token = (PROJECT_ROOT / ".agents/skills/.eval_records" / "project-router.json")
+    had_token = token.exists()
+    token.unlink(missing_ok=True)
     try:
         r = run_hook("skill_write_gate.py", ".agents/skills/project-router/SKILL.md")
-        if assert_exit_code(r, 0, "Existing skill with green eval record allows"):
-            if assert_output_contains(r, "Eval record green", "Green eval output"):
-                print("  PASS: Existing skill with green eval record is allowed")
+        if assert_exit_code(r, 2, "Existing skill without token blocks"):
+            if assert_output_contains(r, "BLOCKING", "Existing skill output contains BLOCKING"):
+                print("  PASS: Existing skill without eval token is blocked")
             else:
                 failures += 1
         else:
             failures += 1
     finally:
-        # Cleanup
-        test_record.unlink(missing_ok=True)
-        # Remove dir if empty
-        try:
-            eval_records_dir.rmdir()
-        except OSError:
-            pass
+        if had_token:
+            # Re-issue the real token so the suite is side-effect-neutral
+            # (the gate requires a fresh sha1-bound record).
+            import subprocess as _sp
+            _sp.run([sys.executable, str(PROJECT_ROOT / ".agents/scripts/run_skill_evals.py"), "project-router"],
+                    capture_output=True, text=True, cwd=str(PROJECT_ROOT))
 
-    # Test 7: Existing skill with non-green eval record → block
-    eval_records_dir.mkdir(parents=True, exist_ok=True)
-    test_record = eval_records_dir / "project-router.json"
-    test_record.write_text(json.dumps({"last_eval_passed": False}))
+    skill_md = PROJECT_ROOT / ".agents/skills/project-router/SKILL.md"
+    real_sha1 = hashlib.sha1(skill_md.read_bytes()).hexdigest()
+
+    # Test 6: Green + fresh + sha1 match → allow
+    token = _make_token("project-router", sha1=real_sha1)
     try:
         r = run_hook("skill_write_gate.py", ".agents/skills/project-router/SKILL.md")
-        if assert_exit_code(r, 2, "Existing skill with non-green eval record blocks"):
-            print("  PASS: Existing skill with non-green eval record is blocked")
+        if assert_exit_code(r, 0, "Green+fresh+sha1 token allows"):
+            if assert_output_contains(r, "allowing write", "Green token output"):
+                print("  PASS: Green+fresh+sha1 token allows write")
+            else:
+                failures += 1
         else:
             failures += 1
     finally:
-        test_record.unlink(missing_ok=True)
-        try:
-            eval_records_dir.rmdir()
-        except OSError:
-            pass
+        token.unlink(missing_ok=True)
 
-    # Test 8: Dotfile skill dir → allow
+    # Test 7: Green + sha1 mismatch → block (token bound to content)
+    token = _make_token("project-router", sha1="0" * 40)
+    try:
+        r = run_hook("skill_write_gate.py", ".agents/skills/project-router/SKILL.md")
+        if assert_exit_code(r, 2, "sha1 mismatch blocks"):
+            if assert_output_contains(r, "sha1 mismatch", "sha1 mismatch message"):
+                print("  PASS: sha1 mismatch blocks")
+            else:
+                failures += 1
+        else:
+            failures += 1
+    finally:
+        token.unlink(missing_ok=True)
+
+    # Test 8: Green + stale (>TTL) → block
+    token = _make_token("project-router", sha1=real_sha1, stale=True)
+    try:
+        r = run_hook("skill_write_gate.py", ".agents/skills/project-router/SKILL.md")
+        if assert_exit_code(r, 2, "stale token blocks"):
+            if assert_output_contains(r, "stale", "stale token message"):
+                print("  PASS: stale token blocks")
+            else:
+                failures += 1
+        else:
+            failures += 1
+    finally:
+        token.unlink(missing_ok=True)
+
+    # Test 9: Non-green record → block
+    token = _make_token("project-router")
+    token.write_text(json.dumps({"last_eval_passed": False, "sha1": real_sha1}))
+    try:
+        r = run_hook("skill_write_gate.py", ".agents/skills/project-router/SKILL.md")
+        if assert_exit_code(r, 2, "non-green record blocks"):
+            print("  PASS: non-green record blocks")
+        else:
+            failures += 1
+    finally:
+        token.unlink(missing_ok=True)
+
+    # Test 10: Dotfile skill dir → allow
     r = run_hook("skill_write_gate.py", ".agents/skills/.internal/SKILL.md")
     if assert_exit_code(r, 0, "Dotfile skill dir allows"):
         print("  PASS: Dotfile skill dir allows")

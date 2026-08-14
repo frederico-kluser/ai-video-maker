@@ -4,7 +4,7 @@ description: 'Provides the named token vocabulary every other skill inherits —
 metadata:
   type: knowledge
   tier: dominio
-  verification_signal: grep -qF '| R14-06 |' docs/00-panorama-verificado.md && grep -qF '| R14-16 |' docs/00-panorama-verificado.md && grep -qF '| AB-071 |' docs/00-panorama-verificado.md && curl -sL https://raw.githubusercontent.com/remotion-dev/remotion/main/packages/core/src/spring/spring-utils.ts | grep -qF 'Math.sqrt(k * m)' && curl -sL https://www.w3.org/WAI/WCAG22/Understanding/three-flashes-or-below-threshold.html | grep -qF 'three times in any one second'
+  verification_signal: git show 8737ad6:docs/00-panorama-verificado.md | grep -qF '| R14-06 |' && git show 8737ad6:docs/00-panorama-verificado.md | grep -qF '| R14-16 |' && git show 8737ad6:docs/00-panorama-verificado.md | grep -qF '| AB-071 |' && curl -sL https://raw.githubusercontent.com/remotion-dev/remotion/main/packages/core/src/spring/spring-utils.ts | grep -qF 'Math.sqrt(k * m)' && curl -sL https://www.w3.org/WAI/WCAG22/Understanding/three-flashes-or-below-threshold.html | grep -qF 'three times in any one second'
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

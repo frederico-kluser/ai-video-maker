@@ -4,7 +4,7 @@ description: 'Provides the exact semantics of the Remotion render CLI at scale �
 metadata:
   type: knowledge
   tier: dominio
-  verification_signal: grep -rho "Math.min(8, Math.max(1, maxCpus / 2))" node_modules/@remotion/renderer/dist/ && npx remotion render --help | grep -c -- "--hardware-acceleration"
+  verification_signal: grep -rho "Math.min(8, Math.max(1, maxCpus / 2))" node_modules/@remotion/renderer/dist/ | grep -q . && grep -q "cliFlag = 'hardware-acceleration'" node_modules/@remotion/renderer/dist/options/hardware-acceleration.js
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em
@@ -50,6 +50,16 @@ Pisos de versão que mudam o que é possível escrever: `--gop` (4.0.466), `--rs
 `--metadata` (4.0.216), `--binaries-directory` (4.0.120), `--chrome-mode` (4.0.248),
 `--offthreadvideo-video-threads` (4.0.261); `--ffmpeg-executable`/`--ffprobe-executable` foram removidas.
 — **Placar (2-0)** · R05-01 · fonte: https://www.remotion.dev/docs/cli/render
+
+**`npx remotion render --help` não mostra help — começa a renderizar.** O subcomando ignora
+`--help` e dispara o render da composição default (bundling → Chrome → frames), gravando
+`out/<nome>.mp4` parcial. Medido na execução bootstrap: 13/727 frames e `out/manifesto.mp4`
+(2,2 MB) em disco antes do SIGPIPE. O help canônico do render não vem de `--help`: a lista de
+flags verdadeira é o `cliFlag` no código instalado,
+`node_modules/@remotion/renderer/dist/options/<nome>.js` (ex.: `hardware-acceleration.js`
+define `cliFlag = 'hardware-acceleration'`). — **Placar (1-0, execução local)** · fonte:
+execução da sessão bootstrap (verificação_signal desta skill) e `options/hardware-acceleration.js`
+do pacote instalado
 
 ### `--hardware-acceleration`: três valores, e o literal do código vence a prosa
 

@@ -4,7 +4,7 @@ description: 'Provides the cross-language data contract of the video manifest �
 metadata:
   type: knowledge
   tier: dominio
-  verification_signal: just contrato:gerar && test -s schema/manifesto.schema.json && test -s schema/manifesto.llm.schema.json && git diff --exit-code schema/ src/contratos/
+  verification_signal: just contrato_gerar && test -s schema/manifesto.schema.json && test -s schema/manifesto.llm.schema.json && git diff --exit-code schema/ src/contratos/
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

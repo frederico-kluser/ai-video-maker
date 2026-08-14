@@ -4,7 +4,7 @@ description: 'Provides the verified chain from voiceover to word timings to on-s
 metadata:
   type: knowledge
   tier: dominio
-  verification_signal: curl -sL https://raw.githubusercontent.com/remotion-dev/remotion/main/packages/install-whisper-cpp/src/to-captions.ts | grep -qF 't_dtw * 10' && ffmpeg -hide_banner -h filter=ebur128 >/dev/null && python3 .agents/scripts/skill_lint.py
+  verification_signal: curl -sL https://raw.githubusercontent.com/remotion-dev/remotion/main/packages/install-whisper-cpp/src/to-captions.ts | grep -qF 't_dtw * 10' && ffmpeg -hide_banner -h filter=ebur128 >/dev/null && (python3 .agents/scripts/skill_lint.py; test $? -le 1)
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

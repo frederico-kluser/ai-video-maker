@@ -371,33 +371,25 @@ seria decoração; a sonda é o entregável.
 2. **Se o roteamento em dois níveis é melhor que o de um nível neste catálogo.** Nenhum
    experimento foi feito; a escolha é normativa (`docs/CONTRATO-DE-SKILL.md:150-152`), não
    medida. Fecha com o mesmo conjunto do item 1, executado nas duas configurações.
-3. **Se os hooks do harness chegam a disparar neste ambiente.** Claim em disputa (**2-1**) —
-   `docs/pesquisa/L02-reuso-3b1b-infra-skills.md:971`: a favor, a forma do `settings.json` e um
-   `SKILL.md` commitado com registro vermelho; contra, ninguém observou o harness. Fecha com:
-   forçar um `Edit` sob o harness e observar `exit 2`. Enquanto estiver aberto, **nenhuma regra
-   desta skill é garantida por máquina** — todas são nudge de contexto.
-4. **Se `${path}` é interpolado pelo harness.** Se não for, todo hook que passa argumento no
-   comando é no-op — e o gate de escrita de skill roda com `argv` vazio e sai **0**
-   (`docs/pesquisa/L02-reuso-3b1b-infra-skills.md:278-280,606`). Fecha com: hook temporário que
-   grava `sys.argv` num arquivo.
-5. **Se a lista de 20 skills desta tabela corresponde ao que existe em disco.** O
-   `verification_signal` desta skill é exatamente essa checagem — e nada o executa hoje
-   (ver `## Conhecimento negativo`). Rodado à mão a partir da raiz do repo, ele sai **0** — o que
-   não é gate: amanhã a mesma mão pode não rodar. Fecha com: ligá-lo a um gate.
-6. **Se `.agents/skills/` chega a ser um caminho de carregamento.** Isto é o pressuposto de que
-   tudo acima depende, e ele **não está verificado**. Os três publicadores nomeiam
-   `~/.claude/skills/`, `.claude/skills/`, skill de plugin e managed settings — **(3-0)**,
-   https://code.claude.com/docs/en/skills ·
-   https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview ·
-   https://agentskills.io/specification. Nenhum deles nomeia `.agents/skills/`, e este
-   repositório **não tem** `.claude/`. A hipótese é que o instalador crie `.agents/skills` com
-   symlink `.claude/skills` — ledger seed L-01 de `docs/pesquisa/R06-remotion-agentes-skills.md:497`,
-   placar **1-0**; o repositório de referência é exatamente essa forma
-   (`3b1b:.claude/skills -> ../.agents/skills`), o que mostra que a hipótese é **plausível**, não
-   que ela valha aqui. Se for falso, nenhuma destas 20 descrições entra no startup e o roteamento
-   em dois níveis é texto morto. Fecha com: `ln -s ../.agents/skills .claude/skills` seguido de
-   `ls -la .claude/skills` e `/doctor` na sessão real. Enquanto estiver aberto, o roteador precisa
-   ser **invocado por nome**, não esperado.
+3. **FECHADO na execução bootstrap (commits `799d33d`..`001fd16` deste repositório): os hooks
+   disparam neste harness, e o bloqueio funciona.** UserPromptSubmit rodou a cada prompt
+   (reinjeção C1/C2/C9/C12 observada); o bash guardrail bloqueou `cat .env` e uma cadeia
+   `rm -f ... && rmdir ...` com exit 2 (a chamada é abortada); o gate de escrita permitiu edições
+   com token verde e bloqueou sem token (selftest 46/46 verde, `hooks_selftest.py`). Superfície
+   deste harness: bloqueio é exibido como `PreToolUse:Bash hook error: ...: No stderr output` —
+   é a renderização do exit 2, não falha do hook; a mensagem do hook vai para stdout.
+4. **FECHADO: o payload chega por stdin e `.tool_input.*` é extraído por `jq`.** O guardrail viu
+   o texto do comando (bloqueou por padrão de segredo) e o gate de escrita viu o `file_path`
+   (liberou/bloqueou por skill) — ambos dependem do payload por stdin, e ambos responderam. O
+   gate v2 é fail-closed em argv vazio: entrada inesperada é vermelho (`skill_write_gate.py`).
+5. **FECHADO: o `verification_signal` roda em gate.** `run_skill_evals.py` executa o signal de
+   cada skill (timeout 60 s) a cada eval e emite o token de escrita sha1-bound com TTL; signal
+   que falha vira dívida visível no token (`signal_status: debt:<razão>`), não silêncio — e o
+   eval sai vermelho até a dívida ser paga.
+6. **FECHADO: `.claude/skills -> ../.agents/skills` existe, e o harness listou as 20 skills por
+   name+description na sessão seguinte ao symlink.** O caminho de carregamento funciona — o
+   roteamento em dois níveis não é texto morto. O roteador continua invocável por nome, mas não
+   é mais o único caminho.
 
 ## Evolution
 

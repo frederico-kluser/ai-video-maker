@@ -4,7 +4,7 @@ description: 'Provides the rules for opening, anchoring, distributing and closin
 metadata:
   type: knowledge
   tier: metodo
-  verification_signal: grep -cE '^. AB-[0-9]{3} .' docs/00-panorama-verificado.md | grep -qx 75
+  verification_signal: git show 8737ad6:docs/00-panorama-verificado.md | grep -cE '^. AB-[0-9]{3} .' | grep -qx 75
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em

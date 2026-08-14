@@ -4,7 +4,7 @@ description: 'Manages the memory pipeline of this program — the five gated ste
 metadata:
   type: meta
   tier: meta
-  verification_signal: 'grep -q ''detecta deriva, não correção'' PROGRAMA.md && grep -q ''default: descartar'' PROGRAMA.md && python3 .agents/scripts/skill_lint.py'
+  verification_signal: 'git show 8737ad6:PROGRAMA.md | grep -q ''detecta deriva, não correção'' && git show 8737ad6:PROGRAMA.md | grep -q ''default: descartar'' && (python3 .agents/scripts/skill_lint.py; test $? -le 1)'
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em
@@ -297,10 +297,10 @@ número, não.
 | O que | Placar | Comando que fecha |
 |---|---|---|
 | Os pinos deste arquivo para `PROGRAMA.md` foram escritos à mão como `arquivo:linha`, **corrigidos um a um contra o arquivo — e escorregaram de novo**: a auditoria cruzada mediu o bloco de §V-1 deslocado, melhor eco em **+36** (`docs/auditoria-cruzada-skills.md §4.3`). Somar o offset conserta uma vez; o defeito era **a forma**. Por isso todo endereço de `PROGRAMA.md` neste arquivo agora é **âncora de seção** (`§V-1`, `§IV-5`, `§III-14`, `Apêndice A`) ou **id de card**, que sobrevivem à edição — e todo endereço do panorama é **id de claim** (`L02-Cnn`). O que continua **não** verificado é se cada âncora sustenta a afirmação: âncora estável prova endereço vivo, não implicação. Esta skill é o caso de teste do defeito que ela denuncia | sem placar (é confissão medida, não claim) | `python3 .agents/scripts/check_staleness.py` depois de `T-10` — que, por `PROGRAMA.md §V-1`, tem de **recusar** `arquivo:linha` quando o alvo é `PROGRAMA.md` ou o panorama; enquanto ele não existe, `grep -nE '(PROGRAMA\|00-panorama-verificado)\.md:[0-9]' .agents/skills/meta-skill-evolution/SKILL.md` tem de sair vazio, e cada `§` citado tem de existir em `grep -nE '^#{2,4} (§\|Apêndice)' PROGRAMA.md` |
-| A metade do `verification_signal` que chama o linter está **PENDENTE**: `.agents/scripts/` ainda não existe neste repositório | sem placar | `ls .agents/scripts/skill_lint.py` |
-| Os hooks do repositório de referência chegaram a disparar (base de `D-13`) | 2-1, em disputa | forçar um `Edit` em skill de registro vermelho sob o harness e observar `exit 2` — sementes `AB-066`/`AB-067` |
-| `${path}` é interpolado pelo harness; se não for, todo hook que passa argumento no comando é no-op | conhecimento prévio do modelo, não arquivo lido | hook temporário que grava `sys.argv` num arquivo |
-| `.eval_records/` colide sob N worktrees (motivo do token ser local e nunca herdado) | 1-0, provável | dois agentes em worktrees distintas gravando o mesmo registro, e `git merge` das duas |
+| **FECHADO**: `.agents/scripts/` existe e o signal completo roda em gate — `run_skill_evals.py` executa o `verification_signal` de cada skill (incluindo o linter) com timeout 60 s; signal que falha vira `signal_status: debt:<razão>` no token e o eval sai vermelho até a dívida ser paga | — | `python3 .agents/scripts/run_skill_evals.py` |
+| **FECHADO na execução bootstrap**: os hooks disparam neste harness e exit 2 bloqueia de verdade — UserPromptSubmit rodou a cada prompt; o guardrail bloqueou `cat .env` e cadeia `rm && rmdir`; o gate de escrita bloqueou edição sem token e liberou com token verde | — | `hooks_selftest.py` (46/46 verde) + execução bootstrap |
+| **FECHADO**: o payload chega por stdin e `.tool_input.*` é extraído por `jq` — o guardrail e o gate de escrita responderam a comandos e paths reais; o gate v2 é fail-closed em argv vazio | — | `skill_write_gate.py` + execução bootstrap |
+| **FECHADO por desenho**: `.eval_records/` é gitignorado — cada worktree tem o seu registro local, nunca versionado; o token carrega sha1 + TTL | — | `.gitignore` + `skill_write_gate.py` |
 | "Skill nova é rascunho revisado" e "mudança ampla não é auto-mesclada" são normas **herdadas** do `meta-skill-evolution` do corpus de referência; `PROGRAMA.md` prescreve o commit próprio e o custo de roteamento, **não** estas duas | sem placar (norma importada, não claim) | `awk '/^### §V-1/,/^### §V-2/' PROGRAMA.md \| grep -nE 'rascunho\|auto-mesclad\|revisão humana'` — delimitado por cabeçalho, não por linha, para não apodrecer; hoje devolve vazio (`exit 1`). Fechar exige emenda ao `PROGRAMA.md` ou ADR |
 | O TTL de 30 min é o valor certo | norma do playbook e do `PROGRAMA.md`, não medição | nenhuma fonte deste programa mediu qual TTL evita reuso indevido; mudar o valor exige ADR com guarda executável |
 

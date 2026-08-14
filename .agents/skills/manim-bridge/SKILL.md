@@ -4,7 +4,7 @@ description: 'Provides the Manim-to-Remotion handoff contract - which container/
 metadata:
   type: knowledge
   tier: dominio
-  verification_signal: manim --version | grep -q 0.20.1 && manim render --help | grep -q -- '-t, --transparent' && ! manim render --help | grep -qiE 'codec|pix_fmt|--jobs|parallel'
+  verification_signal: (.venv/bin/manim --version 2>/dev/null || manim --version 2>/dev/null) | grep -q 0.20.1 && (.venv/bin/manim render --help 2>/dev/null || manim render --help 2>/dev/null) | grep -q -- '-t, --transparent' && ! (.venv/bin/manim render --help 2>/dev/null || manim render --help 2>/dev/null) | grep -qiE 'codec|pix_fmt|--jobs|parallel'
 ---
 
 > **Como resolver as citações desta skill.** As fontes que ela cita foram consolidadas em
