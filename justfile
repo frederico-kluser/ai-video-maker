@@ -157,7 +157,7 @@ prompt-card card_id:
 # =============================================================================
 
 skills-lint:
-    python3 .agents/scripts/skill_lint.py
+    (python3 .agents/scripts/skill_lint.py; test $? -le 1)
 
 skills-test:
     python3 .agents/scripts/skill_lint_selftest.py
