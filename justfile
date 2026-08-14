@@ -162,6 +162,10 @@ skills-lint:
 skills-test:
     python3 .agents/scripts/skill_lint_selftest.py
 
+skills-eval:
+    python3 .agents/scripts/run_skill_evals.py
+    python3 .agents/scripts/routing_evals.py
+
 skills-catalogo:
     python3 .agents/scripts/gerar-catalogo.py
     git diff --exit-code .agents/skills/catalog.md || (echo "ERROR: catalog.md is out of date. Run 'just skills:catalogo' to regenerate." && exit 1)

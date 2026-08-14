@@ -228,6 +228,19 @@ def main() -> int:
         print("ERROR: no .agents/skills dir", file=sys.stderr)
         return 2
 
+    # The routing surface is DERIVED: regenerate the catalog from the current
+    # frontmatter before reading it, so a description edit cannot pass against
+    # a stale generated surface (the freshness recipe `just skills-catalogo`
+    # catches the diff afterwards; here we evaluate what IS, not what was).
+    regen = subprocess.run(
+        [sys.executable, str(ROOT / ".agents/scripts/gerar-catalogo.py")],
+        capture_output=True, text=True, cwd=str(ROOT),
+    )
+    if regen.returncode != 0:
+        print(f"ERROR: catalog regeneration failed: {regen.stderr[-300:]}",
+              file=sys.stderr)
+        return 2
+
     catalog_skills, trigger_index = parse_catalog()
     if not trigger_index:
         print("ERROR: catalog.md has no trigger rows — refusing to evaluate against nothing",
