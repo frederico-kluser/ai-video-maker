@@ -142,6 +142,7 @@
       <h3 class="h5">1. Autoria viva — a cerimônia</h3>
 <pre><code class="language-bash">just autoria-gravar --provedor openai</code></pre>
       <p>Saída real (9,5 s no total): 1 chamada ao LLM real, 7 manifestos inválidos gravados, cassete gravado em <code>fixtures/cassetes/autoria/&lt;chave-do-brief&gt;/</code>. O gate valida <strong>antes</strong> do cache (P2); regravar pode mudar o conteúdo (o LLM não é determinístico) — normal, os gates não dependem do conteúdo.</p>
+      <p><strong>Pronúncia da locução (fonte única):</strong> a pronúncia de termos técnicos e siglas em pt-BR é definida <strong>uma única vez</strong>, no dicionário oficial <code>docs/autoria/prompts/dicionario-pronuncia.md</code> — os prompts de autoria o aplicam por referência; nenhum outro arquivo do repositório define <code>termo → pronúncia</code> (regra F4-02, gate em <code>tests/prompts/prompts.test.ts</code>).</p>
 <pre><code class="language-text">cassete de autoria (openai): fixtures/cassetes/autoria/dfb7e0a3…
   chave: dfb7e0a33359d36408b9d5c76bd55f618dd15d6ed72179c444fb17e90d2ea709
   origem: chamada

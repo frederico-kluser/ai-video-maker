@@ -52,7 +52,7 @@ divergir do pin — `just pos` e `just e2e` conferem).
 
 | Requisito | Versão | Como verificar |
 |---|---|---|
-| Node.js | **24** (via `.nvmrc`) | `node --version` |
+| Node.js (v24) | **24** (via `.nvmrc`) | `node --version` |
 | npm | com `package-lock.json` | `npm ci` instala |
 | just | 1.42+ | `just --version` |
 | FFmpeg | **6.1.1** (pin verificado pelo pipeline) | `ffmpeg -version` |
@@ -98,6 +98,12 @@ manifestos inválidos usado pelos testes de rejeição. **Regravar pode mudar o
 conteúdo do cassete** (o LLM não é determinístico — nem com `temperature: 0`):
 isso é normal e os gates não dependem do conteúdo. O que importa é a chave do
 cassete (hash do brief) e a estrutura.
+
+**Pronúncia da locução (fonte única):** a pronúncia de termos técnicos e
+siglas em pt-BR é definida **uma única vez**, no dicionário oficial
+`docs/autoria/prompts/dicionario-pronuncia.md` — os prompts de autoria o
+aplicam por referência; nenhum outro arquivo do repositório define
+`termo → pronúncia` (regra F4-02, gate em `tests/prompts/prompts.test.ts`).
 
 ### 2. Produção — o pipeline completo
 
