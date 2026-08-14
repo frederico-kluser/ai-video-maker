@@ -43,6 +43,15 @@
             "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.agents/scripts/stop_validation_gate.py\""
           }
         ]
+      },
+      {
+        "description": "Bootstrap mission gate: block Stop until all 5 phases in .bootstrap-state.json are done and gate_passed (guarded by stop_hook_active to avoid infinite loops)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/.agents/scripts/bootstrap_stop_gate.py\""
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [

@@ -1,0 +1,41 @@
+{
+  "phases": [
+    {
+      "id": 1,
+      "name": "Latest-docs analysis + deep project analysis",
+      "done": false,
+      "gate_passed": false,
+      "artifact": "project-analysis.md"
+    },
+    {
+      "id": 2,
+      "name": "Skill map",
+      "done": false,
+      "gate_passed": false,
+      "artifact": "skill-map.md"
+    },
+    {
+      "id": 3,
+      "name": "Generate knowledge and task skills",
+      "done": false,
+      "gate_passed": false,
+      "artifact": "catalog.md + skills + symlink + CLAUDE.md"
+    },
+    {
+      "id": 4,
+      "name": "Router + verified-evolution mechanism",
+      "done": false,
+      "gate_passed": false,
+      "artifact": "router + meta-skills + pipeline + gating suite + hooks"
+    },
+    {
+      "id": 5,
+      "name": "Validation",
+      "done": false,
+      "gate_passed": false,
+      "artifact": "validation-report.md"
+    }
+  ],
+  "stop_hook_active": false,
+  "updated_by": "phase1-bootstrap-setup"
+}
