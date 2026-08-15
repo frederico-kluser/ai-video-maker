@@ -66,9 +66,27 @@ fmt:
     @echo "=== fmt: Python (ruff) ==="
     python3 -m ruff format src/ tests/
 
-# Inicia o Remotion Studio
-dev:
+# Sobe o SITE (o que o usuario pediu — D9): build da SPA + servidor web.
+# O build e pre-condicao: o servidor serve <raiz>/dist/web e 503a sem o
+# index.html (REPLAN Onda 6). O Remotion Studio fica em dev_studio.
+# NOTA (MEDIDO): just 1.42.4 NAO aceita ':' em nomes de receita — os
+# nomes pedidos (dev:studio, build:web, e2e-web) usam underscore.
+dev: build_web
+    npx tsx src/web/servidor.ts
+
+# Preserva o Remotion Studio (o antigo "dev" — o editor direto)
+dev_studio:
     npx remotion studio
+
+# Build da SPA (vite) — dist/web, a RAIZ_ESTATICA do servidor
+build_web:
+    cd src/web/ui && npx vite build
+
+# E2E web (Playwright): navegador real contra servidor real. O build da
+# SPA roda antes (a sonda de launch exige o index com id="raiz"). Os
+# browsers vivem no cache local (nunca baixar de novo — offline).
+e2e_web: build_web
+    PLAYWRIGHT_BROWSERS_PATH=$HOME/.cache/ms-playwright PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npx playwright test tests/web/e2e
 
 # Instala dependencias
 install:

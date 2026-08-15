@@ -148,7 +148,11 @@ async function pedidoJson<T>(
   caminho: string,
   corpoJson?: unknown,
 ): Promise<T> {
-  const resposta = await cliente.fetchImpl(urlDo(cliente, caminho), {
+  // fetchImpl chamado SEM receptor: `cliente.fetchImpl(...)` passaria
+  // this=cliente e o fetch NATIVO lancaria "Illegal invocation" (achado
+  // do e2e da Onda 7 — o stub dos testes engole o this, o navegador nao).
+  const { fetchImpl } = cliente;
+  const resposta = await fetchImpl(urlDo(cliente, caminho), {
     method: metodo,
     headers: corpoJson === undefined ? undefined : { "Content-Type": "application/json" },
     body: corpoJson === undefined ? undefined : JSON.stringify(corpoJson),
@@ -162,7 +166,9 @@ async function pedidoJson<T>(
 
 /** Pedido que devolve bytes (audio, anexo, mp4 — endpoints de arquivo). */
 async function pedidoBlob(cliente: ClienteApi, caminho: string): Promise<Blob> {
-  const resposta = await cliente.fetchImpl(urlDo(cliente, caminho), { method: "GET" });
+  // Sem receptor pelo mesmo motivo de pedidoJson (this do fetch nativo).
+  const { fetchImpl } = cliente;
+  const resposta = await fetchImpl(urlDo(cliente, caminho), { method: "GET" });
   if (!resposta.ok) {
     throw parsearErroDoCorpo(await lerJsonOuNulo(resposta), resposta.status);
   }
@@ -175,7 +181,9 @@ async function pedidoBlob(cliente: ClienteApi, caminho: string): Promise<Blob> {
  * qualquer resposta 2xx que omita o corpo.
  */
 async function pedidoJob(cliente: ClienteApi, metodo: string, caminho: string, corpoJson?: unknown): Promise<JobAceito> {
-  const resposta = await cliente.fetchImpl(urlDo(cliente, caminho), {
+  // Sem receptor pelo mesmo motivo de pedidoJson (this do fetch nativo).
+  const { fetchImpl } = cliente;
+  const resposta = await fetchImpl(urlDo(cliente, caminho), {
     method: metodo,
     headers: corpoJson === undefined ? undefined : { "Content-Type": "application/json" },
     body: corpoJson === undefined ? undefined : JSON.stringify(corpoJson),
@@ -206,7 +214,9 @@ async function pedidoBruto(
   corpo: BodyInit,
   contentType: string,
 ): Promise<Response> {
-  return cliente.fetchImpl(urlDo(cliente, caminho), {
+  // Sem receptor pelo mesmo motivo de pedidoJson (this do fetch nativo).
+  const { fetchImpl } = cliente;
+  return fetchImpl(urlDo(cliente, caminho), {
     method: metodo,
     headers: { "Content-Type": contentType },
     body: corpo,
