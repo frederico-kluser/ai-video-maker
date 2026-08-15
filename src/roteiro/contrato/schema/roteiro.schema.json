@@ -1,0 +1,268 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-video-maker/schema/roteiro.schema.json",
+  "title": "Roteiro v1",
+  "description": "Schema COMPLETO (draft 2020-12) do dominio de ROTEIRO (v1, Onda 1 do app web). Este schema e o UNICO contrato do dominio (FQ-C2): additionalProperties:false em todo objeto torna a emissao de campo fora do schema IMPOSSIVEL, nao apenas desencorajada. Nenhuma URL mora aqui — gif/video anexado (anexo_hash) e audio gravado (hash_audio) sao enderecados por SHA-256 de conteudo (C7). Este schema valida; nao existe subset por fornecedor neste dominio (o schema do pedaco/roteiro basta — o subset do gerador, se vier, e decisao da Onda 2 e deriva daqui).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "pedacos",
+    "duracao_total_segundos"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "Roteiro.1"
+    },
+    "pedacos": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 40,
+      "items": {
+        "$ref": "#/$defs/Pedaco"
+      }
+    },
+    "duracao_total_segundos": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    }
+  },
+  "$defs": {
+    "BriefRoteiro": {
+      "description": "A entrada do usuario: o que vai fazer + contexto opcional + preferencias.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tema"
+      ],
+      "properties": {
+        "tema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contexto": {
+          "type": "string"
+        },
+        "publico": {
+          "type": "string"
+        },
+        "duracao_alvo_segundos": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "tom": {
+          "type": "string"
+        },
+        "exclusoes": {
+          "type": "string"
+        },
+        "nos_obrigatorios": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Narracao": {
+      "description": "Estado da narracao de um pedaco: o texto a que o audio atual corresponde, a origem (tts/gravacao/nenhuma), o hash do wav gravado (so gravacao) e o status (vazio/gerado/editado). As regras de coerencia entre os campos sao checadas semanticamente em validar.ts (regras narracao-*).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "texto",
+        "origem",
+        "status"
+      ],
+      "properties": {
+        "texto": {
+          "type": "string"
+        },
+        "origem": {
+          "enum": [
+            "tts",
+            "gravacao",
+            "nenhuma"
+          ]
+        },
+        "hash_audio": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "status": {
+          "enum": [
+            "vazio",
+            "gerado",
+            "editado"
+          ]
+        }
+      }
+    },
+    "Pedaco": {
+      "description": "Um pedaco (slide): fala narrada + visual + producao + narracao. id no formato p-<indice> (3 digitos), duracao positiva, vocabulario fechado de tipo_visual. anexo_hash e obrigatorio quando tipo_visual e gif/video (regra anexo-visual-incompativel em validar.ts).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "indice",
+        "titulo",
+        "fala",
+        "duracao_segundos",
+        "tipo_visual",
+        "especificacao_visual",
+        "detalhes_de_producao",
+        "narracao"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^p-[0-9]{3}$"
+        },
+        "indice": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "titulo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fala": {
+          "type": "string"
+        },
+        "duracao_segundos": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "tipo_visual": {
+          "enum": [
+            "manim",
+            "grafico",
+            "gif",
+            "video",
+            "texto",
+            "lista",
+            "cabecalho"
+          ]
+        },
+        "especificacao_visual": {
+          "type": "string",
+          "minLength": 1
+        },
+        "detalhes_de_producao": {
+          "type": "string",
+          "minLength": 1
+        },
+        "narracao": {
+          "$ref": "#/$defs/Narracao"
+        },
+        "anexo_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "EdicaoPedaco": {
+      "description": "Delta de edicao do usuario sobre um pedaco (pedacos_editados do projeto). Identidade (id/indice) e narracao nunca sao editaveis por aqui — narracao muda so pelos endpoints de narracao.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "titulo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fala": {
+          "type": "string"
+        },
+        "duracao_segundos": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "tipo_visual": {
+          "enum": [
+            "manim",
+            "grafico",
+            "gif",
+            "video",
+            "texto",
+            "lista",
+            "cabecalho"
+          ]
+        },
+        "especificacao_visual": {
+          "type": "string",
+          "minLength": 1
+        },
+        "detalhes_de_producao": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "PedidoGerarRoteiro": {
+      "description": "Entrada do gerador para gerar o roteiro COMPLETO (o stdin do CLI — api.md §CLIs). versao_* sao preenchidos pelo servidor (o cliente da API nunca os envia) e fazem parte da chave de cache (FQ-C3).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "brief",
+        "versao_contrato",
+        "versao_contrato_gerador",
+        "versao_gerador"
+      ],
+      "properties": {
+        "brief": {
+          "$ref": "#/$defs/BriefRoteiro"
+        },
+        "duracao_alvo_segundos": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "versao_contrato": {
+          "type": "string"
+        },
+        "versao_contrato_gerador": {
+          "type": "string"
+        },
+        "versao_gerador": {
+          "type": "string"
+        }
+      }
+    },
+    "PedidoRegenerarPedaco": {
+      "description": "Entrada do gerador para regenerar UM pedaco: o pedaco atual (com edicoes do usuario aplicadas) + a serializacao canonica dos irmaos (resumoDePedacos). Os irmaos nao mudam no roteiro — FQ-G2.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "brief",
+        "pedaco_atual",
+        "resumo_demais_pedacos",
+        "versao_contrato",
+        "versao_contrato_gerador",
+        "versao_gerador"
+      ],
+      "properties": {
+        "brief": {
+          "$ref": "#/$defs/BriefRoteiro"
+        },
+        "duracao_alvo_segundos": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "pedaco_atual": {
+          "$ref": "#/$defs/Pedaco"
+        },
+        "resumo_demais_pedacos": {
+          "type": "string",
+          "minLength": 1
+        },
+        "versao_contrato": {
+          "type": "string"
+        },
+        "versao_contrato_gerador": {
+          "type": "string"
+        },
+        "versao_gerador": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "id": "p-001",
+  "indice": 1,
+  "titulo": "O que e um cache",
+  "fala": "Um cache guarda o resultado de uma conta para nao refaze-la.",
+  "duracao_segundos": 12.5,
+  "tipo_visual": "manim",
+  "especificacao_visual": "Animacao estilo 3b1b: uma funcao chamada e o resultado guardado num quadrado laranja",
+  "detalhes_de_producao": "Cena Manim com MathTex e shapes; render headless via estagio grafico",
+  "narracao": {
+    "texto": "",
+    "origem": "nenhuma",
+    "status": "vazio"
+  },
+  "cor": "#ffffff"
+}

@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-video-maker/schema/pedaco.schema.json",
+  "title": "Pedaco v1",
+  "description": "Schema do Pedaco ISOLADO — para endpoints que recebem/validam UM pedaco (o pedaco_atual de um PedidoRegenerarPedaco, por exemplo). E um alias do $defs/Pedaco de roteiro.schema.json: o pedaco e o UNICO contrato, em um so lugar (FQ-C2) — este arquivo nao duplica definicao nenhuma. Para a edicao parcial do usuario, o contrato e EdicaoPedaco (em roteiro.schema.json), nao este schema.",
+  "$ref": "https://ai-video-maker/schema/roteiro.schema.json#/$defs/Pedaco"
+}

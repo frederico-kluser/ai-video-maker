@@ -1,0 +1,11 @@
+{
+  "tema": "Como funciona um cache de computador",
+  "contexto": "Video educativo para iniciantes em programacao",
+  "publico": "Iniciantes",
+  "duracao_alvo_segundos": 30,
+  "tom": "didatico",
+  "exclusoes": "Nada de jargao de banco de dados",
+  "nos_obrigatorios": [
+    "grafico"
+  ]
+}
