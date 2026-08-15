@@ -25,8 +25,9 @@ export function formatarDuracao(segundos: number): string {
   if (total < 60) {
     return `${total.toLocaleString("pt-BR")}${SUFIXO_DE_SEGUNDOS}`;
   }
-  const minutos = Math.floor(total / 60);
-  const restoSegundos = Math.round(total % 60);
+  const totalArredondado = Math.round(total);
+  const minutos = Math.floor(totalArredondado / 60);
+  const restoSegundos = totalArredondado % 60;
   if (minutos < 60) {
     return restoSegundos === 0 ? `${minutos}min` : `${minutos}min ${restoSegundos}${SUFIXO_DE_SEGUNDOS}`;
   }

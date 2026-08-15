@@ -27,6 +27,13 @@ describe("formatarDuracao", () => {
     expect(formatarDuracao(7540)).toBe("2h 5min");
   });
 
+  it("resto de segundos nunca vaza para 60 (arredonda o total primeiro)", () => {
+    expect(formatarDuracao(119.4)).toBe("1min 59s");
+    expect(formatarDuracao(119.6)).toBe("2min");
+    expect(formatarDuracao(119.96)).toBe("2min");
+    expect(formatarDuracao(179.9)).toBe("3min");
+  });
+
   it("fracoes com virgula pt-BR", () => {
     expect(formatarDuracao(12.5)).toBe("12,5s");
     expect(formatarDuracao(0.5)).toBe("0,5s");
