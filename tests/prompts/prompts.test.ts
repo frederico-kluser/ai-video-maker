@@ -31,8 +31,9 @@
 // =============================================================================
 
 import { describe, it, expect } from "vitest";
-import { readFileSync, readdirSync, existsSync } from "node:fs";
-import { resolve, dirname, basename } from "node:path";
+import { readFileSync, readdirSync, existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { resolve, dirname, basename, join } from "node:path";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { validarSaidaAutoria } from "src/autoria/contrato/validar.js";
 
@@ -70,6 +71,72 @@ function listAllMarkdown(): string[] {
 
 function readJson(path: string): unknown {
   return JSON.parse(readFileSync(path, "utf8"));
+}
+
+// ---------------------------------------------------------------------------
+// Varredura da fonte unica do dicionario — em duas fases, para a corrida
+// readdir→read ser testavel (sonda negativa C2).
+// ---------------------------------------------------------------------------
+
+/**
+ * Fase 1 — coleta recursiva dos candidatos (.md/.ts/.json) sob `raizes`,
+ * fora de docs/autoria/prompts/ e de diretorios de infraestrutura.
+ * Extraida do teste de fonte unica sem mudanca de comportamento.
+ */
+export function coletarArquivosExternos(raizes: string[]): string[] {
+  const fora: string[] = [];
+  for (const base of raizes) {
+    if (!existsSync(base)) continue;
+    const pilha = [base];
+    while (pilha.length) {
+      const atual = pilha.pop() as string;
+      if (atual.startsWith(promptsDir)) continue;
+      for (const entry of readdirSync(atual, { withFileTypes: true })) {
+        const full = resolve(atual, entry.name);
+        if (entry.isDirectory()) {
+          if (entry.name === "node_modules" || entry.name.startsWith(".")) continue;
+          pilha.push(full);
+        } else if (
+          entry.name.endsWith(".md") ||
+          entry.name.endsWith(".ts") ||
+          entry.name.endsWith(".json")
+        ) {
+          fora.push(full);
+        }
+      }
+    }
+  }
+  return fora;
+}
+
+/**
+ * Fase 2 — leitura dos candidatos e apuracao das violacoes (arquivo que
+ * define '| <termo> |'). Tolerante a ENOENT: um arquivo que some entre a
+ * coleta (readdirSync) e esta leitura e PULADO, nunca lancado. POR QUE:
+ * tests/render/encode/perfis.test.ts grava e remove AO VIVO a sonda negativa
+ * src/render/encode/perfis/invalido-sem-alvo.ts na arvore de descoberta
+ * (Regra 6 — a sonda NAO pode sair da arvore). Se a remocao cair na janela
+ * entre o readdir desta suite e o read, a suite inteira caia com ENOENT
+ * (medido: 2 de 6 execucoes). O arquivo efemero nao e conteudo estatico:
+ * pular e o comportamento correto, lancar e a corrida.
+ */
+export function lerViolacoesDeTermos(arquivos: string[], termos: string[]): string[] {
+  const violacoes: string[] = [];
+  for (const arquivo of arquivos) {
+    let conteudo: string;
+    try {
+      conteudo = readFileSync(arquivo, "utf8");
+    } catch (erro) {
+      if ((erro as { code?: string }).code === "ENOENT") continue;
+      throw erro;
+    }
+    for (const termo of termos) {
+      if (conteudo.includes(`| ${termo} |`)) {
+        violacoes.push(`${arquivo.replace(rootDir, ".")} define '| ${termo} |'`);
+      }
+    }
+  }
+  return violacoes;
 }
 
 // ---------------------------------------------------------------------------
@@ -361,41 +428,37 @@ describe("F4-02 — dicionario de pronuncia e fonte unica", () => {
 
   it("nenhum arquivo FORA de docs/autoria/prompts/ define '| <termo> |' (fonte unica)", () => {
     const termos = termosDoDicionario();
-    const dirsExternos = ["docs", "src", ".agents"];
-    const fora: string[] = [];
-    for (const d of dirsExternos) {
-      const base = resolve(rootDir, d);
-      if (!existsSync(base)) continue;
-      const pilha = [base];
-      while (pilha.length) {
-        const atual = pilha.pop() as string;
-        if (atual.startsWith(promptsDir)) continue;
-        for (const entry of readdirSync(atual, { withFileTypes: true })) {
-          const full = resolve(atual, entry.name);
-          if (entry.isDirectory()) {
-            if (entry.name === "node_modules" || entry.name.startsWith(".")) continue;
-            pilha.push(full);
-          } else if (
-            entry.name.endsWith(".md") ||
-            entry.name.endsWith(".ts") ||
-            entry.name.endsWith(".json")
-          ) {
-            fora.push(full);
-          }
-        }
-      }
-    }
-
-    const violacoes: string[] = [];
-    for (const arquivo of fora) {
-      const conteudo = readFileSync(arquivo, "utf8");
-      for (const termo of termos) {
-        if (conteudo.includes(`| ${termo} |`)) {
-          violacoes.push(`${arquivo.replace(rootDir, ".")} define '| ${termo} |'`);
-        }
-      }
-    }
+    const violacoes = lerViolacoesDeTermos(
+      coletarArquivosExternos(["docs", "src", ".agents"].map((d) => resolve(rootDir, d))),
+      termos,
+    );
     expect(violacoes).toEqual([]);
+  });
+
+  it("sonda negativa (C2): a varredura tolera ENOENT entre o readdir e o read", () => {
+    // Reproduz a corrida real: perfis.test.ts grava e remove AO VIVO a sonda
+    // src/render/encode/perfis/invalido-sem-alvo.ts (Regra 6) enquanto esta
+    // suite varre src/ recursivamente. Se a remocao cair entre a coleta
+    // (readdirSync) e a leitura (readFileSync), a suite inteira caia com
+    // ENOENT. Aqui o mesmo padrao e exercitado em sequencia deterministica:
+    // o arquivo listado e apagado antes do read — a varredura tem de seguir
+    // sem lancar. Sem a tolerancia, este teste falha (sonda negativa).
+    const tmp = mkdtempSync(join(tmpdir(), "prompts-varredura-"));
+    try {
+      const sonda = join(tmp, "sonda-efemera.ts");
+      writeFileSync(sonda, "| termo-fantasma |\n");
+      // Fase 1 — varredura: coleta o candidato enquanto ele existe.
+      const coletados = coletarArquivosExternos([tmp]);
+      expect(coletados).toContain(sonda);
+      // Fase 2 — a sonda efemera some antes da leitura (a corrida real).
+      rmSync(sonda, { force: true });
+      // Fase 3 — leitura tolerante: nao lanca e o arquivo sumido nao vira
+      // violacao.
+      expect(() => lerViolacoesDeTermos(coletados, ["termo-fantasma"])).not.toThrow();
+      expect(lerViolacoesDeTermos(coletados, ["termo-fantasma"])).toEqual([]);
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
   });
 
   it("prompts citam o dicionario por caminho e nao duplicam a tabela", () => {
