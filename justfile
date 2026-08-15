@@ -72,6 +72,8 @@ fmt:
 # NOTA (MEDIDO): just 1.42.4 NAO aceita ':' em nomes de receita — os
 # nomes pedidos (dev:studio, build:web, e2e-web) usam underscore.
 dev: build_web
+    @echo "=== Editor de Video IA — abrindo o site em http://localhost:4610 ==="
+    (sleep 2; xdg-open http://localhost:4610 > /dev/null 2>&1 || true) &
     npx tsx src/web/servidor.ts
 
 # Preserva o Remotion Studio (o antigo "dev" — o editor direto)

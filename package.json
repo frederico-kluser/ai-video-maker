@@ -10,7 +10,10 @@
     "lint": "echo 'TS lint: tsc --noEmit' && tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "render": "echo 'Render placeholder — use Remotion Studio or npx remotion render'",
-    "dev": "npx remotion studio"
+    "dev": "just dev",
+    "dev:studio": "npx remotion studio",
+    "build:web": "cd src/web/ui && npx vite build",
+    "e2e:web": "just e2e_web"
   },
   "dependencies": {
     "@remotion/captions": "4.0.507",
