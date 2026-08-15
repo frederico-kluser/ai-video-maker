@@ -24,6 +24,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@remotion/bundler": "4.0.507",
     "@remotion/cli": "4.0.507",
     "@types/node": "^26.2.0",
