@@ -38,6 +38,7 @@ import {
   construirManifesto,
   duracaoEmFrames,
   reduzirManifesto,
+  ErroNarracaoInconsistente,
   ErroOpcoesInvalidas,
   ErroReduzirManifesto,
 } from "../../src/roteiro/construir/construir.js";
@@ -357,6 +358,36 @@ describe("anexo — gif/video sem anexo_hash e erro nomeado", () => {
     expect(() => mapearPedacoParaNo(pedacoGifSemAnexo, "n-000", 120)).toThrow(
       ErroAnexoAusente,
     );
+  });
+
+  it("origem real com texto vazio e recusado pelo CONTRATO (ErroContratoRoteiro) antes do guard", () => {
+    // {texto:"", origem:"tts", status:"editado"} com fala nao-vazia passava
+    // no contrato antigo e o guard anonimo do construtor era o unico que
+    // pegava (500 generico no servidor). Com a regra origem-real-sem-texto
+    // no contrato, o roteiro e rejeitado no gate de entrada — o guard
+    // nomeado nunca chega a rodar.
+    const roteiro = carregarRoteiro("roteiro-com-narracao.json");
+    const mutado: Roteiro = {
+      ...roteiro,
+      pedacos: roteiro.pedacos.map((pedaco, i) =>
+        i === 1
+          ? { ...pedaco, narracao: { ...pedaco.narracao, texto: "", status: "editado" } }
+          : pedaco,
+      ),
+    };
+    let lancou = false;
+    try {
+      construirManifesto(mutado);
+    } catch (erro) {
+      lancou = true;
+      expect(erro).toBeInstanceOf(ErroContratoRoteiro);
+      expect(erro).not.toBeInstanceOf(ErroNarracaoInconsistente);
+      expect(String(erro)).toContain("origem-real-sem-texto");
+    }
+    expect(
+      lancou,
+      "origem real com texto vazio tem de ser recusado como ErroContratoRoteiro (400), nunca erro anonimo",
+    ).toBe(true);
   });
 
   it("anexo em pedaco texto e recusado (anexo-proibido-outros)", () => {

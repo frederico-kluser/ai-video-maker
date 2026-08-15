@@ -61,6 +61,8 @@ export const REGRA_GERADO_SEM_ORIGEM = "gerado-sem-origem";
 export const REGRA_GERADO_DESSINCRONIZADO = "gerado-dessincronizado";
 /** status "editado" exige texto da narracao != fala (audio stale). */
 export const REGRA_EDITADO_SINCRONIZADO = "editado-sincronizado";
+/** origem real (tts/gravacao) exige texto nao-vazio (a cena sem texto derrubaria o estagio locucao). */
+export const REGRA_ORIGEM_REAL_SEM_TEXTO = "origem-real-sem-texto";
 /** tipo_visual gif/video exige anexo_hash + anexo_meta (C7 — o anexo do usuario). */
 export const REGRA_ANEXO_EXIGIDO = "anexo-exigido-para-gif-video";
 /** anexo_hash/anexo_meta so existem com tipo_visual gif/video. */
@@ -143,6 +145,22 @@ function semanticaDoPedaco(pedaco: Pedaco, caminho: string): string[] {
   const problemas: string[] = [];
   const { fala, narracao, tipo_visual } = pedaco;
 
+  // Identidade autocontida do pedaco: o sufixo numerico do id casa o
+  // indice (REGRA_ID_INDICE) — o pedaco carrega id E indice, entao a
+  // checagem vale tambem para o pedaco ISOLADO (validarPedaco) e para o
+  // pedaco_atual de um PedidoRegenerarPedaco (o gate da regeneracao nao
+  // pode aceitar um pedaco com identidade inconsistente). A posicao no
+  // array (REGRA_INDICES) e que permanece no Roteiro — o pedaco sozinho
+  // nao tem posicao.
+  const sufixo = PADRAO_ID_PEDACO.exec(pedaco.id)?.[1];
+  const indiceDoId = sufixo === undefined ? -1 : Number(sufixo);
+  if (indiceDoId !== pedaco.indice) {
+    problemas.push(
+      `${caminho}: regra ${REGRA_ID_INDICE} — o sufixo do id "${pedaco.id}" ` +
+        `nao casa o indice ${String(pedaco.indice)}`,
+    );
+  }
+
   if (fala === "") {
     if (narracao.origem !== "nenhuma" || narracao.status !== "vazio" || narracao.texto !== "") {
       problemas.push(
@@ -163,6 +181,19 @@ function semanticaDoPedaco(pedaco: Pedaco, caminho: string): string[] {
         problemas.push(
           `${caminho}.narracao: regra ${REGRA_GRAVACAO_SEM_HASH} — ` +
             `origem "gravacao" exige hash_audio (o sha256 do wav 48k estéreo)`,
+        );
+      }
+    }
+    // Origem real (tts/gravacao) exige texto nao-vazio — incondicional
+    // (qualquer que seja o status): a cena sem texto derrubaria o estagio
+    // locucao em silencio. Com fala vazia a regra narracao-fala-vazia ja
+    // domina (o branch acima), e origem "nenhuma" exige texto "".
+    if (narracao.origem === "tts" || narracao.origem === "gravacao") {
+      if (narracao.texto === "") {
+        problemas.push(
+          `${caminho}.narracao: regra ${REGRA_ORIGEM_REAL_SEM_TEXTO} — ` +
+            `origem real ("${narracao.origem}") exige texto nao-vazio — o ` +
+            `estagio locucao recusaria a cena em silencio`,
         );
       }
     }
@@ -264,14 +295,10 @@ function semanticaDoRoteiro(roteiro: Roteiro): string[] {
       problemas.push(`${caminho}: regra ${REGRA_IDS_DUPLICADOS} — id "${pedaco.id}" duplicado`);
     }
     vistos.add(pedaco.id);
-    const sufixo = PADRAO_ID_PEDACO.exec(pedaco.id)?.[1];
-    const indiceDoId = sufixo === undefined ? -1 : Number(sufixo);
-    if (indiceDoId !== pedaco.indice) {
-      problemas.push(
-        `${caminho}: regra ${REGRA_ID_INDICE} — o sufixo do id "${pedaco.id}" ` +
-          `nao casa o indice ${String(pedaco.indice)}`,
-      );
-    }
+    // REGRA_ID_INDICE vive em semanticaDoPedaco (o pedaco carrega id E
+    // indice — checagem autocontida; chega aqui por composicao, sem
+    // duplicacao de mensagem). REGRA_INDICES — posicao no array — e que
+    // e so do roteiro.
     soma += pedaco.duracao_segundos;
     problemas.push(...semanticaDoPedaco(pedaco, caminho));
   }

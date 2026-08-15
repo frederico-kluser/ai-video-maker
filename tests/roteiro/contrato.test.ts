@@ -41,6 +41,7 @@ import {
   REGRA_INDICES,
   REGRA_JUNTAR_FALA_SEM_NARRACAO,
   REGRA_NARRACAO_FALA_VAZIA,
+  REGRA_ORIGEM_REAL_SEM_TEXTO,
   REGRA_STATUS_VAZIO,
   REGRA_VERSAO,
   validarBriefRoteiro,
@@ -181,6 +182,24 @@ describe("FQ-C1 — pedaco invalido e REJEITADO com erro nomeado", () => {
       REGRA_EDITADO_SINCRONIZADO,
     ],
     [
+      "origem real com texto vazio (a cena derrubaria o estagio locucao)",
+      (p) => ({ ...p, narracao: { texto: "", origem: "tts", status: "editado" } }),
+      REGRA_ORIGEM_REAL_SEM_TEXTO,
+    ],
+    [
+      "origem real (gravacao) com texto vazio e hash_audio presente",
+      (p) => ({
+        ...p,
+        narracao: {
+          texto: "",
+          origem: "gravacao",
+          hash_audio: "9f8e7d6c5b4a39281706f5e4d3c2b1a0ffeeddccbbaa99887766554433221100",
+          status: "editado",
+        },
+      }),
+      REGRA_ORIGEM_REAL_SEM_TEXTO,
+    ],
+    [
       "tipo_visual gif sem anexo (regra anexo-exigido-para-gif-video)",
       (p) => ({ ...p, tipo_visual: "gif" }),
       REGRA_ANEXO_EXIGIDO,
@@ -306,6 +325,22 @@ describe("FQ-C1 — pedaco invalido e REJEITADO com erro nomeado", () => {
     expect(problemasDe(resultado.problemas, REGRA_ID_INDICE)).toBe(true);
   });
 
+  it("rejeita PEDACO ISOLADO cujo id nao casa o indice (regra id-nao-casa-indice no pedaco)", () => {
+    // O pedaco carrega id E indice — a identidade e autocontida: o
+    // validarPedaco standalone tem de rejeitar id/indice divergentes,
+    // nao so o roteiro (posicao no array).
+    const pedaco = carregar("pedaco-valido.json") as Pedaco;
+    const divergente = { ...pedaco, indice: 2 };
+    const resultado = validarPedaco(divergente);
+    expect(resultado.valido, resultado.problemas.join("; ")).toBe(false);
+    expect(problemasDe(resultado.problemas, REGRA_ID_INDICE)).toBe(true);
+    // O inverso tambem: id divergente com indice correto.
+    const idDivergente = { ...pedaco, id: "p-099" };
+    const resultado2 = validarPedaco(idDivergente);
+    expect(resultado2.valido, resultado2.problemas.join("; ")).toBe(false);
+    expect(problemasDe(resultado2.problemas, REGRA_ID_INDICE)).toBe(true);
+  });
+
   it("rejeitarRoteiroInvalido lanca o erro nomeado", () => {
     expect(() => rejeitarRoteiroInvalido(carregar("roteiro-duracao-total-errada.json"))).toThrow(
       ErroContratoRoteiro,
@@ -342,6 +377,30 @@ describe("FQ-C1 — pedaco invalido e REJEITADO com erro nomeado", () => {
 
     const regenerar = validarPedidoRegenerarPedaco(carregar("pedido-regenerar-valido.json"));
     expect(regenerar.valido, regenerar.problemas.join("; ")).toBe(true);
+  });
+
+  it("pedido de regeneracao com pedaco_atual id/indice divergentes e rejeitado com a regra nomeada", () => {
+    // O MESMO pedaco num Roteiro ja era rejeitado; num PedidoRegenerarPedaco
+    // passava — e o gate da regeneracao aceitava e CACHEAVA o pedaco
+    // regenerado com identidade inconsistente (o gerador reaplica
+    // id/indice do pedido). Com a regra no pedaco, o pedido cai no
+    // gate antes de qualquer cache.
+    const pedido = carregar("pedido-regenerar-valido.json") as Record<string, unknown>;
+    const divergente = {
+      ...pedido,
+      pedaco_atual: { ...(pedido.pedaco_atual as Record<string, unknown>), indice: 5 },
+    };
+    const resultado = validarPedidoRegenerarPedaco(divergente);
+    expect(resultado.valido, resultado.problemas.join("; ")).toBe(false);
+    expect(problemasDe(resultado.problemas, REGRA_ID_INDICE)).toBe(true);
+
+    const idDivergente = {
+      ...pedido,
+      pedaco_atual: { ...(pedido.pedaco_atual as Record<string, unknown>), id: "p-099" },
+    };
+    const resultado2 = validarPedidoRegenerarPedaco(idDivergente);
+    expect(resultado2.valido, resultado2.problemas.join("; ")).toBe(false);
+    expect(problemasDe(resultado2.problemas, REGRA_ID_INDICE)).toBe(true);
   });
 });
 

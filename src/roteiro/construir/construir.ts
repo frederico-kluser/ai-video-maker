@@ -113,6 +113,26 @@ export class ErroReduzirManifesto extends Error {
   }
 }
 
+/**
+ * Erro nomeado: narracao com origem real (tts/gravacao) e texto vazio.
+ *
+ * Defesa em profundidade: com a regra origem-real-sem-texto no contrato
+ * (validar.ts) o roteiro chega aqui ja validado e o guard fica morto —
+ * mas se algum dia a regra falhar, o erro sai NOMEADO (code
+ * NARRACAO_INCONSISTENTE), nunca anonimo (que viraria 500 generico no
+ * servidor em vez de um erro identificavel).
+ */
+export class ErroNarracaoInconsistente extends Error {
+  readonly code = "NARRACAO_INCONSISTENTE";
+  constructor(pedacoId: string, origem: string) {
+    super(
+      `pedaco "${pedacoId}": narracao com origem "${origem}" e texto vazio — ` +
+        `o estagio locucao recusaria a cena em silencio`,
+    );
+    this.name = "ErroNarracaoInconsistente";
+  }
+}
+
 // ─── Helpers puros ────────────────────────────────────────────────────────────
 
 /**
@@ -192,8 +212,11 @@ function validarOpcoes(opcoes: OpcoesConstruirManifesto): void {
  *      emite manifesto invalido.
  *
  * @throws ErroContratoRoteiro (roteiro invalido — inclui gif/video sem
- *   anexo: regra anexo-exigido-para-gif-video), ErroOpcoesInvalidas,
- *   ErroDuracaoInsuficiente, ErroAnexoAusente, ErroManifestoInvalido.
+ *   anexo: regra anexo-exigido-para-gif-video; e origem real sem texto:
+ *   regra origem-real-sem-texto), ErroOpcoesInvalidas,
+ *   ErroDuracaoInsuficiente, ErroAnexoAusente, ErroManifestoInvalido,
+ *   ErroNarracaoInconsistente (defesa em profundidade — inalcancavel
+ *   com o contrato exigindo origem-real-sem-texto).
  */
 export function construirManifesto(
   roteiro: Roteiro,
@@ -268,13 +291,11 @@ export function construirManifesto(
       pedaco.narracao.origem === "gravacao"
     ) {
       if (pedaco.narracao.texto.trim() === "") {
-        // Inalcancavel com roteiro valido (validarRoteiro exige texto
-        // nao-vazio com origem real), mas fail-closed: a cena sem texto
-        // derrubaria o estagio locucao (ELocucaoSemTexto) no render.
-        throw new Error(
-          `pedaco "${pedaco.id}": narracao com origem "${pedaco.narracao.origem}" ` +
-            `e texto vazio — o estagio locucao recusaria a cena em silencio`,
-        );
+        // Inalcancavel com roteiro valido (o contrato exige texto
+        // nao-vazio com origem real — regra origem-real-sem-texto), mas
+        // fail-closed: a cena sem texto derrubaria o estagio locucao
+        // (ELocucaoSemTexto) no render. Erro NOMEADO, nunca anonimo.
+        throw new ErroNarracaoInconsistente(pedaco.id, pedaco.narracao.origem);
       }
       let hashLocucao: string;
       if (pedaco.narracao.origem === "gravacao") {
