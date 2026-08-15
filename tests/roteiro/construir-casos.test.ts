@@ -20,10 +20,11 @@
  *   - roteiro vazio (schema: pedacos 1..40) e pedacos sem fala
  *     (record-first: cena silenciosa, duracao conta);
  *   - o guard fail-closed de narracao com origem real e texto vazio —
- *     ALCANCAVEL via API publica (validarRoteiro aceita
- *     {texto:"", origem:"tts", status:"editado"} com fala nao-vazia;
- *     sondado em 2026-08-14) — lancou Error anonimo, nunca manifesto
- *     invalido;
+ *     o CONTRATO RECUSA antes do guard do construtor (regra
+ *     origem-real-sem-texto em validar.ts, desde
+ *     onda5-fix-contrato-validar): ErroContratoRoteiro nomeado, nunca
+ *     manifesto invalido — o guard do construtor virou defesa em
+ *     profundidade;
  *   - reduzirManifesto: cena SEM nos, cena com nos quebrada (TypeError
  *     propagado — nunca engolido), trilha sonora `audio` REMOVIDA na
  *     reducao (a musica entra no juntar, nunca no preview de um pedaco)
@@ -360,15 +361,15 @@ describe("construirManifesto — roteiro vazio e pedacos sem fala", () => {
 // ─── Guard fail-closed alcançavel: origem real com texto vazio ────────────────
 
 describe("construirManifesto — narracao com origem real e texto vazio (guard fail-closed)", () => {
-  it("roterio ACEITO pelo contrato, mas o construtor recusa (nunca texto_locucao vazio)", () => {
-    // ACHADO (sondado em 2026-08-14): validarRoteiro ACEITA
-    // {texto: "", origem: "tts", status: "editado"} com fala nao-vazia —
-    // nenhuma regra do contrato exige texto nao-vazio com origem real.
-    // O guard de construir.ts:270 e portanto ALCANCAVEL pela API publica
-    // (o comentario no fonte diz "inalcancavel" — premissa errada). O
-    // comportamento e fail-closed (nunca emite manifesto invalido), mas o
-    // erro lancado e um Error ANONIMO, fora da taxonomia nomeada do
-    // construtor — ver handoff.
+  it("contrato RECUSA origem real com texto vazio (regra origem-real-sem-texto) — nunca texto_locucao vazio", () => {
+    // {texto: "", origem: "tts", status: "editado"} com fala nao-vazia
+    // passava no contrato antigo e o guard do construtor era o unico que
+    // pegava (ACHADO sondado em 2026-08-14). Com a regra
+    // origem-real-sem-texto no contrato (onda5-fix-contrato-validar),
+    // validarRoteiro rejeita o roteiro no gate de entrada: o erro sai
+    // ErroContratoRoteiro NOMEADO, nunca manifesto invalido — o guard do
+    // construtor virou defesa em profundidade (mesma cena coberta em
+    // construir.test.ts:360).
     const roteiro = carregarRoteiro("roteiro-com-narracao.json");
     const mutado: Roteiro = {
       ...roteiro,
@@ -387,8 +388,9 @@ describe("construirManifesto — narracao com origem real e texto vazio (guard f
       construirManifesto(mutado);
     } catch (erro) {
       lancou = true;
-      expect(String(erro)).toContain('pedaco "p-001"');
-      expect(String(erro)).toContain("texto vazio");
+      expect(erro).toBeInstanceOf(ErroContratoRoteiro);
+      expect(String(erro)).toContain("origem-real-sem-texto");
+      expect(String(erro)).toContain("texto nao-vazio");
       expect(String(erro)).toContain("estagio locucao");
     }
     expect(lancou, "cena com texto_locucao vazio nunca pode ser emitida").toBe(true);

@@ -47,7 +47,7 @@ describe("cache do gerador — o store (src/roteiro/gerador/cache.ts)", () => {
   it("escreverNoCache + lerDoCache: roundtrip, e a escrita e ATOMICA — nenhum .tmp-* sobra no diretorio (S-8)", () => {
     const diretorio = cacheTmp();
     definirDiretorioCache(diretorio);
-    const chave = chaveDoStore("contrato-abc", "prompt xyz");
+    const chave = chaveDoStore("contrato-abc", "prompt xyz", "fp-teste");
     const saida = { pedacos: [1, 2], total: 3 };
 
     escreverNoCache(chave, saida);
@@ -74,13 +74,13 @@ describe("cache do gerador — o store (src/roteiro/gerador/cache.ts)", () => {
   });
 
   it("chaveDoStore e deterministica e distingue chave do contrato e prompt (C12): 2x = mesma; trocou qualquer lado, trocou a chave", () => {
-    expect(chaveDoStore("A", "p1")).toBe(chaveDoStore("A", "p1"));
-    expect(chaveDoStore("A", "p1")).not.toBe(chaveDoStore("B", "p1"));
-    expect(chaveDoStore("A", "p1")).not.toBe(chaveDoStore("A", "p2"));
+    expect(chaveDoStore("A", "p1", "fp-teste")).toBe(chaveDoStore("A", "p1", "fp-teste"));
+    expect(chaveDoStore("A", "p1", "fp-teste")).not.toBe(chaveDoStore("B", "p1", "fp-teste"));
+    expect(chaveDoStore("A", "p1", "fp-teste")).not.toBe(chaveDoStore("A", "p2", "fp-teste"));
     // A composicao e sha256(contrato + ":" + sha256(prompt)): a chave final
     // e 64 hex — e o sha256 do prompt entra por dentro (prompt novo, chave nova).
-    expect(chaveDoStore("A", "p1")).toMatch(/^[0-9a-f]{64}$/);
-    expect(chaveDoStore("A", "p1")).not.toBe(sha256("A"));
-    expect(chaveDoStore("A", "p1")).not.toBe(sha256("p1"));
+    expect(chaveDoStore("A", "p1", "fp-teste")).toMatch(/^[0-9a-f]{64}$/);
+    expect(chaveDoStore("A", "p1", "fp-teste")).not.toBe(sha256("A"));
+    expect(chaveDoStore("A", "p1", "fp-teste")).not.toBe(sha256("p1"));
   });
 });
