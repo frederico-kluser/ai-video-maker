@@ -111,9 +111,14 @@ beforeAll(() => {
     "-t", "1",
     PREVIEW_MONO,
   ]);
+  // Trilha de fundo em 2000 Hz, de proposito: a sonda da musica no mix
+  // (FQ-J5) mede a banda da trilha no CODIFICADO, e a banda de 220 Hz
+  // fica contaminada pela saia espectral dos tons de fala codificados em
+  // AAC (medido: a banda 220 sem musica le -34.7 dB contra -62.5 dB na
+  // banda 2000 — a diferencial da sonda precisa de uma banda limpa).
   execFileSync("ffmpeg", [
     "-y", "-hide_banner", "-loglevel", "error",
-    "-f", "lavfi", "-i", "sine=frequency=220:sample_rate=48000:duration=2",
+    "-f", "lavfi", "-i", "sine=frequency=2000:sample_rate=48000:duration=2",
     "-c:a", "pcm_f32le",
     MUSICA,
   ]);
@@ -461,6 +466,44 @@ describe("FQ-J5 — normalizacao EBU R128 aplicada e registrada", () => {
     expect(sidecar.musica.aplicada).toBe(true);
     expect(sidecar.musica.ganho_db).toBe(-20);
   }, 240_000);
+});
+
+// ─── Sonda da musica no mix (o revisor: FQ-J5 nao tem sonda propria) ──────────
+
+describe("FQ-J5 — a musica ESTA no mix (bandpass na frequencia da trilha)", () => {
+  it(
+    "com musica: energia da banda da trilha (2000 Hz) no entregavel muito acima do caso sem musica",
+    async () => {
+      // A sonda que a suite nao tinha: `musicaAplicada: true` e o sidecar
+      // continuariam verdes se misturarMusica virasse no-op (ganho 0,
+      // musica descartada) — a energia da frequencia da trilha no
+      // CODIFICADO e a prova de que a musica chegou ao som final.
+      const roteiro = roteiroDeTeste([{ id: "p-000" }, { id: "p-001" }]);
+      const semMusica = await juntar(
+        roteiro,
+        opcoesDeTeste({ "p-000": PREVIEW_440, "p-001": PREVIEW_660 }),
+      );
+      const comMusica = await juntar(
+        roteiro,
+        opcoesDeTeste(
+          { "p-000": PREVIEW_440, "p-001": PREVIEW_660 },
+          { musica_caminho: MUSICA },
+        ),
+      );
+      // A trilha e um seno de 2000 Hz (2s) misturado em -20 dB; os tons
+      // da fala sao 440/660/880 e a banda 1940..2060 Hz e limpa de ambos
+      // (medido: -62 dB sem musica contra -32 dB com musica) — a janela e
+      // a mesma nos dois lados; o loudness normaliza os dois masters.
+      const bandaComMusica = await volumeNaBanda(comMusica.caminho, 0.25, 2000);
+      const bandaSemMusica = await volumeNaBanda(semMusica.caminho, 0.25, 2000);
+      // Piso: a musica esta la, em nivel audivel (nao -60 dB de ruido).
+      expect(bandaComMusica).toBeGreaterThan(-45);
+      // Diferencial: sem a mistura (ou com ganho zerado), a banda do caso
+      // com musica colapsa para o nivel do caso sem musica — vermelho.
+      expect(bandaComMusica - bandaSemMusica).toBeGreaterThan(6);
+    },
+    240_000,
+  );
 });
 
 // ─── Gates: 409 antes de qualquer trabalho ────────────────────────────────────
