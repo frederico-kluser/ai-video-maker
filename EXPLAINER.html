@@ -1,39 +1,5 @@
 <!doctype html>
-<!--
-  TEMPLATE — EXPLAINER do deep-orchestrator.
 
-  Uso: o orquestrador, na fase COMMIT-FINAL, preenche este template e entrega o
-  EXPLAINER.html da execução. Duas formas de preencher:
-
-  1. TOKENS INLINE  — substituição simples de string. Cada token {{NOME}} é
-     trocado pelo valor real:
-       3.2.0  2026-08-14  main  Execu&ccedil;&atilde;o que corrigiu os 4 problemas do v&iacute;deo gerado (textos sobrepostos, sem matem&aacute;tica 3blue1brown, sem GIF com texto, fundo n&atilde;o-preto) e produziu um NOVO v&iacute;deo final verificado por conte&uacute;do — com 4 ondas, 17 sub-agentes e 5 squash commits.
-       4  17  5
-     Os tokens inline aparecem na navbar, no hero, nos cards de estatística,
-     no rodapé e na tabela de placeholders da aba "Visão geral".
-
-  2. SLOTS — bloco substituído INTEIRO, delimitado por um par de comentários
-     HTML: um com o texto {{SLOT}} begin e outro com {{SLOT}} end (sem os
-     delimitadores — veja os exemplos reais no corpo do arquivo). O gerador
-     substitui TUDO entre o par pelo conteúdo real. O que está entre os
-     marcadores é apenas conteúdo de demonstração (fallback) e morre na geração.
-       {{WAVES_TABLE}}   (aba Ondas — <table> com colunas Onda|Worktree|Tarefas|Commits|Status)
-       {{FILES_TABLE}}   (aba Arquivos — <table> com colunas Arquivo|Tipo|Diff)
-       {{COMMITS_LIST}}  (aba Arquivos — lista de commits squash)
-       {{BEFORE_AFTER}}  (aba De-Para — cards Antes/Depois + seções de-para adicionais)
-       {{IMPACT}}        (aba De-Para — lista de impactos da execução)
-       {{CAPABILITIES}}  (aba De-Para — grid de novas capacidades)
-       {{DECISIONS}}     (aba Decisões — lista de premissas inferidas)
-       {{TIMELINE}}      (aba Timeline — linha do tempo da execução)
-
-  Exemplo de geração manual:
-       ./scripts/generate-explainer.sh > EXPLAINER.html
-  Ou: preencha os tokens/slots com sed/awk e salve como EXPLAINER.html.
-
-  Arquivo único, sem build: Bootstrap 5 + Bootstrap Icons + highlight.js por CDN
-  (versões travadas com SRI). Abre com duplo clique (file://) e imprime em PDF
-  com todas as abas.
--->
 <html lang="pt-BR" data-bs-theme="dark">
 <head>
 <meta charset="utf-8">
@@ -178,7 +144,7 @@
 <nav class="navbar navbar-expand-lg sticky-top bg-body-tertiary">
   <div class="container">
     <span class="navbar-brand fw-semibold"><i class="bi bi-diagram-3 brand-accent me-2"></i>deep-orchestrator <span class="text-body-secondary fw-normal">· EXPLAINER</span></span>
-    <span class="navbar-text small text-body-secondary d-none d-md-inline">v3.2.0 · 2026-08-14</span>
+    <span class="navbar-text small text-body-secondary d-none d-md-inline">v0.2.0 · 2026-08-15</span>
   </div>
 </nav>
 
@@ -187,10 +153,10 @@
   <header class="explainer-hero rounded-4 p-4 p-md-5 mb-4">
     <span class="badge badge-accent mb-3"><i class="bi bi-clipboard-data me-1"></i>Relatório de execução</span>
     <h1 class="display-6 fw-semibold text-white mb-2">O que aconteceu nesta execução</h1>
-    <p class="lead text-white-50 mb-3">Execu&ccedil;&atilde;o que corrigiu os 4 problemas do v&iacute;deo gerado (textos sobrepostos, sem matem&aacute;tica 3blue1brown, sem GIF com texto, fundo n&atilde;o-preto) e produziu um NOVO v&iacute;deo final verificado por conte&uacute;do — com 4 ondas, 17 sub-agentes e 5 squash commits.</p>
+    <p class="lead text-white-50 mb-3">App web 'Editor de Vídeo IA': o site substitui o editor direto — usuário descreve o que vai fazer + contexto, escolhe a duração, recebe roteiros por PEDAÇO (fala + visual 3b1b/gif/vídeo), gera/regenera/edita cada pedaço, vê preview, grava a própria voz e junta/entrega o vídeo final</p>
     <div class="d-flex flex-wrap gap-2">
-      <span class="badge badge-accent">v3.2.0</span>
-      <span class="badge badge-soft"><i class="bi bi-calendar3 me-1"></i>2026-08-14</span>
+      <span class="badge badge-accent">v0.2.0</span>
+      <span class="badge badge-soft"><i class="bi bi-calendar3 me-1"></i>2026-08-15</span>
       <span class="badge badge-soft"><i class="bi bi-git-branch me-1"></i>main</span>
     </div>
   </header>
@@ -247,7 +213,7 @@
     <div class="tab-pane fade show active" id="pane-visao" role="tabpanel"
          aria-labelledby="tab-visao" tabindex="0" data-print-title="Visão geral">
       <h2 class="h4 pane-title">Resumo da execução</h2>
-      <p class="text-body-secondary">Execu&ccedil;&atilde;o que corrigiu os 4 problemas do v&iacute;deo gerado (textos sobrepostos, sem matem&aacute;tica 3blue1brown, sem GIF com texto, fundo n&atilde;o-preto) e produziu um NOVO v&iacute;deo final verificado por conte&uacute;do — com 4 ondas, 17 sub-agentes e 5 squash commits.</p>
+      <p class="text-body-secondary">App web 'Editor de Vídeo IA': o site substitui o editor direto — usuário descreve o que vai fazer + contexto, escolhe a duração, recebe roteiros por PEDAÇO (fala + visual 3b1b/gif/vídeo), gera/regenera/edita cada pedaço, vê preview, grava a própria voz e junta/entrega o vídeo final</p>
 
       <div class="alert alert-primary d-flex gap-2" role="alert">
         <i class="bi bi-info-circle-fill flex-shrink-0"></i>
@@ -259,7 +225,7 @@
           <div class="card h-100 text-center">
             <div class="card-body py-4">
               <i class="bi bi-layers fs-3 stat-value"></i>
-              <div class="display-6 fw-bold stat-value">4</div>
+              <div class="display-6 fw-bold stat-value">7</div>
               <div class="text-body-secondary small">Ondas executadas</div>
             </div>
           </div>
@@ -268,7 +234,7 @@
           <div class="card h-100 text-center">
             <div class="card-body py-4">
               <i class="bi bi-robot fs-3 stat-value"></i>
-              <div class="display-6 fw-bold stat-value">17</div>
+              <div class="display-6 fw-bold stat-value">27</div>
               <div class="text-body-secondary small">Sub-agentes</div>
             </div>
           </div>
@@ -277,7 +243,7 @@
           <div class="card h-100 text-center">
             <div class="card-body py-4">
               <i class="bi bi-git-commit fs-3 stat-value"></i>
-              <div class="display-6 fw-bold stat-value">5</div>
+              <div class="display-6 fw-bold stat-value">31</div>
               <div class="text-body-secondary small">Commits (squash)</div>
             </div>
           </div>
@@ -288,10 +254,37 @@
       <p>O orquestrador, na fase COMMIT-FINAL, gera o explainer a partir deste template:</p>
 <pre><code class="language-bash"># Gera o explainer a partir do template
 ./scripts/generate-explainer.sh &gt; EXPLAINER.html
-# Ou preenche manualmente os placeholders 3.2.0, 2026-08-14, main, ...</code></pre>
+# Ou preenche manualmente os placeholders 0.2.0, 2026-08-15, main, ...</code></pre>
       <p class="text-body-secondary small">O template é <code>templates/html-explainer.html</code> — arquivo único, sem build: abre por file:// e imprime em PDF com todas as abas.</p>
 
-      </div>
+      <details class="mt-4">
+        <summary class="text-body-secondary">Placeholders usados na geração</summary>
+        <div class="table-responsive mt-2">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr><th scope="col">Placeholder</th><th scope="col">Onde aparece</th><th scope="col">Preenchido com</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>&#123;&#123;VERSION&#125;&#125;</code></td><td>Navbar, hero, rodapé</td><td>Versão do orquestrador</td></tr>
+              <tr><td><code>&#123;&#123;DATE&#125;&#125;</code></td><td>Navbar, hero, rodapé</td><td>Data da execução</td></tr>
+              <tr><td><code>&#123;&#123;BRANCH&#125;&#125;</code></td><td>Hero, rodapé</td><td>Branch principal</td></tr>
+              <tr><td><code>&#123;&#123;TASK_SUMMARY&#125;&#125;</code></td><td>Visão geral</td><td>Resumo da tarefa</td></tr>
+              <tr><td><code>&#123;&#123;TOTAL_WAVES&#125;&#125;</code></td><td>Cards de estatística</td><td>Número de ondas</td></tr>
+              <tr><td><code>&#123;&#123;TOTAL_AGENTS&#125;&#125;</code></td><td>Cards de estatística</td><td>Número de sub-agentes</td></tr>
+              <tr><td><code>&#123;&#123;TOTAL_COMMITS&#125;&#125;</code></td><td>Cards de estatística</td><td>Número de commits</td></tr>
+              <tr><td><code>&#123;&#123;WAVES_TABLE&#125;&#125;</code></td><td>Aba Ondas</td><td>Tabela HTML de ondas (Onda | Worktree | Tarefas | Commits | Status)</td></tr>
+              <tr><td><code>&#123;&#123;FILES_TABLE&#125;&#125;</code></td><td>Aba Arquivos</td><td>Tabela HTML de arquivos modificados (Arquivo | Tipo | Diff)</td></tr>
+              <tr><td><code>&#123;&#123;COMMITS_LIST&#125;&#125;</code></td><td>Aba Arquivos</td><td>Lista de commits squash</td></tr>
+              <tr><td><code>&#123;&#123;BEFORE_AFTER&#125;&#125;</code></td><td>Aba De-Para</td><td>Cards Antes/Depois + seções de-para adicionais</td></tr>
+              <tr><td><code>&#123;&#123;IMPACT&#125;&#125;</code></td><td>Aba De-Para</td><td>Lista de impactos da execução</td></tr>
+              <tr><td><code>&#123;&#123;CAPABILITIES&#125;&#125;</code></td><td>Aba De-Para</td><td>Grid de novas capacidades</td></tr>
+              <tr><td><code>&#123;&#123;DECISIONS&#125;&#125;</code></td><td>Aba Decisões</td><td>Lista de decisões autônomas</td></tr>
+              <tr><td><code>&#123;&#123;TIMELINE&#125;&#125;</code></td><td>Aba Timeline</td><td>Linha do tempo da execução</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
 
     <!-- ══════════════ ABA 2 · ONDAS EXECUTADAS ══════════════ -->
     <div class="tab-pane fade" id="pane-ondas" role="tabpanel"
@@ -299,20 +292,15 @@
       <h2 class="h4 pane-title">Ondas executadas</h2>
       <p>Uma linha por sub-agente. Cada sub-agente trabalha numa worktree Git nomeada; a integração é squash-merge um a um, com gate (build + testes) entre merges. Worktrees e branches <code>wt/*</code> são removidos ao fim de cada onda.</p>
 
-      <!-- {{WAVES_TABLE}} begin -->
-      <div class="table-responsive">
-        <table class="table table-hover align-middle">
-          <thead><tr><th scope="col">Onda</th><th scope="col">Worktree</th><th scope="col">Tarefas</th><th scope="col" class="text-end">Commits</th><th scope="col">Status</th></tr></thead>
-          <tbody>
-            <tr><td><span class="badge badge-accent">Onda 1</span></td><td><code>onda1-fundo-preto</code></td><td>Fundo PRETO #000000 (token + espelho Python + contraste 20.1:1 + snapshots/gm re-baseline + prova de pixels)</td><td class="text-end">1</td><td><span class="badge badge-ok">Conclu&iacute;da (18e8a30)</span></td></tr>
-            <tr><td><span class="badge badge-accent">Onda 1</span></td><td><code>onda1-grafico-matematica</code></td><td>5 cenas Manim 3b1b (E=mc&sup2;, Riemann, Euler, Taylor, c&iacute;rculo) 1920&times;1080; cassete can&ocirc;nico; TinyTeX; gerador fun&ccedil;&atilde;o total (fix distribuirFrames + testes comportamento-pinados)</td><td class="text-end">1</td><td><span class="badge badge-ok">Conclu&iacute;da (fbcbf10)</span></td></tr>
-            <tr><td><span class="badge badge-accent">Onda 2</span></td><td><code>onda2-composicao</code></td><td>Eixo anti-sobreposi&ccedil;&atilde;o (bandas + fator temporal + sonda C1&ndash;C3) + wiring dos 5 webm (OffthreadVideo, montagem c-004) + or&aacute;culo por desvio-padr&atilde;o + sonda qtrle honesta + bbox honesto (fixes P1&ndash;P4 do revisor)</td><td class="text-end">1</td><td><span class="badge badge-ok">Conclu&iacute;da (48add36)</span></td></tr>
-            <tr><td><span class="badge badge-accent">Onda 3</span></td><td><code>onda3-midia-gif-texto</code></td><td>M&iacute;dia real: GIF com legenda (meme) + v&iacute;deo + imagem CC0/PDM via wikimedia; cassete can&ocirc;nico; overlay no eixo; sondas C4/C5 + or&aacute;culo de pixel (fix da ordem de pintura c-005)</td><td class="text-end">1</td><td><span class="badge badge-ok">Conclu&iacute;da (0a299ee)</span></td></tr>
-            <tr><td><span class="badge badge-accent">Onda 4</span></td><td><code>onda4-video-final</code></td><td>V&iacute;deo final verificado por conte&uacute;do + variantes (or&aacute;culo espelha o eixo) + tutorial fechado (Giphy/ADR-0013, legendas, or&aacute;culo novo)</td><td class="text-end">1</td><td><span class="badge badge-ok">Conclu&iacute;da (ec2b5b5)</span></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <!-- {{WAVES_TABLE}} end -->
+<table><thead><tr><th>Onda</th><th>Worktrees</th><th>Entrega</th><th>Status</th></tr></thead><tbody>
+<tr><td>1</td><td>onda1-contrato-roteiro</td><td>Contrato do domínio (tipos, schema, validação, 21 rotas da API, docs)</td><td>merge + gate verde</td></tr>
+<tr><td>2</td><td>onda2-fix-teste-flaky, onda2-fix-contrato-anexo</td><td>Corrida flaky eliminada; emenda do contrato (anexos gif/video, record-first, gate de juntar)</td><td>merge + gate verde</td></tr>
+<tr><td>3</td><td>onda3-gerador-roteiro, onda3-construtor-manifesto</td><td>Gerador LLM (sosia/cassete/llm, cache C12) e construtor Pedaco[]→Manifesto.1 (reduzirManifesto)</td><td>merge + gate verde</td></tr>
+<tr><td>4</td><td>onda4-narracao-audio, onda4-preview-pedaco, onda4-juntar-video</td><td>Narração gravada (webm→wav 48k), preview por pedaço (oráculo C1), juntar e entregar (concat+EBU R128)</td><td>merge + gate verde</td></tr>
+<tr><td>5</td><td>onda5-servidor-web, onda5-gerador-llm-estruturado, onda5-fix-contrato-validar</td><td>Servidor HTTP (21 rotas, jobs, persistência, anexo, fix traversal), saída estruturada LLM, regras de validação fechadas</td><td>merge + gate verde</td></tr>
+<tr><td>6</td><td>onda6-spa-frontend, onda6-fix-preview-juntar</td><td>SPA React (novo projeto, roteiro por pedaços, gravador de voz, preview, juntar) + 6 fixes de preview/juntar</td><td>merge + gate verde</td></tr>
+<tr><td>7</td><td>onda7-e2e-web</td><td>E2E Playwright (fluxos negativos + sonda de launch), justfile (dev→site), fix crítico do fetch da SPA</td><td>merge + gate verde</td></tr>
+</tbody></table>
 
       <h3 class="h6 mt-4 text-body-secondary">Legenda de status</h3>
       <div class="d-flex flex-wrap gap-2">
@@ -328,41 +316,25 @@
       <h2 class="h4 pane-title">Arquivos modificados</h2>
       <p>Diff stats da execução: <span class="diff-plus">+</span> linhas adicionadas, <span class="diff-minus">−</span> removidas.</p>
 
-      <!-- {{FILES_TABLE}} begin -->
-      <div class="table-responsive">
-        <table class="table table-hover align-middle">
-          <thead><tr><th scope="col">Arquivo</th><th scope="col">Tipo</th><th scope="col" class="text-end">Diff</th></tr></thead>
-          <tbody>
-            <tr><td><code>src/composicao/layout/eixo.ts</code></td><td><span class="badge badge-ok">novo</span></td><td class="text-end diff-plus">+234</td></tr>
-            <tr><td><code>src/composicao/nos/{texto,lista,cabecalho,codigo,grafico,midia}.tsx</code></td><td><span class="badge badge-accent">modificados</span></td><td class="text-end diff-plus">+816</td></tr>
-            <tr><td><code>src/resolucao/grafico/{cena,estagio,gravar}.ts</code></td><td><span class="badge badge-accent">modificados</span></td><td class="text-end diff-plus">+692</td></tr>
-            <tr><td><code>src/resolucao/midia/{commons,estagio,gravar}.ts</code></td><td><span class="badge badge-accent">modificados</span></td><td class="text-end diff-plus">+167</td></tr>
-            <tr><td><code>src/pipeline/produzir.ts</code></td><td><span class="badge badge-accent">modificado</span></td><td class="text-end diff-plus">+371</td></tr>
-            <tr><td><code>src/design/tokens.ts</code> + espelho Python</td><td><span class="badge badge-accent">modificados</span></td><td class="text-end diff-plus">+9</td></tr>
-            <tr><td><code>tests/composicao/layout/{eixo,sonda-de-texto}.test.ts</code></td><td><span class="badge badge-ok">novos</span></td><td class="text-end diff-plus">+598</td></tr>
-            <tr><td><code>tests/pipeline/oraculo-de-conteudo.test.ts</code></td><td><span class="badge badge-ok">novo</span></td><td class="text-end diff-plus">+123</td></tr>
-            <tr><td><code>tests/integracao/composicao/{oraculo,qtrle-arvore}.ts</code></td><td><span class="badge badge-ok">novos</span></td><td class="text-end diff-plus">+259</td></tr>
-            <tr><td><code>docs/TUTORIAL.md</code> + <code>docs/TUTORIAL.html</code></td><td><span class="badge badge-accent">atualizados</span></td><td class="text-end diff-plus">+260</td></tr>
-            <tr><td><code>fixtures/cassetes/{grafico,midia}/&lt;novas chaves&gt;</code></td><td><span class="badge badge-ok">novos</span></td><td class="text-end">5 webm + gif/v&iacute;deo/imagem</td></tr>
-            <tr><td><code>fixtures/snapshots/**</code> + <code>fixtures/gm/**</code></td><td><span class="badge badge-accent">re-baseline</span></td><td class="text-end">&mdash;</td></tr>
-            <tr><td><code>tools/variantes/oraculo.ts</code></td><td><span class="badge badge-accent">modificado</span></td><td class="text-end diff-plus">+54</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <!-- {{FILES_TABLE}} end -->
+<table><thead><tr><th>Área</th><th>Arquivos principais</th></tr></thead><tbody>
+<tr><td>Contrato do roteiro</td><td>src/roteiro/contrato/** (contrato, schema JSON, validar, rejeitar, cache, edicao, rotas), docs/roteiro/contrato-roteiro.md, docs/roteiro/api.md</td></tr>
+<tr><td>Gerador</td><td>src/roteiro/gerador/** (gerador, provedor sosia/llm/cassete, prompt, cache, cli, schemas podados), docs/roteiro/prompts/**</td></tr>
+<tr><td>Construtor</td><td>src/roteiro/construir/** (construirManifesto, reduzirManifesto, mapear, validar, cli)</td></tr>
+<tr><td>Narração</td><td>src/roteiro/narracao/** (receberGravacao webm→wav 48k, procedência)</td></tr>
+<tr><td>Preview</td><td>src/roteiro/preview/** (renderizarPreviewPedaco, conferirPreview, cli)</td></tr>
+<tr><td>Juntar</td><td>src/roteiro/juntar/** (verificarJuntavel, juntar, conferirEntrega, cli)</td></tr>
+<tr><td>Anexo</td><td>src/roteiro/anexo/** (receberAnexo, allowlist, procedência)</td></tr>
+<tr><td>Servidor</td><td>src/web/servidor.ts (21 rotas), src/web/jobs.ts (jobs efêmeros)</td></tr>
+<tr><td>SPA</td><td>src/web/ui/** (React: api, estado-jobs, componentes, telas, estilos, vite config)</td></tr>
+<tr><td>E2E</td><td>tests/web/e2e/** (Playwright), playwright.config.ts</td></tr>
+<tr><td>Testes</td><td>~700 testes novos (vitest: contrato/gerador/construtor/narração/preview/juntar/anexo/servidor/SPA; pytest: 90+1skip)</td></tr>
+<tr><td>Infra</td><td>justfile (dev→site, dev_studio, build_web, e2e_web), package.json (+vite, plugin-react, coverage-v8, playwright, react-test-renderer), .gitignore (+dados/)</td></tr>
+</tbody></table>
 
       <h2 class="h4 pane-title mt-4">Commits (squash)</h2>
       <p>Histórico final do branch principal: um commit squash por sub-agente. Nenhuma worktree ou branch <code>wt/*</code> sobra ao final.</p>
 
-      <!-- {{COMMITS_LIST}} begin -->
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item d-flex gap-3 align-items-start"><span class="badge badge-soft font-monospace">ec2b5b5</span><div><strong>Onda 4:</strong> v&iacute;deo final verificado + variantes + tutorial fechado</div></li>
-        <li class="list-group-item d-flex gap-3 align-items-start"><span class="badge badge-soft font-monospace">0a299ee</span><div><strong>Onda 3:</strong> m&iacute;dia real — GIF com legenda + v&iacute;deo + imagem (wikimedia CC0/PDM)</div></li>
-        <li class="list-group-item d-flex gap-3 align-items-start"><span class="badge badge-soft font-monospace">48add36</span><div><strong>Onda 2:</strong> eixo anti-sobreposi&ccedil;&atilde;o + wiring dos webm 3b1b + or&aacute;culo por desvio</div></li>
-        <li class="list-group-item d-flex gap-3 align-items-start"><span class="badge badge-soft font-monospace">fbcbf10</span><div><strong>Onda 1:</strong> 5 cenas Manim matem&aacute;ticas estilo 3blue1brown + cassete can&ocirc;nico</div></li>
-        <li class="list-group-item d-flex gap-3 align-items-start"><span class="badge badge-soft font-monospace">18e8a30</span><div><strong>Onda 1:</strong> fundo PRETO #000000 em todos os v&iacute;deos</div></li>
-      </ul>
-      <!-- {{COMMITS_LIST}} end -->
+<ul><li>31 squash commits em main (7 ondas + subwaves + fixes + PREPs) — história limpa, worktrees arquivadas em refs/do-archive/</li></ul>
     </div>
 
     <!-- ══════════════ ABA 4 · DE-PARA (BEFORE/AFTER) ══════════════ -->
@@ -371,112 +343,108 @@
       <h2 class="h4 pane-title">De-Para: o que mudou</h2>
       <p>Comparação lado a lado entre o estado inicial do repositório e o estado final após a execução.</p>
 
-      <!-- {{BEFORE_AFTER}} begin -->
-      <!-- De-para por problema -->
-      <h2 class="h4 pane-title">De-Para: os 4 problemas do usu&aacute;rio</h2>
+      <!-- BEFORE_AFTER begin (não preenchido — conteúdo demo do template) -->
+      <!-- Cards Antes/Depois e seções de de-para adicionais geradas
+           dinamicamente entram aqui (substituídos na geração). -->
       <div class="row g-3 mb-4">
         <div class="col-lg-6">
-          <div class="card h-100 depara-antes"><div class="card-header"><i class="bi bi-arrow-left-circle me-1"></i><strong>Antes</strong></div><div class="card-body">
-            <p class="card-text text-body-secondary mb-0"><strong>Textos sobrepostos:</strong> nas transi&ccedil;&otilde;es (fade/wipe/clockWipe) as duas cenas renderizavam juntas e, dentro da c-002, texto e lista coexistiam sem posi&ccedil;&atilde;o. <strong>Sem 3b1b:</strong> s&oacute; 2 de 5 n&oacute;s grafico resolviam, para um PNG est&aacute;tico. <strong>Sem gif:</strong> <code>nos_midia</code> vazio. <strong>Fundo:</strong> #030712.</p>
-          </div></div>
+          <div class="card h-100 depara-antes">
+            <div class="card-header"><i class="bi bi-arrow-left-circle me-1"></i><strong>Antes</strong></div>
+            <div class="card-body">
+              <p class="card-text text-body-secondary">Estado inicial — descrição genérica, substituída na geração.</p>
+              <ul class="list-unstyled mb-0 d-grid gap-2">
+                <li><i class="bi bi-file-earmark-text me-2 text-body-secondary"></i>Item representativo do estado inicial</li>
+                <li><i class="bi bi-file-earmark-text me-2 text-body-secondary"></i>Segundo item representativo</li>
+              </ul>
+            </div>
+          </div>
         </div>
         <div class="col-lg-6">
-          <div class="card h-100 depara-depois"><div class="card-header"><i class="bi bi-arrow-right-circle me-1"></i><strong>Depois</strong></div><div class="card-body">
-            <p class="card-text text-body-secondary mb-0"><strong>Eixo:</strong> bandas + fator temporal — nunca texto dos dois lados (sonda 60/60 + or&aacute;culo de pixel). <strong>3b1b:</strong> 5 webm de matem&aacute;tica (E=mc&sup2;, Riemann, Euler, Taylor, c&iacute;rculo) montados na c-004. <strong>Gif:</strong> globo animado COM legenda meme + v&iacute;deo + imagem. <strong>Fundo:</strong> #000000 puro com contraste 20.1:1.</p>
-          </div></div>
+          <div class="card h-100 depara-depois">
+            <div class="card-header"><i class="bi bi-arrow-right-circle me-1"></i><strong>Depois</strong></div>
+            <div class="card-body">
+              <p class="card-text text-body-secondary">Estado final — descrição genérica, substituída na geração.</p>
+              <ul class="list-unstyled mb-0 d-grid gap-2">
+                <li><i class="bi bi-terminal me-2 text-body-secondary"></i>Item representativo do estado final</li>
+                <li><i class="bi bi-file-earmark-code me-2 text-body-secondary"></i>Segundo item representativo</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
-
-      <!-- De-para do video -->
-      <h2 class="h4 pane-title">De-Para: o v&iacute;deo entregue</h2>
-      <div class="row g-3 mb-4">
-        <div class="col-lg-6">
-          <div class="card h-100 depara-antes"><div class="card-header"><i class="bi bi-arrow-left-circle me-1"></i><strong>Antes</strong></div><div class="card-body">
-            <p class="card-text text-body-secondary mb-0">V&iacute;deo com textos colidindo, gr&aacute;ficos est&aacute;ticos, sem m&iacute;dia e fundo quase-preto (1,15 MB).</p>
-          </div></div>
-        </div>
-        <div class="col-lg-6">
-          <div class="card h-100 depara-depois"><div class="card-header"><i class="bi bi-arrow-right-circle me-1"></i><strong>Depois</strong></div><div class="card-body">
-            <p class="card-text text-body-secondary mb-0"><code>output/entregavel-final.mp4</code> (1,5 MB, hash 4a2529c3&hellip; determin&iacute;stico): h264 1920&times;1080@30, 24,2 s, aac 48&nbsp;kHz, -23 LUFS, SRT 2 cues, yavg 129.3/desvio 94.1 (or&aacute;culo passa), cantos #000000, determinismo 2&times; byte-id&ecirc;ntico.</p>
-          </div></div>
-        </div>
-      </div>
-      <!-- {{BEFORE_AFTER}} end -->
+      <p class="text-body-secondary small">Exemplo demonstrativo — a geração substitui o bloco entre os marcadores pelos dados reais.</p>
+      <!-- BEFORE_AFTER end (não preenchido — conteúdo demo do template) -->
 
       <h2 class="h4 pane-title">Impacto</h2>
-      <h2 class="h4 pane-title">Impacto</h2>
-      <p>O que esta execu&ccedil;&atilde;o entregou:</p>
+      <p>O que cada mudança significa para quem usa o deep-orchestrator:</p>
+      <!-- IMPACT begin (não preenchido — conteúdo demo do template) -->
       <div class="list-group list-group-flush mb-4">
         <div class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-play-circle fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Novo v&iacute;deo com tudo corrigido</strong> &mdash; <code>output/entregavel-final.mp4</code>: h264 1920&times;1080@30, 24,2 s, loudness -23 LUFS, SRT 2 cues no corte do mix, hashes 11/11, determinismo 2&times; byte-id&ecirc;ntico.</div>
+          <i class="bi bi-stars fs-5 stat-value flex-shrink-0 mt-1"></i>
+          <div><strong>Impacto 1</strong> — descrição genérica, substituída na geração.</div>
         </div>
         <div class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-layers fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Eixo de posicionamento</strong> &mdash; <code>src/composicao/layout/eixo.ts</code>: bandas espaciais + fator temporal de transi&ccedil;&atilde;o (nunca texto dos dois lados); sondas C1&ndash;C5 + or&aacute;culo de pixel permanente.</div>
+          <i class="bi bi-stars fs-5 stat-value flex-shrink-0 mt-1"></i>
+          <div><strong>Impacto 2</strong> — descrição genérica, substituída na geração.</div>
         </div>
         <div class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-math fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Matem&aacute;tica 3blue1brown</strong> &mdash; 5 cenas Manim (E=mc&sup2;, Riemann, Euler, Taylor, c&iacute;rculo unit&aacute;rio) 1920&times;1080, cassete can&ocirc;nico com os 5 n&oacute;s, montagem na c-004, gerador fun&ccedil;&atilde;o total (v1.2.1).</div>
-        </div>
-        <div class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-file-earmark-image fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>GIF com texto</strong> &mdash; n&oacute;s de m&iacute;dia resolvem (wikimedia-commons CC0/PDM): GIF do globo COM legenda (meme), v&iacute;deo com legenda, imagem cover. Giphy exclu&iacute;do por ADR-0013 (hotlink) &mdash; documentado no tutorial.</div>
-        </div>
-        <div class="list-group-item d-flex gap-3 align-items-start">
-          <i class="bi bi-circle-fill fs-5 stat-value flex-shrink-0 mt-1"></i>
-          <div><strong>Fundo preto obrigat&oacute;rio</strong> &mdash; <code>background.primary = #000000</code> (contraste 20.1:1), espelho Python, snapshots/gm re-baseline, or&aacute;culo de conte&uacute;do por desvio-padr&atilde;o (yavg+desvio) recalibrado com evid&ecirc;ncia.</div>
+          <i class="bi bi-stars fs-5 stat-value flex-shrink-0 mt-1"></i>
+          <div><strong>Impacto 3</strong> — descrição genérica, substituída na geração.</div>
         </div>
       </div>
+      <p class="text-body-secondary small">Exemplo demonstrativo — a geração substitui o bloco entre os marcadores pelos impactos reais.</p>
+      <!-- IMPACT end (não preenchido — conteúdo demo do template) -->
 
       <h2 class="h4 pane-title">Novas capacidades</h2>
-      <h2 class="h4 pane-title">Capacidades verificadas nesta execu&ccedil;&atilde;o</h2>
+      <!-- CAPABILITIES begin (não preenchido — conteúdo demo do template) -->
       <div class="row g-3">
         <div class="col-md-6 col-lg-4">
-          <div class="card h-100"><div class="card-body">
-            <i class="bi bi-layers fs-3 stat-value"></i>
-            <h3 class="h6 mt-2 mb-1">Eixo anti-sobreposi&ccedil;&atilde;o</h3>
-            <p class="small text-body-secondary mb-0">Bandas espaciais + fator temporal de transi&ccedil;&atilde;o &mdash; a sonda C1&ndash;C5 e o or&aacute;culo de pixel garantem: nenhum par de blocos vis&iacute;veis se intersecta.</p>
-          </div></div>
+          <div class="card h-100">
+            <div class="card-body">
+              <i class="bi bi-stars fs-3 stat-value"></i>
+              <h3 class="h6 mt-2 mb-1">Capacidade 1</h3>
+              <p class="small text-body-secondary mb-0">Descrição genérica, substituída na geração.</p>
+            </div>
+          </div>
         </div>
         <div class="col-md-6 col-lg-4">
-          <div class="card h-100"><div class="card-body">
-            <i class="bi bi-math fs-3 stat-value"></i>
-            <h3 class="h6 mt-2 mb-1">Manim matem&aacute;tico 3b1b</h3>
-            <p class="small text-body-secondary mb-0">5 cenas reais (LaTeX/TinyTeX + venv do 3b1b), fundo preto, 1920&times;1080; wiring com OffthreadVideo; gerador fun&ccedil;&atilde;o total para qualquer dura&ccedil;&atilde;o &ge; 1.</p>
-          </div></div>
+          <div class="card h-100">
+            <div class="card-body">
+              <i class="bi bi-stars fs-3 stat-value"></i>
+              <h3 class="h6 mt-2 mb-1">Capacidade 2</h3>
+              <p class="small text-body-secondary mb-0">Descrição genérica, substituída na geração.</p>
+            </div>
+          </div>
         </div>
         <div class="col-md-6 col-lg-4">
-          <div class="card h-100"><div class="card-body">
-            <i class="bi bi-stars fs-3 stat-value"></i>
-            <h3 class="h6 mt-2 mb-1">GIF com legenda</h3>
-            <p class="small text-body-secondary mb-0">N&oacute; midia com overlay respeitando o eixo; m&iacute;dia confinada &agrave; banda; m&iacute;dia primeiro na pilha (texto sempre por cima).</p>
-          </div></div>
-        </div>
-        <div class="col-md-6 col-lg-4">
-          <div class="card h-100"><div class="card-body">
-            <i class="bi bi-activity fs-3 stat-value"></i>
-            <h3 class="h6 mt-2 mb-1">Or&aacute;culo de conte&uacute;do por desvio</h3>
-            <p class="small text-body-secondary mb-0">yavg&lt;24 E desvio&le;1.0 reprovam; v&iacute;deo s&oacute;-de-matem&aacute;tica passa, preto puro reprova; executorBruto corrige corrup&ccedil;&atilde;o bin&aacute;ria do execFile.</p>
-          </div></div>
+          <div class="card h-100">
+            <div class="card-body">
+              <i class="bi bi-stars fs-3 stat-value"></i>
+              <h3 class="h6 mt-2 mb-1">Capacidade 3</h3>
+              <p class="small text-body-secondary mb-0">Descrição genérica, substituída na geração.</p>
+            </div>
+          </div>
         </div>
       </div>
+      <p class="text-body-secondary small">Exemplo demonstrativo — a geração substitui o bloco entre os marcadores pelas capacidades reais.</p>
+      <!-- CAPABILITIES end (não preenchido — conteúdo demo do template) -->
+    </div>
 
-      <!-- ══════════════ ABA 5 · DECISÕES AUTÔNOMAS ══════════════ -->
+    <!-- ══════════════ ABA 5 · DECISÕES AUTÔNOMAS ══════════════ -->
     <div class="tab-pane fade" id="pane-decisoes" role="tabpanel"
          aria-labelledby="tab-decisoes" tabindex="0" data-print-title="Decisões autônomas">
       <h2 class="h4 pane-title">Premissas inferidas sem perguntar</h2>
       <p>O orquestrador opera em autonomia total — nenhuma pergunta é feita ao usuário. Toda premissa assumida fica registrada aqui — para revisão e reprodutibilidade.</p>
 
-      <!-- {{DECISIONS}} begin -->
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item d-flex gap-3 align-items-start"><i class="bi bi-lightbulb fs-5 stat-value flex-shrink-0 mt-1"></i><div><strong>GIPHY exclu&iacute;do por ADR-0013 (decis&atilde;o do pr&oacute;prio programa):</strong> a API exige hotlink, incompat&iacute;vel com o pipeline offline por conte&uacute;do (C7). O gif com texto veio do wikimedia-commons (CC0/PDM) — documentado no tutorial em vez de prometer o que a arquitetura n&atilde;o permite.</div></li>
-        <li class="list-group-item d-flex gap-5 align-items-start"><i class="bi bi-lightbulb fs-5 stat-value flex-shrink-0 mt-1"></i><div><strong>Or&aacute;culo de conte&uacute;do recalibrado com evid&ecirc;ncia:</strong> o yavg sozinho reprovaria um v&iacute;deo s&oacute;-de-matem&aacute;tica (tra&ccedil;o fino &eacute; escuro por desenho); o desvio-padr&atilde;o por frame separa preto puro (0.0) de conte&uacute;do (&ge;2.39). Bug real encontrado no caminho: execFile corrompia stream bin&aacute;rio (UTF-8) — <code>executorBruto</code> com encoding buffer.</div></li>
-        <li class="list-group-item d-flex gap-5 align-items-start"><i class="bi bi-lightbulb fs-5 stat-value flex-shrink-0 mt-1"></i><div><strong>Overlay da m&iacute;dia respeita o eixo e a ordem de pintura:</strong> m&iacute;dia confinada &agrave; banda, m&iacute;dia primeiro na pilha (texto sempre por cima), sonda C4/C5 + or&aacute;culo de pixel permanente (preto &ge;40%, tinta &ge;1%, branco &le;65%) — o m&eacute;todo do revisor virou teste.</div></li>
-        <li class="list-group-item d-flex gap-5 align-items-start"><i class="bi bi-lightbulb fs-5 stat-value flex-shrink-0 mt-1"></i><div><strong>Legendas em ingl&ecirc;s aceitas e documentadas:</strong> o <code>texto_alternativo</code> &eacute; o alt-text do asset; traduzir re-hashearia o manifesto e re-chavearia todos os cassetes (churn desproporcional — onda futura opcional).</div></li>
-        <li class="list-group-item d-flex gap-5 align-items-start"><i class="bi bi-lightbulb fs-5 stat-value flex-shrink-0 mt-1"></i><div><strong>Autonomia total (R2):</strong> nenhuma pergunta ao usu&aacute;rio; decis&otilde;es (piso do or&aacute;culo, montagem por fatias, imagem sem legenda, variantes) tomadas com evid&ecirc;ncia e documentadas.</div></li>
-      </ul>
-      <!-- {{DECISIONS}} end -->
+<ul>
+<li>PEDAÇO = CENA do Manifesto; cada pedaço: fala + visual (manim/grafico/gif/video/texto/lista/cabecalho)</li>
+<li>Record-first: gerador nunca emite narração; o botão de gravação de voz é a via primária (TTS 429 no ambiente)</li>
+<li>Gate de juntar: fala sem narração → 409 com lista (nunca entrega fala muda — C1)</li>
+<li>Preview = render do manifesto reduzido com oráculo de conteúdo (C1) e cache por conteúdo (C7)</li>
+<li>Juntar = concat dos previews (stream-copy) + música + EBU R128 + SRT quando há timing</li>
+<li>Servidor node:http nativo (zero deps); SPA same-origin sem CORS; dados/ persistência por projeto</li>
+<li>Saída estruturada LLM (schemas podados strict por fornecedor) com fingerprint na chave do cache (C12)</li>
+</ul>
     </div>
 
     <!-- ══════════════ ABA 6 · TIMELINE ══════════════ -->
@@ -485,20 +453,45 @@
       <h2 class="h4 pane-title">Linha do tempo da execução</h2>
       <p>As quatro fases do orquestrador e o que aconteceu em cada uma.</p>
 
-      <!-- {{TIMELINE}} begin -->
+      <!-- TIMELINE begin (não preenchido — conteúdo demo do template) -->
       <ol class="timeline list-unstyled mb-0">
-        <li class="timeline-item mb-4"><div class="d-flex flex-wrap align-items-center gap-2 mb-1"><span class="badge badge-accent">Fase 1</span><strong>ANALYZE</strong></div><p class="mb-0 text-body-secondary small">Diagn&oacute;stico com evid&ecirc;ncia no manifesto-resolvido: nos_midia vazio (hashes placeholder), s&oacute; 2/5 graficos resolvidos, transi&ccedil;&otilde;es com sobreposi&ccedil;&atilde;o, fundo #030712. Pasta irm&atilde; 3blue1brown explorada (manim-api, venv com manim 0.20.1 pinado, cenas de refer&ecirc;ncia). GIPHY: exclu&iacute;do por ADR-0013 (verificado no c&oacute;digo).</p></li>
-        <li class="timeline-item mb-4"><div class="d-flex flex-wrap align-items-center gap-2 mb-1"><span class="badge badge-accent">Fase 2</span><strong>PLAN</strong></div><p class="mb-0 text-body-secondary small">4 ondas topol&oacute;gicas: fundo+matem&aacute;tica (paralela) &rarr; composi&ccedil;&atilde;o (sobreposi&ccedil;&atilde;o+wiring) &rarr; m&iacute;dia gif+texto &rarr; v&iacute;deo final. Oraculos falsific&aacute;veis por onda.</p></li>
-        <li class="timeline-item mb-4"><div class="d-flex flex-wrap align-items-center gap-2 mb-1"><span class="badge badge-accent">Fase 3</span><strong>EXECUTE-ONDA</strong></div><p class="mb-0 text-body-secondary small">Onda 1: fundo #000000 (pixels 0,0,0) + 5 cenas Manim 3b1b (TinyTeX instalado; fix distribuirFrames — NameError para dura&ccedil;&otilde;es &lt;30 provado e corrigido; testes comportamento-pinados). Onda 2: eixo (sonda negativa: 4 frames com sobreposi&ccedil;&atilde;o) + wiring dos webm (SSIM 0.9967); revisor achou or&aacute;culo YAVG fr&aacute;gil (79,6% dos frames abaixo do piso) &rarr; or&aacute;culo por desvio-padr&atilde;o. Onda 3: m&iacute;dia real com gif+legenda; revisor refutou por pixel (m&iacute;dia cobrindo texto) &rarr; banda + ordem de pintura + or&aacute;culo de pixel. Onda 4: v&iacute;deo final (todos os gates verdes; 402 da API na 1&ordf; tentativa &rarr; retomada). REPLANs: 4 (2 com NOVAS SUB-TAREFAS, 2 CONVERG&Ecirc;NCIA).</p></li>
-        <li class="timeline-item"><div class="d-flex flex-wrap align-items-center gap-2 mb-1"><span class="badge badge-ok">Fase 4</span><strong>COMMIT-FINAL</strong></div><p class="mb-0 text-body-secondary small">Diagn&oacute;stico do e2e vermelho: ~30 Chromes &oacute;rf&atilde;os do puppeteer esgotavam mem&oacute;ria/swap &rarr; fetch da fonte estourava os 28s; limpeza resolveu (e2e VERDE). Entrega final em output/, EXPLAINER gerado, commit, relat&oacute;rio.</p></li>
+        <li class="timeline-item mb-4">
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+            <span class="badge badge-accent">Fase 1</span>
+            <strong>ANALYZE</strong>
+          </div>
+          <p class="mb-0 text-body-secondary small">Leitura do prompt, mapeamento do repositório, classificação greenfield/brownfield.</p>
+        </li>
+        <li class="timeline-item mb-4">
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+            <span class="badge badge-accent">Fase 2</span>
+            <strong>PLAN</strong>
+          </div>
+          <p class="mb-0 text-body-secondary small">Decomposição em sub-tarefas atômicas, ondas topológicas, mapa de propriedade de arquivos, TASK_PLAN.md publicado.</p>
+        </li>
+        <li class="timeline-item mb-4">
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+            <span class="badge badge-accent">Fase 3</span>
+            <strong>EXECUTE-ONDA</strong>
+          </div>
+          <p class="mb-0 text-body-secondary small">Onda 1 — scripts + prompts · Onda 2 — templates/ + SKILL.md. Worktrees nomeadas, barreira, revisão adversarial, squash-merge com gate, limpeza.</p>
+        </li>
+        <li class="timeline-item">
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+            <span class="badge badge-ok">Fase 4</span>
+            <strong>COMMIT-FINAL</strong>
+          </div>
+          <p class="mb-0 text-body-secondary small">TASK_PLAN.md removido, gate completo, commit final, varredura de limpeza, EXPLAINER.html gerado (este documento).</p>
+        </li>
       </ol>
-      <!-- {{TIMELINE}} end -->
+      <p class="text-body-secondary small mt-3">Exemplo demonstrativo — a geração substitui o bloco entre os marcadores pela timeline real da execução.</p>
+      <!-- TIMELINE end (não preenchido — conteúdo demo do template) -->
     </div>
 
   </div>
 
   <footer class="text-body-secondary small border-top mt-5 pt-3">
-    Gerado por <strong>deep-orchestrator</strong> v3.2.0 · 2026-08-14 · branch main.
+    Gerado por <strong>deep-orchestrator</strong> v0.2.0 · 2026-08-15 · branch main.
     Documento de arquivo único — salve, abra com duplo clique ou imprima em PDF (todas as abas entram no papel).
   </footer>
 
