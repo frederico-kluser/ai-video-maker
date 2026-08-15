@@ -1,7 +1,7 @@
 # CONTRATO DE API — App Web "Editor de Vídeo IA"
 
-**Status: CONTRATO CONGELADO (Onda 1).** O servidor da Onda 4 implementa
-**exatamente** as rotas abaixo; a SPA da Onda 5 consome **exatamente** as
+**Status: CONTRATO CONGELADO (Onda 1).** O servidor da Onda 5 implementa
+**exatamente** as rotas abaixo; a SPA da Onda 6 consome **exatamente** as
 mesmas. Nada é inventado no caminho: o teste FQ-C4 (tests/roteiro/contrato.test.ts)
 cruza este documento com `src/roteiro/contrato/rotas.ts` — rota documentada
 sem constante (ou constante sem rota no documento) é **FALHA**.
@@ -12,7 +12,7 @@ edição no lugar.
 
 ## Porta e base
 
-- Porta do servidor: **4610** (S-9 — declarada aqui e na Onda 4). Colisão de
+- Porta do servidor: **4610** (S-9 — declarada aqui e na Onda 5). Colisão de
   porta é erro claro no startup, nunca silêncio (FQ-S4).
 - Base: `http://localhost:4610`.
 - Tudo abaixo de `/api/` fala JSON (`Content-Type: application/json`); os
@@ -121,7 +121,7 @@ GET /api/projetos/:id/video-final.mp4
 GET /api/jobs/:jobId
 ```
 
-**Matcher de rotas (Onda 4):** segmento literal vence `:param` (ex.:
+**Matcher de rotas (Onda 5):** segmento literal vence `:param` (ex.:
 `/api/jobs/status` nunca é o `:jobId` de outra rota — na dúvida, 404 com
 `codigo: rota-nao-encontrada`, nunca 500).
 
@@ -248,7 +248,7 @@ vêm daqui).
 - `Content-Type`: `audio/webm` (a saída do MediaRecorder do navegador) **ou**
   `audio/wav`. Corpo: os bytes crus do áudio.
 - O servidor converte para o formato congelado **wav 48 kHz estéreo**
-  (FORMATO_AUDIO_GRAVADO — Onda 3), calcula o SHA-256 do wav final e grava
+  (FORMATO_AUDIO_GRAVADO — Onda 4), calcula o SHA-256 do wav final e grava
   no store (append-only por hash, S-8; mesmo arquivo 2x = mesmo hash, FQ-N1).
 - Atualiza a narração do pedaço: `{ texto: fala, origem: "gravacao",
   hash_audio: <sha256 do wav>, status: "gerado" }` (a fala do pedaço vira o
@@ -314,7 +314,7 @@ há anexo para remover.
 Corpo: vazio. `202` + `Location`. Job `ok` → `artefato.caminho` aponta para
 `/api/projetos/:id/pedacos/:pedacoId/preview.mp4`.
 
-- O preview é o render do **manifesto reduzido de UM pedaço** (Onda 3) no
+- O preview é o render do **manifesto reduzido de UM pedaço** (Onda 4) no
   formato congelado (1080p30 h264 yuv420p + aac 48k); cache por conteúdo
   (C7): mesmo pedaço + mesmas versões = HIT sem re-render.
 - **Record-first:** `audio_cena` só existe no manifesto quando
@@ -371,4 +371,4 @@ efêmeros; a UI trata 404 como "job expirou" e re-pede a operação).
 | preview de pedaço | mp4 h264 yuv420p 1920x1080 30fps + aac 48k (FORMATO_VIDEO) |
 | vídeo final | mesmos parâmetros do preview (concat por stream-copy: iguais por construção) |
 
-Nenhum destes números se redigita na Onda 3/4/5: importe as constantes.
+Nenhum destes números se redigita na Onda 4/5/6: importe as constantes.

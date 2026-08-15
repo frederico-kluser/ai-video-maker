@@ -4,15 +4,15 @@
 domínio de roteiro do app web; `src/roteiro/contrato/` define os tipos, o
 schema e a validação; `docs/roteiro/api.md` define a superfície REST. A Onda
 2 (gerador + construtor de manifesto) implementa contra **este** contrato; a
-Onda 4 (servidor) persiste; a Onda 5 (SPA) exibe.
+Onda 5 (servidor) persiste; a Onda 6 (SPA) exibe.
 
 ## 1. O domínio
 
 O roteiro é a ponte entre o **usuário** e o pipeline de vídeo. O pipeline
 existente é CLI-only: `Manifesto.1` → cinco estágios de resolução → ponte
 AB-550 → render. O site acrescenta uma camada nova acima disso: o usuário
-descreve o que vai fazer (brief), o **gerador** (LLM, Onda 2) produz um
-**roteiro dividido em pedaços**, o **construtor de manifesto** (Onda 2)
+descreve o que vai fazer (brief), o **gerador** (LLM, Onda 3) produz um
+**roteiro dividido em pedaços**, o **construtor de manifesto** (Onda 3)
 transforma cada pedaço em **uma cena** do `Manifesto.1`, e o resto do
 pipeline existente (resolução, composição, render) faz o vídeo.
 
@@ -66,7 +66,7 @@ e aparece na mensagem de rejeição — é o que o FQ-C1 exige ("erro nomeado"):
 
 ## 3. Vocabulário fechado do visual
 
-| `tipo_visual` | O que é | Para o construtor (Onda 2) |
+| `tipo_visual` | O que é | Para o construtor (Onda 3) |
 |---|---|---|
 | `manim` | Animação estilo 3blue1brown (formas, equações MathTex) | Cena via **estágio `grafico`** (`src/resolucao/grafico/estagio.ts` — o runner Manim headless; se o vocabulário de nós do Manifesto.1 não expressar a animação, o construtor resolve o mapeamento — é dele, não do contrato) |
 | `grafico` | Gráfico de dados (barras/linha/pizza/área/dispersão) | `NoGrafico` (mesmo estágio `grafico`) |
@@ -118,7 +118,7 @@ RESOLUCAO/COMPOSICAO) mora em **`src/render/pipeline/ponte.ts`**:
 procedências) e devolve o `ManifestoResolvido.1` que a composição consome —
 validando integridade referencial (`cena.nos` → nós existentes),
 recalculando o SHA-256 dos bytes de cada asset (chave declarada tem de
-casar os bytes — C7) e recusando asset sem licença. O construtor da Onda 2
+casar os bytes — C7) e recusando asset sem licença. O construtor da Onda 3
 **não reimplementa** essa ponte: ele monta o `Manifesto.1` a partir do
 `Pedaco[]` e entrega ao fluxo existente (`resolver()` do orquestrador de
 resolução + `atravessarPonte`), reduzido a um pedaço para o preview
