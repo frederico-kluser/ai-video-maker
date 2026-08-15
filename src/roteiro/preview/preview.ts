@@ -139,6 +139,7 @@ import {
   type FilaDeEncode,
 } from "../../render/encode/index.js";
 import {
+  AMOSTRAGEM_DE_FRAMES,
   DESVIO_MINIMO_DE_CONTEUDO,
   medirConteudoDe,
   PISO_YAVG_MAXIMO_DE_CONTEUDO,
@@ -257,6 +258,27 @@ export class ErroPreviewVazio extends Error {
   constructor(mensagem: string) {
     super(`o preview esta vazio/chapado (C1): ${mensagem}`);
     this.name = "ErroPreviewVazio";
+  }
+}
+
+/**
+ * Erro nomeado: opcoes de construcao divergem do formato congelado do
+ * preview (FORMATO_VIDEO — contrato §8). Renderizar fora do formato
+ * passaria no render e seria rejeitado DEPOIS pela conferencia
+ * (conferirPreview revalida com o FORMATO_VIDEO fixo) e pelo juntar —
+ * o preview so existe em 1920x1080 30fps. Nunca override silencioso,
+ * nunca render fora do formato congelado.
+ */
+export class ErroPreviewFormatoDivergente extends Error {
+  readonly code = "PREVIEW_FORMATO_DIVERGENTE";
+  constructor(divergencias: readonly string[]) {
+    super(
+      `opcoes de construcao divergem do formato congelado do preview ` +
+        `(${String(FORMATO_VIDEO.width)}x${String(FORMATO_VIDEO.height)} ` +
+        `${String(FORMATO_VIDEO.fps)}fps — FORMATO_VIDEO, contrato §8):\n  - ` +
+        divergencias.join("\n  - "),
+    );
+    this.name = "ErroPreviewFormatoDivergente";
   }
 }
 
@@ -442,9 +464,21 @@ export function manifestoReduzidoDoPedaco(
         `${String(roteiro.pedacos.length)} pedaco(s) (indices 0..${String(Math.max(roteiro.pedacos.length - 1, 0))})`,
     ]);
   }
+  // NORMALIZACAO do pedaco alvo (FIX onda 6): o roteiro de um pedaco so
+  // carrega {id:"p-000", indice:0} na posicao 0 — o pedaco alvo mantem o
+  // id/indice ORIGINAIS (ex.: p-001/indice 1 na posicao 0), que as regras
+  // indices-nao-contiguos e id-nao-casa-indice rejeitariam na revalidacao
+  // do contrato. CLONE — o pedaco do roteiro original nunca e mutado; e o
+  // resultado e idempotente com o servidor (a mesma normalizacao), logo o
+  // cache C7 do preview bate com o do pipeline.
+  const pedacoAlvo: Pedaco = {
+    ...pedacoSemAnexoIrrelevante(pedaco),
+    id: "p-000",
+    indice: 0,
+  };
   const roteiroDoPedaco: Roteiro = {
     schema_version: roteiro.schema_version,
-    pedacos: [pedacoSemAnexoIrrelevante(pedaco)],
+    pedacos: [pedacoAlvo],
     duracao_total_segundos: pedaco.duracao_segundos,
   };
   const completo = construirManifesto(roteiroDoPedaco, opcoesDeConstrucao);
@@ -1040,6 +1074,21 @@ export async function conferirArquivoDoPreview(
     );
   }
 
+  // PISO do amostrador de conteudo (FIX onda 6): o amostrador decodifica
+  // a AMOSTRAGEM_DE_FRAMES fps (filtro `fps=2` do produzir) — abaixo de
+  // 1/fps segundos ele nao extrai bytes nenhum e mede yavg 0/desvio 0:
+  // um video CURTO (mas vivo) seria acusado de "quase chapado", um
+  // diagnostico falso. O piso e falha NOMEADA com a causa certa — nunca
+  // o veredito errado (C1).
+  const pisoDoAmostrador = 1 / AMOSTRAGEM_DE_FRAMES;
+  if (duracaoSegundos < pisoDoAmostrador) {
+    throw new ErroPreviewVazio(
+      `duracao ${String(duracaoSegundos)}s < ${String(pisoDoAmostrador)}s: o ` +
+        `amostrador de conteudo (fps=${String(AMOSTRAGEM_DE_FRAMES)}) nao consegue ` +
+        `medir abaixo do piso — aumente a duracao do pedaco`,
+    );
+  }
+
   // Oraculo de conteudo (C1): um video inteiro preto/chapado passa em
   // toda a camada estrutural de ffprobe — a luma e o desvio por frame
   // separam (REUSE de medirConteudoDe/reprovadoPorConteudo do produzir).
@@ -1151,6 +1200,42 @@ export async function renderizarPreviewPedaco(
   const executor = opcoes.executor ?? executorPadrao;
   const executorBruto = opcoes.executorBruto ?? executorBrutoPadraoLocal;
   const fila = opcoes.fila ?? criarFilaDeEncode();
+
+  // 0. O formato congelado (contrato §8): opcoes de construcao que
+  //    divergem do FORMATO_VIDEO sao erro nomeado, nunca override
+  //    silencioso e nunca render fora do formato — um render 4k60
+  //    passaria aqui e seria rejeitado DEPOIS pela conferencia do
+  //    servidor (conferirPreview revalida com o FORMATO_VIDEO fixo) e
+  //    pelo juntar (FORMATO_VIDEO).
+  const opcoesDeConstrucao = opcoes.opcoesDeConstrucao ?? {};
+  const divergenciasDeFormato: string[] = [];
+  if (
+    opcoesDeConstrucao.width !== undefined &&
+    opcoesDeConstrucao.width !== FORMATO_VIDEO.width
+  ) {
+    divergenciasDeFormato.push(
+      `width ${String(opcoesDeConstrucao.width)} (esperado ${String(FORMATO_VIDEO.width)})`,
+    );
+  }
+  if (
+    opcoesDeConstrucao.height !== undefined &&
+    opcoesDeConstrucao.height !== FORMATO_VIDEO.height
+  ) {
+    divergenciasDeFormato.push(
+      `height ${String(opcoesDeConstrucao.height)} (esperado ${String(FORMATO_VIDEO.height)})`,
+    );
+  }
+  if (
+    opcoesDeConstrucao.fps !== undefined &&
+    opcoesDeConstrucao.fps !== FORMATO_VIDEO.fps
+  ) {
+    divergenciasDeFormato.push(
+      `fps ${String(opcoesDeConstrucao.fps)} (esperado ${String(FORMATO_VIDEO.fps)})`,
+    );
+  }
+  if (divergenciasDeFormato.length > 0) {
+    throw new ErroPreviewFormatoDivergente(divergenciasDeFormato);
+  }
 
   // 1. O pedaco alvo + o visual produzivel (FQ-P3 / anexo-exigido).
   const pedaco = roteiro.pedacos[indicePedaco];

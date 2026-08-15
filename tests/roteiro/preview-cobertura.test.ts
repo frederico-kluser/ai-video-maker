@@ -32,13 +32,16 @@
 //        hash que nao casa o conteudo (C7).
 //   G8 — CLI D11: stdin malformado, stdin vazio, indice fora do range com
 //        detalhes no envelope, ROTEIRO_ESTADO_PATH por env, --estado com
-//        caminho invalido (best-effort), exit 1 INTERNO (falha interna —
-//        o gap apontado pelo revisor) tanto via duracao-abaixo-de-1-frame
-//        quanto via render real com audio ausente do store.
-//   G9 — borda: pedaco com duracao minima (0.5s — o oraculo amostra a
-//        2fps e nao extrai bytes de video mais curto), 1 frame (o oraculo
-//        reprova — comportamento atual documentado) e abaixo de 1 frame
-//        (ErroDuracaoInsuficiente).
+//        caminho invalido (best-effort), duracao-abaixo-de-1-frame = exit
+//        2 duracao-insuficiente (classe 400/409 — FIX onda 6; antes caia
+//        em falha-interna/500) e exit 1 INTERNO real (render com audio
+//        ausente do store).
+//   G9 — borda: pedaco com duracao minima (0.5s — o piso do amostrador),
+//        1 frame (0.02s — duracao abaixo do piso = ErroPreviewVazio
+//        NOMEANDO o piso, FIX onda 6; antes o veredito era o falso
+//        "quase chapado"), abaixo de 1 frame (ErroDuracaoInsuficiente) e
+//        pedaco alvo com indice > 0 em roteiro de multiplos pedacos
+//        (normalizacao p-000/indice 0 — FIX onda 6).
 //
 // Todos os testes de render usam renderer FAKE + contexto FAKE (sem
 // navegador — o guarda de rede bloqueia loopback em processo); os CLIs
@@ -68,6 +71,7 @@ import { executarPreview } from "../../src/roteiro/preview/cli.js";
 import {
   conferirArquivoDoPreview,
   conferirPreview,
+  ErroPreviewFormatoDivergente,
   ErroPreviewManimIndisponivel,
   ErroPreviewRender,
   ErroPreviewVazio,
@@ -395,6 +399,62 @@ describe("G1 — helpers puros do preview", () => {
     const roteiro = roteiroDe([pedaco({ tipo_visual: "texto" })]);
     expect(() => manifestoReduzidoDoPedaco(roteiro, 3)).toThrow(ErroContratoRoteiro);
     expect(() => manifestoReduzidoDoPedaco(roteiro, -1)).toThrow(ErroContratoRoteiro);
+  });
+
+  it(
+    "manifestoReduzidoDoPedaco: pedaco alvo com indice > 0 em roteiro de MULTIPLOS pedacos e NORMALIZADO para p-000/indice 0 (FIX onda 6)",
+    () => {
+      // O pedaco alvo carrega id/indice ORIGINAIS (p-001/1 na posicao 0 do
+      // roteiro reduzido) — sem a normalizacao, as regras
+      // indices-nao-contiguos e id-nao-casa-indice rejeitariam o roteiro
+      // de um pedaco so (o bug latente que so aparecia com indice > 0).
+      const roteiro = roteiroDe([
+        pedaco({ indice: 0, tipo_visual: "texto", duracao_segundos: 2 }),
+        pedaco({ indice: 1, tipo_visual: "texto", duracao_segundos: 3 }),
+        pedaco({ indice: 2, tipo_visual: "texto", duracao_segundos: 1 }),
+      ]);
+      const manifesto = manifestoReduzidoDoPedaco(roteiro, 1);
+      expect(manifesto.cenas).toHaveLength(1);
+      expect(manifesto.cenas[0]!.nos).toHaveLength(1);
+      // A duracao do manifesto reduzido e a do pedaco ALVO (3s * 30fps).
+      expect(manifesto.duracao_total_frames).toBe(90);
+      // O pedaco do roteiro ORIGINAL nao foi mutado (clone, nunca in-place).
+      expect(roteiro.pedacos[1]!.id).toBe("p-001");
+      expect(roteiro.pedacos[1]!.indice).toBe(1);
+      // Determinismo: a mesma reducao 2x = o mesmo manifesto.
+      expect(JSON.stringify(manifestoReduzidoDoPedaco(roteiro, 1))).toBe(JSON.stringify(manifesto));
+    },
+  );
+
+  it("renderizarPreviewPedaco: opcoes divergentes do FORMATO_VIDEO = ErroPreviewFormatoDivergente (nunca render fora do formato congelado)", async () => {
+    const ambiente = criarAmbiente();
+    try {
+      // 640x360 passaria no render e seria rejeitado DEPOIS pela conferencia
+      // do servidor (conferirPreview revalida com o FORMATO_VIDEO fixo) e
+      // pelo juntar — a divergencia e erro na porta, nunca override.
+      const erro = await renderizarPreviewPedaco(
+        roteiroDe([pedaco({ tipo_visual: "texto", duracao_segundos: 2 })]),
+        0,
+        opcoesDe(ambiente, { opcoesDeConstrucao: { width: 640, height: 360 } }),
+      )
+        .then(() => null)
+        .catch((e: unknown) => e);
+      expect(erro).toBeInstanceOf(ErroPreviewFormatoDivergente);
+      expect(String(erro)).toContain("formato congelado");
+      expect(String(erro)).toContain("640");
+      // fps divergente tambem e recusado (o formato e o contrato inteiro).
+      const erro60 = await renderizarPreviewPedaco(
+        roteiroDe([pedaco({ tipo_visual: "texto", duracao_segundos: 2 })]),
+        0,
+        opcoesDe(ambiente, { opcoesDeConstrucao: { fps: 60 } }),
+      )
+        .then(() => null)
+        .catch((e: unknown) => e);
+      expect(erro60).toBeInstanceOf(ErroPreviewFormatoDivergente);
+      expect(String(erro60)).toContain("60");
+    } finally {
+      removerAmbiente(ambiente);
+    }
   });
 
   it("renderizarPreviewPedaco: indice fora do range = ErroContratoRoteiro (fail-closed)", async () => {
@@ -1159,6 +1219,36 @@ describe("G7 — oraculo do arquivo final (conferirArquivoDoPreview)", () => {
     ).rejects.toThrow(/duracao do stream de video indefinida/);
   });
 
+  it("duracao abaixo do piso do amostrador (0.5s) = ErroPreviewVazio NOMEANDO a causa (FIX onda 6)", async () => {
+    arquivoDummy();
+    // 0.3s com fps=2: o amostrador nao extrai bytes e mediria yavg 0/desvio
+    // 0 — o video CURTO (mas vivo) seria acusado de "quase chapado"
+    // (diagnostico falso). O piso e falha nomeada com a causa certa.
+    const erro = await conferirArquivoDoPreview(ARQUIVO, ESPERADO, {
+      executor: executorProbe([streamVideo({ duration: "0.300000" }), streamAudio()]),
+      executorBruto: executorBrutoDePixels(0xff),
+    })
+      .then(() => null)
+      .catch((e: unknown) => e);
+    expect(erro).toBeInstanceOf(ErroPreviewVazio);
+    expect(String(erro)).toContain("amostrador de conteudo");
+    expect(String(erro)).toContain("0.5");
+    // NUNCA o diagnostico falso: o veredito antigo citava as medicoes
+    // (yavg/desvio) como se o video fosse chapado — a causa real e a
+    // duracao abaixo do piso, e a mensagem tem de nomea-la.
+    expect(String(erro)).not.toContain("yavg");
+  });
+
+  it("duracao no PISO (0.5s) passa do piso e chega ao oraculo de conteudo (borda inclusiva)", async () => {
+    arquivoDummy();
+    const conferencia = await conferirArquivoDoPreview(ARQUIVO, ESPERADO, {
+      executor: executorProbe([streamVideo({ duration: "0.500000" }), streamAudio()]),
+      executorBruto: executorBrutoDePixels(0xff),
+    });
+    expect(conferencia.duracaoSegundos).toBe(0.5);
+    expect(conferencia.medida.yavgMaximo).toBe(255);
+  });
+
   it("oraculo de conteudo (C1): pixels escuros e chapados = ErroPreviewVazio", async () => {
     arquivoDummy();
     await expect(
@@ -1333,13 +1423,16 @@ describe("G8 — CLI D11: gaps de cobertura", () => {
     expect(cli.stderr).toContain('"preview-visual-nao-produzivel"');
   });
 
-  it("duracao abaixo de 1 frame = exit 1 falha-interna (mapeamento atual do CLI)", () => {
-    // 0.01s * 30fps = 0.3 frames -> round = 0 -> o construtor recusa.
+  it("duracao abaixo de 1 frame = exit 2 duracao-insuficiente (classe 400/409, FIX onda 6)", () => {
+    // 0.01s * 30fps = 0.3 frames -> round = 0 -> o construtor recusa. O
+    // ErroDuracaoInsuficiente e erro de ENTRADA/ESTADO (o servidor mapeia
+    // 400/409, D11) — antes do fix caia em "falha-interna" exit 1 (500).
     const roteiro = roteiroDe([pedaco({ tipo_visual: "texto", duracao_segundos: 0.01 })]);
     const cli = rodarCliBruto(JSON.stringify({ roteiro, indice_pedaco: 0, opcoes: opcoesCli() }));
-    expect(cli.status).toBe(1);
+    expect(cli.status).toBe(2);
+    expect(cli.stdout).toBe("");
     const envelope = JSON.parse(cli.stderr) as { erro: { codigo: string; mensagem: string } };
-    expect(envelope.erro.codigo).toBe("falha-interna");
+    expect(envelope.erro.codigo).toBe("duracao-insuficiente");
     expect(envelope.erro.mensagem).toContain("duracao_segundos 0.01");
   });
 
@@ -1405,7 +1498,7 @@ describe("G9 — duracao minima do pedaco", () => {
   );
 
   it(
-    "pedaco de 1 frame (0.02s): o oraculo NAO consegue amostrar (fps=2) — ErroPreviewVazio (comportamento atual, ver handoff)",
+    "pedaco de 1 frame (0.02s): duracao abaixo do PISO do amostrador (0.5s) = ErroPreviewVazio nomeando a causa (FIX onda 6)",
     async () => {
       const ambiente = criarAmbiente();
       try {
@@ -1417,9 +1510,61 @@ describe("G9 — duracao minima do pedaco", () => {
           .then(() => null)
           .catch((e: unknown) => e);
         expect(erro).toBeInstanceOf(ErroPreviewVazio);
-        // A mensagem diz "quase chapado" — mas o video NAO e preto: a
-        // amostragem a 2fps nao extrai bytes de um video < ~0.5s.
-        expect(String(erro)).toContain("chapado");
+        // A mensagem NOMEIA o piso do amostrador (fps=2, 0.5s) — o video
+        // NAO e preto: e curto demais para a amostragem extrair bytes
+        // (antes do fix, o veredito era o falso "quase chapado").
+        expect(String(erro)).toContain("amostrador de conteudo");
+        expect(String(erro)).toContain("0.5");
+      } finally {
+        removerAmbiente(ambiente);
+      }
+    },
+    120_000,
+  );
+
+  it(
+    "pedaco alvo com indice > 0 em roteiro de MULTIPLOS pedacos renderiza e valida (normalizacao p-000/indice 0 — FIX onda 6)",
+    async () => {
+      const ambiente = criarAmbiente();
+      try {
+        const roteiro = roteiroDe([
+          pedaco({ indice: 0, tipo_visual: "texto", duracao_segundos: 2 }),
+          pedaco({
+            indice: 1,
+            tipo_visual: "texto",
+            duracao_segundos: 2,
+            fala: "A fala do segundo pedaco",
+            especificacao_visual: "O segundo pedaco, com conteudo proprio",
+          }),
+          pedaco({ indice: 2, tipo_visual: "texto", duracao_segundos: 2 }),
+        ]);
+        // indice 1: o pedaco alvo carrega id/indice ORIGINAIS (p-001/1) e
+        // so a normalizacao o torna um roteiro valido de um pedaco so.
+        const resultado = await renderizarPreviewPedaco(
+          roteiro,
+          1,
+          opcoesDe(ambiente, { renderer: rendererComPng(pngAzul), contexto: contextoFake() }),
+        );
+        const conferencia = await conferirPreview(resultado.hash, {
+          previewsRaiz: ambiente.previewsRaiz,
+        });
+        expect(conferencia.duracaoSegundos).toBeCloseTo(2, 1);
+        expect(conferencia.medida.yavgMaximo).toBeGreaterThan(24);
+        // indice 0 continua funcionando (a normalizacao e idempotente).
+        const resultado0 = await renderizarPreviewPedaco(
+          roteiro,
+          0,
+          opcoesDe(ambiente, { renderer: rendererComPng(pngAzul), contexto: contextoFake() }),
+        );
+        const conferencia0 = await conferirPreview(resultado0.hash, {
+          previewsRaiz: ambiente.previewsRaiz,
+        });
+        expect(conferencia0.duracaoSegundos).toBeCloseTo(2, 1);
+        // Pedacos diferentes (titulo/fala) produzem chaves C7 diferentes
+        // (o endereco e por CONTEUDO — o renderer fake pinta o mesmo azul
+        // nos dois, entao os bytes do mp4 sao iguais; a chave e a prova
+        // de que o conteudo distinto foi enderecado distinto).
+        expect(resultado.chaveC7).not.toBe(resultado0.chaveC7);
       } finally {
         removerAmbiente(ambiente);
       }

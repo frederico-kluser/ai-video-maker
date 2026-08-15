@@ -9,7 +9,9 @@
  *     musica / encode / mux) — a cadeia de ErroJuntarRender nomeada;
  *   - as conferencias do proprio juntar: versao fora do pin, zero bytes
  *     do mux, streams faltando, entregavel fora do alvo (LUFS e true
- *     peak), duracao do stream ilegivel, start_time ilegivel;
+ *     peak), duracao do stream ilegivel, start_time ilegivel, audio todo
+ *     silencioso (ebur128 "-inf" = juntar-audio-silencioso nomeado — FIX
+ *     onda 6, nunca o juntar-render-falhou generico);
  *   - os branches de parse do ffprobe fake (fps "0/0", sample_rate
  *     numerico vs string, campos ausentes/indefinidos, consistencia de
  *     canais/layout);
@@ -36,6 +38,7 @@ import { sha256Hex } from "../../src/pipeline/produzir.js";
 import type { ExecutorBruto, ExecutorDeComando } from "../../src/pipeline/produzir.js";
 import {
   conferirEntrega,
+  ErroJuntarAudioSilencioso,
   ErroJuntarFormatosDivergentes,
   ErroJuntarRender,
   gerarSrtFinal,
@@ -367,6 +370,27 @@ describe("juntar — pin da ferramenta e falhas de execucao (executor fake)", ()
     await expect(juntar(roteiroDeTeste([{ id: "p-000" }]), opcoes)).rejects.toThrow(
       /true peak -0\.50 dBTP acima do teto/,
     );
+  });
+
+  it("audio todo SILENCIOSO -> juntar-audio-silencioso nomeado (FIX onda 6, nunca juntar-render-falhou)", async () => {
+    // Silencio digital: o ebur128 imprime "I: -inf LUFS" / "Peak: -inf
+    // dBFS" e o parse do pos (compartilhado com o pipeline — intocado)
+    // lanca EMedicaoInvalida. O juntar mapeia para o erro NOMEADO: o gate
+    // juntar-fala-sem-narracao garante narracao para toda fala — so uma
+    // GRAVACAO silenciosa chega ate aqui, e o usuario precisa saber.
+    const { opcoes } = opcoesFake({
+      ebur128:
+        "  Integrated loudness:\n    I:         -inf LUFS\n  True peak:\n    Peak:      -inf dBFS\n",
+    });
+    const erro = await juntar(roteiroDeTeste([{ id: "p-000" }, { id: "p-001" }]), opcoes)
+      .then(() => null)
+      .catch((e: unknown) => e);
+    expect(erro).toBeInstanceOf(ErroJuntarAudioSilencioso);
+    expect((erro as ErroJuntarAudioSilencioso).codigo).toBe("juntar-audio-silencioso");
+    expect(String(erro)).toContain("silencio digital");
+    expect(String(erro)).toContain("juntar-fala-sem-narracao");
+    // A mensagem e HONESTA: a causa e o audio silencioso, nao o render.
+    expect(String(erro)).not.toContain("juntar-render-falhou");
   });
 
   it("duracao do stream ilegivel (N/A) -> ErroJuntarRender, nunca entrega sem medir (C4)", async () => {

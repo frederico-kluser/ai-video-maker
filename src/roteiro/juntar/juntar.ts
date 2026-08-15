@@ -27,7 +27,11 @@
  *      ADR-0040): medicao ebur128 (1a passada) + ganho aplicado UMA vez
  *      no PCM (2a passada) + conferencia no CODIFICADO — o "duas
  *      passadas" do api.md. Nunca `loudnorm` em modo dinamico (o filtro
- *      cai para dinamico em silencio — ffmpeg-media-ops);
+ *      cai para dinamico em silencio — ffmpeg-media-ops). Audio em
+ *      silencio digital = EMedicaoInvalida do ebur128 ("Peak: -inf
+ *      dBFS") mapeado para o erro nomeado juntar-audio-silencioso (so
+ *      uma gravacao silenciosa chega ate aqui — o gate
+ *      juntar-fala-sem-narracao garante narracao para toda fala);
  *   6. SRT final — quando o servidor entrega timing de TTS
  *      (opcoes.timing_pedacos), com offset acumulado por pedaco;
  *      GRAVACAO NAO DERIVA LEGENDAS (D4 — sem timing, sem SRT);
@@ -78,7 +82,7 @@ import {
 } from "../../audio/mix/pcm.js";
 import type { Pcm } from "../../audio/mix/pcm.js";
 import { alvoDoPos, TOLERANCIA_MEDICAO_LU, versaoDoFfmpeg } from "../../entrega/pos/index.js";
-import { medirLoudness } from "../../entrega/pos/medir.js";
+import { EMedicaoInvalida, medirLoudness } from "../../entrega/pos/medir.js";
 import type { MedicaoEbur128 } from "../../entrega/pos/medir.js";
 import { aplicarGanhoNoMaster, computarGanho } from "../../entrega/pos/normalizar.js";
 import { montarComandoAudio, PERFIL_AUDIO_POS } from "../../entrega/pos/perfil-audio.js";
@@ -274,6 +278,28 @@ export class ErroJuntarRender extends ErroJuntar {
   }
 }
 
+/**
+ * A trilha de audio esta em SILENCIO DIGITAL — a medicao ebur128 nao
+ * consegue ler o sumario ("Peak: -inf dBFS" nao casa o parse do pos, que
+ * e compartilhado com o pipeline e NAO muda aqui). O gate
+ * juntar-fala-sem-narracao garante narracao para toda fala — so uma
+ * GRAVACAO silenciosa chega ate este ponto; o erro nomeado diz isso, em
+ * vez do juntar-render-falhou generico.
+ */
+export class ErroJuntarAudioSilencioso extends ErroJuntar {
+  constructor(causa: EMedicaoInvalida) {
+    super(
+      "juntar-audio-silencioso",
+      `a trilha de audio esta em silencio digital: a medicao ebur128 nao ` +
+        `consegue ler picos ("Peak: -inf dBFS" nao casa o parse — ` +
+        `${causa.message}) — regrave os pedacos com audio gravado; o gate ` +
+        `juntar-fala-sem-narracao garante narracao para toda fala, entao so ` +
+        `uma gravacao silenciosa chega ate aqui`,
+    );
+    this.name = "ErroJuntarAudioSilencioso";
+  }
+}
+
 // ─── Verificacao (os gates) ───────────────────────────────────────────────────
 
 /** Um problema do verificarJuntavel — regra nomeada + pedacos envolvidos. */
@@ -309,12 +335,6 @@ function separarProblemasDeAnexo(problemas: readonly string[]): {
     }
   }
   return { anexo, demais };
-}
-
-/** Extrai a regra nomeada de uma mensagem do validador ("regra X — ..."). */
-function regraDaMensagem(mensagem: string): string {
-  const m = /regra (\S+)/.exec(mensagem);
-  return m === null ? "regra-desconhecida" : m[1]!;
 }
 
 /**
@@ -607,6 +627,28 @@ function erroDeExecucao(etapa: string, erro: unknown): ErroJuntarRender {
   return new ErroJuntarRender(`etapa "${etapa}" falhou:\n${mensagem}`);
 }
 
+/**
+ * A medicao de loudness do juntar: o ebur128 do pos (compartilhado com o
+ * pipeline — nunca alterado aqui) falha com EMedicaoInvalida quando o
+ * audio esta em silencio digital ("Peak: -inf dBFS" nao casa o parse).
+ * O mapeamento para o erro nomeado juntar-audio-silencioso e deste
+ * modulo: um master silencioso NAO e uma falha interna de render, e o
+ * usuario precisa saber que a gravacao nao capturou som.
+ */
+async function medirLoudnessDoJuntar(
+  caminho: string,
+  executor: ExecutorDeComando,
+): Promise<MedicaoEbur128> {
+  try {
+    return await medirLoudness(caminho, executor);
+  } catch (erro) {
+    if (erro instanceof EMedicaoInvalida) {
+      throw new ErroJuntarAudioSilencioso(erro);
+    }
+    throw erro;
+  }
+}
+
 /** Escapa um caminho para a linha `file '...'` do demuxer concat. */
 function escaparCaminhoDoConcat(caminho: string): string {
   return `file '${caminho.split("'").join("'\\''")}'`;
@@ -804,7 +846,8 @@ export interface ResultadoDeJuntar {
  *
  * @throws ErroJuntarFalaSemNarracao | ErroJuntarAnexoInvalido |
  *         ErroJuntarRoteiroInvalido | ErroJuntarPreviewAusente |
- *         ErroJuntarFormatosDivergentes | ErroJuntarRender
+ *         ErroJuntarFormatosDivergentes | ErroJuntarAudioSilencioso |
+ *         ErroJuntarRender
  */
 export async function juntar(
   roteiro: Roteiro,
@@ -867,7 +910,7 @@ export async function juntar(
   //    passada) -> ganho UMA vez no PCM (2a passada) -> conferir no
   //    codificado. O alvo e dos tokens (S-5, leitura).
   const alvo = alvoDoPos();
-  const medicaoDoMaster = await medirLoudness(masterPath, executor);
+  const medicaoDoMaster = await medirLoudnessDoJuntar(masterPath, executor);
   const ganho = computarGanho(alvo, medicaoDoMaster.integradoLufs, medicaoDoMaster.truePeakDbtp);
   const normalizado = aplicarGanhoNoMaster(masterBytes, ganho.ganhoAplicadoDb);
   const normalizadoPath = join(dirTrabalho, "normalizado.wav");
@@ -884,7 +927,7 @@ export async function juntar(
 
   // 7. Conferencia no CODIFICADO (a mesma disciplina do produzirPos —
   //    ADR-0040 decisao 2: medir o entregavel, decodificado de volta).
-  const medicaoDoEntregavel = await medirLoudness(audioPath, executor);
+  const medicaoDoEntregavel = await medirLoudnessDoJuntar(audioPath, executor);
   if (
     Math.abs(medicaoDoEntregavel.integradoLufs - alvo.targetLufs) >
     alvo.toleranciaMedicaoLu

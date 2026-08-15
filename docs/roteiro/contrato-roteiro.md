@@ -200,7 +200,15 @@ nós dele).
   conteúdo (C7): cache por hash(manifesto reduzido + versões das
   ferramentas); render 2x = bytes idênticos (FQ-P1). Nunca quadro preto
   aprovado: oráculo de conteúdo (C1, FQ-P2). Manim ausente = **erro claro**
-  (FQ-P3).
+  (FQ-P3). **Formato congelado:** opções de construção que divergem do
+  FORMATO_VIDEO (fps/largura/altura) são recusadas com erro nomeado
+  (`preview-formato-divergente`) — nunca render fora do formato (a
+  conferência do servidor e o juntar revalidam com o FORMATO_VIDEO fixo).
+  **Piso do amostrador:** o oráculo de conteúdo amostra a
+  `AMOSTRAGEM_DE_FRAMES` fps (filtro `fps=2` do produzir) — preview com
+  duração do stream < 0,5s não é mensurável (o amostrador não extrai
+  bytes) e é recusado com `preview-vazio` nomeando o piso; aumente a
+  duração do pedaço.
 - **Vídeo final:** mesmos parâmetros — concat dos previews por stream-copy
   (iguais por construção) + música opcional (amix) + normalização EBU R128
   (duas passadas; alvo é decisão de dono em ADR, teto −1 dBTP) + mux final +
@@ -211,6 +219,12 @@ nós dele).
   `nenhuma` → o juntar **recusa** com 409 listando os pedaços (regra
   `juntar-fala-sem-narracao`). Nunca entregar fala muda: é o oráculo
   negativo do e2e para o modo de falha C1 (vídeo final sai "ok" e mudo).
+  **Silêncio digital:** com narração presente mas **gravada em silêncio**,
+  a medição ebur128 (pos, compartilhado com o pipeline) não lê o sumário
+  (`Peak: -inf dBFS`) e o juntar mapeia para o erro nomeado
+  `juntar-audio-silencioso` — regrave os pedaços; só uma gravação
+  silenciosa chega até aqui (o gate acima garante narração para toda
+  fala).
 
 ## 9. A fronteira de determinismo
 

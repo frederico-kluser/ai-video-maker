@@ -24,8 +24,10 @@
  *
  *   0 = sucesso (stdout JSON);
  *   2 = erro de ENTRADA/ESTADO: pedido malformado, roteiro/pedaco
- *       invalido, visual nao produzivel (anexo-exigido-para-gif-video),
- *       manim indisponivel — o servidor mapeia 400/409;
+ *       invalido, duracao abaixo de um frame (duracao-insuficiente),
+ *       opcoes fora do formato congelado (preview-formato-divergente),
+ *       visual nao produzivel (anexo-exigido-para-gif-video), manim
+ *       indisponivel — o servidor mapeia 400/409;
  *   1 = falha INTERNA: render/encode/mux falhou, preview vazio/chapado
  *       (C1) — o servidor mapeia 500.
  *
@@ -37,10 +39,11 @@ import { readFileSync, writeFileSync, renameSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import type { Roteiro } from "../contrato/contrato.js";
 import { ErroContratoRoteiro } from "../contrato/rejeitar.js";
-import { ErroReduzirManifesto } from "../construir/construir.js";
+import { ErroDuracaoInsuficiente, ErroReduzirManifesto } from "../construir/construir.js";
 import { ErroAnexoAusente } from "../construir/mapear.js";
 import {
   renderizarPreviewPedaco,
+  ErroPreviewFormatoDivergente,
   ErroPreviewManimIndisponivel,
   ErroPreviewRender,
   ErroPreviewVazio,
@@ -87,6 +90,8 @@ function codigoDoErro(erro: unknown): string {
   if (erro instanceof ErroContratoRoteiro) return "roteiro-invalido";
   if (erro instanceof ErroReduzirManifesto) return "reducao-impossivel";
   if (erro instanceof ErroAnexoAusente) return "anexo-exigido-para-gif-video";
+  if (erro instanceof ErroDuracaoInsuficiente) return "duracao-insuficiente";
+  if (erro instanceof ErroPreviewFormatoDivergente) return "preview-formato-divergente";
   if (erro instanceof ErroPreviewVazio) return "preview-vazio";
   if (erro instanceof ErroPreviewRender) return "preview-render-falhou";
   return "falha-interna";
@@ -99,7 +104,9 @@ function exitCodeDoErro(erro: unknown): number {
     erro instanceof ErroPreviewManimIndisponivel ||
     erro instanceof ErroContratoRoteiro ||
     erro instanceof ErroReduzirManifesto ||
-    erro instanceof ErroAnexoAusente
+    erro instanceof ErroAnexoAusente ||
+    erro instanceof ErroDuracaoInsuficiente ||
+    erro instanceof ErroPreviewFormatoDivergente
   ) {
     return 2;
   }
