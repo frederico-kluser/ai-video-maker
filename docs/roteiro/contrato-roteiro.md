@@ -39,7 +39,8 @@ e `pedaco.schema.json` (alias isolado). Todo objeto tem
 | `especificacao_visual` | O que o visual mostra (texto livre que o construtor interpreta). Não vazio. |
 | `detalhes_de_producao` | O texto que a UI exibe sobre **como** o pedaço será feito. Não vazio. |
 | `narracao` | Estado da narração (seção 7). |
-| `anexo_hash` | SHA-256 do anexo do usuário (gif/vídeo). **Obrigatório** com `tipo_visual` `gif`/`video`, **proibido** nos demais (regra `anexo-visual-incompativel`) — C7: nada de URL, endereço por conteúdo. |
+| `anexo_hash` | SHA-256 do anexo do usuário (gif/vídeo). **Obrigatório** com `tipo_visual` `gif`/`video`, **proibido** nos demais (regras `anexo-exigido-para-gif-video` / `anexo-proibido-outros`) — C7: nada de URL, endereço por conteúdo. Mutável **somente** pela rota de anexo (`PUT/GET/DELETE anexo`) — análogo à narração, edição de texto não o mexe (regra `edicao-anexo-proibido`). |
+| `anexo_meta` | Metadado do anexo, sempre junto de `anexo_hash`: `{tipo, tamanho_bytes, nome_original}` — `tipo` na allowlist fechada `image/gif \| video/mp4 \| video/webm` (regra `anexo-tipo-permitido`), `tamanho_bytes` ≤ 200 MB (regra `anexo-tamanho-limite`; constante `ANEXO_TAMANHO_MAXIMO_BYTES` em `contrato.ts` — fonte única). |
 
 ### As regras nomeadas de narração
 
@@ -56,7 +57,12 @@ e aparece na mensagem de rejeição — é o que o FQ-C1 exige ("erro nomeado"):
 | `gerado-sem-origem` | status `gerado` ⟹ origem `tts` ou `gravacao` |
 | `gerado-dessincronizado` | status `gerado` ⟹ `narracao.texto == fala` (o áudio corresponde ao texto de que foi gerado) |
 | `editado-sincronizado` | status `editado` ⟹ `narracao.texto != fala` (a fala mudou depois da geração — áudio stale) |
-| `anexo-visual-incompativel` | `gif`/`video` ⟺ `anexo_hash` presente |
+| `anexo-exigido-para-gif-video` | `tipo_visual` `gif`/`video` ⟹ `anexo_hash` + `anexo_meta` presentes (400 no PATCH que define gif/vídeo sem anexo) |
+| `anexo-proibido-outros` | `tipo_visual` ≠ `gif`/`video` ⟹ `anexo_hash`/`anexo_meta` ausentes |
+| `anexo-tipo-permitido` | `anexo_meta.tipo` ∈ `{image/gif, video/mp4, video/webm}` (allowlist fechada) |
+| `anexo-tamanho-limite` | `anexo_meta.tamanho_bytes` ≤ `ANEXO_TAMANHO_MAXIMO_BYTES` (200 MB) |
+| `edicao-anexo-proibido` | `EdicaoPedaco` nunca carrega `anexo_hash`/`anexo_meta` — anexo muda só pela rota de anexo |
+| `juntar-fala-sem-narracao` | gate do juntar: pedaço com `fala != ""` e origem `nenhuma` → 409 listando os pedaços (nunca entrega fala muda — C1) |
 
 ## 3. Vocabulário fechado do visual
 
@@ -64,8 +70,8 @@ e aparece na mensagem de rejeição — é o que o FQ-C1 exige ("erro nomeado"):
 |---|---|---|
 | `manim` | Animação estilo 3blue1brown (formas, equações MathTex) | Cena via **estágio `grafico`** (`src/resolucao/grafico/estagio.ts` — o runner Manim headless; se o vocabulário de nós do Manifesto.1 não expressar a animação, o construtor resolve o mapeamento — é dele, não do contrato) |
 | `grafico` | Gráfico de dados (barras/linha/pizza/área/dispersão) | `NoGrafico` (mesmo estágio `grafico`) |
-| `gif` | GIF anexado pelo usuário | `NoMidia {tipo_midia: "gif", hash: anexo_hash}` — resolução `midia` |
-| `video` | Vídeo anexado (ex.: gravação de tela) | `NoMidia {tipo_midia: "video", hash: anexo_hash}` — resolução `midia` |
+| `gif` | GIF anexado pelo usuário | `NoMidia {tipo_midia: "gif", hash: anexo_hash}` — resolução `midia`; `anexo_meta` guarda tipo/tamanho/nome do arquivo original |
+| `video` | Vídeo anexado (ex.: gravação de tela) | `NoMidia {tipo_midia: "video", hash: anexo_hash}` — resolução `midia`; `anexo_meta` guarda tipo/tamanho/nome do arquivo original |
 | `texto` | Texto em destaque | `NoTexto` |
 | `lista` | Lista de itens | `NoLista` |
 | `cabecalho` | Cabeçalho/título (tipicamente sem fala) | `NoCabecalho` |
@@ -92,9 +98,15 @@ e aparece na mensagem de rejeição — é o que o FQ-C1 exige ("erro nomeado"):
 
 - `cena.id` — derivado do pedaço (o construtor escolhe a forma; sugestão
   `c-<indice>`); `cena.nos` — os nós do vocabulário existente
-  (seção 3); `cena.audio_cena` — presente **só quando `fala` não é vazia**,
-  com `audio_cena.texto_locucao = fala` (é o campo que o estágio `locucao`
-  consome — `src/resolucao/locucao/estagio.ts`).
+  (seção 3); `cena.audio_cena` — presente **só quando
+  `narracao.origem ∈ {tts, gravacao}`**, com `audio_cena.texto_locucao =
+  narracao.texto` (é o campo que o estágio `locucao` consome —
+  `src/resolucao/locucao/estagio.ts`).
+- **RECORD-FIRST (emenda):** pedaço com fala ainda não narrada (origem
+  `nenhuma` — o estado normal do roteiro recém-gerado) **não tem**
+  `audio_cena`: a cena renderiza silenciosa no preview (a UI mostra o botão
+  de gravação). A fala muda nunca chega ao vídeo final — o gate do juntar
+  (seção 8) a bloqueia com 409 antes de montar o vídeo.
 - **Nenhuma URL no manifesto resolvido (C7):** o gif/vídeo entra pelo
   `hash` dos bytes (`NoMidia.hash`), o áudio gravado entra pelo `hash_audio`
   resolvido na locução, e a licença vem da procedência do store (a ponte
@@ -122,7 +134,8 @@ nós dele).
   `titulo`, `fala`, `duracao_segundos`, `tipo_visual`,
   `especificacao_visual`, `detalhes_de_producao`. **Nunca**: `id`,
   `indice`, `narracao` (identidade e áudio mudam só pelos endpoints de
-  narração).
+  narração) e `anexo_hash`/`anexo_meta` (o anexo muda só pela rota de
+  anexo — regra `edicao-anexo-proibido`).
 - A aplicação de uma edição é `editarPedaco` (`src/roteiro/contrato/edicao.ts`):
   valida o delta (delta inválido = rejeição nomeada), merge raso com as
   travas de identidade, e aplica as regras de narração quando a `fala`
@@ -143,9 +156,21 @@ nós dele).
 
 ## 7. Narração — origem, estado e formato
 
+- **POLÍTICA RECORD-FIRST (emenda):** o **gerador nunca emite narração** —
+  todo pedaço gerado sai com `narracao {texto: "", origem: "nenhuma",
+  status: "vazio"}` — e **nunca emite `gif`/`video`** na primeira geração:
+  anexo é decisão do usuário, via rota de anexo + edição do `tipo_visual`
+  (as regras `anexo-exigido-para-gif-video`/`anexo-proibido-outros` já
+  tornariam gif/vídeo sem anexo inválido — o gerador nem tenta). A voz
+  entra **depois**, por `gravacao` (a rota `narracao/audio`) ou por `tts`
+  (se o provedor estiver configurado; o TTS real está indisponível neste
+  ambiente — HTTP 429 `credit_balance_exhausted` — e o sosia é mock de
+  gravação, então a narração gerada automaticamente não é um caminho
+  obrigatório).
 - `origem`: `tts` (provedor existente, se configurado) · `gravacao` (a voz
   do usuário) · `nenhuma` (pedaço sem fala ou sem narração — FQ-N4: pedaço
-  sem narração não quebra preview/juntar).
+  sem narração não quebra preview; o **juntar** é quem bloqueia fala não
+  narrada, seção 8).
 - `status`: `vazio` (nada gerado) · `gerado` (áudio existe e corresponde a
   `narracao.texto == fala`) · `editado` (a `fala` mudou depois da geração —
   `narracao.texto` aponta para o texto antigo; o áudio está stale até
@@ -181,6 +206,11 @@ nós dele).
   (duas passadas; alvo é decisão de dono em ADR, teto −1 dBTP) + mux final +
   SRT por pedaço com offset (só quando há timing). Determinismo bitexact
   (FQ-J3); conferência por ffprobe **por stream** (C4, FQ-J1/J4).
+- **GATE de narração antes de juntar (record-first):** `verificarJuntarFalaSemNarracao`
+  (`src/roteiro/contrato/validar.ts`) — pedaço com `fala != ""` e origem
+  `nenhuma` → o juntar **recusa** com 409 listando os pedaços (regra
+  `juntar-fala-sem-narracao`). Nunca entregar fala muda: é o oráculo
+  negativo do e2e para o modo de falha C1 (vídeo final sai "ok" e mudo).
 
 ## 9. A fronteira de determinismo
 

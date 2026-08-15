@@ -16,7 +16,8 @@ edição no lugar.
   porta é erro claro no startup, nunca silêncio (FQ-S4).
 - Base: `http://localhost:4610`.
 - Tudo abaixo de `/api/` fala JSON (`Content-Type: application/json`); os
-  dois endpoints de arquivo (`narracao/audio` PUT/GET e `*.mp4`) falam bytes.
+  endpoints de arquivo (`narracao/audio` PUT/GET, `anexo` PUT/GET e
+  `*.mp4`) falam bytes.
 
 ## Envelope de erro
 
@@ -110,6 +111,9 @@ PATCH /api/projetos/:id/pedacos/:pedacoId
 PUT /api/projetos/:id/pedacos/:pedacoId/narracao/audio
 GET /api/projetos/:id/pedacos/:pedacoId/narracao/audio
 DELETE /api/projetos/:id/pedacos/:pedacoId/narracao
+PUT /api/projetos/:id/pedacos/:pedacoId/anexo
+GET /api/projetos/:id/pedacos/:pedacoId/anexo
+DELETE /api/projetos/:id/pedacos/:pedacoId/anexo
 POST /api/projetos/:id/pedacos/:pedacoId/preview
 GET /api/projetos/:id/pedacos/:pedacoId/preview.mp4
 POST /api/projetos/:id/juntar
@@ -219,7 +223,8 @@ pedaço regenerado). `404` se o pedaço não existe; `409` sem roteiro.
 ### PATCH /api/projetos/:id/pedacos/:pedacoId — edita pedaço
 
 Corpo: `EdicaoPedaco` (`src/roteiro/contrato/contrato.ts` — só os campos
-editáveis; `id`, `indice` e `narracao` **nunca** vêm daqui).
+editáveis; `id`, `indice`, `narracao` e `anexo_hash`/`anexo_meta` **nunca**
+vêm daqui).
 
 - O servidor valida o delta (`validarEdicaoPedaco` — FQ-C1: delta inválido
   é 400 com a regra nomeada) e grava em `pedacos_editados[pedacoId]`
@@ -231,6 +236,11 @@ editáveis; `id`, `indice` e `narracao` **nunca** vêm daqui).
   antigo e fica stale até regenerar/regravar; **o áudio em si não é
   apagado** — dedupe por hash, S-8); pedaço **nunca narrado** continua
   `vazio`; **apagar a fala** (`fala: ""`) limpa a narração inteira.
+- **Anexo não entra por PATCH** (regra `edicao-anexo-proibido` — 400): o
+  anexo muda somente pela rota de anexo. Edição que define `tipo_visual`
+  `gif`/`video` sem anexo no pedaço é 400 (regra
+  `anexo-exigido-para-gif-video`) — o fluxo é **upload primeiro, tipo
+  depois**: `PUT anexo` → `PATCH tipo_visual` (ver rota de anexo abaixo).
 - `404` pedaço inexistente; `400` delta inválido.
 
 ### PUT /api/projetos/:id/pedacos/:pedacoId/narracao/audio — envia a gravação
@@ -257,6 +267,48 @@ Volta a narração para `{ texto: "", origem: "nenhuma", status: "vazio" }`
 (os bytes do wav **permanecem** no store — append-only, S-8). `204`. `404`
 se não há narração para remover.
 
+### PUT /api/projetos/:id/pedacos/:pedacoId/anexo — envia o anexo (gif/vídeo)
+
+- `Content-Type`: `image/gif` | `video/mp4` | `video/webm` (a allowlist
+  fechada de `VOCABULARIO_TIPO_ANEXO`). Corpo: os bytes crus do arquivo.
+- O servidor valida o arquivo: tipo na allowlist (regra
+  `anexo-tipo-permitido`) e tamanho ≤ **200 MB** (regra
+  `anexo-tamanho-limite`; constante `ANEXO_TAMANHO_MAXIMO_BYTES` em
+  `src/roteiro/contrato/contrato.ts` — fonte única, nunca redigitado) —
+  violação é `400` com a regra nomeada (FQ-C1).
+- Calcula o SHA-256 dos bytes e grava no store (append-only por hash,
+  S-8; mesmo arquivo 2x = mesmo hash, FQ-N1). Atualiza o pedaço:
+  `anexo_hash = <sha256>` e `anexo_meta = { tipo, tamanho_bytes,
+  nome_original }` (nome_original vem do upload).
+- **O upload NÃO muda `tipo_visual`** — o anexo é o asset do usuário; a
+  decisão de usá-lo (gif/vídeo) é do usuário, via PATCH. O fluxo é
+  **upload primeiro, tipo depois**: `PUT anexo` em pedaço de qualquer
+  `tipo_visual`, depois `PATCH tipo_visual: "gif"|"video"` — a edição só
+  passa quando o anexo já existe (regra `anexo-exigido-para-gif-video`).
+  Enquanto o par (anexo, tipo_visual) não está consistente, o pedaço não
+  valida (regras `anexo-exigido-para-gif-video` /
+  `anexo-proibido-outros`).
+- `201` com o anexo novo:
+  ```json
+  { "hash": "<sha256>", "tipo": "image/gif", "tamanho": 98765, "nome_original": "reacao.gif" }
+  ```
+  (substitui o anexo anterior do pedaço, se houver — o byte antigo
+  permanece no store por hash, S-8). `404` pedaço inexistente.
+
+### GET /api/projetos/:id/pedacos/:pedacoId/anexo — baixa o anexo
+
+Resposta `200` com os bytes do anexo (`Content-Type` = `anexo_meta.tipo`).
+`404` com `codigo: anexo-inexistente` se não há anexo.
+
+### DELETE /api/projetos/:id/pedacos/:pedacoId/anexo — remove o anexo
+
+Remove `anexo_hash` + `anexo_meta` do pedaço (os bytes **permanecem** no
+store — append-only, S-8). **Não** muda `tipo_visual`: se o pedaço era
+gif/vídeo, ele fica em estado inconsistente (regra
+`anexo-exigido-para-gif-video`) até o usuário editar `tipo_visual` para
+outro valor — a UI oferece a troca logo após o DELETE. `204`. `404` se não
+há anexo para remover.
+
 ### POST /api/projetos/:id/pedacos/:pedacoId/preview — job: render do preview
 
 Corpo: vazio. `202` + `Location`. Job `ok` → `artefato.caminho` aponta para
@@ -265,6 +317,11 @@ Corpo: vazio. `202` + `Location`. Job `ok` → `artefato.caminho` aponta para
 - O preview é o render do **manifesto reduzido de UM pedaço** (Onda 3) no
   formato congelado (1080p30 h264 yuv420p + aac 48k); cache por conteúdo
   (C7): mesmo pedaço + mesmas versões = HIT sem re-render.
+- **Record-first:** `audio_cena` só existe no manifesto quando
+  `narracao.origem ∈ {tts, gravacao}` — pedaço com fala ainda não narrada
+  renderiza **silencioso** no preview (isso é o estado normal do roteiro
+  recém-gerado; a UI mostra o botão de gravação). O preview nunca é
+  bloqueado por fala não narrada — o bloqueio é do juntar.
 - `409` se o pedaço não tem visual produzível; pedaço com visual manim sem
   Manim instalado → job `erro` com mensagem clara (FQ-P3: nunca sucesso com
   quadro preto — C1).
@@ -286,8 +343,16 @@ do disco do servidor, nunca URL). `202` + `Location`. Job `ok` →
   construção) + música opcional (amix) + EBU R128 (duas passadas) + mux
   final + SRT por pedaço com offset (só quando há timing — legendas não são
   derivadas de gravação, D4).
-- `409` se não há roteiro, algum pedaço sem preview, ou um job de juntar já
-  está em andamento.
+- **GATE de narração (record-first):** antes de montar o vídeo, o juntar
+  roda `verificarJuntarFalaSemNarracao`
+  (`src/roteiro/contrato/validar.ts`): pedaço com `fala != ""` e
+  `narracao.origem == "nenhuma"` → `409` listando os pedaços (regra
+  `juntar-fala-sem-narracao`) — **nunca entrega fala muda** (modo de
+  falha C1: o vídeo final sai "ok" e mudo; oráculo negativo do e2e).
+- `409` se não há roteiro, algum pedaço sem preview, algum pedaço com fala
+  não narrada, algum pedaço com visual gif/vídeo sem anexo (regra
+  `anexo-exigido-para-gif-video`), ou um job de juntar já está em
+  andamento.
 
 ### GET /api/projetos/:id/video-final.mp4 — o vídeo final
 

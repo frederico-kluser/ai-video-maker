@@ -25,8 +25,12 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
-  REGRA_ANEXO_VISUAL,
+  REGRA_ANEXO_EXIGIDO,
+  REGRA_ANEXO_PROIBIDO,
+  REGRA_ANEXO_TAMANHO,
+  REGRA_ANEXO_TIPO,
   REGRA_DURACAO_TOTAL,
+  REGRA_EDICAO_ANEXO_PROIBIDO,
   REGRA_EDITADO_SINCRONIZADO,
   REGRA_GERADO_DESSINCRONIZADO,
   REGRA_GERADO_SEM_ORIGEM,
@@ -35,6 +39,7 @@ import {
   REGRA_ID_INDICE,
   REGRA_IDS_DUPLICADOS,
   REGRA_INDICES,
+  REGRA_JUNTAR_FALA_SEM_NARRACAO,
   REGRA_NARRACAO_FALA_VAZIA,
   REGRA_STATUS_VAZIO,
   REGRA_VERSAO,
@@ -45,6 +50,7 @@ import {
   validarPedidoRegenerarPedaco,
   validarProjetoRoteiro,
   validarRoteiro,
+  verificarJuntarFalaSemNarracao,
 } from "../../src/roteiro/contrato/validar.js";
 import {
   ErroContratoRoteiro,
@@ -54,7 +60,11 @@ import {
 import { ROTAS_API } from "../../src/roteiro/contrato/rotas.js";
 import { editarPedaco } from "../../src/roteiro/contrato/edicao.js";
 import { resumoDePedacos } from "../../src/roteiro/contrato/canonicalizar.js";
-import type { Pedaco, Roteiro } from "../../src/roteiro/contrato/contrato.js";
+import {
+  ANEXO_TAMANHO_MAXIMO_BYTES,
+  type Pedaco,
+  type Roteiro,
+} from "../../src/roteiro/contrato/contrato.js";
 
 const FIXTURES = join(__dirname, "fixtures");
 
@@ -171,18 +181,18 @@ describe("FQ-C1 — pedaco invalido e REJEITADO com erro nomeado", () => {
       REGRA_EDITADO_SINCRONIZADO,
     ],
     [
-      "tipo_visual gif sem anexo_hash",
+      "tipo_visual gif sem anexo (regra anexo-exigido-para-gif-video)",
       (p) => ({ ...p, tipo_visual: "gif" }),
-      REGRA_ANEXO_VISUAL,
+      REGRA_ANEXO_EXIGIDO,
     ],
     [
-      "anexo_hash em pedaco de texto (anexo fora de lugar)",
+      "anexo_hash em pedaco de texto (anexo fora de lugar — anexo-proibido-outros)",
       (p) => ({
         ...p,
         tipo_visual: "texto",
         anexo_hash: "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff",
       }),
-      REGRA_ANEXO_VISUAL,
+      REGRA_ANEXO_PROIBIDO,
     ],
   ];
 
@@ -193,6 +203,82 @@ describe("FQ-C1 — pedaco invalido e REJEITADO com erro nomeado", () => {
       expect(problemasDe(resultado.problemas, regra), resultado.problemas.join("; ")).toBe(true);
     });
   }
+
+  // ── Matriz das regras de ANEXO (emendas da Onda 2: anexo do usuario) ──
+  const PEDACOS_ANEXO_INVALIDOS: Array<[string, string, string]> = [
+    [
+      "pedaco-anexo-sem-anexo.json",
+      "tipo_visual gif sem anexo_hash/anexo_meta",
+      REGRA_ANEXO_EXIGIDO,
+    ],
+    [
+      "pedaco-anexo-tipo-visual-texto.json",
+      "anexo em pedaco de texto",
+      REGRA_ANEXO_PROIBIDO,
+    ],
+    [
+      "pedaco-anexo-tipo-invalido.json",
+      "anexo_meta.tipo fora da allowlist",
+      REGRA_ANEXO_TIPO,
+    ],
+    [
+      "pedaco-anexo-tamanho-excedido.json",
+      "anexo_meta.tamanho_bytes acima do limite",
+      REGRA_ANEXO_TAMANHO,
+    ],
+  ];
+
+  for (const [nome, descricao, regra] of PEDACOS_ANEXO_INVALIDOS) {
+    it(`rejeita ${descricao} (${nome})`, () => {
+      const resultado = validarPedaco(carregar(nome));
+      expect(resultado.valido, resultado.problemas.join("; ")).toBe(false);
+      expect(problemasDe(resultado.problemas, regra), resultado.problemas.join("; ")).toBe(true);
+    });
+  }
+
+  it("aceita o pedaco com anexo valido (gif + hash + meta) e rejeita o par incompleto", () => {
+    const comAnexo = validarPedaco(carregar("pedaco-com-anexo.json"));
+    expect(comAnexo.valido, comAnexo.problemas.join("; ")).toBe(true);
+
+    // anexo_hash sem anexo_meta (ou vice-versa) e par incompleto — a regra
+    // anexo-exigido-para-gif-video exige os dois juntos.
+    const pedaco = carregar("pedaco-com-anexo.json") as Pedaco;
+    const soHash = { ...pedaco, anexo_meta: undefined };
+    expect(problemasDe(validarPedaco(soHash).problemas, REGRA_ANEXO_EXIGIDO)).toBe(true);
+    const soMeta = { ...pedaco, anexo_hash: undefined };
+    expect(problemasDe(validarPedaco(soMeta).problemas, REGRA_ANEXO_EXIGIDO)).toBe(true);
+  });
+
+  it("o limite de tamanho do anexo e a constante nomeada (limite - 1 passa, limite + 1 falha)", () => {
+    const pedaco = carregar("pedaco-com-anexo.json") as Pedaco;
+    const noLimite = {
+      ...pedaco,
+      anexo_meta: { ...pedaco.anexo_meta!, tamanho_bytes: ANEXO_TAMANHO_MAXIMO_BYTES },
+    };
+    expect(validarPedaco(noLimite).valido, validarPedaco(noLimite).problemas.join("; ")).toBe(true);
+
+    const acima = {
+      ...pedaco,
+      anexo_meta: { ...pedaco.anexo_meta!, tamanho_bytes: ANEXO_TAMANHO_MAXIMO_BYTES + 1 },
+    };
+    expect(problemasDe(validarPedaco(acima).problemas, REGRA_ANEXO_TAMANHO)).toBe(true);
+  });
+
+  it("EdicaoPedaco com anexo_hash/anexo_meta e rejeitada com regra edicao-anexo-proibido", () => {
+    const comHash = validarEdicaoPedaco({
+      fala: "ok",
+      anexo_hash: "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff",
+    });
+    expect(comHash.valido).toBe(false);
+    expect(problemasDe(comHash.problemas, REGRA_EDICAO_ANEXO_PROIBIDO)).toBe(true);
+
+    const comMeta = validarEdicaoPedaco({
+      titulo: "x",
+      anexo_meta: { tipo: "image/gif", tamanho_bytes: 100, nome_original: "x.gif" },
+    });
+    expect(comMeta.valido).toBe(false);
+    expect(problemasDe(comMeta.problemas, REGRA_EDICAO_ANEXO_PROIBIDO)).toBe(true);
+  });
 
   // ── Semantica do roteiro (indices, ids, duracao total) ──
   const ROTEIROS_INVALIDOS: Array<[string, string, string]> = [
@@ -256,6 +342,61 @@ describe("FQ-C1 — pedaco invalido e REJEITADO com erro nomeado", () => {
 
     const regenerar = validarPedidoRegenerarPedaco(carregar("pedido-regenerar-valido.json"));
     expect(regenerar.valido, regenerar.problemas.join("; ")).toBe(true);
+  });
+});
+
+describe("emenda — record-first (juntar-fala-sem-narracao) e travas de anexo na edicao", () => {
+  it("o gate de juntar lista os pedacos com fala nao narrada (record-first: nunca entrega fala muda)", () => {
+    // roteiro-valido.json e o estado NORMAL recem-gerado: fala != "" com
+    // origem "nenhuma" — o pedaco e VALIDO (validarRoteiro passa), so nao
+    // e juntavel. O oraculo negativo do e2e e o gate, nao a validacao.
+    const recemGerado = carregar("roteiro-valido.json") as Roteiro;
+    expect(validarRoteiro(recemGerado).valido).toBe(true);
+
+    const bloqueados = verificarJuntarFalaSemNarracao(recemGerado);
+    expect(bloqueados.length).toBe(2); // p-001 e p-002 tem fala; p-000 e cabecalho sem fala
+    expect(problemasDe(bloqueados, REGRA_JUNTAR_FALA_SEM_NARRACAO)).toBe(true);
+    expect(bloqueados.some((p) => p.includes("p-001"))).toBe(true);
+    expect(bloqueados.some((p) => p.includes("p-002"))).toBe(true);
+    expect(bloqueados.some((p) => p.includes("p-000"))).toBe(false);
+  });
+
+  it("o gate de juntar passa quando toda fala tem narracao (tts/gravacao)", () => {
+    const comNarracao = carregar("roteiro-com-narracao.json") as Roteiro;
+    const bloqueados = verificarJuntarFalaSemNarracao(comNarracao);
+    expect(bloqueados).toEqual([]);
+  });
+
+  it("pedaco com anexo: edicao de texto NAO mexe anexo_hash/anexo_meta (trava)", () => {
+    const comAnexo = carregar("pedaco-com-anexo.json") as Pedaco;
+    const editado = editarPedaco(comAnexo, { titulo: "Titulo novo" });
+    expect(editado.titulo).toBe("Titulo novo");
+    expect(editado.anexo_hash).toBe(comAnexo.anexo_hash);
+    expect(editado.anexo_meta).toEqual(comAnexo.anexo_meta);
+    expect(validarPedaco(editado).valido, validarPedaco(editado).problemas.join("; ")).toBe(true);
+  });
+
+  it("edicao de fala em pedaco COM anexo e valida (anexo preservado pela trava)", () => {
+    const comAnexo = carregar("pedaco-com-anexo.json") as Pedaco;
+    const editado = editarPedaco(comAnexo, { fala: "Nova fala do pedaco com anexo." });
+    expect(editado.fala).toBe("Nova fala do pedaco com anexo.");
+    expect(editado.anexo_hash).toBe(comAnexo.anexo_hash);
+    expect(validarPedaco(editado).valido, validarPedaco(editado).problemas.join("; ")).toBe(true);
+  });
+
+  it("roteiro com pedaco de anexo valida como roteiro completo", () => {
+    const roteiro = carregar("roteiro-valido.json") as Roteiro;
+    const comAnexo = carregar("pedaco-com-anexo.json") as Pedaco;
+    // Reenumera o pedaco anexado (o fixture e p-002; no roteiro ele vira
+    // p-003 — indices contiguos 0..n-1 e id casando o indice).
+    const anexoReenumerado = { ...comAnexo, id: "p-003", indice: 3 };
+    const comPedacoDeAnexo = {
+      ...roteiro,
+      duracao_total_segundos: roteiro.duracao_total_segundos + comAnexo.duracao_segundos,
+      pedacos: [...roteiro.pedacos, anexoReenumerado],
+    };
+    const resultado = validarRoteiro(comPedacoDeAnexo);
+    expect(resultado.valido, resultado.problemas.join("; ")).toBe(true);
   });
 });
 

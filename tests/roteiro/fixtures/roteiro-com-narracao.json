@@ -56,11 +56,16 @@
       "tipo_visual": "video",
       "especificacao_visual": "Gravacao de tela do usuario mostrando o fluxo completo",
       "detalhes_de_producao": "Video anexado pelo usuario, normalizado para o formato do preview",
-      "anexo_hash": "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff",
+      "anexo_hash": "e04d7728fa1467a8e14914b8221b409d20c015344fc7e7690cebda7ef82a70dd",
       "narracao": {
         "texto": "Veja a gravacao de tela do fluxo completo.",
         "origem": "tts",
         "status": "editado"
+      },
+      "anexo_meta": {
+        "tipo": "video/mp4",
+        "tamanho_bytes": 25353,
+        "nome_original": "anexo.mp4"
       }
     }
   ],

@@ -1,0 +1,21 @@
+{
+  "id": "p-002",
+  "indice": 2,
+  "titulo": "O anexo do usuario",
+  "fala": "Este pedaco mostra o gif que o usuario anexou.",
+  "duracao_segundos": 8.0,
+  "tipo_visual": "gif",
+  "especificacao_visual": "GIF anexado pelo usuario em loop, preenchendo o quadro",
+  "detalhes_de_producao": "Midia anexada exibida em loop (NoMidia gif); resolução midia por hash",
+  "narracao": {
+    "texto": "",
+    "origem": "nenhuma",
+    "status": "vazio"
+  },
+  "anexo_hash": "9d7cc2b731dde14beafe804f1f52b0d3fd1c9991da9561a1b250e1ae6cbd6dd4",
+  "anexo_meta": {
+    "tipo": "image/gif",
+    "tamanho_bytes": 98320,
+    "nome_original": "anexo.gif"
+  }
+}

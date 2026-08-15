@@ -114,6 +114,40 @@ describe("FQ-C3 — bump de versao do contrato invalida o cache do gerador", () 
     expect(chaveDeCacheGerador(irmaoMudou)).not.toBe(chave);
   });
 
+  it("regenerar um pedaco: mudanca no anexo (anexo_hash/anexo_meta) do pedaco_atual muda a chave (C12)", () => {
+    const base = pedidoRegenerar();
+    const chave = chaveDeCacheGerador(base);
+
+    const comAnexo: PedidoRegenerarPedaco = {
+      ...base,
+      pedaco_atual: {
+        ...base.pedaco_atual,
+        tipo_visual: "gif",
+        anexo_hash: "9d7cc2b731dde14beafe804f1f52b0d3fd1c9991da9561a1b250e1ae6cbd6dd4",
+        anexo_meta: {
+          tipo: "image/gif",
+          tamanho_bytes: 98320,
+          nome_original: "anexo.gif",
+        },
+      },
+    };
+    expect(chaveDeCacheGerador(comAnexo)).not.toBe(chave);
+
+    const anexoTrocado: PedidoRegenerarPedaco = {
+      ...comAnexo,
+      pedaco_atual: {
+        ...comAnexo.pedaco_atual,
+        anexo_hash: "e04d7728fa1467a8e14914b8221b409d20c015344fc7e7690cebda7ef82a70dd",
+        anexo_meta: {
+          tipo: "video/mp4",
+          tamanho_bytes: 25353,
+          nome_original: "anexo.mp4",
+        },
+      },
+    };
+    expect(chaveDeCacheGerador(anexoTrocado)).not.toBe(chaveDeCacheGerador(comAnexo));
+  });
+
   it("o pedido de gerar e o de regenerar sao entradas distintas (chaves distintas)", () => {
     const gerar = chaveDeCacheGerador(pedidoGerar() as EntradaGeradorRoteiro);
     const regenerar = chaveDeCacheGerador(pedidoRegenerar());

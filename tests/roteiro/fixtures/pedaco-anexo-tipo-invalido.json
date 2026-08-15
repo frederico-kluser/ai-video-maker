@@ -1,0 +1,21 @@
+{
+  "id": "p-005",
+  "indice": 5,
+  "titulo": "Anexo com tipo fora da allowlist",
+  "fala": "Tipo de anexo proibido.",
+  "duracao_segundos": 6.0,
+  "tipo_visual": "video",
+  "especificacao_visual": "Video do usuario",
+  "detalhes_de_producao": "Midia anexada (NoMidia video)",
+  "narracao": {
+    "texto": "",
+    "origem": "nenhuma",
+    "status": "vazio"
+  },
+  "anexo_hash": "e04d7728fa1467a8e14914b8221b409d20c015344fc7e7690cebda7ef82a70dd",
+  "anexo_meta": {
+    "tipo": "image/png",
+    "tamanho_bytes": 25353,
+    "nome_original": "anexo.png"
+  }
+}

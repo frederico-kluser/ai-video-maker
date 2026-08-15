@@ -25,17 +25,22 @@ import { validarEdicaoPedaco } from "./validar.js";
 import { ErroContratoRoteiro } from "./rejeitar.js";
 
 /**
- * Aplica um delta de edicao sobre o pedaco (merge raso; id, indice e
- * narracao intocados). Nao valida — a variante validada esta abaixo.
+ * Aplica um delta de edicao sobre o pedaco (merge raso; id, indice,
+ * narracao e anexo intocados). Nao valida — a variante validada esta
+ * abaixo.
  */
 export function aplicarEdicaoPedaco(pedaco: Pedaco, edicao: EdicaoPedaco): Pedaco {
   return {
     ...pedaco,
     ...edicao,
-    // As tres travas: identidade e estado de audio nunca vêm de edicao.
+    // As quatro travas: identidade, estado de audio e estado de ANEXO
+    // nunca vêm de edicao — o anexo (anexo_hash/anexo_meta) muda somente
+    // pela rota de anexo (regra edicao-anexo-proibido em validar.ts).
     id: pedaco.id,
     indice: pedaco.indice,
     narracao: pedaco.narracao,
+    anexo_hash: pedaco.anexo_hash,
+    anexo_meta: pedaco.anexo_meta,
   };
 }
 

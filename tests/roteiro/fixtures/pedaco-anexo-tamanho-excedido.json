@@ -1,0 +1,21 @@
+{
+  "id": "p-006",
+  "indice": 6,
+  "titulo": "Anexo acima do limite",
+  "fala": "Arquivo grande demais.",
+  "duracao_segundos": 6.0,
+  "tipo_visual": "video",
+  "especificacao_visual": "Gravacao de tela do usuario",
+  "detalhes_de_producao": "Midia anexada (NoMidia video)",
+  "narracao": {
+    "texto": "",
+    "origem": "nenhuma",
+    "status": "vazio"
+  },
+  "anexo_hash": "e04d7728fa1467a8e14914b8221b409d20c015344fc7e7690cebda7ef82a70dd",
+  "anexo_meta": {
+    "tipo": "video/mp4",
+    "tamanho_bytes": 209715201,
+    "nome_original": "gravacao-tela.mp4"
+  }
+}

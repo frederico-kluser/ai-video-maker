@@ -1,0 +1,15 @@
+{
+  "id": "p-003",
+  "indice": 3,
+  "titulo": "Gif sem anexo",
+  "fala": "Nunca chega aqui: tipo_visual gif exige anexo.",
+  "duracao_segundos": 6.0,
+  "tipo_visual": "gif",
+  "especificacao_visual": "GIF do usuario",
+  "detalhes_de_producao": "Midia anexada (NoMidia gif)",
+  "narracao": {
+    "texto": "",
+    "origem": "nenhuma",
+    "status": "vazio"
+  }
+}

@@ -16,6 +16,7 @@
 import { readFileSync } from "node:fs";
 import Ajv2020, { type ValidateFunction } from "ajv/dist/2020.js";
 import {
+  ANEXO_TAMANHO_MAXIMO_BYTES,
   CAMINHO_SCHEMA_PEDACO,
   CAMINHO_SCHEMA_ROTEIRO,
   PADRAO_ID_PEDACO,
@@ -25,6 +26,7 @@ import {
   VERSAO_GERADOR,
   VOCABULARIO_ORIGEM_NARRACAO,
   VOCABULARIO_STATUS_NARRACAO,
+  VOCABULARIO_TIPO_ANEXO,
   VOCABULARIO_TIPO_VISUAL,
 } from "./contrato.js";
 import type {
@@ -59,8 +61,23 @@ export const REGRA_GERADO_SEM_ORIGEM = "gerado-sem-origem";
 export const REGRA_GERADO_DESSINCRONIZADO = "gerado-dessincronizado";
 /** status "editado" exige texto da narracao != fala (audio stale). */
 export const REGRA_EDITADO_SINCRONIZADO = "editado-sincronizado";
-/** tipo_visual gif/video exige anexo_hash, e vice-versa (C7). */
-export const REGRA_ANEXO_VISUAL = "anexo-visual-incompativel";
+/** tipo_visual gif/video exige anexo_hash + anexo_meta (C7 — o anexo do usuario). */
+export const REGRA_ANEXO_EXIGIDO = "anexo-exigido-para-gif-video";
+/** anexo_hash/anexo_meta so existem com tipo_visual gif/video. */
+export const REGRA_ANEXO_PROIBIDO = "anexo-proibido-outros";
+/** anexo_meta.tipo pertence a allowlist fechada (image/gif|video/mp4|video/webm). */
+export const REGRA_ANEXO_TIPO = "anexo-tipo-permitido";
+/** anexo_meta.tamanho_bytes <= ANEXO_TAMANHO_MAXIMO_BYTES. */
+export const REGRA_ANEXO_TAMANHO = "anexo-tamanho-limite";
+/** EdicaoPedaco nunca carrega anexo_hash/anexo_meta (o anexo so muda pela rota de anexo). */
+export const REGRA_EDICAO_ANEXO_PROIBIDO = "edicao-anexo-proibido";
+/**
+ * GATE DE JUNTAR (RECORD-FIRST): pedaco com fala mas sem narracao
+ * renderizaria mudo no video final. NAO e regra de validade do Roteiro —
+ * o estado normal do roteiro recem-gerado e fala != "" com origem
+ * "nenhuma"; e o juntar que se recusa a entregar fala muda (C1).
+ */
+export const REGRA_JUNTAR_FALA_SEM_NARRACAO = "juntar-fala-sem-narracao";
 /** indices contiguos 0..n-1 na ordem do array. */
 export const REGRA_INDICES = "indices-nao-contiguos";
 /** ids de pedaco unicos no roteiro. */
@@ -185,18 +202,38 @@ function semanticaDoPedaco(pedaco: Pedaco, caminho: string): string[] {
     }
   }
 
+  // Anexo: o par (anexo_hash, anexo_meta) e mutavel SOMENTE pela rota de
+  // anexo; as regras abaixo mantem o par consistente com o tipo_visual.
   const precisaAnexo = tipo_visual === "gif" || tipo_visual === "video";
-  if (precisaAnexo && pedaco.anexo_hash === undefined) {
+  if (precisaAnexo) {
+    if (pedaco.anexo_hash === undefined || pedaco.anexo_meta === undefined) {
+      problemas.push(
+        `${caminho}: regra ${REGRA_ANEXO_EXIGIDO} — ` +
+          `tipo_visual "${tipo_visual}" exige anexo_hash + anexo_meta ` +
+          `(o anexo do usuario, enderecado por conteudo C7)`,
+      );
+    }
+  } else if (pedaco.anexo_hash !== undefined || pedaco.anexo_meta !== undefined) {
     problemas.push(
-      `${caminho}: regra ${REGRA_ANEXO_VISUAL} — ` +
-        `tipo_visual "${tipo_visual}" exige anexo_hash (o anexo do usuario, por conteudo C7)`,
+      `${caminho}: regra ${REGRA_ANEXO_PROIBIDO} — ` +
+        `anexo_hash/anexo_meta so existem com tipo_visual "gif" ou "video" (aqui: "${tipo_visual}")`,
     );
   }
-  if (!precisaAnexo && pedaco.anexo_hash !== undefined) {
-    problemas.push(
-      `${caminho}: regra ${REGRA_ANEXO_VISUAL} — ` +
-        `anexo_hash so existe com tipo_visual "gif" ou "video" (aqui: "${tipo_visual}")`,
-    );
+  const anexoMeta = pedaco.anexo_meta;
+  if (anexoMeta !== undefined) {
+    if (!VOCABULARIO_TIPO_ANEXO.includes(anexoMeta.tipo)) {
+      problemas.push(
+        `${caminho}.anexo_meta: regra ${REGRA_ANEXO_TIPO} — ` +
+          `tipo "${anexoMeta.tipo}" fora da allowlist (image/gif | video/mp4 | video/webm)`,
+      );
+    }
+    if (anexoMeta.tamanho_bytes > ANEXO_TAMANHO_MAXIMO_BYTES) {
+      problemas.push(
+        `${caminho}.anexo_meta: regra ${REGRA_ANEXO_TAMANHO} — ` +
+          `tamanho_bytes ${String(anexoMeta.tamanho_bytes)} excede o limite ` +
+          `${String(ANEXO_TAMANHO_MAXIMO_BYTES)} (ANEXO_TAMANHO_MAXIMO_BYTES)`,
+      );
+    }
   }
 
   return problemas;
@@ -280,9 +317,55 @@ export function validarRoteiro(valor: unknown): ResultadoValidacaoRoteiro {
   return resultado(semanticaDoRoteiro(valor as Roteiro));
 }
 
-/** Valida um delta de edicao do usuario (EdicaoPedaco). */
+/**
+ * Valida um delta de edicao do usuario (EdicaoPedaco).
+ *
+ * Alem do schema (additionalProperties:false ja recusa anexo no delta), a
+ * regra nomeada edicao-anexo-proibido entra na rejeicao junto com a
+ * mensagem generica: o anexo muda SOMENTE pela rota de anexo — um PATCH
+ * com anexo_hash/anexo_meta e rejeitado com o NOME da regra (FQ-C1), nao
+ * so com "additional properties".
+ */
 export function validarEdicaoPedaco(valor: unknown): ResultadoValidacaoRoteiro {
-  return resultado(validarContraDefs(valor, "EdicaoPedaco"));
+  const problemas = [...validarContraDefs(valor, "EdicaoPedaco")];
+  if (valor !== null && typeof valor === "object" && !Array.isArray(valor)) {
+    for (const campo of ["anexo_hash", "anexo_meta"] as const) {
+      if (campo in valor) {
+        problemas.push(
+          `(raiz).${campo}: regra ${REGRA_EDICAO_ANEXO_PROIBIDO} — ` +
+            `${campo} nao e editavel por PATCH; o anexo muda so pela rota de anexo ` +
+            `(PUT/GET/DELETE /api/projetos/:id/pedacos/:pedacoId/anexo)`,
+        );
+      }
+    }
+  }
+  return resultado(problemas);
+}
+
+/**
+ * GATE DE JUNTAR — politica RECORD-FIRST (docs/roteiro/contrato-roteiro.md
+ * §7): pedaco com fala mas sem narracao (origem "nenhuma") renderizaria
+ * MUDO no video final — fala muda e inaceitavel (modo de falha C1, oraculo
+ * negativo do e2e: nunca entregar fala muda). O juntar da Onda 3 roda isto
+ * ANTES de montar o video e devolve 409 com a lista dos pedacos.
+ *
+ * NAO e regra de validade do Roteiro: com record-first, o estado normal do
+ * roteiro recem-gerado e fala != "" com origem "nenhuma" (o gerador nunca
+ * emite narracao; o usuario grava/genera depois). Pedaco valido != pedaco
+ * juntavel — e o juntar que se recusa.
+ */
+export function verificarJuntarFalaSemNarracao(roteiro: Roteiro): string[] {
+  const problemas: string[] = [];
+  for (const pedaco of roteiro.pedacos) {
+    if (pedaco.fala !== "" && pedaco.narracao.origem === "nenhuma") {
+      problemas.push(
+        `pedacos[${String(pedaco.indice)}].id ${pedaco.id}: regra ` +
+          `${REGRA_JUNTAR_FALA_SEM_NARRACAO} — fala nao narrada (origem "nenhuma"); ` +
+          `grave (gravacao) ou gere (tts) o audio antes de juntar`,
+      );
+    }
+  }
+  return problemas;
 }
 
 /** Valida um PedidoGerarRoteiro (schema + versoes correntes). */
@@ -407,4 +490,8 @@ export function eOrigemNarracao(valor: string): valor is (typeof VOCABULARIO_ORI
 
 export function eStatusNarracao(valor: string): valor is (typeof VOCABULARIO_STATUS_NARRACAO)[number] {
   return (VOCABULARIO_STATUS_NARRACAO as readonly string[]).includes(valor);
+}
+
+export function eTipoAnexo(valor: string): valor is (typeof VOCABULARIO_TIPO_ANEXO)[number] {
+  return (VOCABULARIO_TIPO_ANEXO as readonly string[]).includes(valor);
 }

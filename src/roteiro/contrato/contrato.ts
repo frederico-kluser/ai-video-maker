@@ -93,6 +93,28 @@ export const VOCABULARIO_ORIGEM_NARRACAO = [
 export type OrigemNarracao = (typeof VOCABULARIO_ORIGEM_NARRACAO)[number];
 
 /**
+ * Vocabulario fechado do tipo de anexo do usuario (gif/video). Fechado de
+ * proposito: e a allowlist que a rota de anexo valida (regra
+ * anexo-tipo-permitido) — o navegador envia exatamente um destes
+ * Content-Types no PUT de anexo.
+ */
+export const VOCABULARIO_TIPO_ANEXO = [
+  "image/gif",
+  "video/mp4",
+  "video/webm",
+] as const;
+export type TipoAnexo = (typeof VOCABULARIO_TIPO_ANEXO)[number];
+
+/**
+ * Limite de tamanho do anexo do usuario, em bytes (regra
+ * anexo-tamanho-limite). 200 MB cobre gravacao de tela (o caso de uso que
+ * o pedido do usuario nomeia) com folga. Valor de dominio em tipo nomeado
+ * (Regra 2): a rota de anexo da Onda 4 importa a constante, nunca
+ * redigita o numero.
+ */
+export const ANEXO_TAMANHO_MAXIMO_BYTES = 200 * 1024 * 1024;
+
+/**
  * Status da narracao de um pedaco:
  *   - "vazio":   nenhum audio existe (nada gerado, nada gravado);
  *   - "gerado":  o audio existe e corresponde a `narracao.texto`, que e
@@ -197,6 +219,22 @@ export interface NarracaoPedaco {
 }
 
 /**
+ * Metadado do anexo do usuario (gif/video) — o par de `anexo_hash`:
+ * `anexo_hash` e o SHA-256 dos bytes, `anexo_meta` descreve o arquivo
+ * como o navegador o enviou. Os dois sao mutaveis SOMENTE pela rota de
+ * anexo (PUT/GET/DELETE anexo — análogo a narracao: edicao de texto nao
+ * os mexe, regra edicao-anexo-proibido).
+ */
+export interface AnexoMeta {
+  /** Allowlist fechada: image/gif | video/mp4 | video/webm. */
+  readonly tipo: TipoAnexo;
+  /** Tamanho do arquivo em bytes (regra anexo-tamanho-limite). */
+  readonly tamanho_bytes: number;
+  /** Nome do arquivo como o usuario o enviou (exibicao na UI). */
+  readonly nome_original: string;
+}
+
+/**
  * Um pedaco do roteiro — a unidade do site (um slide): uma fala narrada +
  * um visual + como sera produzido + o estado da narracao. O construtor
  * (Onda 2) transforma cada pedaco em UMA cena do Manifesto.1
@@ -227,9 +265,15 @@ export interface Pedaco {
   /**
    * SHA-256 do anexo do usuario (gif ou video) — obrigatorio quando
    * tipo_visual e "gif"/"video" e proibido nos demais (C7: o anexo e
-   * enderecado por conteudo, nunca por URL).
+   * enderecado por conteudo, nunca por URL). Mutavel SOMENTE pela rota
+   * de anexo (regra edicao-anexo-proibido).
    */
   readonly anexo_hash?: string;
+  /**
+   * Metadado do anexo (tipo/tamanho/nome) — sempre junto de `anexo_hash`
+   * (a rota de anexo seta/remove os dois como um par).
+   */
+  readonly anexo_meta?: AnexoMeta;
 }
 
 // ─── Roteiro ──────────────────────────────────────────────────────────────────
@@ -250,10 +294,12 @@ export interface Roteiro {
 
 /**
  * Um pedaco PARCIAL editado pelo usuario. O que o usuario NAO edita:
- * `id`, `indice` e `narracao` (identidade e estado de audio mudam so
- * pelos endpoints de narracao). `pedacos_editados` do projeto guarda
- * estes deltas; a edicao sobrevive a regeneracao de outros pedacos e
- * entra na chave de cache do gerador (C12 — FQ-G3).
+ * `id`, `indice`, `narracao` (identidade e estado de audio mudam so
+ * pelos endpoints de narracao) e `anexo_hash`/`anexo_meta` (o estado do
+ * anexo muda so pela rota de anexo — regra edicao-anexo-proibido:
+ * EdicaoPedaco com anexo e rejeitado). `pedacos_editados` do projeto
+ * guarda estes deltas; a edicao sobrevive a regeneracao de outros
+ * pedacos e entra na chave de cache do gerador (C12 — FQ-G3).
  */
 export interface EdicaoPedaco {
   readonly titulo?: string;

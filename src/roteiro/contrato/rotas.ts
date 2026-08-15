@@ -37,6 +37,11 @@ export const ROTAS_API = {
   obterAudioNarracao: "GET /api/projetos/:id/pedacos/:pedacoId/narracao/audio",
   removerNarracao: "DELETE /api/projetos/:id/pedacos/:pedacoId/narracao",
 
+  // ── Anexo (gif/video do usuario — o caminho de entrada do anexo) ──
+  enviarAnexo: "PUT /api/projetos/:id/pedacos/:pedacoId/anexo",
+  obterAnexo: "GET /api/projetos/:id/pedacos/:pedacoId/anexo",
+  removerAnexo: "DELETE /api/projetos/:id/pedacos/:pedacoId/anexo",
+
   // ── Preview ──
   pedirPreview: "POST /api/projetos/:id/pedacos/:pedacoId/preview",
   obterPreviewMp4: "GET /api/projetos/:id/pedacos/:pedacoId/preview.mp4",

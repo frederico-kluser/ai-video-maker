@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://ai-video-maker/schema/roteiro.schema.json",
   "title": "Roteiro v1",
-  "description": "Schema COMPLETO (draft 2020-12) do dominio de ROTEIRO (v1, Onda 1 do app web). Este schema e o UNICO contrato do dominio (FQ-C2): additionalProperties:false em todo objeto torna a emissao de campo fora do schema IMPOSSIVEL, nao apenas desencorajada. Nenhuma URL mora aqui — gif/video anexado (anexo_hash) e audio gravado (hash_audio) sao enderecados por SHA-256 de conteudo (C7). Este schema valida; nao existe subset por fornecedor neste dominio (o schema do pedaco/roteiro basta — o subset do gerador, se vier, e decisao da Onda 2 e deriva daqui).",
+  "description": "Schema COMPLETO (draft 2020-12) do dominio de ROTEIRO (v1, Onda 1 do app web). Este schema e o UNICO contrato do dominio (FQ-C2): additionalProperties:false em todo objeto torna a emissao de campo fora do schema IMPOSSIVEL, nao apenas desencorajada. Nenhuma URL mora aqui — gif/video anexado (anexo_hash + anexo_meta) e audio gravado (hash_audio) sao enderecados por SHA-256 de conteudo (C7). Este schema valida; nao existe subset por fornecedor neste dominio (o schema do pedaco/roteiro basta — o subset do gerador, se vier, e decisao da Onda 2 e deriva daqui).",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -98,7 +98,7 @@
       }
     },
     "Pedaco": {
-      "description": "Um pedaco (slide): fala narrada + visual + producao + narracao. id no formato p-<indice> (3 digitos), duracao positiva, vocabulario fechado de tipo_visual. anexo_hash e obrigatorio quando tipo_visual e gif/video (regra anexo-visual-incompativel em validar.ts).",
+      "description": "Um pedaco (slide): fala narrada + visual + producao + narracao. id no formato p-<indice> (3 digitos), duracao positiva, vocabulario fechado de tipo_visual. anexo_hash + anexo_meta sao obrigatorios quando tipo_visual e gif/video e proibidos nos demais (regras anexo-exigido-para-gif-video e anexo-proibido-outros em validar.ts); o estado de anexo muda SOMENTE pela rota de anexo (regra edicao-anexo-proibido).",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -157,11 +157,38 @@
         "anexo_hash": {
           "type": "string",
           "pattern": "^[0-9a-f]{64}$"
+        },
+        "anexo_meta": {
+          "$ref": "#/$defs/AnexoMeta"
+        }
+      }
+    },
+    "AnexoMeta": {
+      "description": "Metadado do anexo do usuario (gif/video), o par de anexo_hash: tipo (string — a ALLOWLIST image/gif|video/mp4|video/webm e a regra nomeada anexo-tipo-permitido em validar.ts, fonte unica VOCABULARIO_TIPO_ANEXO de contrato.ts), tamanho em bytes (o limite e a regra anexo-tamanho-limite em validar.ts — o numero vive na constante ANEXO_TAMANHO_MAXIMO_BYTES de contrato.ts, fonte unica) e nome original (exibicao na UI). Mutavel somente pela rota de anexo.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tipo",
+        "tamanho_bytes",
+        "nome_original"
+      ],
+      "properties": {
+        "tipo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tamanho_bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "nome_original": {
+          "type": "string",
+          "minLength": 1
         }
       }
     },
     "EdicaoPedaco": {
-      "description": "Delta de edicao do usuario sobre um pedaco (pedacos_editados do projeto). Identidade (id/indice) e narracao nunca sao editaveis por aqui — narracao muda so pelos endpoints de narracao.",
+      "description": "Delta de edicao do usuario sobre um pedaco (pedacos_editados do projeto). Identidade (id/indice), narracao e anexo (anexo_hash/anexo_meta) nunca sao editaveis por aqui — narracao muda so pelos endpoints de narracao e anexo so pela rota de anexo (regra edicao-anexo-proibido).",
       "type": "object",
       "additionalProperties": false,
       "properties": {

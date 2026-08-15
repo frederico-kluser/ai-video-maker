@@ -1,0 +1,21 @@
+{
+  "id": "p-004",
+  "indice": 4,
+  "titulo": "Anexo em pedaco de texto",
+  "fala": "Anexo fora de lugar.",
+  "duracao_segundos": 5.0,
+  "tipo_visual": "texto",
+  "especificacao_visual": "Texto em destaque",
+  "detalhes_de_producao": "NoTexto",
+  "narracao": {
+    "texto": "",
+    "origem": "nenhuma",
+    "status": "vazio"
+  },
+  "anexo_hash": "9d7cc2b731dde14beafe804f1f52b0d3fd1c9991da9561a1b250e1ae6cbd6dd4",
+  "anexo_meta": {
+    "tipo": "image/gif",
+    "tamanho_bytes": 98320,
+    "nome_original": "anexo.gif"
+  }
+}
