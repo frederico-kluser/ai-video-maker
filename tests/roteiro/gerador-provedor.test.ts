@@ -105,13 +105,14 @@ function roteiroValidoJson(): string {
 
 const ROTEIRO_VALIDO = roteiroValidoJson();
 
-function pedidoGerar(): PedidoGerarRoteiro {
+function pedidoGerar(sobreposicao?: Partial<PedidoGerarRoteiro>): PedidoGerarRoteiro {
   return {
     brief: { tema: "Como funciona um cache de computador", contexto: "Video para iniciantes" },
     duracao_alvo_segundos: 30,
     versao_contrato: "Roteiro.1",
     versao_contrato_gerador: "1.0.0",
     versao_gerador: "1.0.0",
+    ...sobreposicao,
   };
 }
 
@@ -145,7 +146,7 @@ function fetchComCaptura(
     const resposta = respostas[Math.min(i, respostas.length - 1)]!;
     i++;
     return typeof resposta === "function" ? resposta(u, init ?? {}) : resposta;
-  }) as typeof fetch;
+  }) as typeof globalThis.fetch;
   return { fetch, chamadas };
 }
 
