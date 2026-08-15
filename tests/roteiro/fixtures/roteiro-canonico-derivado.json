@@ -1,0 +1,124 @@
+{
+  "schema_version": "Roteiro.1",
+  "pedacos": [
+    {
+      "id": "p-000",
+      "indice": 0,
+      "titulo": "Editor de Vídeo IA — Pipeline Declarativo",
+      "fala": "",
+      "duracao_segundos": 3.0,
+      "tipo_visual": "cabecalho",
+      "especificacao_visual": "Da ideia ao frame final, sem edição manual",
+      "detalhes_de_producao": "Composicao de cabecalho com titulo centralizado e subtitulo (sem narracao)",
+      "narracao": {
+        "texto": "",
+        "origem": "nenhuma",
+        "status": "vazio"
+      }
+    },
+    {
+      "id": "p-001",
+      "indice": 1,
+      "titulo": "O Pipeline",
+      "fala": "O pipeline converte um manifesto JSON em vídeo renderizado.",
+      "duracao_segundos": 7.0,
+      "tipo_visual": "texto",
+      "especificacao_visual": "O pipeline converte um manifesto JSON em vídeo renderizado. Cada nó visual é uma unidade atômica com tipo, duração e animação independentes.",
+      "detalhes_de_producao": "Texto em destaque sobre o funcionamento do pipeline (narracao pendente — record-first)",
+      "narracao": {
+        "texto": "",
+        "origem": "nenhuma",
+        "status": "vazio"
+      }
+    },
+    {
+      "id": "p-002",
+      "indice": 2,
+      "titulo": "Componentes",
+      "fala": "O manifesto tem três componentes principais.",
+      "duracao_segundos": 6.0,
+      "tipo_visual": "lista",
+      "especificacao_visual": "Cabeçalho: título e subtítulo com alinhamento configurável\nTexto: corpo com destaque opcional e animação de entrada\nLista: itens ordenados ou não, com bullets automáticos",
+      "detalhes_de_producao": "Lista com tres itens, um por linha da especificacao",
+      "narracao": {
+        "texto": "",
+        "origem": "nenhuma",
+        "status": "vazio"
+      }
+    },
+    {
+      "id": "p-003",
+      "indice": 3,
+      "titulo": "Demo gravada",
+      "fala": "Veja o fluxo completo na gravação de tela.",
+      "duracao_segundos": 4.0,
+      "tipo_visual": "video",
+      "especificacao_visual": "dvorak typing",
+      "detalhes_de_producao": "Video anexado pelo usuario (gravação de tela), ajuste contain",
+      "anexo_hash": "b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3",
+      "narracao": {
+        "texto": "",
+        "origem": "nenhuma",
+        "status": "vazio"
+      },
+      "anexo_meta": {
+        "tipo": "video/mp4",
+        "tamanho_bytes": 25353,
+        "nome_original": "anexo.mp4"
+      }
+    },
+    {
+      "id": "p-004",
+      "indice": 4,
+      "titulo": "Globo girando",
+      "fala": "Um globo girando ilustra a distribuicao.",
+      "duracao_segundos": 4.0,
+      "tipo_visual": "gif",
+      "especificacao_visual": "spinning globe map",
+      "detalhes_de_producao": "GIF anexado pelo usuario, ajuste contain",
+      "anexo_hash": "c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4",
+      "narracao": {
+        "texto": "",
+        "origem": "nenhuma",
+        "status": "vazio"
+      },
+      "anexo_meta": {
+        "tipo": "image/gif",
+        "tamanho_bytes": 98320,
+        "nome_original": "anexo.gif"
+      }
+    },
+    {
+      "id": "p-005",
+      "indice": 5,
+      "titulo": "Tempo de Render por Tipo de Nó",
+      "fala": "Nesta seção, apresentamos os dados de desempenho do pipeline. Cada tipo de nó tem características de renderização distintas.",
+      "duracao_segundos": 4.0,
+      "tipo_visual": "grafico",
+      "especificacao_visual": "Grafico de barras comparando tempo de render por tipo de no; valores: 45, 32, 78, 210, 156, 95",
+      "detalhes_de_producao": "Grafico de barras gerado no estagio grafico (Manim)",
+      "narracao": {
+        "texto": "Nesta seção, apresentamos os dados de desempenho do pipeline. Cada tipo de nó tem características de renderização distintas.",
+        "origem": "tts",
+        "status": "gerado"
+      }
+    },
+    {
+      "id": "p-006",
+      "indice": 6,
+      "titulo": "Evolução do Tempo Total",
+      "fala": "Concluindo, o manifesto é a peça central do pipeline. Obrigado por assistir.",
+      "duracao_segundos": 4.0,
+      "tipo_visual": "manim",
+      "especificacao_visual": "Animacao estilo 3b1b: parabola e soma de Riemann ilustrando a evolucao do tempo total",
+      "detalhes_de_producao": "Cena Manim com Axes e soma de Riemann; render headless via estagio grafico",
+      "narracao": {
+        "texto": "Concluindo, o manifesto é a peça central do pipeline. Obrigado por assistir.",
+        "origem": "gravacao",
+        "hash_audio": "9f8e7d6c5b4a39281706f5e4d3c2b1a0ffeeddccbbaa99887766554433221100",
+        "status": "gerado"
+      }
+    }
+  ],
+  "duracao_total_segundos": 32.0
+}
