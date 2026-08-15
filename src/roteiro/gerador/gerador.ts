@@ -13,15 +13,18 @@
  *      ErroContratoRoteiro (FQ-C1), nunca aceito em silencio, nunca
  *      cacheado;
  *   2. CACHE (chaveDoStore = chaveDeCacheGerador(pedido) composta com
- *      sha256(prompt) — C12): HIT serve o arquivo SEM chamar o provedor
- *      (FQ-G1, sonda de chamadas); MISS chama o provedor UMA vez;
+ *      sha256(prompt) E com o fingerprint do schema podado — C12): HIT
+ *      serve o arquivo SEM chamar o provedor (FQ-G1, sonda de chamadas);
+ *      MISS chama o provedor UMA vez;
  *   3. NORMALIZA a saida bruta (record-first): TODO pedaco sai com
  *      `narracao {texto:"", origem:"nenhuma", status:"vazio"}` e NUNCA
  *      `tipo_visual` gif/video na primeira geracao (FQ-G5 + emenda da
  *      Onda 2) — anexo e decisao do usuario, e as regras
  *      anexo-exigido/anexo-proibido tornariam o pedaco invalido de
- *      qualquer forma; na regeneracao, identidade (id/indice) e anexo
- *      sao DECISAO DO SISTEMA e sao reaplicados do pedido;
+ *      qualquer forma; na PRIMEIRA geracao a IDENTIDADE (id/indice)
+ *      tambem e DECISAO DO SISTEMA e e derivada da posicao (o schema
+ *      podado nao carrega id/indice — o LLM nao os emite); na
+ *      regeneracao, identidade e anexo sao reaplicados do pedido;
  *   4. GATE (rejeitarRoteiroInvalido / rejeitarPedacoInvalido): a saida
  *      so sai deste modulo depois de validar contra o schema completo —
  *      saida invalida do provedor (JSON malformado, campo fora do
@@ -60,7 +63,7 @@ import {
   lerDoCache,
 } from "./cache.js";
 import { montarPromptRegenerar, montarPromptRoteiro } from "./prompt.js";
-import { criarProvedorPadrao } from "./provedor.js";
+import { criarProvedorPadrao, fingerprintDoSchemaPodado } from "./provedor.js";
 import type { ProvedorRoteiro } from "./provedor.js";
 
 /** A narracao de TODO pedaco gerado — RECORD-FIRST (emenda da Onda 2). */
@@ -123,9 +126,18 @@ function aplicarRecordFirstEmPedacoBruto(pedaco: Record<string, unknown>): void 
 
 /**
  * Normaliza a saida bruta da geracao COMPLETA. Devolve a mesma estrutura
- * com a politica record-first aplicada em cada pedaco; saida que nao e
- * objeto com `pedacos` array passa INTACTA para o gate rejeitar (FQ-G4:
- * JSON malformado nunca e aceito em silencio).
+ * com a politica record-first aplicada em cada pedaco + a IDENTIDADE
+ * derivada da posicao (id p-XXX / indice 0..n-1). O schema podado por
+ * fornecedor (src/roteiro/gerador/schema/) NAO carrega id/indice — o
+ * LLM nao os emite; o sistema deriva, como ja fazia na regeneracao
+ * (normalizarPedacoRecordFirst). Resultado: identidade nunca vem do
+ * modelo (nem errada — a classe de erro id-nao-casa-indice deixa de
+ * existir no caminho LLM), e a saida de qualquer provedor (sosia,
+ * cassete, LLM) passa pelo mesmo crivo. O sosia e o cassete ja emitem
+ * ids/indices contiguos validos: a derivacao e no-op para eles (o
+ * cassete commitado reproduz byte a byte). Saida que nao e objeto com
+ * `pedacos` array passa INTACTA para o gate rejeitar (FQ-G4: JSON
+ * malformado nunca e aceito em silencio).
  */
 function normalizarRoteiroRecordFirst(saida: unknown): unknown {
   if (saida === null || typeof saida !== "object" || Array.isArray(saida)) {
@@ -135,9 +147,15 @@ function normalizarRoteiroRecordFirst(saida: unknown): unknown {
   if (!Array.isArray(roteiro.pedacos)) {
     return saida;
   }
-  for (const pedaco of roteiro.pedacos) {
+  for (let i = 0; i < roteiro.pedacos.length; i++) {
+    const pedaco = roteiro.pedacos[i];
     if (pedaco !== null && typeof pedaco === "object" && !Array.isArray(pedaco)) {
-      aplicarRecordFirstEmPedacoBruto(pedaco as Record<string, unknown>);
+      const bruto = pedaco as Record<string, unknown>;
+      aplicarRecordFirstEmPedacoBruto(bruto);
+      // Identidade = DECISAO DO SISTEMA, derivada da posicao (o schema
+      // podado nao a carrega): p-XXX com sufixo == indice, contiguo.
+      bruto.id = `p-${String(i).padStart(3, "0")}`;
+      bruto.indice = i;
     }
   }
   return saida;
@@ -197,9 +215,14 @@ export async function gerarRoteiro(
     definirDiretorioCache(opcoes.diretorioCache);
   }
 
-  // ── 2. Chave do store: chave do contrato + sha256(prompt) (C12) ─────
+  // ── 2. Chave do store: chave do contrato + sha256(prompt) + fingerprint
+  //    do schema podado (C12 — o output_config nao faz parte do prompt) ─
   const prompt = montarPromptRoteiro(pedido, opcoes.caminhoPromptRoteirista);
-  const chave = chaveDoStore(chaveDeCacheGerador(pedido), prompt);
+  const chave = chaveDoStore(
+    chaveDeCacheGerador(pedido),
+    prompt,
+    fingerprintDoSchemaPodado("completo"),
+  );
 
   // ── 3. Cache HIT: serve SEM chamar o provedor (FQ-G1) ───────────────
   const cacheado = lerDoCache(chave);
@@ -255,9 +278,15 @@ export async function regenerarPedaco(
     definirDiretorioCache(opcoes.diretorioCache);
   }
 
-  // ── 2. Chave do store: chave do contrato + sha256(prompt) (C12) ─────
+  // ── 2. Chave do store: chave do contrato + sha256(prompt) + fingerprint
+  //    do schema podado do PEDACO (C12 — o output_config nao faz parte
+  //    do prompt; o alvo da regeneracao tem o SEU fingerprint) ─────────
   const prompt = montarPromptRegenerar(pedido, opcoes.caminhoPromptRegenerar);
-  const chave = chaveDoStore(chaveDeCacheGerador(pedido), prompt);
+  const chave = chaveDoStore(
+    chaveDeCacheGerador(pedido),
+    prompt,
+    fingerprintDoSchemaPodado("pedaco"),
+  );
 
   // ── 3. Cache HIT: serve SEM chamar o provedor ───────────────────────
   const cacheado = lerDoCache(chave);

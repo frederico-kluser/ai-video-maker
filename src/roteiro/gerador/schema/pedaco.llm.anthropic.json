@@ -1,0 +1,43 @@
+{
+  "title": "Pedaco v1 — subset Anthropic (regeneracao)",
+  "description": "Subset do schema do Pedaco (src/roteiro/contrato/schema/roteiro.schema.json, $defs Pedaco) podado para o modo estrito da Anthropic (output_config.format, json_schema) — o schema que VIAJA na chamada LLM da REGENERACAO de um pedaco. So o que o LLM decide: titulo, fala, duracao_segundos, tipo_visual, especificacao_visual, detalhes_de_producao. Diferenca do subset do roteiro completo: tipo_visual carrega o vocabularo FECHADO INTEIRO (inclusive gif/video) — a regeneracao pode MANTER um alvo gif/video (o anexo do usuario e reaplicado pelo sistema; nunca emitido pelo modelo). DECISAO DO SISTEMA, ausente por desenho: id/indice (o gerador reaplica os do pedaco alvo — regenerar nunca renumera, FQ-G2), narracao (RECORD-FIRST — o gerador normaliza), anexo_hash/anexo_meta (reaplicados do pedido quando gif/video). Recusadas e AUSENTES aqui (subset estrito da Anthropic): minimum/maximum/multipleOf/exclusive*, minLength/maxLength, maxItems, oneOf, pattern, recursao, $ref externo; additionalProperties:false em todo objeto; enum so de escalares. As invariantes de negocio vivem APENAS no schema completo, contra o qual a saida e validada (gate rejeitarPedacoInvalido).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "titulo",
+    "fala",
+    "duracao_segundos",
+    "tipo_visual",
+    "especificacao_visual",
+    "detalhes_de_producao"
+  ],
+  "properties": {
+    "titulo": {
+      "type": "string"
+    },
+    "fala": {
+      "type": "string"
+    },
+    "duracao_segundos": {
+      "type": "number"
+    },
+    "tipo_visual": {
+      "type": "string",
+      "enum": [
+        "manim",
+        "grafico",
+        "gif",
+        "video",
+        "texto",
+        "lista",
+        "cabecalho"
+      ]
+    },
+    "especificacao_visual": {
+      "type": "string"
+    },
+    "detalhes_de_producao": {
+      "type": "string"
+    }
+  }
+}

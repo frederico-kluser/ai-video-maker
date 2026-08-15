@@ -17,10 +17,16 @@
  *      requisicao HTTP por fornecedor, executa via `fetch` INJETADO
  *      (nunca globalThis.fetch no caminho de teste) com chave INJETADA
  *      (nunca import de credencial — C06), extrai o JSON bruto e o
- *      devolve para o GATE do gerador. Saida estruturada
- *      (output_config) fica para quando o schema podado por fornecedor
- *      do roteiro existir — hoje o contrato e coberto pelo prompt
- *      rigoroso + gate completo (rejeitarRoteiroInvalido).
+ *      devolve para o GATE do gerador. A requisicao carrega SAIDA
+ *      ESTRUTURADA: output_config.format json_schema (Anthropic) ou
+ *      response_format.json_schema strict (OpenAI) com o schema PODADO
+ *      por fornecedor e por alvo (schema/roteiro.llm.*.json na geracao
+ *      completa, schema/pedaco.llm.*.json na regeneracao — llm-authoring:
+ *      subset do modo estrito, so o que o LLM decide; identidade,
+ *      narracao e anexo sao decisao do sistema e nao existem la). O
+ *      contrato final continua coberto pelo gate completo
+ *      (rejeitarRoteiroInvalido/rejeitarPedacoInvalido): o schema podado
+ *      restringe a emissao; o completo valida a resposta.
  *
  *   3. ProvedorCasseteRoteiro — REPLAY offline de roteiros gravados
  *      (padrao da autoria: fixtures/cassetes/autoria/ — aqui,
@@ -35,6 +41,7 @@
 
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { canonicalizar } from "../contrato/canonicalizar.js";
 import { sha256 } from "./cache.js";
 import {
   MARCADOR_BRIEF,
@@ -271,11 +278,15 @@ export interface OpcoesProvedorLlm {
  * estavel primeiro (candidato a prompt cache), volatil depois. Sem
  * marcador (prompt custom), o prompt inteiro vai como system.
  *
- * Saida estruturada (output_config) NAO e enviada nesta versao: o
- * schema podado por fornecedor do roteiro ainda nao existe (seria bump
- * de contrato do gerador + fixtures de schema por fornecedor). O
- * contrato hoje e coberto por prompt rigoroso + gate completo no
- * gerador — e o JSON extraido daqui passa SEMPRE pelo gate.
+ * A requisicao carrega SAIDA ESTRUTURADA com o schema PODADO por
+ * fornecedor e por alvo (carregarSchemaPodado): output_config.format
+ * json_schema na Anthropic; response_format.json_schema com strict:true
+ * na OpenAI (o subset OpenAI deste gerador e strict-compativel — const
+ * SEMPRE com type, tudo em required; a armadilha const-sem-type medida
+ * na autoria NAO existe aqui). O prompt NAO muda (byte-idêntico): a
+ * mudanca e so no envelope da request — e a chave do store compoe o
+ * fingerprint do schema (C12), entao schema editado = MISS sem bump.
+ * O JSON extraido daqui passa SEMPRE pelo gate do gerador.
  */
 export function criarProvedorLlm(
   provedor: ProvedorLlm,
@@ -284,10 +295,10 @@ export function criarProvedorLlm(
   return {
     nome: `llm-${provedor}`,
     async gerarRoteiroCompleto(prompt: string): Promise<unknown> {
-      return executarChamadaLlm(provedor, prompt, opcoes);
+      return executarChamadaLlm(provedor, prompt, opcoes, "completo");
     },
     async regenerarPedaco(prompt: string): Promise<unknown> {
-      return executarChamadaLlm(provedor, prompt, opcoes);
+      return executarChamadaLlm(provedor, prompt, opcoes, "pedaco");
     },
   };
 }
@@ -338,6 +349,7 @@ async function executarChamadaLlm(
   provedor: ProvedorLlm,
   prompt: string,
   opcoes: OpcoesProvedorLlm,
+  alvo: AlvoChamadaLlm,
 ): Promise<unknown> {
   const { system, user } = separarPrompt(prompt);
   const chave =
@@ -348,6 +360,12 @@ async function executarChamadaLlm(
   const modelo = opcoes.modelo ?? MODELO_PADRAO_LLM[provedor];
   const maxTokens = opcoes.maxTokens ?? MAX_TOKENS_LLM;
   const fetchImpl = opcoes.fetch ?? globalThis.fetch;
+
+  // O schema podado por fornecedor E por alvo viaja na chamada (C12: o
+  // output_config NAO faz parte do prompt — quem amarra o schema a chave
+  // e o fingerprint em fingerprintDoSchemaPodado, composto pelo gerador).
+  const nomeSaida = alvo === "completo" ? NOME_SAIDA_ESTRUTURADA_ROTEIRO : NOME_SAIDA_ESTRUTURADA_PEDACO;
+  const schemaPodado = carregarSchemaPodado(provedor, alvo);
 
   let url: string;
   let headers: Record<string, string>;
@@ -364,6 +382,13 @@ async function executarChamadaLlm(
       max_tokens: maxTokens,
       system,
       messages: [{ role: "user", content: user }],
+      output_config: {
+        format: {
+          type: "json_schema",
+          name: nomeSaida,
+          schema: schemaPodado,
+        },
+      },
       // AB-554 (autoria): temperatura 0 e o default; o cache e a
       // garantia de reprodutibilidade, nao o parametro.
       temperature: 0,
@@ -378,6 +403,20 @@ async function executarChamadaLlm(
         { role: "system", content: system },
         { role: "user", content: user },
       ],
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          name: nomeSaida,
+          schema: schemaPodado,
+          // strict:true e possivel AQUI porque o subset OpenAI deste
+          // gerador e strict-compativel (const com type, tudo em
+          // required, additionalProperties:false) — a autoria teve de
+          // desligar o strict por causa do const sem type (medido 400);
+          // este gerador nao repete a armadilha (o oraculo
+          // tests/roteiro/gerador-llm.test.ts a vigia).
+          strict: true,
+        },
+      },
       temperature: 0,
     });
   }
@@ -442,6 +481,104 @@ async function executarChamadaLlm(
   const primeira = escolhas[0] as Record<string, unknown> | undefined;
   const mensagem = primeira?.message as Record<string, unknown> | undefined;
   return extrairJsonDaResposta(provedor, mensagem?.content);
+}
+
+// ─── Schemas podados por fornecedor (saida estruturada — output_config) ───────
+
+/**
+ * O alvo da chamada LLM: a geracao do roteiro COMPLETO ou a regeneracao
+ * de UM pedaco. Cada alvo tem o SEU schema podado (o roteiro emite um
+ * Roteiro; a regeneracao emite um Pedaco) — e o FINGERPRINT da chave do
+ * store e por alvo: renomear um campo do schema do pedaco NAO invalida o
+ * cache da geracao completa (C12 com precisao).
+ */
+export type AlvoChamadaLlm = "completo" | "pedaco";
+
+/**
+ * Caminhos dos schemas podados por fornecedor e por alvo (fonte unica:
+ * src/roteiro/gerador/schema/). Resolvidos por import.meta.url — o mesmo
+ * criterio do contrato (CAMINHO_SCHEMA_ROTEIRO): independem do cwd do
+ * processo (o CLI roda da raiz, o servidor de onde for).
+ */
+export const CAMINHO_SCHEMA_LLM: Readonly<Record<AlvoChamadaLlm, Readonly<Record<ProvedorLlm, string>>>> = {
+  completo: {
+    anthropic: new URL("./schema/roteiro.llm.anthropic.json", import.meta.url).pathname,
+    openai: new URL("./schema/roteiro.llm.openai.json", import.meta.url).pathname,
+  },
+  pedaco: {
+    anthropic: new URL("./schema/pedaco.llm.anthropic.json", import.meta.url).pathname,
+    openai: new URL("./schema/pedaco.llm.openai.json", import.meta.url).pathname,
+  },
+} as const;
+
+/** Nome da saida estruturada no output_config (estavel — identifica a gramatica por alvo). */
+export const NOME_SAIDA_ESTRUTURADA_ROTEIRO = "roteiro" as const;
+export const NOME_SAIDA_ESTRUTURADA_PEDACO = "pedaco" as const;
+
+/** O schema podado nao pode ser carregado (arquivo ausente ou JSON quebrado). */
+export class ESchemaPodadoAusente extends Error {
+  readonly caminho: string;
+
+  constructor(caminho: string, detalhe?: string) {
+    super(
+      `Schema podado do gerador nao carregado: ${caminho}\n` +
+        `  Os schemas podados (subset strict-mode por fornecedor) vivem em ` +
+        `src/roteiro/gerador/schema/ e sao parte do contrato do gerador.\n` +
+        (detalhe ? `  detalhe: ${detalhe}\n` : ""),
+    );
+    this.name = "ESchemaPodadoAusente";
+    this.caminho = caminho;
+  }
+}
+
+/** Le e parseia um schema podado do disco (erro NOMEADO, nunca silencio). */
+function lerSchemaPodado(caminho: string): unknown {
+  try {
+    return JSON.parse(readFileSync(caminho, "utf-8")) as unknown;
+  } catch (erro) {
+    throw new ESchemaPodadoAusente(caminho, (erro as Error).message);
+  }
+}
+
+/**
+ * O schema podado por fornecedor e por alvo — o subset strict-mode que
+ * VIAJA na chamada (llm-authoring: o schema podado restringe a emissao;
+ * o schema completo valida a resposta, no gate do gerador). Lido do
+ * disco a CADA montagem (a disciplina da autoria, montarEntrada): se o
+ * schema podado mudar, a request muda — e o fingerprint da chave muda.
+ */
+export function carregarSchemaPodado(provedor: ProvedorLlm, alvo: AlvoChamadaLlm): unknown {
+  return lerSchemaPodado(CAMINHO_SCHEMA_LLM[alvo][provedor]);
+}
+
+/**
+ * O FINGERPRINT do schema podado de um alvo: sha256 do JSON CANONICO
+ * (chaves ordenadas — canonicalizar) dos dois schemas do alvo (o gerador
+ * nao sabe qual fornecedor vai responder; o fingerprint cobre os dois).
+ *
+ * POR QUE EXISTE (C12): o output_config NAO faz parte do prompt — a
+ * chave do store compoe chaveDeCacheGerador(pedido) com sha256(prompt).
+ * Sem o fingerprint, editar um schema podado (ex.: renomear um campo)
+ * mudaria a saida do LLM SEM mudar a chave — resultado velho para schema
+ * novo, para sempre. Com ele, qualquer edicao = MISS sem bump de prompt
+ * nem de versao. Um falso MISS (mudou o schema do outro fornecedor) e
+ * inofensivo — cache e transiente (.cache, gitignored); um falso HIT e
+ * veneno.
+ *
+ * @param alvo o alvo da chamada (completo | pedaco).
+ * @param caminhos override dos caminhos (testes: provam a sensibilidade
+ *   do fingerprint ao conteudo SEM tocar nos arquivos commitados).
+ */
+export function fingerprintDoSchemaPodado(
+  alvo: AlvoChamadaLlm,
+  caminhos: Readonly<Record<ProvedorLlm, string>> = CAMINHO_SCHEMA_LLM[alvo],
+): string {
+  return sha256(
+    canonicalizar({
+      anthropic: lerSchemaPodado(caminhos.anthropic),
+      openai: lerSchemaPodado(caminhos.openai),
+    }),
+  );
 }
 
 // ─── CASSETE — replay offline de roteiros gravados ───────────────────────────

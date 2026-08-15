@@ -54,6 +54,7 @@ import {
   ProvedorSosiaRoteiro,
   criarProvedorCasseteRoteiro,
   criarProvedorLlm,
+  fingerprintDoSchemaPodado,
   gravarCasseteRoteiro,
 } from "../../src/roteiro/gerador/provedor.js";
 import type { ProvedorRoteiro } from "../../src/roteiro/gerador/provedor.js";
@@ -262,10 +263,16 @@ describe("FQ-G1 — o cache do gerador: mesmo brief 2x = mesma saida, zero chama
     expect(comAlternativo.chave).not.toBe(comPadrao.chave);
 
     // A composicao e pura: mesma chave do contrato, prompts diferentes,
-    // chaves do store diferentes.
+    // chaves do store diferentes (o fingerprint do schema entra na chave
+    // desde o REPLAN P1 — mesmo fingerprint, a comparacao isola o prompt).
     const contrato = chaveDeCacheGerador(pedido);
-    expect(chaveDoStore(contrato, "prompt A")).not.toBe(chaveDoStore(contrato, "prompt B"));
-    expect(chaveDoStore(contrato, "prompt A")).toBe(chaveDoStore(contrato, "prompt A"));
+    const fingerprint = fingerprintDoSchemaPodado("completo");
+    expect(chaveDoStore(contrato, "prompt A", fingerprint)).not.toBe(
+      chaveDoStore(contrato, "prompt B", fingerprint),
+    );
+    expect(chaveDoStore(contrato, "prompt A", fingerprint)).toBe(
+      chaveDoStore(contrato, "prompt A", fingerprint),
+    );
   });
 
   it("CACHE ENVENENADO com conteudo valido mas INVALIDO e rejeitado pelo gate (nunca entra no pipeline)", async () => {

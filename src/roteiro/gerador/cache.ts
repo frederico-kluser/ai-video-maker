@@ -6,19 +6,31 @@
  * (chaveDeCacheGerador em src/roteiro/contrato/cache.ts); este modulo
  * e o disco.
  *
- * A chave do STORE COMPOE a chave do contrato com o sha256 do prompt:
+ * A chave do STORE COMPOE a chave do contrato com o sha256 do prompt E
+ * com o FINGERPRINT do schema podado:
  *
- *   chaveDoStore = sha256(chaveDeCacheGerador(pedido) + ":" + sha256(prompt))
+ *   chaveDoStore = sha256(chaveDeCacheGerador(pedido)
+ *                         + ":" + sha256(prompt)
+ *                         + ":" + fingerprintDoSchemaPodado(alvo))
  *
- * Por que compor (C12): o contrato congelou a chave como
+ * Por que compor com o prompt (C12): o contrato congelou a chave como
  * sha256(canonical_json(pedido)) — o pedido NAO carrega o texto do
  * prompt. Mas a saida muda quando o prompt muda (docs/roteiro/prompts/):
  * o prompt alterado SEM bump de versao serviria resultado velho para
  * sempre. Com a composicao, qualquer edicao no prompt-roteirista
- * principal ou no prompt-regenerar-pedaco e MISS automatico — nunca
- * resultado velho para prompt novo. O teste FQ-C3 (que exercita a chave
- * do contrato diretamente) permanece intocado: a composicao vive no
- * store, que e do gerador.
+ * principal ou no prompt-regenerar-pedaco e MISS automatico.
+ *
+ * Por que compor com o fingerprint do schema (C12, REPLAN P1): o
+ * output_config NAO faz parte do prompt — o schema podado por
+ * fornecedor (src/roteiro/gerador/schema/) muda a saida do LLM sem
+ * tocar no texto do prompt. O fingerprint (sha256 do JSON canonico dos
+ * schemas do alvo, provedor.ts) amarra o schema a chave: schema
+ * editado = MISS sem bump de prompt nem de versao. O fingerprint e por
+ * ALVO (completo | pedaco): renomear um campo do schema da regeneracao
+ * nao invalida o cache da geracao completa.
+ *
+ * O teste FQ-C3 (que exercita a chave do contrato diretamente)
+ * permanece intocado: a composicao vive no store, que e do gerador.
  *
  * Regras:
  *   - escrita atomica (tmp + rename): um processo nunca le arquivo pela
@@ -57,10 +69,19 @@ export function sha256(texto: string): string {
 
 /**
  * A chave do STORE do cache: a chave do contrato (sha256 do pedido
- * canonico) composta com o sha256 do prompt — ver cabecalho do modulo.
+ * canonico) composta com o sha256 do prompt E com o fingerprint do
+ * schema podado do alvo — ver cabecalho do modulo.
+ *
+ * @param fingerprintDoSchema fingerprintDoSchemaPodado(alvo) — C12: o
+ *   output_config nao faz parte do prompt; sem o fingerprint, schema
+ *   podado editado serviria resultado velho para sempre.
  */
-export function chaveDoStore(chaveDoContrato: string, prompt: string): string {
-  return sha256(`${chaveDoContrato}:${sha256(prompt)}`);
+export function chaveDoStore(
+  chaveDoContrato: string,
+  prompt: string,
+  fingerprintDoSchema: string,
+): string {
+  return sha256(`${chaveDoContrato}:${sha256(prompt)}:${fingerprintDoSchema}`);
 }
 
 /** Caminho do arquivo de cache para uma chave do store. */

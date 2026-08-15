@@ -1,0 +1,63 @@
+{
+  "title": "Roteiro v1 — subset Anthropic",
+  "description": "Subset do schema COMPLETO do roteiro (src/roteiro/contrato/schema/roteiro.schema.json) podado para o modo estrito da Anthropic (output_config.format, json_schema) — o schema que VIAJA na chamada LLM da geracao completa. So o que o LLM decide: pedacos (titulo, fala, duracao_segundos, tipo_visual sem gif/video, especificacao_visual, detalhes_de_producao) + schema_version + duracao_total_segundos. DECISAO DO SISTEMA, ausente por desenho: id/indice (o gerador deriva da posicao — identidade nunca vem do modelo), narracao (RECORD-FIRST — o gerador normaliza), anexo_hash/anexo_meta e tipo_visual gif/video (anexo e decisao do usuario; a regra anexo-exigido-para-gif-video rejeitaria o pedaco sem anexo). Recusadas e AUSENTES aqui (subset estrito da Anthropic): minimum/maximum/multipleOf/exclusive*, minLength/maxLength, maxItems, oneOf, pattern, recursao, $ref externo; additionalProperties:false em todo objeto; minItems so 0|1; enum so de escalares. As invariantes de negocio (duracao positiva, teto de 40 pedacos, campos nao vazios) vivem APENAS no schema completo, contra o qual a saida e validada (gate rejeitarRoteiroInvalido).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "pedacos",
+    "duracao_total_segundos"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "Roteiro.1"
+    },
+    "pedacos": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "titulo",
+          "fala",
+          "duracao_segundos",
+          "tipo_visual",
+          "especificacao_visual",
+          "detalhes_de_producao"
+        ],
+        "properties": {
+          "titulo": {
+            "type": "string"
+          },
+          "fala": {
+            "type": "string"
+          },
+          "duracao_segundos": {
+            "type": "number"
+          },
+          "tipo_visual": {
+            "type": "string",
+            "enum": [
+              "manim",
+              "grafico",
+              "texto",
+              "lista",
+              "cabecalho"
+            ]
+          },
+          "especificacao_visual": {
+            "type": "string"
+          },
+          "detalhes_de_producao": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "duracao_total_segundos": {
+      "type": "number"
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "title": "Pedaco v1 — subset OpenAI strict (regeneracao)",
+  "description": "Subset do schema do Pedaco (src/roteiro/contrato/schema/roteiro.schema.json, $defs Pedaco) podado para o strict da OpenAI (response_format.json_schema, strict:true) — o schema que VIAJA na chamada LLM da REGENERACAO de um pedaco. Regras do modo estrito da OpenAI aplicadas aqui: TODAS as propriedades em required (nao ha opcional neste subset), additionalProperties:false em todo objeto, raiz objeto, const SEMPRE com type, sem allOf/not/if/then/else/dependent*; minLength aceito pelo strict e usado para guiar a emissao (titulo/especificacao/detalhes nao vazios). Diferenca do subset do roteiro completo: tipo_visual carrega o vocabularo FECHADO INTEIRO (inclusive gif/video) — a regeneracao pode MANTER um alvo gif/video (o anexo do usuario e reaplicado pelo sistema; nunca emitido pelo modelo). DECISAO DO SISTEMA, ausente por desenho: id/indice (o gerador reaplica os do pedaco alvo — regenerar nunca renumera, FQ-G2), narracao (RECORD-FIRST — o gerador normaliza), anexo_hash/anexo_meta (reaplicados do pedido quando gif/video). As invariantes de negocio vivem APENAS no schema completo, contra o qual a saida e validada (gate rejeitarPedacoInvalido).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "titulo",
+    "fala",
+    "duracao_segundos",
+    "tipo_visual",
+    "especificacao_visual",
+    "detalhes_de_producao"
+  ],
+  "properties": {
+    "titulo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "fala": {
+      "type": "string"
+    },
+    "duracao_segundos": {
+      "type": "number"
+    },
+    "tipo_visual": {
+      "type": "string",
+      "enum": [
+        "manim",
+        "grafico",
+        "gif",
+        "video",
+        "texto",
+        "lista",
+        "cabecalho"
+      ]
+    },
+    "especificacao_visual": {
+      "type": "string",
+      "minLength": 1
+    },
+    "detalhes_de_producao": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}
